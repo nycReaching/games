@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji Slot Evolution</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #2b0a3d, #0a1a3d);
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+        .game-container {
+            background-color: #1e1e1e;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            width: 900px;
+            display: flex;
+        }
+        .game-area { flex: 3; }
+        .info-panel {
+            flex: 1;
+            padding-left: 20px;
+            border-left: 1px solid #444;
+            font-size: 0.9em; /* Make info panel text smaller */
+            margin-left: 20px; /* Push info panel further to the right */
+        }
+        .game-title {
+            text-align: center;
+            color: #bb86fc;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            text-shadow: 0 0 10px rgba(187, 134, 252, 0.5);
+            background: linear-gradient(45deg, #9c4dcc, #bb86fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding: 10px;
+            border-bottom: 2px solid #9c4dcc;
+        }
+        h2, h3 {
+            text-align: center;
+            color: #bb86fc;
+            margin-bottom: 15px;
+            font-size: 1.2em; /* Smaller headings in info panel */
+        }
+        .slot-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-gap: 10px;
+            margin: 20px 0;
+        }
+        .slot-cell {
+            background-color: #2d2d2d;
+            border: 2px solid #444;
+            border-radius: 10px;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s, background-color 0.3s;
+        }
+        .slot-cell.spinning {
+            background-color: #3d3d3d;
+            transform: scale(0.95);
+        }
+        .boss-cell {
+            background-color: #8b0000; /* Dark red background for boss */
+        }
+        .game-status {
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #2d2d2d;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .coins {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        .spins-left {
+            font-size: 18px;
+            color: #b0b0b0;
+        }
+        .total-spins {
+            font-size: 16px;
+            color: #b0b0b0;
+            margin-top: 5px;
+        }
+        button {
+            padding: 12px 18px; /* Larger padding */
+            margin: 8px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            color: white;
+            font-size: 16px; /* Larger font */
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .spin-btn {
+            background-color: #03dac6;
+            font-size: 20px; /* Even larger font for spin button */
+            padding: 14px 28px;
+            width: 100%;
+            margin: 10px 0;
+            color: #000;
+        }
+        .evolve-fish { background-color: #4f9cc9; }
+        .evolve-cat { background-color: #fd9426; }
+        .horse-boost { background-color: #cf6ff5; }
+        .bird-boost { background-color: #ff5f5f; }
+        .use-key { background-color: #00c853; }
+        .bank-loan { background-color: #3cb371; }
+        .boss-meter {
+            display: none;
+            margin-top: 15px;
+            text-align: center;
+        }
+        .boss-bar {
+            height: 20px;
+            background-color: #444;
+            border-radius: 10px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        .boss-progress {
+            width: 0%;
+            height: 100%;
+            background-color: #cf6679;
+            transition: width 0.5s;
+        }
+        .game-over, .win-screen {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 999;
+        }
+        .game-over {
+            background-color: rgba(20, 20, 20, 0.9);
+            color: white;
+            border: 2px solid #cf6679;
+        }
+        .win-screen {
+            background-color: rgba(0, 200, 83, 0.9);
+            color: white;
+            border: 2px solid #03dac6;
+        }
+        .restart-btn {
+            background-color: #cf6679;
+            padding: 12px 24px;
+            margin-top: 20px;
+        }
+        @keyframes flash {
+            0% { background-color: #2d2d2d; }
+            50% { background-color: #bb86fc; }
+            100% { background-color: #2d2d2d; }
+        }
+        .winning-cell { animation: flash 1s ease-in-out; }
+        .damage-flash {
+            animation: flash 0.5s ease-in-out;
+            background-color: #ff4d4d !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-area">
+            <div class="game-title">Emoji Slot Evolution</div>
+            
+            <div class="slot-grid" id="slotGrid">
+                <div class="slot-cell" id="cell-0"></div>
+                <div class="slot-cell" id="cell-1"></div>
+                <div class="slot-cell" id="cell-2"></div>
+                <div class="slot-cell" id="cell-3"></div>
+                <div class="slot-cell" id="cell-4"></div>
+                <div class="slot-cell" id="cell-5"></div>
+                <div class="slot-cell" id="cell-6"></div>
+                <div class="slot-cell" id="cell-7"></div>
+                <div class="slot-cell" id="cell-8"></div>
+            </div>
+            
+            <div class="game-status">
+                <div class="coins">Coins: <span id="coinCount">250</span></div>
+                <div class="spins-left">Payment in <span id="spinsLeft">20</span> spins (<span id="paymentAmount">200</span> coins)</div>
+                <div class="total-spins">Total Spins Left: <span id="totalSpins">200</span></div>
+                <div id="winMessage" style="color: #03dac6; font-weight: bold; margin-top: 5px;"></div>
+            </div>
+            
+            <button class="spin-btn" id="spinButton">Spin (10 coins)</button>
+            
+            <div class="boss-meter" id="bossMeter">
+                <div>Boss Damage: <span id="bossDamage">0</span>/5</div>
+                <div class="boss-bar">
+                    <div class="boss-progress" id="bossProgress"></div>
+                </div>
+            </div>
+            
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; margin-top: 15px;">
+                <button class="action-btn evolve-fish" id="evolveFish">🐳 Evolve One Fish (50 coins)</button>
+                <button class="action-btn evolve-cat" id="evolveCat">🐅 Evolve One Cat (15 coins)</button>
+                <button class="action-btn horse-boost" id="horseBoost">🦄 Mythic Evolve Horses (500 coins)</button>
+                <button class="action-btn bird-boost" id="birdBoost">🐦‍🔥 Mythic Evolve Birds (500 coins)</button>
+                <button class="action-btn use-key" id="useKey">🔑 Use Key (50 coins)</button>
+                <button class="action-btn bank-loan" id="bankLoan" style="background-color: #3cb371;">🏦 Bank Loan: -10 spins for +150 coins (1 use)</button>
+            </div>
+        </div>
+        
+        <div class="info-panel">
+            <h2>Game Info</h2>
+            <p><strong>Goal:</strong> Spin to win coins and defeat the boss within 200 spins!</p>
+            <p><strong>Cost:</strong> 10 coins per spin</p>
+            <p><strong>Payment:</strong> Increases by 100 coins every 20 spins</p>
+            
+            <h3>Starting Symbols:</h3>
+            <p>🐎 Horse, 🐦 Bird, 🐟 Fish, 🐈 Cat<br>
+            Any 3 connected = 50 coins</p>
+            <p>🔒 Lock (becomes the boss when unlocked)</p>
+            
+            <h3>Evolved Symbols:</h3>
+            <p>🐳 Whale: Connects with Fish + 10 bonus coins each</p>
+            <p>🐅 Tiger: Connects with Cats, 3 Tigers = 250 bonus!</p>
+            <p>🦄 Unicorn: 3 connected = 125 coins + adds ✨ to bag</p>
+            <p>🐦‍🔥 Phoenix: 3 connected = 125 coins + adds 🔥 to bag</p>
+            
+            <h3>Special Features:</h3>
+            <p><strong>Bank Loan:</strong> Trade 10 spins for 150 coins. Use strategically!</p>
+            
+            <h3>Boss Battle:</h3>
+            <p>The 🔒 can be unlocked after evolving Horses or Birds</p>
+            <p>👹 Boss costs 100 coins when it appears on the grid</p>
+            <p>Deal damage with ✨ or 🔥 symbols adjacent to boss</p>
+            <p>Defeat boss by dealing 5 damage</p>
+        </div>
+        </div>
+    </div>
+    
+    <div class="game-over" id="gameOver">
+        <h2>Game Over!</h2>
+        <p>You've run out of coins!</p>
+        <button class="restart-btn" onclick="resetGame()">Play Again</button>
+    </div>
+    
+    <div class="win-screen" id="winScreen">
+        <h2>You Win!</h2>
+        <p>You defeated the boss! Congratulations!</p>
+        <button class="restart-btn" onclick="resetGame()">Play Again</button>
+    </div>
+
+    <script>
+        // Game variables
+        let coins = 250;
+        let spinsUntilPayment = 20;
+        let currentPaymentAmount = 200;
+        let totalSpins = 200; // Changed from 250 to 200
+        let bag = [];
+        let specialBag = []; // New separate bag for special symbols (✨ and 🔥)
+        let bossDamage = 0;
+        let bossUnlocked = false;
+        let bankLoanUsed = false; // Track if bank loan has been used
+        
+        // Symbol definitions
+        const SYMBOLS = {
+            HORSE: '🐎', BIRD: '🐦', FISH: '🐟', CAT: '🐈', LOCK: '🔒',
+            WHALE: '🐳', TIGER: '🐅', UNICORN: '🦄', PHOENIX: '🐦‍🔥',
+            BOSS: '👹', STAR: '✨', FIRE: '🔥'
+        };
+        
+        // Game state tracking - fixes persistence of evolutions
+        let gameState = {
+            fishEvolved: 0,
+            catEvolved: 0,
+            horsesEvolved: false,
+            birdsEvolved: false
+        };
+        
+        // Initialize the game
+        function initGame() {
+            resetBag();
+            updateCoins();
+            updateSpinsLeft();
+            updateTotalSpins();
+            
+            // Add event listeners
+            document.getElementById('spinButton').addEventListener('click', spin);
+            document.getElementById('evolveFish').addEventListener('click', evolveFish);
+            document.getElementById('evolveCat').addEventListener('click', evolveCat);
+            document.getElementById('horseBoost').addEventListener('click', boostHorses);
+            document.getElementById('birdBoost').addEventListener('click', boostBirds);
+            document.getElementById('useKey').addEventListener('click', useKey);
+            document.getElementById('bankLoan').addEventListener('click', takeBankLoan);
+            
+            // Initial board setup
+            updateBoard(Array(9).fill(''));
+        }
+        
+        // Reset the bag of symbols
+        function resetBag() {
+            bag = [];
+            // Only reset special bag if not set or at game start
+            if (!specialBag) {
+                specialBag = [];
+            }
+            
+            // Count symbols on current board to maintain proper distribution
+            const currentBoard = Array.from(document.querySelectorAll('.slot-cell')).map(cell => cell.textContent);
+            const symbolsInPlay = {};
+            
+            // Count each symbol type on the board
+            Object.values(SYMBOLS).forEach(symbol => {
+                symbolsInPlay[symbol] = currentBoard.filter(s => s === symbol).length;
+            });
+            
+            // Add 10 of each animal symbol, accounting for evolutions and symbols in play
+            const horsesToAdd = 10 - (symbolsInPlay[SYMBOLS.HORSE] || 0) - (symbolsInPlay[SYMBOLS.UNICORN] || 0);
+            const birdsToAdd = 10 - (symbolsInPlay[SYMBOLS.BIRD] || 0) - (symbolsInPlay[SYMBOLS.PHOENIX] || 0);
+            const fishToAdd = 10 - (symbolsInPlay[SYMBOLS.FISH] || 0) - (symbolsInPlay[SYMBOLS.WHALE] || 0);
+            const catsToAdd = 10 - (symbolsInPlay[SYMBOLS.CAT] || 0) - (symbolsInPlay[SYMBOLS.TIGER] || 0);
+            
+            // Add horses/unicorns
+            for (let i = 0; i < Math.max(0, horsesToAdd); i++) {
+                bag.push(gameState.horsesEvolved ? SYMBOLS.UNICORN : SYMBOLS.HORSE);
+            }
+            
+            // Add birds/phoenixes
+            for (let i = 0; i < Math.max(0, birdsToAdd); i++) {
+                bag.push(gameState.birdsEvolved ? SYMBOLS.PHOENIX : SYMBOLS.BIRD);
+            }
+            
+            // Add fish/whales based on evolution count
+            for (let i = 0; i < Math.max(0, fishToAdd); i++) {
+                if (i < gameState.fishEvolved) {
+                    bag.push(SYMBOLS.WHALE);
+                } else {
+                    bag.push(SYMBOLS.FISH);
+                }
+            }
+            
+            // Add cats/tigers based on evolution count
+            for (let i = 0; i < Math.max(0, catsToAdd); i++) {
+                if (i < gameState.catEvolved) {
+                    bag.push(SYMBOLS.TIGER);
+                } else {
+                    bag.push(SYMBOLS.CAT);
+                }
+            }
+            
+            // Add boss or lock if not already on board
+            const lockOrBossOnBoard = currentBoard.includes(SYMBOLS.LOCK) || currentBoard.includes(SYMBOLS.BOSS);
+            if (!lockOrBossOnBoard) {
+                bag.push(bossUnlocked ? SYMBOLS.BOSS : SYMBOLS.LOCK);
+            }
+            
+            console.log("Bag reset. New bag size: " + bag.length);
+        }
+        
+        // Update UI functions
+        function updateCoins() {
+            document.getElementById('coinCount').textContent = coins;
+            
+            // Enable/disable buttons based on coin amount
+            document.getElementById('spinButton').disabled = coins < 10;
+            
+            // Update evolution buttons with count remaining
+            const fishLeft = 10 - gameState.fishEvolved;
+            const catLeft = 10 - gameState.catEvolved;
+            
+            document.getElementById('evolveFish').textContent = `🐳 Evolve One Fish (50 coins) - ${fishLeft} left`;
+            document.getElementById('evolveFish').disabled = coins < 50 || gameState.fishEvolved >= 10;
+            
+            document.getElementById('evolveCat').textContent = `🐅 Evolve One Cat (15 coins) - ${catLeft} left`;
+            document.getElementById('evolveCat').disabled = coins < 15 || gameState.catEvolved >= 10;
+            
+            document.getElementById('horseBoost').disabled = coins < 500 || gameState.horsesEvolved;
+            document.getElementById('birdBoost').disabled = coins < 500 || gameState.birdsEvolved;
+            
+            // Only enable key if a Mythic Evolution has been used
+            const canUnlockBoss = (gameState.horsesEvolved || gameState.birdsEvolved) && !bossUnlocked;
+            document.getElementById('useKey').disabled = coins < 50 || !canUnlockBoss;
+            
+            document.getElementById('bankLoan').disabled = bankLoanUsed;
+        }
+        
+        function updateSpinsLeft() {
+            document.getElementById('spinsLeft').textContent = spinsUntilPayment;
+            document.getElementById('paymentAmount').textContent = currentPaymentAmount;
+        }
+        
+        function updateTotalSpins() {
+            document.getElementById('totalSpins').textContent = totalSpins;
+        }
+        
+        function updateBoard(symbols) {
+            for (let i = 0; i < 9; i++) {
+                const cell = document.getElementById(`cell-${i}`);
+                cell.textContent = symbols[i];
+                
+                // Add boss styling for boss cells
+                if (symbols[i] === SYMBOLS.BOSS) {
+                    cell.classList.add('boss-cell');
+                } else {
+                    cell.classList.remove('boss-cell');
+                }
+            }
+        }
+        
+        // Global flag to track if a lock/boss has been drawn this spin
+        let lockOrBossDrawnThisSpin = false;
+
+        // Get random symbol from bag with proper lock/boss handling
+        function getRandomSymbol() {
+            // Chance to get a special symbol if available
+            if (specialBag.length > 0 && Math.random() < 0.15) {
+                const index = Math.floor(Math.random() * specialBag.length);
+                return specialBag[index]; // Don't remove from special bag
+            }
+            
+            // Check if bag needs to be reset
+            if (bag.length === 0) {
+                resetBag();
+            }
+            
+            // Remove all locks/bosses from the bag before selecting
+            for (let i = bag.length - 1; i >= 0; i--) {
+                if ((bag[i] === SYMBOLS.LOCK || bag[i] === SYMBOLS.BOSS) && lockOrBossDrawnThisSpin) {
+                    bag.splice(i, 1);
+                }
+            }
+            
+            // Get a random symbol from what's left in the bag
+            const index = Math.floor(Math.random() * bag.length);
+            const symbol = bag.splice(index, 1)[0];
+            
+            // Update flag if we got a lock/boss
+            if (symbol === SYMBOLS.LOCK || symbol === SYMBOLS.BOSS) {
+                lockOrBossDrawnThisSpin = true;
+            }
+            
+            return symbol;
+        }
+        
+        // Spin the slot machine
+        async function spin() {
+            if (coins < 10) return;
+            
+            coins -= 10;
+            totalSpins--;
+            updateCoins();
+            updateTotalSpins();
+            
+            document.getElementById('winMessage').textContent = '';
+            
+            const cells = Array.from(document.querySelectorAll('.slot-cell'));
+            cells.forEach(cell => cell.classList.add('spinning'));
+            
+            // Reset lock/boss tracking flag before each spin
+            lockOrBossDrawnThisSpin = false;
+            
+            const newSymbols = [];
+            for (let i = 0; i < 9; i++) {
+                newSymbols.push(getRandomSymbol());
+            }
+            
+            // Verify no duplicates of lock/boss (extra safety check)
+            let lockOrBossCount = 0;
+            for (let symbol of newSymbols) {
+                if (symbol === SYMBOLS.LOCK || symbol === SYMBOLS.BOSS) {
+                    lockOrBossCount++;
+                }
+            }
+            
+            // Debug - log if there's ever more than one lock/boss
+            if (lockOrBossCount > 1) {
+                console.error("ERROR: Multiple locks/bosses detected in spin! Count:", lockOrBossCount);
+            }
+            
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            cells.forEach((cell, i) => {
+                cell.classList.remove('spinning');
+                cell.textContent = newSymbols[i];
+                
+                // Add boss styling for boss cells
+                if (newSymbols[i] === SYMBOLS.BOSS) {
+                    cell.classList.add('boss-cell');
+                } else {
+                    cell.classList.remove('boss-cell');
+                }
+            });
+            
+            // Check connections and save the win message
+            const winMessage = checkConnections(newSymbols);
+            
+            if (bossUnlocked) {
+                processBossDamage(newSymbols);
+            }
+            
+            spinsUntilPayment--;
+            updateSpinsLeft();
+            
+            // Check if payment is due
+            if (spinsUntilPayment === 0) {
+                if (coins >= currentPaymentAmount) {
+                    coins -= currentPaymentAmount;
+                    spinsUntilPayment = 20;
+                    
+                    // Combine win message and payment message
+                    if (winMessage) {
+                        document.getElementById('winMessage').textContent = 
+                            `${winMessage} | Payment processed: -${currentPaymentAmount} coins`;
+                    } else {
+                        document.getElementById('winMessage').textContent = 
+                            `Payment processed: -${currentPaymentAmount} coins`;
+                    }
+                    
+                    // Increase payment for next round
+                    currentPaymentAmount += 100;
+                    
+                    updateCoins();
+                    updateSpinsLeft();
+                } else {
+                    gameOver("You couldn't afford the payment!");
+                }
+            }
+            
+            // Check if spin limit reached
+            if (totalSpins <= 0 && document.getElementById('winScreen').style.display !== 'block') {
+                gameOver("You ran out of spins without defeating the boss!");
+            }
+        }
+        
+        // Check if symbols are part of the same family (fish/whale or cat/tiger)
+        function areRelatedSymbols(symbol1, symbol2, family) {
+            if (family === 'aquatic') {
+                return [SYMBOLS.FISH, SYMBOLS.WHALE].includes(symbol1) && 
+                       [SYMBOLS.FISH, SYMBOLS.WHALE].includes(symbol2);
+            } else if (family === 'feline') {
+                return [SYMBOLS.CAT, SYMBOLS.TIGER].includes(symbol1) && 
+                       [SYMBOLS.CAT, SYMBOLS.TIGER].includes(symbol2);
+            }
+            return false;
+        }
+        
+        // Check for winning connections
+        function checkConnections(symbols) {
+            const winningCells = new Set();
+            let winAmount = 0;
+            let winMessages = [];
+            
+            // All possible winning lines
+            const lines = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+                [0, 4, 8], [2, 4, 6]             // diagonals
+            ];
+            
+            // Check each line
+            lines.forEach(line => {
+                const [a, b, c] = line;
+                const symbolA = symbols[a];
+                const symbolB = symbols[b];
+                const symbolC = symbols[c];
+                
+                if (!symbolA || !symbolB || !symbolC) return;
+                
+                // Check for 3 identical symbols
+                if (symbolA === symbolB && symbolB === symbolC) {
+                    line.forEach(idx => winningCells.add(idx));
+                    
+                    if (symbolA === SYMBOLS.UNICORN) {
+                        winAmount += 125;
+                        specialBag.push(SYMBOLS.STAR);
+                        winMessages.push('3 Unicorns! +125 coins and added ✨ to bag!');
+                    } else if (symbolA === SYMBOLS.PHOENIX) {
+                        winAmount += 125;
+                        specialBag.push(SYMBOLS.FIRE);
+                        winMessages.push('3 Phoenixes! +125 coins and added 🔥 to bag!');
+                    } else if (symbolA === SYMBOLS.TIGER) {
+                        winAmount += 250;
+                        winMessages.push('3 Tigers! +250 coins!');
+                    } else if ([SYMBOLS.HORSE, SYMBOLS.BIRD, SYMBOLS.FISH, SYMBOLS.CAT, SYMBOLS.WHALE].includes(symbolA)) {
+                        winAmount += 50;
+                        winMessages.push(`3 ${symbolA}s connected! +50 coins!`);
+                    }
+                }
+                // Check for mixed connections
+                else if (areRelatedSymbols(symbolA, symbolB, 'aquatic') && 
+                         areRelatedSymbols(symbolB, symbolC, 'aquatic')) {
+                    line.forEach(idx => winningCells.add(idx));
+                    winAmount += 50;
+                    winMessages.push('Fish/Whale connection! +50 coins!');
+                }
+                else if (areRelatedSymbols(symbolA, symbolB, 'feline') && 
+                         areRelatedSymbols(symbolB, symbolC, 'feline')) {
+                    line.forEach(idx => winningCells.add(idx));
+                    winAmount += 50;
+                    winMessages.push('Cat/Tiger connection! +50 coins!');
+                }
+            });
+            
+            // Whale bonus - flash individual whales
+            const whaleCount = symbols.filter(s => s === SYMBOLS.WHALE).length;
+            if (whaleCount > 0) {
+                winAmount += whaleCount * 10; // Changed from 5 to 10
+                winMessages.push(`+${whaleCount * 10} from Whales!`);
+                
+                // Flash individual whale cells
+                symbols.forEach((symbol, index) => {
+                    if (symbol === SYMBOLS.WHALE) {
+                        winningCells.add(index);
+                    }
+                });
+            }
+            
+            // Boss penalty
+            const bossCount = symbols.filter(s => s === SYMBOLS.BOSS).length;
+            if (bossCount > 0) {
+                const bossPenalty = bossCount * 100;
+                winAmount -= bossPenalty;
+                winMessages.push(`-${bossPenalty} from Boss!`);
+            }
+            
+            // Apply winnings
+            if (winAmount > 0) {
+                coins += winAmount;
+                document.getElementById('winMessage').textContent = winMessages.join(' ') || `Win! +${winAmount} coins!`;
+            } else if (winAmount < 0) {
+                coins += winAmount;
+                document.getElementById('winMessage').textContent = winMessages.join(' ') || `Lost ${Math.abs(winAmount)} coins!`;
+            }
+            
+            // Flash winning cells
+            Array.from(winningCells).forEach(index => {
+                const cell = document.getElementById(`cell-${index}`);
+                cell.classList.add('winning-cell');
+                setTimeout(() => cell.classList.remove('winning-cell'), 1000);
+            });
+            
+            updateCoins();
+            
+            if (coins <= 0) {
+                gameOver("You've run out of coins!");
+            }
+            
+            // Return the win message for payment processing
+            return winMessages.join(' ') || (winAmount !== 0 ? `${winAmount > 0 ? 'Win' : 'Lost'} ${Math.abs(winAmount)} coins!` : '');
+        }
+        
+        // Evolution functions - FIXED to always work properly
+        function evolveFish() {
+            if (coins >= 50 && gameState.fishEvolved < 10) {
+                coins -= 50;
+                gameState.fishEvolved++; // Increment evolution count first
+                
+                updateCoins(); // This will update button state based on the new evolution count
+                
+                // Update the message
+                document.getElementById('winMessage').textContent = '1 Fish evolved to Whale!';
+                
+                // Reset the bag to apply evolution immediately
+                resetBag();
+            }
+        }
+        
+        function evolveCat() {
+            if (coins >= 15 && gameState.catEvolved < 10) {
+                coins -= 15;
+                gameState.catEvolved++; // Increment evolution count first
+                
+                updateCoins(); // This will update button state based on the new evolution count
+                
+                // Update the message
+                document.getElementById('winMessage').textContent = '1 Cat evolved to Tiger!';
+                
+                // Reset the bag to apply evolution immediately
+                resetBag();
+            }
+        }
+        
+        function boostHorses() {
+            if (coins >= 500 && !gameState.horsesEvolved) {
+                coins -= 500;
+                gameState.horsesEvolved = true;
+                
+                updateCoins();
+                document.getElementById('winMessage').textContent = 'All Horses evolved to Unicorns!';
+                document.getElementById('horseBoost').disabled = true;
+                
+                // Reset the bag to apply evolution immediately
+                resetBag();
+            }
+        }
+        
+        function boostBirds() {
+            if (coins >= 500 && !gameState.birdsEvolved) {
+                coins -= 500;
+                gameState.birdsEvolved = true;
+                
+                updateCoins();
+                document.getElementById('winMessage').textContent = 'All Birds evolved to Phoenixes!';
+                document.getElementById('birdBoost').disabled = true;
+                
+                // Reset the bag to apply evolution immediately
+                resetBag();
+            }
+        }
+        
+        // Use Key to unlock boss - only if mythic evolution has been used
+        function useKey() {
+            const canUnlockBoss = (gameState.horsesEvolved || gameState.birdsEvolved) && !bossUnlocked;
+            
+            if (coins >= 50 && canUnlockBoss) {
+                coins -= 50;
+                updateCoins();
+                
+                // Show boss meter
+                bossUnlocked = true;
+                document.getElementById('bossMeter').style.display = 'block';
+                document.getElementById('useKey').disabled = true;
+                document.getElementById('winMessage').textContent = 'Boss unlocked! Defeat it with ✨ or 🔥!';
+                
+                // Reset the bag to add boss immediately
+                resetBag();
+            }
+        }
+        
+        // Bank Loan function
+        function takeBankLoan() {
+            if (!bankLoanUsed) {
+                coins += 150; // Changed from 100 to 150
+                totalSpins -= 10;
+                bankLoanUsed = true;
+                
+                // Update UI
+                updateCoins();
+                updateTotalSpins();
+                document.getElementById('bankLoan').disabled = true;
+                document.getElementById('winMessage').textContent = 'Bank loan received! +150 coins, -10 spins';
+                
+                // Check if spin limit reached after loan
+                if (totalSpins <= 0) {
+                    gameOver("You ran out of spins after taking a loan!");
+                }
+            }
+        }
+        
+        // Process boss damage
+        function processBossDamage(symbols) {
+            const bossIndex = symbols.indexOf(SYMBOLS.BOSS);
+            
+            if (bossIndex !== -1) {
+                let damageDealt = 0;
+                
+                // Calculate row and column
+                const row = Math.floor(bossIndex / 3);
+                const col = bossIndex % 3;
+                
+                // Check all 8 adjacent cells for stars or fire
+                const directions = [
+                    [-1, -1], [-1, 0], [-1, 1],
+                    [0, -1],           [0, 1],
+                    [1, -1],  [1, 0],  [1, 1]
+                ];
+                
+                for (const [dr, dc] of directions) {
+                    const newRow = row + dr;
+                    const newCol = col + dc;
+                    
+                    if (newRow >= 0 && newRow < 3 && newCol >= 0 && newCol < 3) {
+                        const adjacentIndex = newRow * 3 + newCol;
+                        if (symbols[adjacentIndex] === SYMBOLS.STAR || symbols[adjacentIndex] === SYMBOLS.FIRE) {
+                            damageDealt++;
+                            
+                            // Flash damage cell
+                            const cell = document.getElementById(`cell-${adjacentIndex}`);
+                            cell.classList.add('damage-flash');
+                            setTimeout(() => cell.classList.remove('damage-flash'), 500);
+                        }
+                    }
+                }
+                
+                // Apply damage
+                if (damageDealt > 0) {
+                    bossDamage += damageDealt;
+                    document.getElementById('bossDamage').textContent = bossDamage;
+                    document.getElementById('bossProgress').style.width = `${(bossDamage / 5) * 100}%`;
+                    
+                    const currentMessage = document.getElementById('winMessage').textContent;
+                    document.getElementById('winMessage').textContent = 
+                        currentMessage ? `${currentMessage} Boss took ${damageDealt} damage!` : `Boss took ${damageDealt} damage!`;
+                    
+                    // Check for win
+                    if (bossDamage >= 5) {
+                        playerWin();
+                    }
+                }
+            }
+        }
+        
+        // Game end functions
+        function gameOver(message = "You've run out of coins!") {
+            document.getElementById('gameOver').querySelector('p').textContent = message;
+            document.getElementById('gameOver').style.display = 'block';
+        }
+        
+        function playerWin() {
+            document.getElementById('winScreen').style.display = 'block';
+        }
+        
+        // Reset game function
+        function resetGame() {
+            // Reset game variables
+            coins = 250;
+            spinsUntilPayment = 20;
+            currentPaymentAmount = 200;
+            totalSpins = 200; // Changed from 250 to 200
+            bossDamage = 0;
+            bossUnlocked = false;
+            bankLoanUsed = false; // Reset bank loan used flag
+            
+            // Reset game state - important for proper bag reset!
+            gameState = {
+                fishEvolved: 0,
+                catEvolved: 0,
+                horsesEvolved: false,
+                birdsEvolved: false
+            };
+            
+            // Reset the bags
+            specialBag = [];
+            resetBag();
+            
+            // Update UI
+            updateCoins();
+            updateSpinsLeft();
+            updateTotalSpins();
+            document.getElementById('winMessage').textContent = '';
+            document.getElementById('bossMeter').style.display = 'none';
+            document.getElementById('bossDamage').textContent = '0';
+            document.getElementById('bossProgress').style.width = '0%';
+            
+            // Hide end screens
+            document.getElementById('gameOver').style.display = 'none';
+            document.getElementById('winScreen').style.display = 'none';
+            
+            // Reset board
+            updateBoard(Array(9).fill(''));
+        }
+        
+        // Initialize the game when page loads
+        window.onload = initGame;
+    </script>
+</body>
+</html>
+
+
+
