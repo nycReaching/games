@@ -31,15 +31,24 @@
         }
         .game-title {
             text-align: center;
-            color: #bb86fc;
             margin-bottom: 20px;
             font-size: 2.5em;
-            text-shadow: 0 0 10px rgba(187, 134, 252, 0.5);
-            background: linear-gradient(45deg, #9c4dcc, #bb86fc);
+            padding: 10px;
+            border-bottom: 2px solid #990000;
+        }
+        .orange-text {
+            color: #ff7700;
+            text-shadow: 0 0 10px rgba(255, 119, 0, 0.5);
+            background: linear-gradient(45deg, #ff5500, #ff9900);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            padding: 10px;
-            border-bottom: 2px solid #9c4dcc;
+        }
+        .teal-text {
+            color: #03dac6;
+            text-shadow: 0 0 10px rgba(3, 218, 198, 0.5);
+            background: linear-gradient(45deg, #018786, #03dac6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         h2, h3 {
             text-align: center;
@@ -116,12 +125,55 @@
             margin: 10px 0;
             color: #000;
         }
-        .evolve-fish { background-color: #4f9cc9; }
-        .evolve-cat { background-color: #fd9426; }
-        .horse-boost { background-color: #cf6ff5; }
-        .bird-boost { background-color: #ff5f5f; }
-        .use-key { background-color: #00c853; }
-        .bank-loan { background-color: #3cb371; }
+        .evolve-fish { 
+            background-color: #4f9cc9;
+            font-size: 14px;
+            padding: 8px 12px;
+        }
+        .evolve-cat { 
+            background-color: #fd9426;
+            font-size: 14px;
+            padding: 8px 12px;
+        }
+        .horse-boost { 
+            background-color: #cf6ff5;
+            font-size: 14px;
+            padding: 8px 12px;
+        }
+        .bird-boost { 
+            background-color: #ff5f5f;
+            font-size: 14px;
+            padding: 8px 12px;
+        }
+        .use-key { 
+            background-color: #00c853;
+            font-size: 14px;
+            padding: 8px 12px;
+        }
+        
+        /* Updated Prize Boost button styling - now placed next to action buttons */
+        .prize-boost-btn {
+            background: linear-gradient(45deg, #ffd700, #ffab00);
+            padding: 12px 18px;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            margin: 8px;
+            color: #000;
+            font-weight: bold;
+            height: auto;
+        }
+        .boost-count {
+            text-align: center;
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
         .boss-meter {
             display: none;
             margin-top: 15px;
@@ -176,12 +228,30 @@
             animation: flash 0.5s ease-in-out;
             background-color: #ff4d4d !important;
         }
+        
+        /* Prize boost animation */
+        @keyframes boost-glow {
+            0% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.8); }
+            100% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
+        }
+        .boost-active {
+            animation: boost-glow 1s infinite;
+        }
+        
+        /* Added container for boost button + counter */
+        .boost-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 8px;
+        }
     </style>
 </head>
 <body>
     <div class="game-container">
         <div class="game-area">
-            <div class="game-title">Emoji Slot Evolution</div>
+            <div class="game-title"><span class="orange-text">🐦‍🔥 <strong>EMOJI SLOT</strong></span> <span class="teal-text"><strong>EVOLUTION</strong> 🦄</span></div>
             
             <div class="slot-grid" id="slotGrid">
                 <div class="slot-cell" id="cell-0"></div>
@@ -197,8 +267,8 @@
             
             <div class="game-status">
                 <div class="coins">Coins: <span id="coinCount">250</span></div>
-                <div class="spins-left">Payment in <span id="spinsLeft">20</span> spins (<span id="paymentAmount">200</span> coins)</div>
-                <div class="total-spins">Total Spins Left: <span id="totalSpins">200</span></div>
+                <div class="spins-left">Payment owed in <span id="spinsLeft">20</span> spins (<span id="paymentAmount">200</span> coins)</div>
+                <div class="total-spins">Total Spins Left: <span id="totalSpins">170</span></div>
                 <div id="winMessage" style="color: #03dac6; font-weight: bold; margin-top: 5px;"></div>
             </div>
             
@@ -217,36 +287,38 @@
                 <button class="action-btn horse-boost" id="horseBoost">🦄 Mythic Evolve Horses (500 coins)</button>
                 <button class="action-btn bird-boost" id="birdBoost">🐦‍🔥 Mythic Evolve Birds (500 coins)</button>
                 <button class="action-btn use-key" id="useKey">🔑 Use Key (50 coins)</button>
-                <button class="action-btn bank-loan" id="bankLoan" style="background-color: #3cb371;">🏦 Bank Loan: -10 spins for +150 coins (1 use)</button>
+                
+                <!-- Moved Prize Boost button here -->
+                <div class="boost-container">
+                    <button class="prize-boost-btn" id="prizeBoostBtn" disabled>
+                        🏆 3x BOOST
+                    </button>
+                    <div class="boost-count">Boosts: <span id="boostCount">3</span></div>
+                </div>
             </div>
         </div>
         
         <div class="info-panel">
             <h2>Game Info</h2>
-            <p><strong>Goal:</strong> Spin to win coins and defeat the boss within 200 spins!</p>
-            <p><strong>Cost:</strong> 10 coins per spin</p>
-            <p><strong>Payment:</strong> Increases by 100 coins every 20 spins</p>
+            <p><strong>Goal:</strong> Win coins and defeat the boss within 170 spins</p>
+            <p><strong>Basics:</strong> 10 coins per spin, payment every 20 spins</p>
             
-            <h3>Starting Symbols:</h3>
-            <p>🐎 Horse, 🐦 Bird, 🐟 Fish, 🐈 Cat<br>
-            Any 3 connected = 50 coins</p>
-            <p>🔒 Lock (becomes the boss when unlocked)</p>
-            
-            <h3>Evolved Symbols:</h3>
-            <p>🐳 Whale: Connects with Fish + 10 bonus coins each</p>
-            <p>🐅 Tiger: Connects with Cats, 3 Tigers = 250 bonus!</p>
-            <p>🦄 Unicorn: 3 connected = 125 coins + adds ✨ to bag</p>
-            <p>🐦‍🔥 Phoenix: 3 connected = 125 coins + adds 🔥 to bag</p>
-            
-            <h3>Special Features:</h3>
-            <p><strong>Bank Loan:</strong> Trade 10 spins for 150 coins. Use strategically!</p>
+            <h3>Symbols:</h3>
+            <p>🐎 Horse, 🐦 Bird, 🐟 Fish, 🐈 Cat - Any 3 connected = 50 coins</p>
+            <p>🐳 Whale: Evolves from Fish (60 coins), connects with Fish, +10 bonus per whale</p>
+            <p>🐅 Tiger: Evolves from Cat (20 coins), connects with Cats, 3 Tigers = 250 bonus</p>
+            <p>🦄 Unicorn: Mythic Horse, 3 = 125 coins + ✨</p>
+            <p>🐦‍🔥 Phoenix: Mythic Bird, 3 = 125 coins + 🔥</p>
+            <p>🔒 Lock: Becomes boss when unlocked with key</p>
             
             <h3>Boss Battle:</h3>
-            <p>The 🔒 can be unlocked after evolving Horses or Birds</p>
-            <p>👹 Boss costs 100 coins when it appears on the grid</p>
-            <p>Deal damage with ✨ or 🔥 symbols adjacent to boss</p>
-            <p>Defeat boss by dealing 5 damage</p>
-        </div>
+            <p>Unlock after evolving Horses or Birds, costs 50 coins</p>
+            <p>👹 Boss penalizes 100 coins when appears</p>
+            <p>Damage with ✨ or 🔥 symbols next to boss</p>
+            <p>Win by dealing 5 damage</p>
+            
+            <h3>Special:</h3>
+            <p><strong>Prize Boost:</strong> Triple your last win (3 uses)</p>
         </div>
     </div>
     
@@ -267,12 +339,13 @@
         let coins = 250;
         let spinsUntilPayment = 20;
         let currentPaymentAmount = 200;
-        let totalSpins = 200; // Changed from 250 to 200
+        let totalSpins = 170;
         let bag = [];
-        let specialBag = []; // New separate bag for special symbols (✨ and 🔥)
+        let specialBag = []; // Bag for special symbols (✨ and 🔥)
         let bossDamage = 0;
         let bossUnlocked = false;
-        let bankLoanUsed = false; // Track if bank loan has been used
+        let lastWinAmount = 0; // Track the last win amount for Prize Boost
+        let prizeBoostsRemaining = 3; // Track remaining Prize Boosts
         
         // Symbol definitions
         const SYMBOLS = {
@@ -295,6 +368,7 @@
             updateCoins();
             updateSpinsLeft();
             updateTotalSpins();
+            updatePrizeBoostCount();
             
             // Add event listeners
             document.getElementById('spinButton').addEventListener('click', spin);
@@ -303,7 +377,7 @@
             document.getElementById('horseBoost').addEventListener('click', boostHorses);
             document.getElementById('birdBoost').addEventListener('click', boostBirds);
             document.getElementById('useKey').addEventListener('click', useKey);
-            document.getElementById('bankLoan').addEventListener('click', takeBankLoan);
+            document.getElementById('prizeBoostBtn').addEventListener('click', usePrizeBoost);
             
             // Initial board setup
             updateBoard(Array(9).fill(''));
@@ -380,11 +454,11 @@
             const fishLeft = 10 - gameState.fishEvolved;
             const catLeft = 10 - gameState.catEvolved;
             
-            document.getElementById('evolveFish').textContent = `🐳 Evolve One Fish (50 coins) - ${fishLeft} left`;
-            document.getElementById('evolveFish').disabled = coins < 50 || gameState.fishEvolved >= 10;
+            document.getElementById('evolveFish').textContent = `🐳 Evolve One Fish (60 coins) - ${fishLeft} left`;
+            document.getElementById('evolveFish').disabled = coins < 60 || gameState.fishEvolved >= 10;
             
-            document.getElementById('evolveCat').textContent = `🐅 Evolve One Cat (15 coins) - ${catLeft} left`;
-            document.getElementById('evolveCat').disabled = coins < 15 || gameState.catEvolved >= 10;
+            document.getElementById('evolveCat').textContent = `🐅 Evolve One Cat (20 coins) - ${catLeft} left`;
+            document.getElementById('evolveCat').disabled = coins < 20 || gameState.catEvolved >= 10;
             
             document.getElementById('horseBoost').disabled = coins < 500 || gameState.horsesEvolved;
             document.getElementById('birdBoost').disabled = coins < 500 || gameState.birdsEvolved;
@@ -393,7 +467,8 @@
             const canUnlockBoss = (gameState.horsesEvolved || gameState.birdsEvolved) && !bossUnlocked;
             document.getElementById('useKey').disabled = coins < 50 || !canUnlockBoss;
             
-            document.getElementById('bankLoan').disabled = bankLoanUsed;
+            // Update Prize Boost button
+            updatePrizeBoostButton();
         }
         
         function updateSpinsLeft() {
@@ -403,6 +478,21 @@
         
         function updateTotalSpins() {
             document.getElementById('totalSpins').textContent = totalSpins;
+        }
+        
+        function updatePrizeBoostCount() {
+            document.getElementById('boostCount').textContent = prizeBoostsRemaining;
+        }
+        
+        function updatePrizeBoostButton() {
+            const prizeBoostBtn = document.getElementById('prizeBoostBtn');
+            prizeBoostBtn.disabled = prizeBoostsRemaining <= 0 || lastWinAmount <= 0;
+            
+            if (lastWinAmount > 0 && prizeBoostsRemaining > 0) {
+                prizeBoostBtn.classList.add('boost-active');
+            } else {
+                prizeBoostBtn.classList.remove('boost-active');
+            }
         }
         
         function updateBoard(symbols) {
@@ -503,8 +593,14 @@
                 }
             });
             
+            // Reset last win amount before checking connections
+            lastWinAmount = 0;
+            
             // Check connections and save the win message
             const winMessage = checkConnections(newSymbols);
+            
+            // Update Prize Boost button after spin result
+            updatePrizeBoostButton();
             
             if (bossUnlocked) {
                 processBossDamage(newSymbols);
@@ -616,7 +712,7 @@
             // Whale bonus - flash individual whales
             const whaleCount = symbols.filter(s => s === SYMBOLS.WHALE).length;
             if (whaleCount > 0) {
-                winAmount += whaleCount * 10; // Changed from 5 to 10
+                winAmount += whaleCount * 10;
                 winMessages.push(`+${whaleCount * 10} from Whales!`);
                 
                 // Flash individual whale cells
@@ -634,6 +730,9 @@
                 winAmount -= bossPenalty;
                 winMessages.push(`-${bossPenalty} from Boss!`);
             }
+            
+            // Save the last win amount for Prize Boost
+            lastWinAmount = winAmount;
             
             // Apply winnings
             if (winAmount > 0) {
@@ -661,10 +760,42 @@
             return winMessages.join(' ') || (winAmount !== 0 ? `${winAmount > 0 ? 'Win' : 'Lost'} ${Math.abs(winAmount)} coins!` : '');
         }
         
+        // Prize Boost function - triple the last win amount
+        function usePrizeBoost() {
+            if (prizeBoostsRemaining <= 0 || lastWinAmount <= 0) return;
+            
+            // Calculate boost amount (triple the last win)
+            const boostAmount = lastWinAmount * 2; // Add 2x more (3x total with original win)
+            
+            // Add coins
+            coins += boostAmount;
+            
+            // Update UI
+            const currentMessage = document.getElementById('winMessage').textContent;
+            document.getElementById('winMessage').textContent = 
+                `${currentMessage} | PRIZE BOOST: +${boostAmount} bonus coins!`;
+            
+            // Reduce available boosts
+            prizeBoostsRemaining--;
+            
+            // Reset last win amount to prevent multiple boosts on same win
+            lastWinAmount = 0;
+            
+            // Update UI
+            updateCoins();
+            updatePrizeBoostCount();
+            updatePrizeBoostButton();
+            
+            // Flash the prize boost button
+            const prizeBoostBtn = document.getElementById('prizeBoostBtn');
+            prizeBoostBtn.classList.add('boost-active');
+            setTimeout(() => prizeBoostBtn.classList.remove('boost-active'), 1000);
+        }
+        
         // Evolution functions - FIXED to always work properly
         function evolveFish() {
-            if (coins >= 50 && gameState.fishEvolved < 10) {
-                coins -= 50;
+            if (coins >= 60 && gameState.fishEvolved < 10) {
+                coins -= 60;
                 gameState.fishEvolved++; // Increment evolution count first
                 
                 updateCoins(); // This will update button state based on the new evolution count
@@ -678,8 +809,8 @@
         }
         
         function evolveCat() {
-            if (coins >= 15 && gameState.catEvolved < 10) {
-                coins -= 15;
+            if (coins >= 20 && gameState.catEvolved < 10) {
+                coins -= 20;
                 gameState.catEvolved++; // Increment evolution count first
                 
                 updateCoins(); // This will update button state based on the new evolution count
@@ -736,26 +867,6 @@
                 
                 // Reset the bag to add boss immediately
                 resetBag();
-            }
-        }
-        
-        // Bank Loan function
-        function takeBankLoan() {
-            if (!bankLoanUsed) {
-                coins += 150; // Changed from 100 to 150
-                totalSpins -= 10;
-                bankLoanUsed = true;
-                
-                // Update UI
-                updateCoins();
-                updateTotalSpins();
-                document.getElementById('bankLoan').disabled = true;
-                document.getElementById('winMessage').textContent = 'Bank loan received! +150 coins, -10 spins';
-                
-                // Check if spin limit reached after loan
-                if (totalSpins <= 0) {
-                    gameOver("You ran out of spins after taking a loan!");
-                }
             }
         }
         
@@ -828,10 +939,11 @@
             coins = 250;
             spinsUntilPayment = 20;
             currentPaymentAmount = 200;
-            totalSpins = 200; // Changed from 250 to 200
+            totalSpins = 170;
             bossDamage = 0;
             bossUnlocked = false;
-            bankLoanUsed = false; // Reset bank loan used flag
+            lastWinAmount = 0; // Reset last win amount
+            prizeBoostsRemaining = 3; // Reset Prize Boosts
             
             // Reset game state - important for proper bag reset!
             gameState = {
@@ -849,6 +961,7 @@
             updateCoins();
             updateSpinsLeft();
             updateTotalSpins();
+            updatePrizeBoostCount();
             document.getElementById('winMessage').textContent = '';
             document.getElementById('bossMeter').style.display = 'none';
             document.getElementById('bossDamage').textContent = '0';
@@ -867,6 +980,3 @@
     </script>
 </body>
 </html>
-
-
-
