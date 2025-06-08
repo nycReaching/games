@@ -108,10 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
         petTriggerBtn: document.getElementById('pet-trigger-btn'),
         phoneTriggerBtn: document.getElementById('phone-trigger-btn'),
         
-        windowModalOverlay: document.getElementById('window-modal-overlay'),
-        windowModalCloseBtn: document.getElementById('window-modal-close-btn'),
-        windowItemsContainer: document.getElementById('window-items-container'),
-        windowToggleBtn: document.getElementById('window-toggle-btn'),
+        // REMOVED Window Modal Elements
 
         petModalOverlay: document.getElementById('pet-modal-overlay'),
         petModalCloseBtn: document.getElementById('pet-modal-close-btn'),
@@ -121,6 +118,12 @@ document.addEventListener('DOMContentLoaded', () => {
         phoneModalOverlay: document.getElementById('phone-modal-overlay'),
         phoneModalCloseBtn: document.getElementById('phone-modal-close-btn'),
         phoneModalContent: document.getElementById('phone-modal-content'),
+
+        // ADDED: Status effect placeholders for window items
+        nestStatusEl: document.getElementById('nest-status'),
+        featherStatusEl: document.getElementById('feather-status'),
+        beetleStatusEl: document.getElementById('beetle-status'),
+        branchStatusEl: document.getElementById('branch-status'),
     };
 
     // --- GAME STATE VARIABLES ---
@@ -618,11 +621,11 @@ document.addEventListener('DOMContentLoaded', () => {
         updateSymbolInventoryDisplay();
         updatePlayerInventoryDisplay();
         updatePetModal();
-        updateWindowModal();
         setupShop();
         updatePowerDisplay();
         updateNextPowerBillCostDisplay();
         updateStatusEffectsWindow();
+        updateWindowButtonState(); // Update window button icon
 
         if (playerState.foodMeter <= 4 && playerState.foodMeter > 0) {
             if (DOM_ELEMENTS.gameDiv) DOM_ELEMENTS.gameDiv.classList.add('food-warning');
@@ -785,42 +788,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    function updateWindowModal() {
-        const container = DOM_ELEMENTS.windowItemsContainer;
-        container.innerHTML = ""; // Clear previous items
+    // REMOVED: updateWindowModal function is no longer needed
 
-        // Toggle button state
-        DOM_ELEMENTS.windowToggleBtn.textContent = `Window is ${uiState.windowOpen ? 'Open' : 'Closed'}`;
-        DOM_ELEMENTS.windowToggleBtn.className = `btn ${uiState.windowOpen ? 'open' : 'closed'}`;
-
-        // Conditionally create and append items only if they exist
-        if (windowFeatureState.hasBirdNest) {
-            const nestContainer = document.createElement('div');
-            nestContainer.className = 'window-item-container';
-            nestContainer.innerHTML = `<span class="item-emoji" id="nest-display">🪹</span><span class="window-item-description">Nest</span>`;
-            container.appendChild(nestContainer);
-        }
-
-        if (windowFeatureState.feathers > 0) {
-            const featherContainer = document.createElement('div');
-            featherContainer.className = 'window-item-container';
-            featherContainer.innerHTML = `<span class="item-emoji" id="feather-display">🪶 ${windowFeatureState.feathers}</span><span class="window-item-description">Feathers</span>`;
-            if (windowFeatureState.feathers === GAME_CONFIG.maxFeathers) featherContainer.querySelector('#feather-display').classList.add('max-feathers');
-            container.appendChild(featherContainer);
-        }
-        
-        if (windowFeatureState.beetles > 0) {
-            const beetleContainer = document.createElement('div');
-            beetleContainer.className = 'window-item-container';
-            beetleContainer.innerHTML = `<span class="item-emoji" id="beetle-display">🪲 ${windowFeatureState.beetles}</span><span class="window-item-description">Beetle</span>`;
-            container.appendChild(beetleContainer);
-        }
-
-        if (windowFeatureState.hasBranch) {
-            const branchContainer = document.createElement('div');
-            branchContainer.className = 'window-item-container';
-            branchContainer.innerHTML = `<span class="item-emoji" id="branch-display">🌿</span><span class="window-item-description">Branch</span>`;
-            container.appendChild(branchContainer);
+    // NEW: Function to update the window button state
+    function updateWindowButtonState() {
+        if (DOM_ELEMENTS.windowTriggerBtn) {
+            DOM_ELEMENTS.windowTriggerBtn.textContent = uiState.windowOpen ? '🪟' : '⬜';
+            DOM_ELEMENTS.windowTriggerBtn.classList.toggle('toggled-off', !uiState.windowOpen);
         }
     }
 
@@ -1040,6 +1014,23 @@ document.addEventListener('DOMContentLoaded', () => {
             DOM_ELEMENTS.phoneBuffStatusEl.innerHTML = '';
             DOM_ELEMENTS.phoneBuffStatusEl.style.display = 'none';
         }
+
+        // NEW: Window items status
+        const nestActive = windowFeatureState.hasBirdNest;
+        DOM_ELEMENTS.nestStatusEl.innerHTML = nestActive ? `<span class="buff-emoji">🪹</span>` : '';
+        DOM_ELEMENTS.nestStatusEl.style.display = nestActive ? 'flex' : 'none';
+
+        const feathers = windowFeatureState.feathers;
+        DOM_ELEMENTS.featherStatusEl.innerHTML = feathers > 0 ? `<span class="buff-emoji">🪶</span> <span class="buff-countdown">${feathers}</span>` : '';
+        DOM_ELEMENTS.featherStatusEl.style.display = feathers > 0 ? 'flex' : 'none';
+
+        const beetles = windowFeatureState.beetles;
+        DOM_ELEMENTS.beetleStatusEl.innerHTML = beetles > 0 ? `<span class="buff-emoji">🪲</span> <span class="buff-countdown">${beetles}</span>` : '';
+        DOM_ELEMENTS.beetleStatusEl.style.display = beetles > 0 ? 'flex' : 'none';
+
+        const branchActive = windowFeatureState.hasBranch;
+        DOM_ELEMENTS.branchStatusEl.innerHTML = branchActive ? `<span class="buff-emoji">🌿</span>` : '';
+        DOM_ELEMENTS.branchStatusEl.style.display = branchActive ? 'flex' : 'none';
     }
 
 
@@ -1073,10 +1064,10 @@ document.addEventListener('DOMContentLoaded', () => {
         updateDisplays();
     }
 
-
+    // UPDATED: This function is simpler now, just toggles state.
     function toggleWindow() {
         uiState.windowOpen = !uiState.windowOpen;
-        updateWindowModal();
+        updateDisplays(); // Let updateDisplays handle the visual change
     }
 
     function clickFoodEmoji(emoji, index) {
@@ -1562,7 +1553,7 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'window':
                 content = `
                     <h4>🪟 Window</h4>
-                    <p><strong>Window Toggle:</strong> Open or close the window from its modal (🪟).</p>
+                    <p><strong>Window Toggle:</strong> Open (🪟) or close (⬜) the window by tapping the button in the utility bar. Bird-related items (🪹, 🪶, 🪲, 🌿) are shown in the status area above the utility bar.</p>
                     <p><strong>Open:</strong> ${GAME_CONFIG.birdGainChance * 100}% chance/spin to gain a bird, ${GAME_CONFIG.birdLossChance * 100}% to lose one (if no nest/beetle). Max ${GAME_CONFIG.maxTotalBirdsCap} birds.</p>
                     <ul>
                         <li>🦉: ${GAME_CONFIG.owlFeatherDropChance * 100}% on grid -> 🪶.</li>
@@ -1677,8 +1668,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function closeGuideSelectionModal() { DOM_ELEMENTS.guideSelectionModalOverlay.classList.add('hidden'); }
 
-    function openWindowModal() { if (!uiState.isGameOver) DOM_ELEMENTS.windowModalOverlay.classList.remove('hidden'); }
-    function closeWindowModal() { DOM_ELEMENTS.windowModalOverlay.classList.add('hidden'); }
+    // REMOVED openWindowModal and closeWindowModal
 
     function openPetModal() { if (!uiState.isGameOver) DOM_ELEMENTS.petModalOverlay.classList.remove('hidden'); }
     function closePetModal() { DOM_ELEMENTS.petModalOverlay.classList.add('hidden'); }
@@ -1691,7 +1681,7 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM_ELEMENTS.giftChoiceModal.classList.add('hidden'); 
         DOM_ELEMENTS.shopModalOverlay.classList.add('hidden');
         DOM_ELEMENTS.guideSelectionModalOverlay.classList.add('hidden');
-        DOM_ELEMENTS.windowModalOverlay.classList.add('hidden');
+        // REMOVED windowModalOverlay
         DOM_ELEMENTS.petModalOverlay.classList.add('hidden');
         DOM_ELEMENTS.phoneModalOverlay.classList.add('hidden');
     }
@@ -1729,7 +1719,7 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM_ELEMENTS.luckyBtn.addEventListener('click', toggleLuckyLines);
         
         // Bottom Bar Triggers
-        DOM_ELEMENTS.windowTriggerBtn.addEventListener('click', openWindowModal);
+        DOM_ELEMENTS.windowTriggerBtn.addEventListener('click', toggleWindow); // UPDATED
         DOM_ELEMENTS.petTriggerBtn.addEventListener('click', openPetModal);
         DOM_ELEMENTS.phoneTriggerBtn.addEventListener('click', openPhoneModal);
         DOM_ELEMENTS.shopTriggerBtn.addEventListener('click', openShopModal);
@@ -1738,20 +1728,20 @@ document.addEventListener('DOMContentLoaded', () => {
         // Modal Close Buttons
         DOM_ELEMENTS.shopModalCloseBtn.addEventListener('click', closeShopModal);
         DOM_ELEMENTS.guideSelectionModalCloseBtn.addEventListener('click', closeGuideSelectionModal);
-        DOM_ELEMENTS.windowModalCloseBtn.addEventListener('click', closeWindowModal);
+        // REMOVED windowModalCloseBtn
         DOM_ELEMENTS.petModalCloseBtn.addEventListener('click', closePetModal);
         DOM_ELEMENTS.phoneModalCloseBtn.addEventListener('click', closePhoneModal);
         DOM_ELEMENTS.alienMediaPayoutCloseBtn.addEventListener('click', () => DOM_ELEMENTS.alienMediaPayoutModal.classList.add('hidden'));
         
         // Modal Overlay Clicks (to close)
-        [DOM_ELEMENTS.shopModalOverlay, DOM_ELEMENTS.guideSelectionModalOverlay, DOM_ELEMENTS.windowModalOverlay, DOM_ELEMENTS.petModalOverlay, DOM_ELEMENTS.phoneModalOverlay, DOM_ELEMENTS.alienMediaPayoutModal].forEach(overlay => {
+        [DOM_ELEMENTS.shopModalOverlay, DOM_ELEMENTS.guideSelectionModalOverlay, DOM_ELEMENTS.petModalOverlay, DOM_ELEMENTS.phoneModalOverlay, DOM_ELEMENTS.alienMediaPayoutModal].forEach(overlay => {
             overlay.addEventListener('click', (event) => {
                 if(event.target === overlay) overlay.classList.add('hidden');
             });
         });
 
         // Specific Modal Buttons
-        DOM_ELEMENTS.windowToggleBtn.addEventListener('click', toggleWindow);
+        // REMOVED windowToggleBtn listener
         DOM_ELEMENTS.giftChoiceBirdBtn.addEventListener('click', () => selectGift('bird'));
         DOM_ELEMENTS.giftChoiceFoodBtn.addEventListener('click', () => selectGift('food'));
         DOM_ELEMENTS.giftChoiceLocksBtn.addEventListener('click', () => selectGift('locks'));
