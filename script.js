@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
         luckyLinesSpinCost: 30,
         multiplierSlotIndex: 7, // Default last slot of bottom row (0-indexed)
         gridSize: 8,
-        initialCoins: 50000,
+        initialCoins: 50050,
         initialLockItems: 3,
         baseSpinFoodConsumption: 1,
         catFoodConsumption: 1,
