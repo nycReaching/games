@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Food Slot Machine - Mobile Update</title>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+<div class="main-container">
+
+    <div class="game">
+        <h1 id="game-main-title">Keep Spinning</h1>
+
+        <div class="power-meter-container">
+            <div class="power-meter-icon" id="power-meter-indicator-icon">🔌</div>
+            <div class="power-meter-bar">
+                <div class="power-meter-fill" id="power-meter-fill"></div>
+            </div>
+            <div class="next-power-bill-display" id="next-power-bill-cost-display"></div>
+        </div>
+        
+        <div class="food-meter-container">
+            <div class="food-icon-area">
+               <span class="food-meter-icon">🍽️</span>
+               <span class="food-meter-value" id="food-meter-value-display"></span>
+            </div>
+            <div class="food-meter">
+                <div class="food-meter-fill" id="food-meter-fill-display"></div>
+            </div>
+        </div>
+
+        <div class="symbol-inventory" id="symbol-inventory-display"></div>
+
+        <div class="slot-grid" id="slot-grid"></div>
+
+        <div class="win-display" id="total-win-display"></div>
+        <div class="phone-message-display" id="phone-message-display"></div>
+
+        <div class="controls">
+            <button id="lucky-btn" class="btn btn-lucky">LL</button>
+            <button id="spin-btn" class="btn btn-spin">Spin - 20 🪙</button>
+        </div>
+
+        <div class="coin-display" id="coins-display"></div>
+
+        <div class="inventory-window">
+            <div id="player-inventory-content" class="inventory-content"></div>
+        </div>
+
+        <div class="bottom-utility-section">
+            <div class="status-effects-window">
+                <div id="donut-buff-status" class="status-effect-item"></div>
+                <div id="sushi-buff-status" class="status-effect-item"></div>
+                <div id="cat-buff-status" class="status-effect-item"></div>
+                <div id="phone-buff-status" class="status-effect-item"></div>
+                <div id="cosmic-mode-status" class="status-effect-item"></div>
+                <div id="quantum-mode-status" class="status-effect-item"></div>
+                <div id="permanent-buff-status" class="status-effect-item"></div>
+            </div>
+            <div class="bottom-controls-bar">
+                <div id="window-trigger-container" class="utility-trigger">
+                    <div id="window-trigger-btn" class="utility-btn">🪟</div>
+                </div>
+                <div id="pet-trigger-container" class="utility-trigger">
+                    <div id="pet-trigger-btn" class="utility-btn">💙</div>
+                </div>
+                <div id="phone-trigger-container" class="utility-trigger">
+                    <div id="phone-trigger-btn" class="utility-btn">📱</div>
+                </div>
+                <div id="shop-trigger-container" class="utility-trigger">
+                    <div id="shop-trigger-btn" class="utility-btn">🏪</div>
+                </div>
+                <div id="guide-trigger-container" class="utility-trigger">
+                    <div id="guide-trigger-btn" class="utility-btn">❔</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="alien-media-payout-modal" class="modal-overlay hidden">
+    <div class="modal-window">
+        <button id="alien-media-payout-close-btn" class="modal-close-btn">&times;</button>
+        <div id="alien-media-payout-content" class="modal-content"></div>
+    </div>
+</div>
+
+<div id="gift-choice-modal" class="modal-overlay hidden">
+    <div class="modal-window">
+        <div id="gift-choice-content" class="modal-content">
+            <h4>Choose Your Gift!</h4>
+            <p>Select one permanent buff to aid you.</p>
+            <div class="gift-choices-container">
+                <button id="gift-choice-bird-btn" class="btn">🐦 +1 To All Birds</button>
+                <button id="gift-choice-food-btn" class="btn">🍽️ +1 Food Replenish</button>
+                <button id="gift-choice-locks-btn" class="btn">🔐 +3 Lock Items</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="shop-modal-overlay" class="modal-overlay hidden">
+    <div class="modal-window">
+        <button id="shop-modal-close-btn" class="modal-close-btn">&times;</button>
+        <h3 class="modal-title">🏪 Shop</h3>
+        <div id="shop-modal-content" class="modal-content"></div>
+    </div>
+</div>
+
+<div id="guide-selection-modal-overlay" class="modal-overlay hidden">
+    <div class="modal-window">
+        <button id="guide-selection-modal-close-btn" class="modal-close-btn">&times;</button>
+        <h3 class="modal-title">❔ Guide Topics</h3>
+        <div id="guide-selection-modal-content" class="modal-content">
+             </div>
+    </div>
+</div>
+
+<div id="window-modal-overlay" class="modal-overlay hidden">
+    <div class="modal-window">
+        <button id="window-modal-close-btn" class="modal-close-btn">&times;</button>
+        <h3 class="modal-title">🪟 Window</h3>
+        <div id="window-modal-content" class="modal-content">
+            <button id="window-toggle-btn" class="btn">Toggle Window</button>
+            <div id="window-items-container"></div>
+        </div>
+    </div>
+</div>
+
+<div id="pet-modal-overlay" class="modal-overlay hidden">
+    <div class="modal-window">
+        <button id="pet-modal-close-btn" class="modal-close-btn">&times;</button>
+        <h3 class="modal-title" id="pet-modal-title">💙 Companion</h3>
+        <div id="pet-modal-content" class="modal-content"></div>
+    </div>
+</div>
+
+<div id="phone-modal-overlay" class="modal-overlay hidden">
+    <div class="modal-window">
+        <button id="phone-modal-close-btn" class="modal-close-btn">&times;</button>
+        <h3 class="modal-title">📱 Phone</h3>
+        <div id="phone-modal-content" class="modal-content"></div>
+    </div>
+</div>
+
+
+<script src="script.js"></script>
+</body>
+</html>
