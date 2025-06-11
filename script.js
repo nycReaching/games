@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
         luckyLinesSpinCost: 30,
         multiplierSlotIndex: 7, // Default last slot of bottom row (0-indexed)
         gridSize: 8,
-        initialCoins: 50050,
+        initialCoins: 50,
         initialLockItems: 3,
         baseSpinFoodConsumption: 1,
         catFoodConsumption: 1,
@@ -171,6 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         activeEffects.cosmicUpgradePenaltyActive = false;
         activeEffects.quantumUpgradePenaltyActive = false;
+        activeEffects.cosmicModeCompleted = false; // ADDED for Quantum prerequisite
 
         activeEffects.alienDroppedByUFO = false; 
 
@@ -527,10 +528,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (activeEffects.cosmicUpgradeActive && activeEffects.cosmicUpgradeSpinsLeft <= 0) {
-                    deactivateCosmicUpgradeBonusMode();
+                    deactivateCosmicUpgradeBonusMode(true);
                 }
                 if (activeEffects.quantumUpgradeActive && activeEffects.quantumUpgradeSpinsLeft <= 0) {
-                    deactivateQuantumUpgradeBonusMode();
+                    deactivateQuantumUpgradeBonusMode(true);
                 }
 
 
@@ -1138,6 +1139,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 activateCosmicUpgrade();
                 closeShopModal();
             } else if (itemData.type === 'quantum' && !activeEffects.quantumUpgradePenaltyActive && !activeEffects.cosmicUpgradeActive) {
+                // ADDED: Prerequisite check guard
+                if (!activeEffects.cosmicModeCompleted) return; 
                 playerState.coins -= cost;
                 activateQuantumUpgrade();
                 closeShopModal();
@@ -1153,6 +1156,8 @@ document.addEventListener('DOMContentLoaded', () => {
             activeEffects.hasMouseToy = true;
             activeEffects.spinsWithCat = 0;
         } else if (itemEmoji === "🎥") {
+            // ADDED: Prerequisite check guard
+            if (!activeEffects.hasAlienVisitor) return; 
             if (playerState.inventory[itemEmoji] >= 1) return;
             playerState.coins -= cost;
             playerState.inventory[itemEmoji]++;
@@ -1166,7 +1171,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function setupShop() {
         DOM_ELEMENTS.shopContent.innerHTML = "";
-        const sortedShopItems = [...SHOP_ITEMS_CONFIG].sort((a, b) => (a.isUpgrade ? 1 : 0) - (b.isUpgrade ? 1 : 0) || a.cost - b.cost);
+        // MODIFIED: Sort shop items by cost
+        const sortedShopItems = [...SHOP_ITEMS_CONFIG].sort((a, b) => a.cost - b.cost);
     
         sortedShopItems.forEach(item => {
             if (item.emoji === "🪹" && windowFeatureState.hasBirdNest) return;
@@ -1189,8 +1195,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 canBuy = false;
             } else if (item.emoji === "🐁") {
                 if (!activeEffects.hasPetCat) canBuy = false;
-            } else if (item.isUpgrade) {
+            } else if (item.emoji === "🎥") { // MODIFIED: Conditional camera purchase
+                if (!activeEffects.hasAlienVisitor) canBuy = false;
+            }
+            else if (item.isUpgrade) {
                 if(activeEffects.cosmicUpgradeActive || activeEffects.quantumUpgradeActive) canBuy = false;
+                // MODIFIED: Conditional quantum upgrade purchase
+                if(item.type === 'quantum' && !activeEffects.cosmicModeCompleted) {
+                    canBuy = false;
+                }
             }
     
             let buttonHTML = `${item.emoji} ${item.name}<strong class="shop-item-cost">${displayCost} 🪙`;
@@ -1456,6 +1469,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function deactivateCosmicUpgradeBonusMode(showFeedback = true) {
+        if (showFeedback) { // This means the mode completed normally
+            activeEffects.cosmicModeCompleted = true;
+        }
         activeEffects.cosmicUpgradeActive = false;
         document.body.classList.remove("cosmic-theme");
 
