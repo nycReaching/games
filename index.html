@@ -14,25 +14,25 @@
     <div class="game">
         <h1 id="game-main-title">Keep Spinning</h1>
 
-        <div class="power-meter-container">
-            <div class="power-meter-icon" id="power-meter-indicator-icon">🔌</div>
-            <div class="power-meter-bar">
-                <div class="power-meter-fill" id="power-meter-fill"></div>
+        <div class="top-stats-bar">
+            <div class="coin-display" id="coins-display"></div>
+            <div class="power-meter-container">
+                <div class="power-meter-icon" id="power-meter-indicator-icon">🔌</div>
+                <div class="power-meter-bar">
+                    <div class="power-meter-fill" id="power-meter-fill"></div>
+                </div>
+                <div class="next-power-bill-display" id="next-power-bill-cost-display"></div>
             </div>
-            <div class="next-power-bill-display" id="next-power-bill-cost-display"></div>
+            <div class="food-meter-container">
+                <div class="food-icon-area">
+                   <span class="food-meter-icon">🍽️</span>
+                   <span class="food-meter-value" id="food-meter-value-display"></span>
+                </div>
+                <div class="food-meter">
+                    <div class="food-meter-fill" id="food-meter-fill-display"></div>
+                </div>
+            </div>
         </div>
-        
-        <div class="food-meter-container">
-            <div class="food-icon-area">
-               <span class="food-meter-icon">🍽️</span>
-               <span class="food-meter-value" id="food-meter-value-display"></span>
-            </div>
-            <div class="food-meter">
-                <div class="food-meter-fill" id="food-meter-fill-display"></div>
-            </div>
-        </div>
-
-        <div class="symbol-inventory" id="symbol-inventory-display"></div>
 
         <div class="slot-grid" id="slot-grid"></div>
 
@@ -44,12 +44,7 @@
             <button id="spin-btn" class="btn btn-spin">Spin - 20 🪙</button>
         </div>
 
-        <div class="coin-display" id="coins-display"></div>
-
-        <div class="inventory-window">
-            <div id="player-inventory-content" class="inventory-content"></div>
         </div>
-    </div>
 
 </div>
 
@@ -59,6 +54,7 @@
             <div id="donut-buff-status" class="status-effect-item"></div>
             <div id="sushi-buff-status" class="status-effect-item"></div>
             <div id="cat-buff-status" class="status-effect-item"></div>
+            <div id="alien-buff-status" class="status-effect-item"></div>
             <div id="phone-buff-status" class="status-effect-item"></div>
             <div id="cosmic-mode-status" class="status-effect-item"></div>
             <div id="quantum-mode-status" class="status-effect-item"></div>
@@ -68,6 +64,7 @@
             <div id="beetle-status" class="status-effect-item"></div>
             <div id="branch-status" class="status-effect-item"></div>
         </div>
+        <div id="player-item-bar" class="player-item-bar"></div>
         <div class="bottom-controls-bar">
             <div id="window-trigger-container" class="utility-trigger">
                 <div id="window-trigger-btn" class="utility-btn">🪟</div>
