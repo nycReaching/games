@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
         luckyLinesSpinCost: 30,
         multiplierSlotIndex: 7, // Default last slot of bottom row (0-indexed)
         gridSize: 8,
-        initialCoins: 50,
+        initialCoins: 50000,
         initialLockItems: 3,
         baseSpinFoodConsumption: 1,
         catFoodConsumption: 1,
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
         parrotBeetleDropChance: 0.10,
         doveBranchDropChance: 0.10,
         owlFeatherDropChance: 0.10,
-        ufoAlienDropChance: 0.10, // UFO alien drop chance
+        ufoAlienDropChance: 0.15, // UFO alien drop chance UPDATED
         gameOverOnUnpaidBillChance: 0.05,
         powerBillBaseCost: 125, // UPDATED
         powerBillIncrement: 125, // UPDATED
@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
         maxTotalBirdsCap: 8,
         schrodingerCatsCount: 2, // Number of 10x cats in Quantum Mode
         schrodingerCatMultiplier: 10,
+        schrodingerCatOnCatMultiplier: 50, // ADDED: 50x for cats
     };
 
     const INITIAL_SYMBOLS_CONFIG = [
@@ -58,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Mouse Toy", emoji: "🐁", cost: 200 },
         { name: "Camera", emoji: "🎥", cost: 3000 },
         { name: "Bird Nest", emoji: "🪹", cost: 1000 },
-        { name: "Black Hole", emoji: "⚫", cost: 5000 },
+        { name: "Black Hole", emoji: "⚫", cost: 10000 }, // UPDATED cost
         { name: "Cosmic Upgrade", emoji: "🔭", cost: 2000, powerCost: 2, isUpgrade: true, type: 'cosmic' },
         { name: "Quantum Upgrade", emoji: "⚛️", cost: 6000, powerCost: 5, isUpgrade: true, type: 'quantum' },
     ];
@@ -73,8 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         phoneMessageDisplay: document.getElementById("phone-message-display"),
         foodMeterFill: document.getElementById("food-meter-fill-display"),
         foodMeterValue: document.getElementById("food-meter-value-display"),
-        symbolInventoryDisplay: document.getElementById("symbol-inventory-display"),
-        playerInventoryContent: document.getElementById("player-inventory-content"),
+        playerItemBar: document.getElementById("player-item-bar"), // UPDATED
         shopContent: document.getElementById("shop-modal-content"),
         powerMeterFill: document.getElementById("power-meter-fill"),
         powerMeterIndicatorIcon: document.getElementById("power-meter-indicator-icon"),
@@ -82,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
         donutBuffStatusEl: document.getElementById('donut-buff-status'),
         sushiBuffStatusEl: document.getElementById('sushi-buff-status'),
         catBuffStatusEl: document.getElementById('cat-buff-status'),
+        alienBuffStatusEl: document.getElementById('alien-buff-status'),
         phoneBuffStatusEl: document.getElementById('phone-buff-status'),
         cosmicModeStatusEl: document.getElementById('cosmic-mode-status'),
         quantumModeStatusEl: document.getElementById('quantum-mode-status'),
@@ -107,8 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
         windowTriggerBtn: document.getElementById('window-trigger-btn'),
         petTriggerBtn: document.getElementById('pet-trigger-btn'),
         phoneTriggerBtn: document.getElementById('phone-trigger-btn'),
-        
-        // REMOVED Window Modal Elements
 
         petModalOverlay: document.getElementById('pet-modal-overlay'),
         petModalCloseBtn: document.getElementById('pet-modal-close-btn'),
@@ -492,7 +491,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
 
-                if (activeEffects.cosmicUpgradeActive) {
+                // UPDATED: UFO drop logic
+                if (activeEffects.cosmicUpgradePenaltyActive) { // Check if upgrade is owned, not if mode is active
                     slotMachineState.currentGridSymbols.forEach((item) => {
                         if (item && item.emoji === "🛸") {
                             if (!activeEffects.hasAlienVisitor && playerState.inventory["👽"] < 1 && Math.random() < GAME_CONFIG.ufoAlienDropChance) {
@@ -552,7 +552,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
         let itemValue = item.originalValue;
     
-        if (item.isCosmic && activeEffects.hasAlienVisitor) itemValue += 12;
+        if (item.isCosmic && activeEffects.hasAlienVisitor) itemValue += 10;
         if (item.emoji === "🍩" && activeEffects.donutBuffActive) itemValue += 3;
         else if (item.emoji === "🐈‍⬛" && activeEffects.hasPetCat) {
             let catBase = item.originalValue;
@@ -565,8 +565,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if(activeEffects.permanentBirdBuff) itemValue += 1;
         }
     
+        // UPDATED: Schrodinger's Cat logic
         if (activeEffects.quantumUpgradeActive && slotMachineState.schrodingerCells.includes(index)) {
-            itemValue *= GAME_CONFIG.schrodingerCatMultiplier;
+            if (item.emoji === "🐈‍⬛") {
+                itemValue *= GAME_CONFIG.schrodingerCatOnCatMultiplier;
+            } else {
+                itemValue *= GAME_CONFIG.schrodingerCatMultiplier;
+            }
         }
     
         if (activeEffects.quantumUpgradeActive) { 
@@ -610,17 +615,38 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         slotMachineState.currentWin = totalPayout;
         playerState.coins += totalPayout;
-        displayIndividualPayouts(individualPayouts);
+        // REMOVED: displayIndividualPayouts(individualPayouts);
     }
 
     // --- UPDATE DISPLAY FUNCTIONS ---
+    function updateCatStatus() {
+        if (!activeEffects.hasPetCat) return;
+    
+        let newStatus = '😺'; 
+        if (!activeEffects.hasMouseToy && activeEffects.spinsWithCat >= 20) {
+            newStatus = '😿'; 
+        }
+        if (getTotalBirdCount() >= 4 && !windowFeatureState.hasBirdNest) {
+            newStatus = '😼'; 
+        }
+        if (windowFeatureState.beetles > 0 && !windowFeatureState.hasBirdNest) {
+            newStatus = '🙀🪲'; 
+        }
+        if (activeEffects.sushiCatBuffActive) {
+            newStatus = '😻🍣'; 
+        }
+        activeEffects.currentCatStatus = newStatus;
+    }
+
     function updateDisplays() {
-        DOM_ELEMENTS.coinsDisplay.textContent = `Coins ${playerState.coins}`;
+        updateCatStatus(); // Ensure cat status is current before UI updates
+
+        DOM_ELEMENTS.coinsDisplay.innerHTML = `<span>${playerState.coins}</span> 🪙`;
         DOM_ELEMENTS.foodMeterFill.style.width = `${(playerState.foodMeter / GAME_CONFIG.maxFoodMeter) * 100}%`;
         DOM_ELEMENTS.foodMeterValue.textContent = `${playerState.foodMeter}/${GAME_CONFIG.maxFoodMeter}`;
 
-        updateSymbolInventoryDisplay();
-        updatePlayerInventoryDisplay();
+        // REMOVED updateSymbolInventoryDisplay();
+        updatePlayerInventoryDisplay(); // This now updates the new item bar
         updatePetModal();
         setupShop();
         updatePowerDisplay();
@@ -654,52 +680,68 @@ document.addEventListener('DOMContentLoaded', () => {
         if (DOM_ELEMENTS.luckyBtn) DOM_ELEMENTS.luckyBtn.disabled = uiState.isGameOver;
     }
 
-    function updateSymbolInventoryDisplay() {
-        DOM_ELEMENTS.symbolInventoryDisplay.innerHTML = "";
-        symbols.filter(s => s.count > 0 && !s.hidden).forEach(symbol => {
-            const span = document.createElement("span");
-            span.textContent = `${symbol.emoji} ${symbol.count}`;
-            DOM_ELEMENTS.symbolInventoryDisplay.appendChild(span);
-        });
-    }
+    // REMOVED updateSymbolInventoryDisplay function
 
+    // REWRITTEN to populate the new player item bar
     function updatePlayerInventoryDisplay() {
-        DOM_ELEMENTS.playerInventoryContent.innerHTML = "";
-        const lockSpan = document.createElement("span");
-        lockSpan.className = 'inventory-item clickable';
-        lockSpan.textContent = `🔐 ${playerState.lockItems}`;
+        DOM_ELEMENTS.playerItemBar.innerHTML = "";
+    
+        // Special handling for Locks
+        const lockDiv = document.createElement("div");
+        lockDiv.className = 'player-item clickable';
+        lockDiv.innerHTML = `<span class="player-item-emoji">🔐</span><span class="player-item-count">${playerState.lockItems}</span>`;
         if (!uiState.isGameOver) {
-            lockSpan.onclick = toggleGridLock;
+            lockDiv.onclick = toggleGridLock;
         }
-        DOM_ELEMENTS.playerInventoryContent.appendChild(lockSpan);
-
+        DOM_ELEMENTS.playerItemBar.appendChild(lockDiv);
+    
+        // Loop through inventory items
         for (const itemEmoji in playerState.inventory) {
             if (playerState.inventory[itemEmoji] > 0) {
-                const itemSpan = document.createElement("span");
-                itemSpan.className = 'inventory-item';
-                itemSpan.textContent = `${itemEmoji} ${playerState.inventory[itemEmoji]}`;
+                const itemDiv = document.createElement("div");
+                itemDiv.className = 'player-item';
+                itemDiv.innerHTML = `<span class="player-item-emoji">${itemEmoji}</span><span class="player-item-count">${playerState.inventory[itemEmoji]}</span>`;
+    
                 if (!uiState.isGameOver) {
-                    if (itemEmoji === "☕") {
-                        itemSpan.classList.add("clickable");
-                        itemSpan.style.opacity = activeEffects.donutBuffActive ? "0.7" : "1";
-                        if (!activeEffects.donutBuffActive) itemSpan.onclick = consumeCoffee; else itemSpan.onclick = null;
-                    } else if (itemEmoji === "👽") {
-                        itemSpan.classList.add("clickable");
-                        itemSpan.style.opacity = (!activeEffects.hasAlienVisitor) ? "1" : "0.7";
-                        if (!activeEffects.hasAlienVisitor) itemSpan.onclick = activateAlienVisitor; else itemSpan.onclick = null;
-                    } else if (itemEmoji === "📃") {
-                        itemSpan.classList.add("clickable");
-                        itemSpan.onclick = consumePowerBill;
-                    } else if (itemEmoji === "🎥") {
-                        itemSpan.classList.add("clickable");
-                        itemSpan.style.opacity = activeEffects.hasAlienVisitor ? "1" : "0.7";
-                        if (activeEffects.hasAlienVisitor) itemSpan.onclick = consumeCamera; else itemSpan.onclick = null;
-                    } else if (itemEmoji === "🎁") {
-                        itemSpan.classList.add("clickable", "inventory-item-gift");
-                        itemSpan.onclick = showGiftChoiceModal;
+                    let isClickable = false;
+                    let isEnabled = true;
+    
+                    switch (itemEmoji) {
+                        case "☕":
+                            isClickable = true;
+                            if (activeEffects.donutBuffActive) isEnabled = false;
+                            else itemDiv.onclick = consumeCoffee;
+                            break;
+                        case "👽":
+                            isClickable = true;
+                            if (activeEffects.hasAlienVisitor) isEnabled = false;
+                            else itemDiv.onclick = activateAlienVisitor;
+                            break;
+                        case "📃":
+                            isClickable = true;
+                            itemDiv.onclick = consumePowerBill;
+                            break;
+                        case "🎥":
+                            isClickable = true;
+                            if (!activeEffects.hasAlienVisitor) isEnabled = false;
+                            else itemDiv.onclick = consumeCamera;
+                            break;
+                        case "🎁":
+                            isClickable = true;
+                            itemDiv.classList.add("inventory-item-gift");
+                            itemDiv.onclick = showGiftChoiceModal;
+                            break;
+                    }
+    
+                    if (isClickable) {
+                        itemDiv.classList.add("clickable");
+                        if (!isEnabled) {
+                            itemDiv.classList.add("disabled");
+                            itemDiv.onclick = null;
+                        }
                     }
                 }
-                DOM_ELEMENTS.playerInventoryContent.appendChild(itemSpan);
+                DOM_ELEMENTS.playerItemBar.appendChild(itemDiv);
             }
         }
     }
@@ -707,14 +749,27 @@ document.addEventListener('DOMContentLoaded', () => {
     function updatePetModal() {
         const content = DOM_ELEMENTS.petModalContent;
         content.innerHTML = "";
-
-        let titleEmoji = "💙";
-        if (activeEffects.hasAlienVisitor) {
-            titleEmoji = "👽";
+        const hasAlien = activeEffects.hasAlienVisitor;
+        const hasCat = activeEffects.hasPetCat;
+    
+        if (!hasAlien && !hasCat) {
+            content.innerHTML = '<div>No companions active. Adopt a 🐈‍⬛ from the grid or activate an 👽 from your inventory.</div>';
+            DOM_ELEMENTS.petModalTitle.innerHTML = `💙 Companion`;
+            return;
+        }
+    
+        const companionsContainer = document.createElement('div');
+        companionsContainer.className = 'companions-container';
+        content.appendChild(companionsContainer);
+    
+        if (hasAlien) {
+            const alienWrapper = document.createElement('div');
+            alienWrapper.className = 'companion-info-wrapper';
+            
             const alienText = document.createElement('div');
             alienText.className = 'alien-visitor-text';
-
-            let alienInfo = `<span class="alien-emoji-large">👽</span><br/>Cosmic Visitor<br/>(+12 to Cosmic Symbols)`;
+    
+            let alienInfo = `<span class="alien-emoji-large">👽</span><br/>Cosmic Visitor<br/>(+10 to Cosmic Symbols)`;
             const friesSymbol = symbols.find(s => s.emoji === "🍟");
             if (friesSymbol && friesSymbol.count > 0) {
                 alienInfo += `<br/><span style="font-size:0.8em; color: var(--accent-yellow);">Will consume ${friesSymbol.count} 🍟</span>`;
@@ -722,36 +777,25 @@ document.addEventListener('DOMContentLoaded', () => {
                  alienInfo += `<br/><span style="font-size:0.8em; color: var(--text-secondary);">No 🍟 to consume</span>`;
             }
             alienText.innerHTML = alienInfo;
-            content.appendChild(alienText);
-        } else if (activeEffects.hasPetCat) {
-            titleEmoji = "🐈";
+            alienWrapper.appendChild(alienText);
+            companionsContainer.appendChild(alienWrapper);
+        }
     
-            let newStatus = '😺'; 
-            if (!activeEffects.hasMouseToy && activeEffects.spinsWithCat >= 20) {
-                newStatus = '😿'; 
-            }
-            if (getTotalBirdCount() >= 4 && !windowFeatureState.hasBirdNest) {
-                newStatus = '😼'; 
-            }
-            if (windowFeatureState.beetles > 0 && !windowFeatureState.hasBirdNest) {
-                newStatus = '🙀🪲'; 
-            }
-            if (activeEffects.sushiCatBuffActive) {
-                newStatus = '😻🍣'; 
-            }
-            activeEffects.currentCatStatus = newStatus;
-
+        if (hasCat) {
+            const catWrapper = document.createElement('div');
+            catWrapper.className = 'companion-info-wrapper';
+    
             const petInfoContainer = document.createElement('div');
             petInfoContainer.className = 'pet-info-container';
-
+    
             const mainArea = document.createElement('div');
             mainArea.className = 'pet-main-area';
-
+    
             const petDiv = document.createElement('div');
             petDiv.className = 'pet-display';
             petDiv.innerHTML = `<span class="pet-status-emoji">${activeEffects.currentCatStatus}</span>`;
             mainArea.appendChild(petDiv);
-
+    
             const petDescDiv = document.createElement('div');
             petDescDiv.className = 'pet-description';
             if (activeEffects.currentCatStatus === '😻🍣') petDescDiv.textContent = `All Cats +5!`;
@@ -760,38 +804,40 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (activeEffects.currentCatStatus === '😼') petDescDiv.textContent = 'Too many birds/no buff.';
             else if (activeEffects.currentCatStatus === '🙀🪲') petDescDiv.textContent = '-1 All Cats (Scared by 🪲!)';
             mainArea.appendChild(petDescDiv);
-
+    
             petInfoContainer.appendChild(mainArea);
-            content.appendChild(petInfoContainer);
-
+    
             const petBottomArea = document.createElement('div');
             petBottomArea.className = 'pet-bottom-area';
-
+    
             if (activeEffects.hasMouseToy) {
                 const toySpan = document.createElement('span');
                 toySpan.id = 'pet-toy-display';
                 toySpan.textContent = '🐁';
                 petBottomArea.appendChild(toySpan);
             }
-
+    
             const foodConsumptionDiv = document.createElement('div');
             foodConsumptionDiv.className = 'pet-food-consumption';
             foodConsumptionDiv.textContent = `(-${GAME_CONFIG.catFoodConsumption} 🍽️ per spin)`;
             petBottomArea.appendChild(foodConsumptionDiv);
-
-            content.appendChild(petBottomArea);
-
-        } else {
-            content.innerHTML = '<div>No companion active. Adopt a 🐈‍⬛ from the grid or activate an 👽 from your inventory.</div>';
+    
+            petInfoContainer.appendChild(petBottomArea);
+            catWrapper.appendChild(petInfoContainer);
+            companionsContainer.appendChild(catWrapper);
         }
-
-        DOM_ELEMENTS.petModalTitle.innerHTML = `${titleEmoji} Companion`;
+    
+        let titleEmoji = '💙';
+        if (hasCat && hasAlien) {
+            titleEmoji = '🐈👽';
+        } else if (hasCat) {
+            titleEmoji = '🐈';
+        } else if (hasAlien) {
+            titleEmoji = '👽';
+        }
+        DOM_ELEMENTS.petModalTitle.innerHTML = `${titleEmoji} Companions`;
     }
 
-
-    // REMOVED: updateWindowModal function is no longer needed
-
-    // NEW: Function to update the window button state
     function updateWindowButtonState() {
         if (DOM_ELEMENTS.windowTriggerBtn) {
             DOM_ELEMENTS.windowTriggerBtn.textContent = uiState.windowOpen ? '🪟' : '⬜';
@@ -913,27 +959,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     div.onclick = () => clickFoodEmoji(item.emoji, index);
                 }
             }
-            if (item && item.emoji === "🐈‍⬛" && !activeEffects.hasPetCat && !activeEffects.hasAlienVisitor && !uiState.isGameOver) {
+            if (item && item.emoji === "🐈‍⬛" && !activeEffects.hasPetCat && !uiState.isGameOver) {
                 div.classList.add('clickable-cat');
                 div.onclick = () => clickCatEmoji(index);
             }
 
             DOM_ELEMENTS.grid.appendChild(div);
-        });
-    }
-
-    function displayIndividualPayouts(payouts) {
-        DOM_ELEMENTS.grid.querySelectorAll('.slot-cell').forEach((cell, index) => {
-            const payoutText = cell.querySelector('.payout-text');
-            if (payoutText && payouts[index] > 0) {
-                payoutText.textContent = `+${payouts[index]}`;
-                payoutText.classList.remove('hide');
-                payoutText.classList.add('show');
-                setTimeout(() => {
-                    payoutText.classList.remove('show');
-                    payoutText.classList.add('hide');
-                }, 1500);
-            }
         });
     }
 
@@ -973,20 +1004,36 @@ document.addEventListener('DOMContentLoaded', () => {
         const donutActive = activeEffects.donutBuffActive && activeEffects.donutBuffSpinsLeft > 0;
         DOM_ELEMENTS.donutBuffStatusEl.innerHTML = donutActive ? `<span class="buff-emoji">🍩</span> <span class="buff-countdown">${activeEffects.donutBuffSpinsLeft}</span>` : '';
         DOM_ELEMENTS.donutBuffStatusEl.style.display = donutActive ? 'flex' : 'none';
-
+    
         const sushiActive = activeEffects.sushiCatBuffActive && activeEffects.sushiCatBuffSpinsLeft > 0;
         DOM_ELEMENTS.sushiBuffStatusEl.innerHTML = sushiActive ? `<span class="buff-emoji">😻</span> <span class="buff-countdown">${activeEffects.sushiCatBuffSpinsLeft}</span>` : '';
         DOM_ELEMENTS.sushiBuffStatusEl.style.display = sushiActive ? 'flex' : 'none';
-
+    
+        // Alien Buff
+        const alienActive = activeEffects.hasAlienVisitor;
+        DOM_ELEMENTS.alienBuffStatusEl.innerHTML = alienActive ? `<span class="buff-emoji">👽</span> <span class="buff-value">+10</span>` : '';
+        DOM_ELEMENTS.alienBuffStatusEl.style.display = alienActive ? 'flex' : 'none';
+    
         // Cat Buff Logic
-        const baseCatBuffActive = activeEffects.hasPetCat && !sushiActive && activeEffects.currentCatStatus === '😺';
-        DOM_ELEMENTS.catBuffStatusEl.innerHTML = baseCatBuffActive ? `<span class="buff-emoji">😺</span> <span class="buff-value">+1</span>` : '';
-        DOM_ELEMENTS.catBuffStatusEl.style.display = baseCatBuffActive ? 'flex' : 'none';
-
+        const catActive = activeEffects.hasPetCat;
+        if (catActive && !sushiActive) { // Avoid double-displaying sushi buff
+            let catBuffText = '';
+            if (activeEffects.currentCatStatus === '😺') {
+                catBuffText = `<span class="buff-value">+1</span>`;
+            } else if (activeEffects.currentCatStatus === '🙀🪲') {
+                catBuffText = `<span class="buff-value">-1</span>`;
+            }
+            DOM_ELEMENTS.catBuffStatusEl.innerHTML = `<span class="buff-emoji">${activeEffects.currentCatStatus}</span> ${catBuffText}`;
+            DOM_ELEMENTS.catBuffStatusEl.style.display = 'flex';
+        } else if (!catActive) {
+            DOM_ELEMENTS.catBuffStatusEl.innerHTML = '';
+            DOM_ELEMENTS.catBuffStatusEl.style.display = 'none';
+        }
+    
         const cosmicBonusModeActive = activeEffects.cosmicUpgradeActive && activeEffects.cosmicUpgradeSpinsLeft > 0;
         DOM_ELEMENTS.cosmicModeStatusEl.innerHTML = cosmicBonusModeActive ? `<span class="buff-emoji">🔭</span> <span class="buff-countdown">${activeEffects.cosmicUpgradeSpinsLeft}</span>` : '';
         DOM_ELEMENTS.cosmicModeStatusEl.style.display = cosmicBonusModeActive ? 'flex' : 'none';
-
+    
         const quantumBonusModeActive = activeEffects.quantumUpgradeActive && activeEffects.quantumUpgradeSpinsLeft > 0;
         DOM_ELEMENTS.quantumModeStatusEl.innerHTML = quantumBonusModeActive ? `<span class="buff-emoji">⚛️</span> <span class="buff-countdown">${activeEffects.quantumUpgradeSpinsLeft}</span>` : '';
         DOM_ELEMENTS.quantumModeStatusEl.style.display = quantumBonusModeActive ? 'flex' : 'none';
@@ -1004,7 +1051,7 @@ document.addEventListener('DOMContentLoaded', () => {
             DOM_ELEMENTS.permanentBuffStatusEl.innerHTML = permanentBuffsHTML;
             DOM_ELEMENTS.permanentBuffStatusEl.style.display = 'flex';
         }
-
+    
         // Phone Buff
         const phoneActive = phoneFeatureState.phoneOn;
         if (phoneActive) {
@@ -1015,20 +1062,20 @@ document.addEventListener('DOMContentLoaded', () => {
             DOM_ELEMENTS.phoneBuffStatusEl.innerHTML = '';
             DOM_ELEMENTS.phoneBuffStatusEl.style.display = 'none';
         }
-
+    
         // NEW: Window items status
         const nestActive = windowFeatureState.hasBirdNest;
         DOM_ELEMENTS.nestStatusEl.innerHTML = nestActive ? `<span class="buff-emoji">🪹</span>` : '';
         DOM_ELEMENTS.nestStatusEl.style.display = nestActive ? 'flex' : 'none';
-
+    
         const feathers = windowFeatureState.feathers;
         DOM_ELEMENTS.featherStatusEl.innerHTML = feathers > 0 ? `<span class="buff-emoji">🪶</span> <span class="buff-countdown">${feathers}</span>` : '';
         DOM_ELEMENTS.featherStatusEl.style.display = feathers > 0 ? 'flex' : 'none';
-
+    
         const beetles = windowFeatureState.beetles;
         DOM_ELEMENTS.beetleStatusEl.innerHTML = beetles > 0 ? `<span class="buff-emoji">🪲</span> <span class="buff-countdown">${beetles}</span>` : '';
         DOM_ELEMENTS.beetleStatusEl.style.display = beetles > 0 ? 'flex' : 'none';
-
+    
         const branchActive = windowFeatureState.hasBranch;
         DOM_ELEMENTS.branchStatusEl.innerHTML = branchActive ? `<span class="buff-emoji">🌿</span>` : '';
         DOM_ELEMENTS.branchStatusEl.style.display = branchActive ? 'flex' : 'none';
@@ -1101,18 +1148,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function clickCatEmoji(index) {
-        if (uiState.isGameOver || activeEffects.hasPetCat || activeEffects.hasAlienVisitor) {
+        if (uiState.isGameOver || activeEffects.hasPetCat) {
             return;
         }
         const symbolOnGrid = slotMachineState.currentGridSymbols[index];
         const catSymbolData = symbols.find(s => s.emoji === "🐈‍⬛");
-
+    
         if (symbolOnGrid && symbolOnGrid.emoji === "🐈‍⬛" && catSymbolData && catSymbolData.count > 0) {
             activeEffects.hasPetCat = true;
             activeEffects.spinsWithCat = 0;
             catSymbolData.count--;
             slotMachineState.currentGridSymbols[index] = null;
-
+    
             if (index === 3 && slotMachineState.topRightLocked) {
                 slotMachineState.topRightLocked = false;
                 slotMachineState.topRightSymbol = null;
@@ -1171,13 +1218,15 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function setupShop() {
         DOM_ELEMENTS.shopContent.innerHTML = "";
-        // MODIFIED: Sort shop items by cost
         const sortedShopItems = [...SHOP_ITEMS_CONFIG].sort((a, b) => a.cost - b.cost);
     
         sortedShopItems.forEach(item => {
             if (item.emoji === "🪹" && windowFeatureState.hasBirdNest) return;
             if (item.emoji === "🐁" && activeEffects.hasMouseToy) return;
             if (["🎥", "⚫"].includes(item.emoji) && playerState.inventory[item.emoji] >= 1) return;
+            
+            if (item.emoji === "⚫" && !activeEffects.quantumUpgradePenaltyActive) return;
+
             if (item.isUpgrade) {
                 if ((item.type === 'cosmic' && activeEffects.cosmicUpgradePenaltyActive) || (item.type === 'quantum' && activeEffects.quantumUpgradePenaltyActive)) {
                     return;
@@ -1195,12 +1244,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 canBuy = false;
             } else if (item.emoji === "🐁") {
                 if (!activeEffects.hasPetCat) canBuy = false;
-            } else if (item.emoji === "🎥") { // MODIFIED: Conditional camera purchase
+            } else if (item.emoji === "🎥") { 
                 if (!activeEffects.hasAlienVisitor) canBuy = false;
             }
             else if (item.isUpgrade) {
                 if(activeEffects.cosmicUpgradeActive || activeEffects.quantumUpgradeActive) canBuy = false;
-                // MODIFIED: Conditional quantum upgrade purchase
                 if(item.type === 'quantum' && !activeEffects.cosmicModeCompleted) {
                     canBuy = false;
                 }
@@ -1501,16 +1549,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (uiState.isGameOver || playerState.inventory["👽"] <= 0 || activeEffects.hasAlienVisitor) {
             return;
         }
-
-        if (activeEffects.hasPetCat) {
-            const catSymbol = symbols.find(s => s.emoji === "🐈‍⬛");
-            if (catSymbol) catSymbol.count = GAME_CONFIG.initialCatCount;
-            activeEffects.hasPetCat = false;
-            activeEffects.spinsWithCat = 0;
-            activeEffects.sushiCatBuffActive = false;
-            activeEffects.sushiCatBuffSpinsLeft = 0;
-            activeEffects.currentCatStatus = '😺';
-        }
         playerState.inventory["👽"]--;
         activeEffects.hasAlienVisitor = true;
         updateDisplays();
@@ -1587,7 +1625,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 content = `
                     <h4>🍽️ Food & Consumables</h4>
                     <p><strong>Meter:</strong> Consumed per spin. Game Over at 0.</p>
-                    <p>Click 🍟, 🍣, 🍩 on grid to eat from symbol inventory. Restores ${foodRefillValue} food.</p>
+                    <p>Click 🍟, 🍣, 🍩 on grid to eat from your available symbols. Restores ${foodRefillValue} food.</p>
                     <ul>
                         <li>🍟 <strong>Fries:</strong> Basic. Alien visitor (👽) will consume ALL 🍟 from your bag each spin!</li>
                         <li>🍣 <strong>Sushi:</strong> Eaten from grid with 🐈‍⬛ Pet Cat -> Cat +5 value (${GAME_CONFIG.sushiBuffDuration} spins).</li>
@@ -1598,9 +1636,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
             case 'cat':
                 content = `
-                    <h4>💙 Companion (Cat / Alien)</h4>
-                    <p>Open the Companion modal (💙) to view status. Click 🐈‍⬛ on grid to adopt (uses 1 symbol). Click 👽 in inventory to activate (replaces cat).</p>
-                    <p>Max 1 companion (Cat or Alien).</p>
+                    <h4>💙 Companions (Cat & Alien)</h4>
+                    <p>Open the Companion modal (💙) to view status. Click 🐈‍⬛ on grid to adopt. Click 👽 in inventory to activate.</p>
+                    <p>You can have both a Cat and an Alien as companions simultaneously.</p>
                     <p><strong>🐈‍⬛ Cat:</strong> Consumes +${GAME_CONFIG.catFoodConsumption} 🍽️ food/spin. Statuses affect 🐈‍⬛ grid value:</p>
                     <ul>
                         <li>😺 <strong>Happy:</strong> Default. +1 value.</li>
@@ -1610,8 +1648,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         <li>😻🍣 <strong>Buffed:</strong> Eat 🍣 with Cat. +5 value (${GAME_CONFIG.sushiBuffDuration} spins).</li>
                     </ul>
                     <p>🐁 <strong>Mouse Toy (Shop):</strong> Keeps cat 😺 happy.</p>
-                    <p><strong>👽 Alien:</strong> Cosmic symbols on grid +12 value. No food meter cost. Consumes ALL 🍟 from bag per spin. 🛸 (UFO) has a ${GAME_CONFIG.ufoAlienDropChance*100}% chance to drop 👽 to inventory during Cosmic Mode if you don't have one.</p>
-                    <p>🎥 <strong>Camera (Inventory):</strong> If 👽 is active, consume 🎥 to sell proof to media. Alien leaves. 50/50 chance of 4500🪙 or 6000🪙 payout. Shop cost: ${cameraShopItem.cost}🪙.</p>
+                    <p><strong>👽 Alien:</strong> Cosmic symbols on grid +10 value. No food meter cost. Consumes ALL 🍟 from bag per spin. If you've bought the Cosmic Upgrade, 🛸 (UFO) has a ${GAME_CONFIG.ufoAlienDropChance*100}% chance to drop 👽 to your inventory (if you don't have one).</p>
+                    <p>🎥 <strong>Camera (Inventory):</strong> If 👽 is active, consume 🎥 to sell proof to media. The Alien leaves, but your cat will remain. 50/50 chance of 4500🪙 or 6000🪙 payout. Shop cost: ${cameraShopItem.cost}🪙.</p>
                 `;
                 break;
             case 'phone':
@@ -1657,7 +1695,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <h5>${quantumUpgradeShopItem.emoji} Quantum Upgrade</h5>
                     <p><strong>Cost:</strong> ${quantumUpgradeShopItem.cost}🪙. <strong>Penalty:</strong> -${quantumUpgradeShopItem.powerCost}🔌/spin.</p>
                     <p>Triggers ${GAME_CONFIG.quantumModeDuration}-spin Quantum Mode: Multiplier (2x,3x,5x) applies to the entire bottom row.
-                    <br><strong>Schrödinger's Cat:</strong> Each spin, ${GAME_CONFIG.schrodingerCatsCount} random grid symbols get a 🐈 overlay and their payout is multiplied by an additional ${GAME_CONFIG.schrodingerCatMultiplier}x (stacks with row multiplier).</p>
+                    <br><strong>Schrödinger's Cat:</strong> Each spin, ${GAME_CONFIG.schrodingerCatsCount} random grid symbols get a 🐈 overlay. Payout is x${GAME_CONFIG.schrodingerCatMultiplier}. If it lands on 🐈‍⬛, the payout is x${GAME_CONFIG.schrodingerCatOnCatMultiplier} instead!</p>
                 `;
                 break;
             default:
@@ -1684,8 +1722,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function closeGuideSelectionModal() { DOM_ELEMENTS.guideSelectionModalOverlay.classList.add('hidden'); }
 
-    // REMOVED openWindowModal and closeWindowModal
-
     function openPetModal() { if (!uiState.isGameOver) DOM_ELEMENTS.petModalOverlay.classList.remove('hidden'); }
     function closePetModal() { DOM_ELEMENTS.petModalOverlay.classList.add('hidden'); }
 
@@ -1697,7 +1733,6 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM_ELEMENTS.giftChoiceModal.classList.add('hidden'); 
         DOM_ELEMENTS.shopModalOverlay.classList.add('hidden');
         DOM_ELEMENTS.guideSelectionModalOverlay.classList.add('hidden');
-        // REMOVED windowModalOverlay
         DOM_ELEMENTS.petModalOverlay.classList.add('hidden');
         DOM_ELEMENTS.phoneModalOverlay.classList.add('hidden');
     }
@@ -1744,7 +1779,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Modal Close Buttons
         DOM_ELEMENTS.shopModalCloseBtn.addEventListener('click', closeShopModal);
         DOM_ELEMENTS.guideSelectionModalCloseBtn.addEventListener('click', closeGuideSelectionModal);
-        // REMOVED windowModalCloseBtn
         DOM_ELEMENTS.petModalCloseBtn.addEventListener('click', closePetModal);
         DOM_ELEMENTS.phoneModalCloseBtn.addEventListener('click', closePhoneModal);
         DOM_ELEMENTS.alienMediaPayoutCloseBtn.addEventListener('click', () => DOM_ELEMENTS.alienMediaPayoutModal.classList.add('hidden'));
@@ -1757,7 +1791,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Specific Modal Buttons
-        // REMOVED windowToggleBtn listener
         DOM_ELEMENTS.giftChoiceBirdBtn.addEventListener('click', () => selectGift('bird'));
         DOM_ELEMENTS.giftChoiceFoodBtn.addEventListener('click', () => selectGift('food'));
         DOM_ELEMENTS.giftChoiceLocksBtn.addEventListener('click', () => selectGift('locks'));
