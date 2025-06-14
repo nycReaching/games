@@ -77,9 +77,8 @@ body.quantum-theme {
 }
 
 @keyframes pulseSymbol {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.4); color: var(--accent-yellow); }
-    100% { transform: scale(1); }
+    0%, 50%, 100% { transform: scale(1); }
+    25%, 75% { transform: scale(1.4); color: var(--accent-yellow); }
 }
 
 .symbol-pulse-animation {
@@ -227,8 +226,8 @@ body {
 }
 .slot-cell.anim-popIn { animation: popIn 0.4s ease-out forwards; opacity: 0; }
 .slot-cell:hover { transform: translateY(-2px); box-shadow: var(--shadow-strong); }
-.slot-cell.clickable-food { cursor: pointer; border-color: var(--accent-green); }
-.slot-cell.clickable-cat { cursor: pointer; border-color: var(--accent-pink); }
+.slot-cell.clickable-food { cursor: pointer; }
+.slot-cell.clickable-cat { cursor: pointer; }
 
 /* Text inside Slot Cells */
 .slot-cell .base-value-text {
@@ -363,6 +362,13 @@ body {
 .modal-close-btn:hover { color: var(--accent-pink); }
 .modal-content { overflow-y: auto; font-size: 14px; line-height: 1.6; padding: 8px; }
 .modal-content strong { color: var(--accent-yellow); }
+.modal-content hr {
+    border-color: var(--border-color);
+    margin: 12px 0;
+    border-style: solid;
+    border-width: 1px 0 0 0;
+}
+
 
 /* Shop Modal */
 #shop-modal-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
@@ -400,8 +406,8 @@ body {
 .investment-ui #invest-amount-display, .takeout-ui #takeout-amount-display { font-size: 18px; font-weight: bold; text-align: center; }
 
 /* Pet Modal */
-#pet-modal-content { display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 4px; min-height: 220px; }
-.pet-info-container { text-align: center; }
+#pet-modal-content { display: flex; flex-direction: column; justify-content: flex-start; align-items: center; padding: 4px; min-height: 220px; }
+.pet-info-container { text-align: center; width: 100%; }
 .pet-status-emoji { font-size: 48px; }
 .pet-description { font-size: 13px; color: var(--text-primary); min-height: 18px; font-weight: 500; margin-top: 4px; }
 .pet-bottom-area { width: 100%; text-align: center; }
@@ -412,11 +418,12 @@ body {
 
 /* Guide Modal */
 #guide-icons-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 200px; margin: 12px auto; }
-.guide-icon { font-size: 36px; cursor: pointer; transition: transform 0.2s ease; }
+.guide-icon { font-size: 36px; cursor: pointer; transition: transform 0.2s ease; text-align: center; }
 .guide-icon:hover { transform: scale(1.15); color: var(--accent-pink); }
 #guide-back-btn { display: block; width: 80%; margin: 0 auto 15px auto; }
 .guide-topic-content h4 { font-size: 16px; color: var(--accent-blue); margin-top: 12px; margin-bottom: 8px; border-bottom: 1px solid var(--bg-panel-accent); padding-bottom: 4px; }
-.guide-topic-content ul { list-style-type: disc; margin-left: 18px; margin-bottom: 8px; }
+.guide-topic-content ul { list-style-type: none; padding-left: 0; margin-bottom: 8px; }
+.guide-topic-content li { margin-bottom: 5px; }
 
 /* Gift Modal */
 #gift-choice-content h4 { font-size: 20px; color: var(--accent-yellow); text-align: center; border: none; }
