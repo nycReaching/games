@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
         luckyLinesSpinCost: 30,
         multiplierSlotIndex: 7, // Default last slot of bottom row (0-indexed)
         gridSize: 8,
-        initialCoins: 50000,
+        initialCoins: 50,
         initialLockItems: 3,
         baseSpinFoodConsumption: 1,
         catFoodConsumption: 1,
@@ -21,28 +21,28 @@ document.addEventListener('DOMContentLoaded', () => {
         takeoutDuration: 10,
         donutBuffDuration: 10,
         sushiBuffDuration: 3,
-        birdGainChance: 0.12,
-        birdLossChance: 0.12,
+        birdGainChance: 0.15,
+        birdLossChance: 0.15,
         spamTextChance: 0.25,
         spamTextCost: 35,
         friendlyTextGain: 10,
-        parrotBeetleDropChance: 0.10,
-        doveBranchDropChance: 0.10,
-        owlFeatherDropChance: 0.10,
+        parrotBeetleDropChance: 0.15,
+        doveBranchDropChance: 0.15,
+        owlFeatherDropChance: 0.15,
         ufoAlienDropChance: 0.15, // UFO alien drop chance
         gameOverOnUnpaidBillChance: 0.05,
         powerBillBaseCost: 125, // UPDATED
         powerBillIncrement: 125, // UPDATED
         maxFoodSymbolCap: 8,
         maxTotalBirdsCap: 8,
-        schrodingerCatsCount: 2, // Number of 10x cats in Quantum Mode
-        schrodingerCatMultiplier: 10,
+        schrodingerCatsCount: 2, // Number of special cells in Quantum Mode
     };
 
     const INITIAL_SYMBOLS_CONFIG = [
         { emoji: "🍟", value: 2, count: 4, refill: 10, isFood: true },
         { emoji: "🍣", value: 1, count: 3, refill: 10, isFood: true },
         { emoji: "🍩", value: 3, count: 3, refill: 10, isFood: true },
+        { emoji: "🫐", value: 0, count: 0, refill: 5, isFood: true, hidden: false },
         { emoji: "🐈‍⬛", value: 2, count: GAME_CONFIG.initialCatCount, refill: 0, isFood: false },
         { emoji: "🦜", value: 3, count: 0, refill: 0, isFood: false, hidden: false },
         { emoji: "🦉", value: 0, count: 0, refill: 0, isFood: false, hidden: false },
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const SHOP_ITEMS_CONFIG = [
         { name: "Mouse Toy", emoji: "🐁", cost: 200 },
-        { name: "Camera", emoji: "🎥", cost: 3000 },
+        { name: "Camera", emoji: "📹", cost: 3000 },
         { name: "Bird Nest", emoji: "🪹", cost: 1000 },
         { name: "Black Hole", emoji: "⚫", cost: 10000 },
         { name: "Cosmic Upgrade", emoji: "🔭", cost: 2000, powerCost: 2, isUpgrade: true, type: 'cosmic' },
@@ -81,6 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         nextPowerBillCostDisplay: document.getElementById("next-power-bill-cost-display"),
         donutBuffStatusEl: document.getElementById('donut-buff-status'),
         catBuffStatusEl: document.getElementById('cat-buff-status'),
+        alienBuffStatusEl: document.getElementById('alien-buff-status'),
         phoneBuffStatusEl: document.getElementById('phone-buff-status'),
         cosmicModeStatusEl: document.getElementById('cosmic-mode-status'),
         quantumModeStatusEl: document.getElementById('quantum-mode-status'),
@@ -137,11 +138,12 @@ document.addEventListener('DOMContentLoaded', () => {
         playerState.coins = GAME_CONFIG.initialCoins;
         playerState.foodMeter = GAME_CONFIG.maxFoodMeter;
         playerState.power = GAME_CONFIG.maxPower;
-        playerState.inventory = { "🎥": 0, "☕": 2, "👽": 0, "📃": 0, "⚫": 0, "🎁": 0 };
+        playerState.inventory = { "📹": 0, "☕": 2, "👽": 0, "📃": 0, "⚫": 0, "🎁": 0 };
         playerState.lockItems = GAME_CONFIG.initialLockItems;
         playerState.billsPaidSoFar = 0;
         playerState.spinCount = 0;
         playerState.giftAwarded = false;
+        playerState.spinsSinceLastBlueberry = 0;
 
         slotMachineState.luckyLines = false;
         slotMachineState.topRightLocked = false;
@@ -152,6 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
         slotMachineState.schrodingerCells = []; // For Quantum Mode
 
         activeEffects.hasPetCat = false;
+        activeEffects.hasPetDove = false;
         activeEffects.hasAlienVisitor = false;
         activeEffects.spinsWithCat = 0;
         activeEffects.currentCatStatus = '😺';
@@ -181,6 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
         windowFeatureState.feathers = 0;
         windowFeatureState.beetles = 0;
         windowFeatureState.hasBranch = false;
+        windowFeatureState.branchesDroppedThisGame = 0;
 
         phoneFeatureState.phoneOn = false; // Is phone active for texts?
         phoneFeatureState.investmentActive = false;
@@ -229,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let bag = [];
         effectiveSymbolsConfig.forEach(symbol => {
-            let shouldBeInBag = !symbol.isCosmic;
+            let shouldBeInBag = !symbol.isCosmic && !symbol.hidden;
 
             if (symbol.isCosmic) {
                 if (activeEffects.cosmicUpgradePenaltyActive || activeEffects.cosmicUpgradeActive) {
@@ -239,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             
-            if (symbol.count > 0 && !symbol.hidden && shouldBeInBag) {
+            if (symbol.count > 0 && shouldBeInBag) {
                 for (let i = 0; i < symbol.count; i++) {
                     bag.push({ ...symbol });
                 }
@@ -385,6 +389,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (activeEffects.hasPetCat && !activeEffects.hasMouseToy) activeEffects.spinsWithCat++;
+        if (activeEffects.hasPetDove) {
+            playerState.spinsSinceLastBlueberry = (playerState.spinsSinceLastBlueberry || 0) + 1;
+            if (playerState.spinsSinceLastBlueberry >= 10) {
+                const blueberrySymbol = symbols.find(s => s.emoji === '🫐');
+                if (blueberrySymbol) {
+                    blueberrySymbol.count++;
+                }
+                playerState.spinsSinceLastBlueberry = 0;
+            }
+        }
 
         if (phoneFeatureState.investmentActive) handleInvestmentSpin();
         if (phoneFeatureState.takeoutActive) handleTakeoutSpin();
@@ -485,7 +499,10 @@ document.addEventListener('DOMContentLoaded', () => {
                                 windowFeatureState.beetles++;
                             }
                         } else if (item.emoji === "🕊️" && Math.random() < GAME_CONFIG.doveBranchDropChance) {
-                            if (!windowFeatureState.hasBranch) windowFeatureState.hasBranch = true;
+                            if (!windowFeatureState.hasBranch && windowFeatureState.branchesDroppedThisGame < 2) {
+                                windowFeatureState.hasBranch = true;
+                                windowFeatureState.branchesDroppedThisGame++;
+                            }
                         } else if (item.emoji === "🦉" && Math.random() < GAME_CONFIG.owlFeatherDropChance) {
                             if (windowFeatureState.feathers < GAME_CONFIG.maxFeathers) windowFeatureState.feathers++;
                         }
@@ -562,7 +579,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     
         if (activeEffects.quantumUpgradeActive && slotMachineState.schrodingerCells.includes(index)) {
-            itemValue *= GAME_CONFIG.schrodingerCatMultiplier;
+            if (item.emoji === "🐈‍⬛") {
+                itemValue *= 500;
+            }
         }
     
         if (activeEffects.quantumUpgradeActive) { 
@@ -689,7 +708,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else if (itemEmoji === "📃") {
                         itemSpan.classList.add("clickable");
                         itemSpan.onclick = consumePowerBill;
-                    } else if (itemEmoji === "🎥") {
+                    } else if (itemEmoji === "📹") {
                         itemSpan.classList.add("clickable");
                         itemSpan.style.opacity = activeEffects.hasAlienVisitor ? "1" : "0.7";
                         if (activeEffects.hasAlienVisitor) itemSpan.onclick = consumeCamera; else itemSpan.onclick = null;
@@ -706,51 +725,55 @@ document.addEventListener('DOMContentLoaded', () => {
     function updatePetModal() {
         const content = DOM_ELEMENTS.petModalContent;
         content.innerHTML = "";
-
-        let titleEmoji = "💙";
+        let titleEmojis = [];
+        const companionSections = [];
+    
+        // Alien Section
         if (activeEffects.hasAlienVisitor) {
-            titleEmoji = "👽";
+            titleEmojis.push("👽");
             const alienText = document.createElement('div');
             alienText.className = 'alien-visitor-text';
-
+    
             let alienInfo = `<span class="alien-emoji-large">👽</span><br/>Cosmic Visitor<br/>(+12 to Cosmic Symbols)`;
             const friesSymbol = symbols.find(s => s.emoji === "🍟");
             if (friesSymbol && friesSymbol.count > 0) {
                 alienInfo += `<br/><span style="font-size:0.8em; color: var(--accent-yellow);">Will consume ${friesSymbol.count} 🍟</span>`;
             } else {
-                 alienInfo += `<br/><span style="font-size:0.8em; color: var(--text-secondary);">No 🍟 to consume</span>`;
+                alienInfo += `<br/><span style="font-size:0.8em; color: var(--text-secondary);">No 🍟 to consume</span>`;
             }
             alienText.innerHTML = alienInfo;
-            content.appendChild(alienText);
-        } else if (activeEffects.hasPetCat) {
-            titleEmoji = "🐈";
+            companionSections.push(alienText);
+        }
     
-            let newStatus = '😺'; 
+        // Cat Section
+        if (activeEffects.hasPetCat) {
+            titleEmojis.push("🐈‍⬛");
+            const catContainer = document.createElement('div');
+            catContainer.className = 'pet-info-container';
+    
+            let newStatus = '😺';
             if (!activeEffects.hasMouseToy && activeEffects.spinsWithCat >= 20) {
-                newStatus = '😿'; 
+                newStatus = '😿';
             }
             if (getTotalBirdCount() >= 4 && !windowFeatureState.hasBirdNest) {
-                newStatus = '😼'; 
+                newStatus = '😼';
             }
             if (windowFeatureState.beetles > 0 && !windowFeatureState.hasBirdNest) {
-                newStatus = '🙀🪲'; 
+                newStatus = '🙀🪲';
             }
             if (activeEffects.sushiCatBuffActive) {
-                newStatus = '😻🍣'; 
+                newStatus = '😻🍣';
             }
             activeEffects.currentCatStatus = newStatus;
-
-            const petInfoContainer = document.createElement('div');
-            petInfoContainer.className = 'pet-info-container';
-
+    
             const mainArea = document.createElement('div');
             mainArea.className = 'pet-main-area';
-
+    
             const petDiv = document.createElement('div');
             petDiv.className = 'pet-display';
             petDiv.innerHTML = `<span class="pet-status-emoji">${activeEffects.currentCatStatus}</span>`;
             mainArea.appendChild(petDiv);
-
+    
             const petDescDiv = document.createElement('div');
             petDescDiv.className = 'pet-description';
             if (activeEffects.currentCatStatus === '😻🍣') petDescDiv.textContent = `All Cats +5!`;
@@ -759,32 +782,62 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (activeEffects.currentCatStatus === '😼') petDescDiv.textContent = 'Too many birds/no buff.';
             else if (activeEffects.currentCatStatus === '🙀🪲') petDescDiv.textContent = '-1 All Cats (Scared by 🪲!)';
             mainArea.appendChild(petDescDiv);
-
-            petInfoContainer.appendChild(mainArea);
-            content.appendChild(petInfoContainer);
-
+    
+            catContainer.appendChild(mainArea);
+    
             const petBottomArea = document.createElement('div');
             petBottomArea.className = 'pet-bottom-area';
-
+    
             if (activeEffects.hasMouseToy) {
                 const toySpan = document.createElement('span');
                 toySpan.id = 'pet-toy-display';
                 toySpan.textContent = '🐁';
                 petBottomArea.appendChild(toySpan);
             }
-
+    
             const foodConsumptionDiv = document.createElement('div');
             foodConsumptionDiv.className = 'pet-food-consumption';
             foodConsumptionDiv.textContent = `(-${GAME_CONFIG.catFoodConsumption} 🍽️ per spin)`;
             petBottomArea.appendChild(foodConsumptionDiv);
-
-            content.appendChild(petBottomArea);
-
-        } else {
-            content.innerHTML = '<div>No companion active. Adopt a 🐈‍⬛ from the grid or activate an 👽 from your inventory.</div>';
+    
+            if (petBottomArea.childElementCount > 0) {
+                catContainer.appendChild(petBottomArea);
+            }
+    
+            companionSections.push(catContainer);
         }
-
-        DOM_ELEMENTS.petModalTitle.innerHTML = `${titleEmoji} Companion`;
+    
+        // Dove Section
+        if (activeEffects.hasPetDove) {
+            titleEmojis.push("🕊️");
+            const doveContainer = document.createElement('div');
+            doveContainer.className = 'pet-info-container';
+            doveContainer.innerHTML = `
+                <div class="pet-main-area">
+                    <span class="pet-status-emoji">🕊️</span>
+                    <div class="pet-description">Peaceful Companion</div>
+                </div>
+                <div class="pet-bottom-area" style="margin-top: 10px;">
+                    <div class="pet-food-consumption">+1 🫐 every 10 spins</div>
+                </div>
+            `;
+            companionSections.push(doveContainer);
+        }
+    
+        if (companionSections.length > 0) {
+            companionSections.forEach((section, index) => {
+                content.appendChild(section);
+                if (index < companionSections.length - 1) {
+                    const separator = document.createElement('hr');
+                    content.appendChild(separator);
+                }
+            });
+        } else {
+            content.innerHTML = '<div>No companion active. Adopt a 🐈‍⬛ or 🕊️ from the grid, or activate an 👽 from your inventory.</div>';
+            titleEmojis.push("💙");
+        }
+    
+        DOM_ELEMENTS.petModalTitle.innerHTML = `${titleEmojis.join('')} Companion`;
     }
 
     function updateWindowButtonState() {
@@ -890,9 +943,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     div.onclick = () => clickFoodEmoji(item.emoji, index);
                 }
             }
-            if (item && item.emoji === "🐈‍⬛" && !activeEffects.hasPetCat && !activeEffects.hasAlienVisitor && !uiState.isGameOver) {
+            if (item && item.emoji === "🐈‍⬛" && !activeEffects.hasPetCat && !uiState.isGameOver) {
                 div.classList.add('clickable-cat');
                 div.onclick = () => clickCatEmoji(index);
+            }
+            if (item && item.emoji === "🕊️" && !activeEffects.hasPetDove && windowFeatureState.hasBranch && !uiState.isGameOver) {
+                div.classList.add('clickable-food'); // Re-use style for pointer
+                div.onclick = () => clickDoveEmoji(index);
             }
 
             DOM_ELEMENTS.grid.appendChild(div);
@@ -915,18 +972,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateNextPowerBillCostDisplay() {
-        if (DOM_ELEMENTS.nextPowerBillCostDisplay) {
-            let displayText = "";
-            const billCost = GAME_CONFIG.powerBillBaseCost + (playerState.billsPaidSoFar * GAME_CONFIG.powerBillIncrement);
-
-            if (playerState.inventory['📃'] > 0 && playerState.power <= 0) {
-                // UPDATED: New format for the bill display.
-                displayText = `📃${billCost}🪙`;
-            } else {
-                displayText = `Next: ${billCost}🪙`;
-            }
-            DOM_ELEMENTS.nextPowerBillCostDisplay.textContent = displayText;
-        }
+    if (DOM_ELEMENTS.nextPowerBillCostDisplay) {
+        const billCost = GAME_CONFIG.powerBillBaseCost + (playerState.billsPaidSoFar * GAME_CONFIG.powerBillIncrement);
+        const displayText = `📃${billCost}🪙`;
+        DOM_ELEMENTS.nextPowerBillCostDisplay.textContent = displayText;
+    	}
     }
 
     function updateStatusEffectsWindow() {
@@ -957,6 +1007,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 DOM_ELEMENTS.catBuffStatusEl.style.display = 'flex';
             }
         }
+        
+        // Alien Buff
+        const alienActive = activeEffects.hasAlienVisitor;
+        DOM_ELEMENTS.alienBuffStatusEl.innerHTML = alienActive ? `<span class="buff-emoji">👽</span> <span class="buff-value">+12</span>` : '';
+        DOM_ELEMENTS.alienBuffStatusEl.style.display = alienActive ? 'flex' : 'none';
+
 
         const cosmicBonusModeActive = activeEffects.cosmicUpgradeActive && activeEffects.cosmicUpgradeSpinsLeft > 0;
         DOM_ELEMENTS.cosmicModeStatusEl.innerHTML = cosmicBonusModeActive ? `<span class="buff-emoji">🔭</span> <span class="buff-countdown">${activeEffects.cosmicUpgradeSpinsLeft}</span>` : '';
@@ -1075,7 +1131,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function clickCatEmoji(index) {
-        if (uiState.isGameOver || activeEffects.hasPetCat || activeEffects.hasAlienVisitor) {
+        if (uiState.isGameOver || activeEffects.hasPetCat) {
             return;
         }
         const symbolOnGrid = slotMachineState.currentGridSymbols[index];
@@ -1096,46 +1152,74 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function clickDoveEmoji(index) {
+        if (uiState.isGameOver || activeEffects.hasPetDove || !windowFeatureState.hasBranch) {
+            return;
+        }
+        const symbolOnGrid = slotMachineState.currentGridSymbols[index];
+        const doveSymbolData = symbols.find(s => s.emoji === "🕊️");
+
+        if (symbolOnGrid && symbolOnGrid.emoji === "🕊️" && doveSymbolData && doveSymbolData.count > 0) {
+            activeEffects.hasPetDove = true;
+            windowFeatureState.hasBranch = false; // Consume the branch
+            playerState.spinsSinceLastBlueberry = 0; // Reset counter
+            doveSymbolData.count--;
+            slotMachineState.currentGridSymbols[index] = null;
+
+            if (index === 3 && slotMachineState.topRightLocked) {
+                slotMachineState.topRightLocked = false;
+                slotMachineState.topRightSymbol = null;
+            }
+            updateGridDOM(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier, false);
+            updateDisplays();
+        }
+    }
+
     function purchaseItem(itemEmoji) {
         if (uiState.isGameOver) return;
         const itemData = SHOP_ITEMS_CONFIG.find(i => i.emoji === itemEmoji);
         if (!itemData) return;
-
-        let cost = itemData.cost;
-        if (itemEmoji === "🪹") {
-            cost = windowFeatureState.hasBranch ? 250 : itemData.cost;
-        }
-        if (playerState.coins < cost) { return; }
-
+    
         if (itemData.isUpgrade) {
             if (itemData.type === 'cosmic' && !activeEffects.cosmicUpgradePenaltyActive && !activeEffects.quantumUpgradeActive) {
-                playerState.coins -= cost;
+                if (playerState.coins < itemData.cost) return;
+                playerState.coins -= itemData.cost;
                 activateCosmicUpgrade();
                 closeShopModal();
             } else if (itemData.type === 'quantum' && !activeEffects.quantumUpgradePenaltyActive && !activeEffects.cosmicUpgradeActive) {
-                if (!activeEffects.cosmicModeCompleted) return; 
-                playerState.coins -= cost;
+                if (!activeEffects.cosmicModeCompleted) return;
+                if (playerState.coins < itemData.cost) return;
+                playerState.coins -= itemData.cost;
                 activateQuantumUpgrade();
                 closeShopModal();
             }
         } else if (itemEmoji === "🪹") {
             if (windowFeatureState.hasBirdNest) { return; }
-            playerState.coins -= cost;
+            const hasDiscount = windowFeatureState.hasBranch;
+            const finalCost = hasDiscount ? 250 : itemData.cost;
+            if (playerState.coins < finalCost) { return; }
+    
+            playerState.coins -= finalCost;
             windowFeatureState.hasBirdNest = true;
+            if (hasDiscount) {
+                windowFeatureState.hasBranch = false;
+            }
             if (windowFeatureState.beetles > 0) windowFeatureState.beetles = 0;
         } else if (itemEmoji === "🐁") {
             if (!activeEffects.hasPetCat || activeEffects.hasMouseToy) { return; }
-            playerState.coins -= cost;
+            if (playerState.coins < itemData.cost) { return; }
+            playerState.coins -= itemData.cost;
             activeEffects.hasMouseToy = true;
             activeEffects.spinsWithCat = 0;
-        } else if (itemEmoji === "🎥") {
-            if (!activeEffects.hasAlienVisitor) return; 
-            if (playerState.inventory[itemEmoji] >= 1) return;
-            playerState.coins -= cost;
+        } else if (itemEmoji === "📹") {
+            if (!activeEffects.hasAlienVisitor || playerState.inventory[itemEmoji] >= 1) return;
+            if (playerState.coins < itemData.cost) return;
+            playerState.coins -= itemData.cost;
             playerState.inventory[itemEmoji]++;
-        } else {
-             if (playerState.inventory[itemEmoji] > 0 && itemEmoji === "⚫") return;
-            playerState.coins -= cost;
+        } else { // Handles Black Hole and other generic items
+            if (playerState.inventory[itemEmoji] > 0 && itemEmoji === "⚫") return;
+            if (playerState.coins < itemData.cost) return;
+            playerState.coins -= itemData.cost;
             playerState.inventory[itemEmoji]++;
         }
         updateDisplays();
@@ -1148,9 +1232,8 @@ document.addEventListener('DOMContentLoaded', () => {
         sortedShopItems.forEach(item => {
             if (item.emoji === "🪹" && windowFeatureState.hasBirdNest) return;
             if (item.emoji === "🐁" && activeEffects.hasMouseToy) return;
-            if (["🎥", "⚫"].includes(item.emoji) && playerState.inventory[item.emoji] >= 1) return;
-            if (item.emoji === "⚫" && !activeEffects.quantumModeCompleted) return;
-
+            if (item.emoji === "📹" && playerState.inventory[item.emoji] >= 1) return;
+            
             if (item.isUpgrade) {
                 if ((item.type === 'cosmic' && activeEffects.cosmicUpgradePenaltyActive) || (item.type === 'quantum' && activeEffects.quantumUpgradePenaltyActive)) {
                     return;
@@ -1168,10 +1251,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 canBuy = false;
             } else if (item.emoji === "🐁") {
                 if (!activeEffects.hasPetCat) canBuy = false;
-            } else if (item.emoji === "🎥") {
+            } else if (item.emoji === "📹") {
                 if (!activeEffects.hasAlienVisitor) canBuy = false;
-            }
-            else if (item.isUpgrade) {
+            } else if (item.emoji === "⚫") {
+                if (!activeEffects.quantumModeCompleted || playerState.inventory[item.emoji] >= 1) {
+                    canBuy = false;
+                }
+            } else if (item.isUpgrade) {
                 if(activeEffects.cosmicUpgradeActive || activeEffects.quantumUpgradeActive) canBuy = false;
                 if(item.type === 'quantum' && !activeEffects.cosmicModeCompleted) {
                     canBuy = false;
@@ -1377,10 +1463,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function consumeCamera() {
-        if (uiState.isGameOver || playerState.inventory["🎥"] <= 0 || !activeEffects.hasAlienVisitor) {
+        if (uiState.isGameOver || playerState.inventory["📹"] <= 0 || !activeEffects.hasAlienVisitor) {
             return;
         }
-        playerState.inventory["🎥"]--;
+        playerState.inventory["📹"]--;
         activeEffects.hasAlienVisitor = false;
         activeEffects.alienDroppedByUFO = false; 
 
@@ -1474,16 +1560,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (uiState.isGameOver || playerState.inventory["👽"] <= 0 || activeEffects.hasAlienVisitor) {
             return;
         }
-
-        if (activeEffects.hasPetCat) {
-            const catSymbol = symbols.find(s => s.emoji === "🐈‍⬛");
-            if (catSymbol) catSymbol.count = GAME_CONFIG.initialCatCount;
-            activeEffects.hasPetCat = false;
-            activeEffects.spinsWithCat = 0;
-            activeEffects.sushiCatBuffActive = false;
-            activeEffects.sushiCatBuffSpinsLeft = 0;
-            activeEffects.currentCatStatus = '😺';
-        }
         playerState.inventory["👽"]--;
         activeEffects.hasAlienVisitor = true;
         updateDisplays();
@@ -1519,10 +1595,13 @@ document.addEventListener('DOMContentLoaded', () => {
              <div id="guide-icons-container">
                 <span class="guide-icon" data-topic="window">🪟</span>
                 <span class="guide-icon" data-topic="food">🍽️</span>
-                <span class="guide-icon" data-topic="cat">🐈‍⬛</span>
+                <span class="guide-icon" data-topic="companion">💙</span>
                 <span class="guide-icon" data-topic="phone">📱</span>
                 <span class="guide-icon" data-topic="power">🔌</span>
                 <span class="guide-icon" data-topic="upgrades">🛠️</span>
+            </div>
+            <div class="guide-topic-content" id="guide-info-display">
+                <p>Select an icon for gameplay information.</p>
             </div>
         `;
         const guideIcons = content.querySelectorAll('.guide-icon');
@@ -1533,104 +1612,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function displayGuideInfo(topic) {
         let content = '';
-        const foodRefillValue = INITIAL_SYMBOLS_CONFIG.find(s => s.isFood)?.refill || 10;
-        const cameraShopItem = SHOP_ITEMS_CONFIG.find(i => i.emoji === "🎥");
-        const cosmicUpgradeShopItem = SHOP_ITEMS_CONFIG.find(i => i.type === "cosmic");
-        const quantumUpgradeShopItem = SHOP_ITEMS_CONFIG.find(i => i.type === "quantum");
 
         switch (topic) {
             case 'window':
                 content = `
                     <h4>🪟 Window</h4>
-                    <p><strong>Window Toggle:</strong> Open (🪟) or close (⬜) the window by tapping the button in the utility bar. Bird-related items (🪹, 🪶, 🪲, 🌿) are shown in the status area above the utility bar.</p>
-                    <p><strong>Open:</strong> ${GAME_CONFIG.birdGainChance * 100}% chance/spin to gain a bird, ${GAME_CONFIG.birdLossChance * 100}% to lose one (if no nest/beetle). Max ${GAME_CONFIG.maxTotalBirdsCap} birds.</p>
-                    <ul>
-                        <li>🦉: ${GAME_CONFIG.owlFeatherDropChance * 100}% on grid -> 🪶.</li>
-                        <li>🦜: ${GAME_CONFIG.parrotBeetleDropChance * 100}% on grid -> 🪲 (if no nest).</li>
-                        <li>🕊️: ${GAME_CONFIG.doveBranchDropChance * 100}% on grid -> 🌿.</li>
-                        <li>🐦‍🔥: No special drops.</li>
-                    </ul>
-                    <p>🪹 <strong>Nest:</strong> Protects birds from loss. Prevents 🦜 dropping 🪲.</p>
-                    <p>🪶 <strong>Feather:</strong> +1 value to grid birds. Max ${GAME_CONFIG.maxFeathers}.</p>
-                    <p>🪲 <strong>Beetle:</strong> Sacrificed to save 1 bird (if no nest). Max ${GAME_CONFIG.maxBeetles}.</p>
-                    <p>🌿 <strong>Branch:</strong> Reduces 🪹 Nest cost in shop.</p>
+                    <p>Open window (🪟) for a 15% chance to gain or lose birds. Close (⬜) to prevent this. Birds on the grid have a 15% chance per spin to drop items (🪶, 🪲, 🌿). A maximum of two 🌿 Branches can be dropped per game; they are used to tame a 🕊️ Dove or to buy a 🪹 Nest at a discount. The Nest also protects birds from leaving.</p>
                 `;
                 break;
             case 'food':
                 content = `
                     <h4>🍽️ Food & Consumables</h4>
-                    <p><strong>Meter:</strong> Consumed per spin. Game Over at 0.</p>
-                    <p>Click 🍟, 🍣, 🍩 on grid to eat from symbol inventory. Restores ${foodRefillValue} food.</p>
-                    <ul>
-                        <li>🍟 <strong>Fries:</strong> Basic. Alien visitor (👽) will consume ALL 🍟 from your bag each spin!</li>
-                        <li>🍣 <strong>Sushi:</strong> Eaten from grid with 🐈‍⬛ Pet Cat -> Cat +5 value (${GAME_CONFIG.sushiBuffDuration} spins).</li>
-                        <li>🍩 <strong>Donut:</strong> Grid value +3 if ☕ Coffee buff active.</li>
-                    </ul>
-                    <p>☕ <strong>Coffee (Inventory):</strong> Activates Donut Buff (+3 to 🍩 for ${GAME_CONFIG.donutBuffDuration} spins).</p>
+                    <p>Your food meter decreases each spin. <strong>Game Over at 0.</strong></p>
+                    <p>Click food symbols (🍟, 🍣, 🍩, 🫐) on the grid to consume one from your inventory and refill the meter. Some foods have special effects with companions or items.</p>
                 `;
                 break;
-            case 'cat':
+            case 'companion':
                 content = `
-                    <h4>💙 Companion (Cat / Alien)</h4>
-                    <p>Open the Companion modal (💙) to view status. Click 🐈‍⬛ on grid to adopt (uses 1 symbol). Click 👽 in inventory to activate (replaces cat).</p>
-                    <p>Max 1 companion (Cat or Alien).</p>
-                    <p><strong>🐈‍⬛ Cat:</strong> Consumes +${GAME_CONFIG.catFoodConsumption} 🍽️ food/spin. Statuses affect 🐈‍⬛ grid value:</p>
+                    <h4>💙 Companion</h4>
+                    <p>Adopt a <strong>🐈‍⬛ Cat</strong> or <strong>🕊️ Dove</strong> from the grid, or activate an <strong>👽 Alien</strong> from your inventory. They can be active at the same time.</p>
+                    <p>Companions provide powerful buffs but may have needs. Check the Companion (💙) modal for their current status and effects.</p>
                     <ul>
-                        <li>😺 <strong>Happy:</strong> Default. +1 value.</li>
-                        <li>😿 <strong>Sad:</strong> After 20 spins with no 🐁 Toy. No buff.</li>
-                        <li>😼 <strong>Annoyed:</strong> If 4+ birds & no nest (🪹). No buff.</li>
-                        <li>🙀🪲 <strong>Scared:</strong> If 🪲 present (no nest & bird). -1 value.</li>
-                        <li>😻🍣 <strong>Buffed:</strong> Eat 🍣 with Cat. +5 value (${GAME_CONFIG.sushiBuffDuration} spins).</li>
+                        <li><strong>🐈‍⬛ Cat:</strong> Provides buffs to Cat symbols, but consumes 🍽️ food each spin. Its mood can change its buff. A 🪹 <strong>Nest</strong> (Shop) prevents the upset 😼 mood from too many birds.</li>
+                        <li><strong>👽 Alien:</strong> Greatly buffs Cosmic symbols, but consumes all of your 🍟 from the bag each spin.</li>
+                        <li><strong>🕊️ Dove:</strong> Tame by clicking it on the grid while you have a 🌿 branch. The dove provides 1 🫐 (a food item that restores 5 food) every 10 spins. The branch is consumed.</li>
                     </ul>
-                    <p>🐁 <strong>Mouse Toy (Shop):</strong> Keeps cat 😺 happy.</p>
-                    <p><strong>👽 Alien:</strong> Cosmic symbols on grid +12 value. No food meter cost. Consumes ALL 🍟 from bag per spin. 🛸 (UFO) has a ${GAME_CONFIG.ufoAlienDropChance*100}% chance to drop 👽 to inventory during Cosmic Mode if you don't have one.</p>
-                    <p>🎥 <strong>Camera (Inventory):</strong> If 👽 is active, consume 🎥 to sell proof to media. Alien leaves. 50/50 chance of 4500🪙 or 6000🪙 payout. Shop cost: ${cameraShopItem.cost}🪙.</p>
+                    <p>Use a <strong>📹 Camera</strong> (Shop) on an active Alien to scare it away for a large coin payout.</p>
                 `;
                 break;
             case 'phone':
                 content = `
                     <h4>📱 Phone</h4>
-                    <p>Open the Phone modal (📱) to access features. A countdown (e.g. 📱 10) will appear in the buff bar while an order/investment is active.</p>
-                    <p><strong>Random Texts:</strong> While an order/investment is active, there is a ${GAME_CONFIG.spamTextChance * 100}% chance/spin for a text:</p>
-                    <ul>
-                        <li>⚠️ <strong>Spam:</strong> Lose ${GAME_CONFIG.spamTextCost} 🪙.</li>
-                        <li>👥 <strong>Friendly:</strong> Gain ${GAME_CONFIG.friendlyTextGain} 🪙.</li>
-                    </ul>
-                    <p>🥡 <strong>Emoji Eats (Takeout):</strong></p>
-                    <ul>
-                        <li>Order random food symbols. Max ${GAME_CONFIG.maxFoodSymbolCap} of each type.</li>
-                        <li>Cost: 15🪙/item (10 for 100🪙). Delivery takes ${GAME_CONFIG.takeoutDuration} spins.</li>
-                    </ul>
-                    <p>🏦 <strong>Investing:</strong></p>
-                    <ul>
-                        <li>Invest 🪙 for ${GAME_CONFIG.investmentDuration} spins.</li>
-                        <li><strong>Outcomes:</strong> Profit (75% chance): 1.5x payout. Loss (25% chance): 0.5x payout.</li>
-                    </ul>
+                    <p>Use the Phone (📱) to order takeout food (🥡) or invest coins (🏦). These actions take several spins to complete. While a phone action is active, you might receive random text messages that give or take coins.</p>
                 `;
                 break;
             case 'power':
                 content = `
                     <h4>🔌 Power & Bills</h4>
-                    <p><strong>Meter:</strong> Base -1/spin. Additional drain from Upgrades (⚛️Quantum: -5, 🔭Cosmic: -2). At 0 -> 📃 Bill (if none).</p>
-                    <p>Meter 0 + 📃 Bill: ${GAME_CONFIG.gameOverOnUnpaidBillChance * 100}% chance/spin -> Game Over.</p>
-                    <p>📃 <strong>Bill (Inventory):</strong></p>
-                    <ul>
-                        <li>Consume to pay (cost by "Next Bill") & refill power (${GAME_CONFIG.maxPower}).</li>
-                        <li>Cost: Starts ${GAME_CONFIG.powerBillBaseCost}🪙, +${GAME_CONFIG.powerBillIncrement}🪙 per paid bill.</li>
-                    </ul>
+                    <p>Power decreases per spin. If it hits 0, you get a <strong>📃 Bill.</strong> Pay the bill from your inventory to restore power. If you spin with an unpaid bill, you risk a Game Over.</p>
                 `;
                 break;
             case 'upgrades':
                 content = `
                     <h4>🛠️ Upgrades & Modes</h4>
-                    <p>Buy Upgrades from the Shop (🏪) to unlock powerful modes. These add a permanent power drain (see ⚛️/🔭 by 🔌 icon) and activate a temporary, powerful mode. Only one mode (Cosmic/Quantum) can be active at a time.</p>
-                    <h5>${cosmicUpgradeShopItem.emoji} Cosmic Upgrade</h5>
-                    <p><strong>Cost:</strong> ${cosmicUpgradeShopItem.cost}🪙. <strong>Penalty:</strong> -${cosmicUpgradeShopItem.powerCost}🔌/spin.</p>
-                    <p>Triggers ${GAME_CONFIG.cosmicModeDuration}-spin Cosmic Mode: Adds Cosmic symbols (🪐,🌠,🌒,🛸) to bag. Multiplier (2x,3x,5x) applies to the entire bottom row. 🛸 may drop 👽.</p>
-                    <h5>${quantumUpgradeShopItem.emoji} Quantum Upgrade</h5>
-                    <p><strong>Cost:</strong> ${quantumUpgradeShopItem.cost}🪙. <strong>Penalty:</strong> -${quantumUpgradeShopItem.powerCost}🔌/spin.</p>
-                    <p>Triggers ${GAME_CONFIG.quantumModeDuration}-spin Quantum Mode: Multiplier (2x,3x,5x) applies to the entire bottom row.
-                    <br><strong>Schrödinger's Cat:</strong> Each spin, ${GAME_CONFIG.schrodingerCatsCount} random grid symbols get a 🐈 overlay and their payout is multiplied by an additional ${GAME_CONFIG.schrodingerCatMultiplier}x (stacks with row multiplier).</p>
+                    <p>Buy <strong>Cosmic (🔭)</strong> or <strong>Quantum (⚛️)</strong> upgrades from the Shop (🏪). They cost coins and add a permanent power drain, but trigger a temporary, powerful bonus mode with unique symbols and scoring rules. During Quantum Mode, some grid cells will be marked as Schrödinger cells. If a 🐈‍⬛ Cat symbol lands in one of these cells, its value is multiplied by 500x. The effect does not apply to any other symbol.</p>
                 `;
                 break;
             default:
