@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
         luckyLinesSpinCost: 30,
         multiplierSlotIndex: 7, // Default last slot of bottom row (0-indexed)
         gridSize: 8,
-        initialCoins: 50,
+        initialCoins: 75,
         initialLockItems: 3,
         baseSpinFoodConsumption: 1,
         catFoodConsumption: 1,
@@ -122,6 +122,11 @@ document.addEventListener('DOMContentLoaded', () => {
         featherStatusEl: document.getElementById('feather-status'),
         beetleStatusEl: document.getElementById('beetle-status'),
         branchStatusEl: document.getElementById('branch-status'),
+
+        // ADDED: Black hole modal
+        blackHoleModal: document.getElementById('black-hole-modal'),
+        blackHoleContent: document.getElementById('black-hole-content'),
+        blackHoleCloseBtn: document.getElementById('black-hole-close-btn'),
     };
 
     // --- GAME STATE VARIABLES ---
@@ -715,6 +720,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else if (itemEmoji === "🎁") {
                         itemSpan.classList.add("clickable", "inventory-item-gift");
                         itemSpan.onclick = showGiftChoiceModal;
+                    } else if (itemEmoji === "⚫") {
+                        itemSpan.classList.add("clickable");
+                        itemSpan.onclick = consumeBlackHole;
                     }
                 }
                 DOM_ELEMENTS.playerInventoryContent.appendChild(itemSpan);
@@ -892,14 +900,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const finalPayout = getSingleItemPayout(item, index);
                 baseValueSpan.textContent = finalPayout;
     
-                // UPDATED: All conditional styling for the payout number is removed.
-                // It now uses one consistent style from the CSS.
+                if (isMultiplierCellForThisSpin) {
+                    baseValueSpan.classList.add('multiplied-payout');
+                }
     
             } else {
                 baseValueSpan.textContent = '';
             }
-
-            // UPDATED: The animated payout text element has been removed.
             
             div.classList.remove('multi-2x', 'multi-3x', 'multi-5x');
 
@@ -957,8 +964,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayIndividualPayouts(payouts) {
-        // UPDATED: This function is now empty to remove the payout animation.
-        // The payout value is now displayed statically by updateGridDOM.
+        // This function is intentionally left empty.
     }
 
     function updatePowerDisplay() {
@@ -966,7 +972,6 @@ document.addEventListener('DOMContentLoaded', () => {
             DOM_ELEMENTS.powerMeterFill.style.width = `${(playerState.power / GAME_CONFIG.maxPower) * 100}%`;
         }
         if (DOM_ELEMENTS.powerMeterIndicatorIcon) {
-            // UPDATED: Removed extra icons for cosmic/quantum penalties.
             DOM_ELEMENTS.powerMeterIndicatorIcon.innerHTML = "<span class='base-power-icon'>🔌</span>";
         }
     }
@@ -1413,7 +1418,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function resolveTakeoutOrder() {
         if (!phoneFeatureState.takeoutActive && !uiState.isGameOver) return;
-        const foodSymbolsInGame = symbols.filter(s => s.isFood && !s.hidden);
+        // UPDATED: Filter out blueberries from takeout orders.
+        const foodSymbolsInGame = symbols.filter(s => s.isFood && !s.hidden && s.emoji !== '🫐');
         if (foodSymbolsInGame.length > 0) {
             for (let i = 0; i < phoneFeatureState.takeoutFoodAmount; i++) {
                 const randomFoodType = foodSymbolsInGame[Math.floor(Math.random() * foodSymbolsInGame.length)];
@@ -1483,6 +1489,20 @@ document.addEventListener('DOMContentLoaded', () => {
         updateDisplays();
     }
 
+    function consumeBlackHole() {
+        if (uiState.isGameOver || playerState.inventory["⚫"] <= 0) {
+            return;
+        }
+        playerState.inventory["⚫"]--;
+        DOM_ELEMENTS.blackHoleContent.innerHTML = `
+            <p>The quantum upgrade resulted in the creation of a miniature black hole, swallowing the slot machine game into its singularity before collapsing just in time to avoid destroying the entire universe.</p>
+            <p style="font-size: 24px;">🏆</p>
+            <p><strong>Congratulations on your legendary run!</strong></p>
+        `;
+        DOM_ELEMENTS.blackHoleModal.classList.remove('hidden');
+        gameOver("Achieved Singularity!");
+    }
+
 
     // --- UPGRADE & GIFT FUNCTIONS ---
     function activateQuantumUpgrade() {
@@ -1532,7 +1552,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.remove("cosmic-theme");
 
         if (!activeEffects.quantumUpgradeActive) {
-            DOM_ELEMENTS.gameMainTitle.textContent = "Keep Spinning";
+            DOM_ELEMENTS.gameMainTitle.textContent = "KEEP SPINNING!";
             DOM_ELEMENTS.gameMainTitle.classList.remove('upgrade-mode-active');
         }
 
@@ -1548,7 +1568,7 @@ document.addEventListener('DOMContentLoaded', () => {
         slotMachineState.schrodingerCells = [];
 
         if (!activeEffects.cosmicUpgradeActive) {
-            DOM_ELEMENTS.gameMainTitle.textContent = "Keep Spinning";
+            DOM_ELEMENTS.gameMainTitle.textContent = "KEEP SPINNING!";
             DOM_ELEMENTS.gameMainTitle.classList.remove('upgrade-mode-active');
         }
         
@@ -1616,46 +1636,73 @@ document.addEventListener('DOMContentLoaded', () => {
         switch (topic) {
             case 'window':
                 content = `
-                    <h4>🪟 Window</h4>
-                    <p>Open window (🪟) for a 15% chance to gain or lose birds. Close (⬜) to prevent this. Birds on the grid have a 15% chance per spin to drop items (🪶, 🪲, 🌿). A maximum of two 🌿 Branches can be dropped per game; they are used to tame a 🕊️ Dove or to buy a 🪹 Nest at a discount. The Nest also protects birds from leaving.</p>
+                    <h4>🪟 The Window & Birds</h4>
+                    <p>The window affects bird symbols (🦜, 🦉, 🕊️, 🐦‍🔥). While open (🪟), each spin has a 15% chance to gain a random bird and a 15% chance for one to fly away. Close the window (⬜) to prevent this.</p>
+                    <ul>
+                        <li>Birds on the grid have a 15% chance each to drop an item: <strong>🦜Parrots drop 🪲Beetles</strong>, <strong>🦉Owls drop 🪶Feathers</strong>, and <strong>🕊️Doves drop 🌿Branches</strong>.</li>
+                        <li><strong>🪶Feathers:</strong> Each feather adds +1 to the value of all bird symbols.</li>
+                        <li><strong>🪲Beetles:</strong> Sacrificed to prevent a bird from flying away.</li>
+                        <li><strong>🌿Branches:</strong> Used to tame a wild 🕊️Dove or get a discount on a 🪹Nest. Only two can drop per game.</li>
+                        <li>A <strong>🪹Nest</strong> (from the Shop) permanently protects your birds from flying away.</li>
+                    </ul>
                 `;
                 break;
             case 'food':
                 content = `
                     <h4>🍽️ Food & Consumables</h4>
-                    <p>Your food meter decreases each spin. <strong>Game Over at 0.</strong></p>
-                    <p>Click food symbols (🍟, 🍣, 🍩, 🫐) on the grid to consume one from your inventory and refill the meter. Some foods have special effects with companions or items.</p>
+                    <p>Your food meter decreases each spin. <strong>If it hits 0, the game is over.</strong></p>
+                    <p>Click food symbols (🍟, 🍣, 🍩) on the grid to consume one from your inventory and refill the meter. 🫐Blueberries are a special food item only provided by a tamed 🕊️Dove.</p>
+                     <ul>
+                        <li><strong>☕Coffee:</strong> An inventory item that activates a buff for 10 spins, making 🍩Donuts worth +3 more.</li>
+                        <li><strong>🍣Sushi:</strong> Clicking a sushi from the grid while you have a 🐈‍⬛Cat companion will give all cats a +5 buff for 3 spins.</li>
+                    </ul>
                 `;
                 break;
             case 'companion':
                 content = `
-                    <h4>💙 Companion</h4>
-                    <p>Adopt a <strong>🐈‍⬛ Cat</strong> or <strong>🕊️ Dove</strong> from the grid, or activate an <strong>👽 Alien</strong> from your inventory. They can be active at the same time.</p>
-                    <p>Companions provide powerful buffs but may have needs. Check the Companion (💙) modal for their current status and effects.</p>
+                    <h4>💙 Companions</h4>
+                    <p>Companions provide powerful buffs. You can have a <strong>🐈‍⬛Cat</strong>, <strong>🕊️Dove</strong>, and <strong>👽Alien</strong> active at the same time.</p>
                     <ul>
-                        <li><strong>🐈‍⬛ Cat:</strong> Provides buffs to Cat symbols, but consumes 🍽️ food each spin. Its mood can change its buff. A 🪹 <strong>Nest</strong> (Shop) prevents the upset 😼 mood from too many birds.</li>
-                        <li><strong>👽 Alien:</strong> Greatly buffs Cosmic symbols, but consumes all of your 🍟 from the bag each spin.</li>
-                        <li><strong>🕊️ Dove:</strong> Tame by clicking it on the grid while you have a 🌿 branch. The dove provides 1 🫐 (a food item that restores 5 food) every 10 spins. The branch is consumed.</li>
+                        <li><strong>🐈‍⬛ Cat:</strong> Adopt by clicking it on the grid. Consumes 1 🍽️food per spin. Its buff changes with its mood:
+                            <ul>
+                                <li><strong>😺 Happy:</strong> +1 to all Cats.</li>
+                                <li><strong>😻 Sushi:</strong> +5 to all Cats (after eating 🍣).</li>
+                                <li><strong>😿 Sad:</strong> No buff. Needs a 🐁Toy (from shop).</li>
+                                <li><strong>😼 Annoyed:</strong> No buff. Too many birds. A 🪹Nest prevents this.</li>
+                                <li><strong>🙀 Scared:</strong> -1 to all Cats. Scared by 🪲Beetles.</li>
+                            </ul>
+                        </li>
+                         <li><strong>🕊️ Dove:</strong> Tame by clicking it on the grid when you have a 🌿Branch (the branch is consumed). The Dove provides one 🫐Blueberry food item every 10 spins.</li>
+                        <li><strong>👽 Alien:</strong> Activate from your inventory. Greatly buffs Cosmic symbols (+12 value), but consumes ALL of your 🍟Fries each spin. Use a <strong>📹Camera</strong> (Shop) on an active Alien to scare it away for a large coin payout.</li>
                     </ul>
-                    <p>Use a <strong>📹 Camera</strong> (Shop) on an active Alien to scare it away for a large coin payout.</p>
                 `;
                 break;
             case 'phone':
                 content = `
                     <h4>📱 Phone</h4>
-                    <p>Use the Phone (📱) to order takeout food (🥡) or invest coins (🏦). These actions take several spins to complete. While a phone action is active, you might receive random text messages that give or take coins.</p>
+                    <p>Use the Phone (📱) for special actions that take 10 spins to complete. While an action is active, you may receive random text messages that give (+10🪙) or take (-35🪙) coins.</p>
+                     <ul>
+                        <li><strong>🥡 Emoji Eats:</strong> Order a delivery of random food items (🍟, 🍣, 🍩). Does not include 🫐.</li>
+                        <li><strong>🏦 Investments:</strong> Invest your coins for a chance at a profit (1.5x return) or a loss (0.5x return).</li>
+                    </ul>
                 `;
                 break;
             case 'power':
                 content = `
                     <h4>🔌 Power & Bills</h4>
-                    <p>Power decreases per spin. If it hits 0, you get a <strong>📃 Bill.</strong> Pay the bill from your inventory to restore power. If you spin with an unpaid bill, you risk a Game Over.</p>
+                    <p>Power decreases by 1 each spin (more with active upgrades). If it hits 0, a <strong>📃Bill</strong> is added to your inventory.</p>
+                    <p>You must pay the bill by clicking it in your inventory. The cost increases with each bill paid. If you spin with an unpaid bill, there is a <strong>5% chance of an instant Game Over</strong>.</p>
                 `;
                 break;
             case 'upgrades':
                 content = `
-                    <h4>🛠️ Upgrades & Modes</h4>
-                    <p>Buy <strong>Cosmic (🔭)</strong> or <strong>Quantum (⚛️)</strong> upgrades from the Shop (🏪). They cost coins and add a permanent power drain, but trigger a temporary, powerful bonus mode with unique symbols and scoring rules. During Quantum Mode, some grid cells will be marked as Schrödinger cells. If a 🐈‍⬛ Cat symbol lands in one of these cells, its value is multiplied by 500x. The effect does not apply to any other symbol.</p>
+                    <h4>🛠️ Upgrades & Endgame</h4>
+                    <p>Purchase powerful upgrades from the Shop (🏪).</p>
+                    <ul>
+                        <li><strong>🔭 Cosmic Upgrade:</strong> Permanently adds a 2-point power drain per spin. Triggers a 20-spin <strong>Cosmic Mode</strong>, adding powerful space symbols to the grid and applying the multiplier to the entire bottom row. You must complete this to unlock the Quantum Upgrade.</li>
+                        <li><strong>⚛️ Quantum Upgrade:</strong> Permanently adds a 5-point power drain per spin. Triggers a 20-spin <strong>Quantum Mode</strong>. The multiplier applies to the bottom row, and two grid cells become Schrödinger cells. If a <strong>🐈‍⬛Cat</strong> lands in a Schrödinger cell, its value is multiplied by <strong>500x</strong>!</li>
+                        <li><strong>⚫ Black Hole:</strong> The ultimate item, available in the shop only after completing Quantum Mode. Using it triggers a special, victorious end to your run.</li>
+                    </ul>
                 `;
                 break;
             default:
@@ -1695,6 +1742,7 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM_ELEMENTS.guideSelectionModalOverlay.classList.add('hidden');
         DOM_ELEMENTS.petModalOverlay.classList.add('hidden');
         DOM_ELEMENTS.phoneModalOverlay.classList.add('hidden');
+        DOM_ELEMENTS.blackHoleModal.classList.add('hidden');
     }
 
     // --- GAME RESET & INIT ---
@@ -1707,7 +1755,7 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM_ELEMENTS.totalWinDisplay.classList.remove('game-over');
         document.body.classList.remove("cosmic-theme", "quantum-theme");
 
-        DOM_ELEMENTS.gameMainTitle.textContent = "Keep Spinning";
+        DOM_ELEMENTS.gameMainTitle.textContent = "KEEP SPINNING!";
         DOM_ELEMENTS.gameMainTitle.classList.remove('upgrade-mode-active');
 
         closeAllWindows();
@@ -1740,8 +1788,9 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM_ELEMENTS.petModalCloseBtn.addEventListener('click', closePetModal);
         DOM_ELEMENTS.phoneModalCloseBtn.addEventListener('click', closePhoneModal);
         DOM_ELEMENTS.alienMediaPayoutCloseBtn.addEventListener('click', () => DOM_ELEMENTS.alienMediaPayoutModal.classList.add('hidden'));
-        
-        [DOM_ELEMENTS.shopModalOverlay, DOM_ELEMENTS.guideSelectionModalOverlay, DOM_ELEMENTS.petModalOverlay, DOM_ELEMENTS.phoneModalOverlay, DOM_ELEMENTS.alienMediaPayoutModal].forEach(overlay => {
+        DOM_ELEMENTS.blackHoleCloseBtn.addEventListener('click', () => DOM_ELEMENTS.blackHoleModal.classList.add('hidden'));
+
+        [DOM_ELEMENTS.shopModalOverlay, DOM_ELEMENTS.guideSelectionModalOverlay, DOM_ELEMENTS.petModalOverlay, DOM_ELEMENTS.phoneModalOverlay, DOM_ELEMENTS.alienMediaPayoutModal, DOM_ELEMENTS.blackHoleModal].forEach(overlay => {
             overlay.addEventListener('click', (event) => {
                 if(event.target === overlay) overlay.classList.add('hidden');
             });
@@ -1752,7 +1801,7 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM_ELEMENTS.giftChoiceLocksBtn.addEventListener('click', () => selectGift('locks'));
         
         DOM_ELEMENTS.luckyBtn.textContent = 'LL';
-        DOM_ELEMENTS.gameMainTitle.textContent = "Keep Spinning";
+        DOM_ELEMENTS.gameMainTitle.textContent = "KEEP SPINNING!";
         DOM_ELEMENTS.gameMainTitle.classList.remove('upgrade-mode-active');
 
         closeAllWindows();
