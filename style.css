@@ -205,8 +205,8 @@ body {
 /* Slot Grid */
 .slot-grid {
     display: inline-grid;
-    grid-template-columns: repeat(4, clamp(55px, 17vw, 65px));
-    gap: clamp(4px, 1.5vw, 8px);
+    grid-template-columns: repeat(4, clamp(60px, 18vw, 70px));
+    gap: clamp(5px, 2vw, 10px);
     margin-bottom: 8px;
 }
 .slot-cell {
@@ -215,7 +215,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: clamp(22px, 7vw, 30px);
+    font-size: clamp(24px, 8vw, 32px);
     background: var(--bg-panel-accent);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-small);
@@ -239,7 +239,15 @@ body {
     color: var(--accent-yellow);
     text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
     pointer-events: none;
+    transition: all 0.3s ease;
 }
+/* UPDATED: Larger, glowing text for multiplied payouts */
+.slot-cell .base-value-text.multiplied-payout {
+    font-size: 16px;
+    text-shadow: 0 0 5px var(--accent-yellow), 0 0 10px var(--accent-orange);
+    transform: scale(1.1);
+}
+
 .multiplier-value-text { position: absolute; top: 2px; right: 3px; font-size: 14px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); pointer-events: none; }
 
 /* Cell States */
@@ -310,7 +318,7 @@ body {
 .status-effects-window {
     padding: 4px;
     width: 100%; 
-    min-height: 42px;
+    min-height: 48px; /* UPDATED: Increased size */
     display: flex; 
     justify-content: center; 
     align-items: center;
@@ -337,9 +345,9 @@ body {
 .bottom-controls-bar { display: flex; justify-content: space-around; gap: 6px; width: 100%; }
 .utility-trigger { flex: 1; display: flex; justify-content: center; align-items: center; }
 .utility-btn {
-    font-size: 24px;
-    width: 48px;
-    height: 48px;
+    font-size: 22px; /* UPDATED: smaller icon */
+    width: 44px; /* UPDATED: smaller button */
+    height: 44px; /* UPDATED: smaller button */
     border-radius: var(--border-radius-main);
     background-color: var(--bg-panel-accent);
     display: flex;
