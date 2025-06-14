@@ -50,20 +50,6 @@
 
 <nav class="bottom-nav-bar">
     <div class="bottom-utility-section">
-        <div class="status-effects-window">
-            <div id="donut-buff-status" class="status-effect-item"></div>
-            <div id="sushi-buff-status" class="status-effect-item"></div>
-            <div id="cat-buff-status" class="status-effect-item"></div>
-            <div id="alien-buff-status" class="status-effect-item"></div>
-            <div id="phone-buff-status" class="status-effect-item"></div>
-            <div id="cosmic-mode-status" class="status-effect-item"></div>
-            <div id="quantum-mode-status" class="status-effect-item"></div>
-            <div id="permanent-buff-status" class="status-effect-item"></div>
-            <div id="nest-status" class="status-effect-item"></div>
-            <div id="feather-status" class="status-effect-item"></div>
-            <div id="beetle-status" class="status-effect-item"></div>
-            <div id="branch-status" class="status-effect-item"></div>
-        </div>
         <div id="player-item-bar" class="player-item-bar"></div>
         <div class="bottom-controls-bar">
             <div id="window-trigger-container" class="utility-trigger">
@@ -84,6 +70,14 @@
         </div>
     </div>
 </nav>
+
+<div id="window-modal-overlay" class="modal-overlay hidden">
+    <div class="modal-window">
+        <button id="window-modal-close-btn" class="modal-close-btn">&times;</button>
+        <h3 class="modal-title">🪟 Window</h3>
+        <div id="window-modal-content" class="modal-content"></div>
+    </div>
+</div>
 
 <div id="alien-media-payout-modal" class="modal-overlay hidden">
     <div class="modal-window">
