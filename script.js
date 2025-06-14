@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
         luckyLinesSpinCost: 30,
         multiplierSlotIndex: 7, // Default last slot of bottom row (0-indexed)
         gridSize: 8,
-        initialCoins: 50000,
+        initialCoins: 50,
         initialLockItems: 3,
         baseSpinFoodConsumption: 1,
         catFoodConsumption: 1,
@@ -79,14 +79,6 @@ document.addEventListener('DOMContentLoaded', () => {
         powerMeterFill: document.getElementById("power-meter-fill"),
         powerMeterIndicatorIcon: document.getElementById("power-meter-indicator-icon"),
         nextPowerBillCostDisplay: document.getElementById("next-power-bill-cost-display"),
-        donutBuffStatusEl: document.getElementById('donut-buff-status'),
-        sushiBuffStatusEl: document.getElementById('sushi-buff-status'),
-        catBuffStatusEl: document.getElementById('cat-buff-status'),
-        alienBuffStatusEl: document.getElementById('alien-buff-status'),
-        phoneBuffStatusEl: document.getElementById('phone-buff-status'),
-        cosmicModeStatusEl: document.getElementById('cosmic-mode-status'),
-        quantumModeStatusEl: document.getElementById('quantum-mode-status'),
-        permanentBuffStatusEl: document.getElementById('permanent-buff-status'), 
         spinBtn: document.getElementById('spin-btn'),
         gameMainTitle: document.getElementById("game-main-title"),
         alienMediaPayoutModal: document.getElementById("alien-media-payout-modal"),
@@ -105,7 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
         guideSelectionModalContent: document.getElementById("guide-selection-modal-content"),
         
         // Mobile UI Elements
-        windowTriggerBtn: document.getElementById('window-trigger-btn'),
         petTriggerBtn: document.getElementById('pet-trigger-btn'),
         phoneTriggerBtn: document.getElementById('phone-trigger-btn'),
 
@@ -117,12 +108,12 @@ document.addEventListener('DOMContentLoaded', () => {
         phoneModalOverlay: document.getElementById('phone-modal-overlay'),
         phoneModalCloseBtn: document.getElementById('phone-modal-close-btn'),
         phoneModalContent: document.getElementById('phone-modal-content'),
-
-        // ADDED: Status effect placeholders for window items
-        nestStatusEl: document.getElementById('nest-status'),
-        featherStatusEl: document.getElementById('feather-status'),
-        beetleStatusEl: document.getElementById('beetle-status'),
-        branchStatusEl: document.getElementById('branch-status'),
+        
+        // NEW Window Modal elements
+        windowTriggerBtn: document.getElementById('window-trigger-btn'),
+        windowModalOverlay: document.getElementById('window-modal-overlay'),
+        windowModalCloseBtn: document.getElementById('window-modal-close-btn'),
+        windowModalContent: document.getElementById('window-modal-content'),
     };
 
     // --- GAME STATE VARIABLES ---
@@ -212,6 +203,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getRandomMultiplier() { return [2, 3, 5][Math.floor(Math.random() * 3)]; }
+
+    // NEW: Function to get total food symbols in bag
+    function getTotalFoodSymbolCount() {
+        return symbols.filter(s => s.isFood).reduce((total, s) => total + s.count, 0);
+    }
 
     function getSymbolsForSpin() {
         let newGridSetup = Array(GAME_CONFIG.gridSize).fill(null);
@@ -491,8 +487,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
 
-                // UPDATED: UFO drop logic
-                if (activeEffects.cosmicUpgradePenaltyActive) { // Check if upgrade is owned, not if mode is active
+                if (activeEffects.cosmicUpgradePenaltyActive) { 
                     slotMachineState.currentGridSymbols.forEach((item) => {
                         if (item && item.emoji === "🛸") {
                             if (!activeEffects.hasAlienVisitor && playerState.inventory["👽"] < 1 && Math.random() < GAME_CONFIG.ufoAlienDropChance) {
@@ -565,7 +560,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if(activeEffects.permanentBirdBuff) itemValue += 1;
         }
     
-        // UPDATED: Schrodinger's Cat logic
         if (activeEffects.quantumUpgradeActive && slotMachineState.schrodingerCells.includes(index)) {
             if (item.emoji === "🐈‍⬛") {
                 itemValue *= GAME_CONFIG.schrodingerCatOnCatMultiplier;
@@ -615,7 +609,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         slotMachineState.currentWin = totalPayout;
         playerState.coins += totalPayout;
-        // REMOVED: displayIndividualPayouts(individualPayouts);
     }
 
     // --- UPDATE DISPLAY FUNCTIONS ---
@@ -639,20 +632,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateDisplays() {
-        updateCatStatus(); // Ensure cat status is current before UI updates
+        updateCatStatus();
 
         DOM_ELEMENTS.coinsDisplay.innerHTML = `<span>${playerState.coins}</span> 🪙`;
         DOM_ELEMENTS.foodMeterFill.style.width = `${(playerState.foodMeter / GAME_CONFIG.maxFoodMeter) * 100}%`;
-        DOM_ELEMENTS.foodMeterValue.textContent = `${playerState.foodMeter}/${GAME_CONFIG.maxFoodMeter}`;
+        
+        // UPDATED: Food meter now shows total food symbols
+        DOM_ELEMENTS.foodMeterValue.textContent = getTotalFoodSymbolCount();
 
-        // REMOVED updateSymbolInventoryDisplay();
-        updatePlayerInventoryDisplay(); // This now updates the new item bar
+        updatePlayerInventoryDisplay();
         updatePetModal();
         setupShop();
         updatePowerDisplay();
         updateNextPowerBillCostDisplay();
-        updateStatusEffectsWindow();
-        updateWindowButtonState(); // Update window button icon
 
         if (playerState.foodMeter <= 4 && playerState.foodMeter > 0) {
             if (DOM_ELEMENTS.gameDiv) DOM_ELEMENTS.gameDiv.classList.add('food-warning');
@@ -680,9 +672,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (DOM_ELEMENTS.luckyBtn) DOM_ELEMENTS.luckyBtn.disabled = uiState.isGameOver;
     }
 
-    // REMOVED updateSymbolInventoryDisplay function
-
-    // REWRITTEN to populate the new player item bar
+    // UPDATED: Now renders status indicators for active buffs
     function updatePlayerInventoryDisplay() {
         DOM_ELEMENTS.playerItemBar.innerHTML = "";
     
@@ -695,7 +685,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         DOM_ELEMENTS.playerItemBar.appendChild(lockDiv);
     
-        // Loop through inventory items
+        // Loop through consumable inventory items
         for (const itemEmoji in playerState.inventory) {
             if (playerState.inventory[itemEmoji] > 0) {
                 const itemDiv = document.createElement("div");
@@ -743,6 +733,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 DOM_ELEMENTS.playerItemBar.appendChild(itemDiv);
             }
+        }
+
+        // Add non-interactive status indicators for active buffs
+        const phoneActive = phoneFeatureState.phoneOn;
+        if (phoneActive) {
+            const spinsLeft = Math.max(phoneFeatureState.investmentSpinsLeft, phoneFeatureState.takeoutSpinsLeft);
+            if (spinsLeft > 0) {
+                const itemDiv = document.createElement("div");
+                itemDiv.className = 'player-item status-indicator';
+                itemDiv.innerHTML = `<span class="player-item-emoji">📱</span><span class="player-item-count">${spinsLeft}</span>`;
+                DOM_ELEMENTS.playerItemBar.appendChild(itemDiv);
+            }
+        }
+    
+        if (activeEffects.cosmicUpgradeActive && activeEffects.cosmicUpgradeSpinsLeft > 0) {
+            const itemDiv = document.createElement("div");
+            itemDiv.className = 'player-item status-indicator';
+            itemDiv.innerHTML = `<span class="player-item-emoji">🔭</span><span class="player-item-count">${activeEffects.cosmicUpgradeSpinsLeft}</span>`;
+            DOM_ELEMENTS.playerItemBar.appendChild(itemDiv);
+        }
+    
+        if (activeEffects.quantumUpgradeActive && activeEffects.quantumUpgradeSpinsLeft > 0) {
+            const itemDiv = document.createElement("div");
+            itemDiv.className = 'player-item status-indicator';
+            itemDiv.innerHTML = `<span class="player-item-emoji">⚛️</span><span class="player-item-count">${activeEffects.quantumUpgradeSpinsLeft}</span>`;
+            DOM_ELEMENTS.playerItemBar.appendChild(itemDiv);
+        }
+        
+        if (activeEffects.donutBuffActive && activeEffects.donutBuffSpinsLeft > 0) {
+            const itemDiv = document.createElement("div");
+            itemDiv.className = 'player-item status-indicator';
+            itemDiv.innerHTML = `<span class="player-item-emoji">🍩</span><span class="player-item-count">${activeEffects.donutBuffSpinsLeft}</span>`;
+            DOM_ELEMENTS.playerItemBar.appendChild(itemDiv);
         }
     }
 
@@ -798,7 +821,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
             const petDescDiv = document.createElement('div');
             petDescDiv.className = 'pet-description';
-            if (activeEffects.currentCatStatus === '😻🍣') petDescDiv.textContent = `All Cats +5!`;
+            if (activeEffects.currentCatStatus === '😻🍣') petDescDiv.textContent = `All Cats +5! (${activeEffects.sushiCatBuffSpinsLeft} left)`;
             else if (activeEffects.currentCatStatus === '😺') petDescDiv.textContent = '+1 All Cats';
             else if (activeEffects.currentCatStatus === '😿') petDescDiv.textContent = 'Wants toy/No buff';
             else if (activeEffects.currentCatStatus === '😼') petDescDiv.textContent = 'Too many birds/no buff.';
@@ -836,13 +859,6 @@ document.addEventListener('DOMContentLoaded', () => {
             titleEmoji = '👽';
         }
         DOM_ELEMENTS.petModalTitle.innerHTML = `${titleEmoji} Companions`;
-    }
-
-    function updateWindowButtonState() {
-        if (DOM_ELEMENTS.windowTriggerBtn) {
-            DOM_ELEMENTS.windowTriggerBtn.textContent = uiState.windowOpen ? '🪟' : '⬜';
-            DOM_ELEMENTS.windowTriggerBtn.classList.toggle('toggled-off', !uiState.windowOpen);
-        }
     }
 
     function updateGridDOM(gridSymbols, currentMultiplier, animate = false) {
@@ -934,10 +950,9 @@ document.addEventListener('DOMContentLoaded', () => {
                  if (slotMachineState.topRightLocked) {
                     div.classList.add("top-right-locked");
                 }
-                if (item) { // Always show lock icon if there is a symbol
+                if (item) { 
                     const lockDiv = document.createElement("div");
                     lockDiv.className = "lock-icon";
-                    // lockDiv.onclick = () => toggleGridLock(); // REMOVED: No longer clickable
                     if(slotMachineState.topRightLocked) {
                         lockDiv.textContent = '🔒';
                         lockDiv.classList.add("locked-state");
@@ -973,15 +988,7 @@ document.addEventListener('DOMContentLoaded', () => {
             DOM_ELEMENTS.powerMeterFill.style.width = `${(playerState.power / GAME_CONFIG.maxPower) * 100}%`;
         }
         if (DOM_ELEMENTS.powerMeterIndicatorIcon) {
-            let powerIconHTML = "";
-            if (activeEffects.quantumUpgradePenaltyActive) {
-                powerIconHTML += "<span class='power-penalty-indicator quantum-indicator'>⚛️</span>";
-            }
-            powerIconHTML += "<span class='base-power-icon'>🔌</span>";
-            if (activeEffects.cosmicUpgradePenaltyActive) {
-                powerIconHTML += "<span class='power-penalty-indicator cosmic-indicator'>🔭</span>";
-            }
-            DOM_ELEMENTS.powerMeterIndicatorIcon.innerHTML = powerIconHTML;
+            DOM_ELEMENTS.powerMeterIndicatorIcon.innerHTML = "<span class='base-power-icon'>🔌</span>";
         }
     }
 
@@ -990,97 +997,11 @@ document.addEventListener('DOMContentLoaded', () => {
             let displayText = "";
             if (playerState.inventory['📃'] > 0 && playerState.power <= 0) {
                 const currentBillCost = GAME_CONFIG.powerBillBaseCost + (playerState.billsPaidSoFar * GAME_CONFIG.powerBillIncrement);
-                displayText = `Bill: ${currentBillCost}🪙`;
-            } else {
-                const nextBillCost = GAME_CONFIG.powerBillBaseCost + (playerState.billsPaidSoFar * GAME_CONFIG.powerBillIncrement);
-                displayText = `Next: ${nextBillCost}🪙`;
+                displayText = `📃 ${currentBillCost}🪙`;
             }
             DOM_ELEMENTS.nextPowerBillCostDisplay.textContent = displayText;
         }
     }
-
-    function updateStatusEffectsWindow() {
-        // Standard Buffs
-        const donutActive = activeEffects.donutBuffActive && activeEffects.donutBuffSpinsLeft > 0;
-        DOM_ELEMENTS.donutBuffStatusEl.innerHTML = donutActive ? `<span class="buff-emoji">🍩</span> <span class="buff-countdown">${activeEffects.donutBuffSpinsLeft}</span>` : '';
-        DOM_ELEMENTS.donutBuffStatusEl.style.display = donutActive ? 'flex' : 'none';
-    
-        const sushiActive = activeEffects.sushiCatBuffActive && activeEffects.sushiCatBuffSpinsLeft > 0;
-        DOM_ELEMENTS.sushiBuffStatusEl.innerHTML = sushiActive ? `<span class="buff-emoji">😻</span> <span class="buff-countdown">${activeEffects.sushiCatBuffSpinsLeft}</span>` : '';
-        DOM_ELEMENTS.sushiBuffStatusEl.style.display = sushiActive ? 'flex' : 'none';
-    
-        // Alien Buff
-        const alienActive = activeEffects.hasAlienVisitor;
-        DOM_ELEMENTS.alienBuffStatusEl.innerHTML = alienActive ? `<span class="buff-emoji">👽</span> <span class="buff-value">+10</span>` : '';
-        DOM_ELEMENTS.alienBuffStatusEl.style.display = alienActive ? 'flex' : 'none';
-    
-        // Cat Buff Logic
-        const catActive = activeEffects.hasPetCat;
-        if (catActive && !sushiActive) { // Avoid double-displaying sushi buff
-            let catBuffText = '';
-            if (activeEffects.currentCatStatus === '😺') {
-                catBuffText = `<span class="buff-value">+1</span>`;
-            } else if (activeEffects.currentCatStatus === '🙀🪲') {
-                catBuffText = `<span class="buff-value">-1</span>`;
-            }
-            DOM_ELEMENTS.catBuffStatusEl.innerHTML = `<span class="buff-emoji">${activeEffects.currentCatStatus}</span> ${catBuffText}`;
-            DOM_ELEMENTS.catBuffStatusEl.style.display = 'flex';
-        } else if (!catActive) {
-            DOM_ELEMENTS.catBuffStatusEl.innerHTML = '';
-            DOM_ELEMENTS.catBuffStatusEl.style.display = 'none';
-        }
-    
-        const cosmicBonusModeActive = activeEffects.cosmicUpgradeActive && activeEffects.cosmicUpgradeSpinsLeft > 0;
-        DOM_ELEMENTS.cosmicModeStatusEl.innerHTML = cosmicBonusModeActive ? `<span class="buff-emoji">🔭</span> <span class="buff-countdown">${activeEffects.cosmicUpgradeSpinsLeft}</span>` : '';
-        DOM_ELEMENTS.cosmicModeStatusEl.style.display = cosmicBonusModeActive ? 'flex' : 'none';
-    
-        const quantumBonusModeActive = activeEffects.quantumUpgradeActive && activeEffects.quantumUpgradeSpinsLeft > 0;
-        DOM_ELEMENTS.quantumModeStatusEl.innerHTML = quantumBonusModeActive ? `<span class="buff-emoji">⚛️</span> <span class="buff-countdown">${activeEffects.quantumUpgradeSpinsLeft}</span>` : '';
-        DOM_ELEMENTS.quantumModeStatusEl.style.display = quantumBonusModeActive ? 'flex' : 'none';
-        
-        DOM_ELEMENTS.permanentBuffStatusEl.innerHTML = '';
-        DOM_ELEMENTS.permanentBuffStatusEl.style.display = 'none';
-        let permanentBuffsHTML = '';
-        if (activeEffects.permanentBirdBuff) {
-             permanentBuffsHTML += `<span>🐦+1</span>`;
-        } 
-        if (activeEffects.permanentFoodReplenishBuff) {
-             permanentBuffsHTML += `<span>🍽️+1</span>`;
-        }
-        if (permanentBuffsHTML) {
-            DOM_ELEMENTS.permanentBuffStatusEl.innerHTML = permanentBuffsHTML;
-            DOM_ELEMENTS.permanentBuffStatusEl.style.display = 'flex';
-        }
-    
-        // Phone Buff
-        const phoneActive = phoneFeatureState.phoneOn;
-        if (phoneActive) {
-            const spinsLeft = Math.max(phoneFeatureState.investmentSpinsLeft, phoneFeatureState.takeoutSpinsLeft);
-            DOM_ELEMENTS.phoneBuffStatusEl.innerHTML = `<span class="buff-emoji">📱</span> <span class="buff-countdown">${spinsLeft}</span>`;
-            DOM_ELEMENTS.phoneBuffStatusEl.style.display = 'flex';
-        } else {
-            DOM_ELEMENTS.phoneBuffStatusEl.innerHTML = '';
-            DOM_ELEMENTS.phoneBuffStatusEl.style.display = 'none';
-        }
-    
-        // NEW: Window items status
-        const nestActive = windowFeatureState.hasBirdNest;
-        DOM_ELEMENTS.nestStatusEl.innerHTML = nestActive ? `<span class="buff-emoji">🪹</span>` : '';
-        DOM_ELEMENTS.nestStatusEl.style.display = nestActive ? 'flex' : 'none';
-    
-        const feathers = windowFeatureState.feathers;
-        DOM_ELEMENTS.featherStatusEl.innerHTML = feathers > 0 ? `<span class="buff-emoji">🪶</span> <span class="buff-countdown">${feathers}</span>` : '';
-        DOM_ELEMENTS.featherStatusEl.style.display = feathers > 0 ? 'flex' : 'none';
-    
-        const beetles = windowFeatureState.beetles;
-        DOM_ELEMENTS.beetleStatusEl.innerHTML = beetles > 0 ? `<span class="buff-emoji">🪲</span> <span class="buff-countdown">${beetles}</span>` : '';
-        DOM_ELEMENTS.beetleStatusEl.style.display = beetles > 0 ? 'flex' : 'none';
-    
-        const branchActive = windowFeatureState.hasBranch;
-        DOM_ELEMENTS.branchStatusEl.innerHTML = branchActive ? `<span class="buff-emoji">🌿</span>` : '';
-        DOM_ELEMENTS.branchStatusEl.style.display = branchActive ? 'flex' : 'none';
-    }
-
 
     // --- EVENT HANDLERS & UI INTERACTIONS ---
     function toggleLuckyLines() {
@@ -1104,7 +1025,6 @@ document.addEventListener('DOMContentLoaded', () => {
             slotMachineState.topRightSymbol = slotMachineState.currentGridSymbols[3];
             slotMachineState.topRightLocked = true;
         } else {
-            // Unlocking does not return the lock item
             slotMachineState.topRightSymbol = null;
             slotMachineState.topRightLocked = false;
         }
@@ -1112,10 +1032,11 @@ document.addEventListener('DOMContentLoaded', () => {
         updateDisplays();
     }
 
-    // UPDATED: This function is simpler now, just toggles state.
-    function toggleWindow() {
+    function toggleWindowState(fromModal = false) {
         uiState.windowOpen = !uiState.windowOpen;
-        updateDisplays(); // Let updateDisplays handle the visual change
+        if (fromModal) {
+            setupWindowModal(); 
+        }
     }
 
     function clickFoodEmoji(emoji, index) {
@@ -1186,7 +1107,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 activateCosmicUpgrade();
                 closeShopModal();
             } else if (itemData.type === 'quantum' && !activeEffects.quantumUpgradePenaltyActive && !activeEffects.cosmicUpgradeActive) {
-                // ADDED: Prerequisite check guard
                 if (!activeEffects.cosmicModeCompleted) return; 
                 playerState.coins -= cost;
                 activateQuantumUpgrade();
@@ -1202,8 +1122,7 @@ document.addEventListener('DOMContentLoaded', () => {
             playerState.coins -= cost;
             activeEffects.hasMouseToy = true;
             activeEffects.spinsWithCat = 0;
-        } else if (itemEmoji === "🎥") {
-            // ADDED: Prerequisite check guard
+        } else if (itemEmoji === "🎥") { 
             if (!activeEffects.hasAlienVisitor) return; 
             if (playerState.inventory[itemEmoji] >= 1) return;
             playerState.coins -= cost;
@@ -1329,7 +1248,7 @@ document.addEventListener('DOMContentLoaded', () => {
         phoneFeatureState.investmentAmount = amount;
         playerState.coins -= amount;
         phoneFeatureState.investmentActive = true;
-        phoneFeatureState.phoneOn = true; // Phone is now active for texts
+        phoneFeatureState.phoneOn = true; 
         phoneFeatureState.investmentSpinsLeft = GAME_CONFIG.investmentDuration;
         closePhoneModal();
         updateDisplays();
@@ -1353,7 +1272,6 @@ document.addEventListener('DOMContentLoaded', () => {
         phoneFeatureState.investmentAmount = 0;
         phoneFeatureState.investmentActive = false;
         
-        // Turn off phone for texts if takeout isn't also running
         if (!phoneFeatureState.takeoutActive) {
             phoneFeatureState.phoneOn = false;
         }
@@ -1389,7 +1307,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playerState.coins -= totalCost;
         phoneFeatureState.takeoutFoodAmount = amount;
         phoneFeatureState.takeoutActive = true;
-        phoneFeatureState.phoneOn = true; // Phone is now active for texts
+        phoneFeatureState.phoneOn = true; 
         phoneFeatureState.takeoutSpinsLeft = GAME_CONFIG.takeoutDuration;
         closePhoneModal();
         updateDisplays();
@@ -1418,7 +1336,6 @@ document.addEventListener('DOMContentLoaded', () => {
         phoneFeatureState.takeoutActive = false;
         phoneFeatureState.takeoutFoodAmount = 0;
         
-        // Turn off phone for texts if investment isn't also running
         if (!phoneFeatureState.investmentActive) {
             phoneFeatureState.phoneOn = false;
         }
@@ -1517,7 +1434,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function deactivateCosmicUpgradeBonusMode(showFeedback = true) {
-        if (showFeedback) { // This means the mode completed normally
+        if (showFeedback) { 
             activeEffects.cosmicModeCompleted = true;
         }
         activeEffects.cosmicUpgradeActive = false;
@@ -1577,7 +1494,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // --- GUIDE FUNCTIONS (REWORKED) ---
+    // --- GUIDE FUNCTIONS ---
     function showGuideTopics() {
         const content = DOM_ELEMENTS.guideSelectionModalContent;
         content.innerHTML = `
@@ -1728,6 +1645,64 @@ document.addEventListener('DOMContentLoaded', () => {
     function openPhoneModal() { if (!uiState.isGameOver) { setupPhoneModal(); DOM_ELEMENTS.phoneModalOverlay.classList.remove('hidden'); }}
     function closePhoneModal() { DOM_ELEMENTS.phoneModalOverlay.classList.add('hidden'); }
     
+    function openWindowModal() {
+        if (!uiState.isGameOver) {
+            setupWindowModal();
+            DOM_ELEMENTS.windowModalOverlay.classList.remove('hidden');
+        }
+    }
+
+    function closeWindowModal() {
+        DOM_ELEMENTS.windowModalOverlay.classList.add('hidden');
+    }
+
+    function setupWindowModal() {
+        const content = DOM_ELEMENTS.windowModalContent;
+        content.innerHTML = "";
+    
+        const toggleSection = document.createElement('div');
+        toggleSection.className = 'window-modal-section';
+        const toggleBtn = document.createElement('button');
+        toggleBtn.className = 'btn';
+        toggleBtn.innerHTML = uiState.windowOpen ? 'Close Window 🪟' : 'Open Window ⬜';
+        toggleBtn.onclick = () => toggleWindowState(true);
+        toggleSection.appendChild(toggleBtn);
+        content.appendChild(toggleSection);
+    
+        const birdsSection = document.createElement('div');
+        birdsSection.className = 'window-modal-section';
+        birdsSection.innerHTML = '<h4>Birds in Bag</h4>';
+        const birdGrid = document.createElement('div');
+        birdGrid.className = 'bird-display-grid';
+        const birdEmojis = ["🦜", "🦉", "🕊️", "🐦‍🔥"];
+        birdEmojis.forEach(emoji => {
+            const birdSymbol = symbols.find(s => s.emoji === emoji);
+            const count = birdSymbol ? birdSymbol.count : 0;
+            const birdDiv = document.createElement('div');
+            birdDiv.className = 'bird-display-item';
+            birdDiv.innerHTML = `<span class="bird-emoji">${emoji}</span><span class="bird-count">${count}</span>`;
+            birdGrid.appendChild(birdDiv);
+        });
+        birdsSection.appendChild(birdGrid);
+        content.appendChild(birdsSection);
+    
+        const itemsSection = document.createElement('div');
+        itemsSection.className = 'window-modal-section';
+        itemsSection.innerHTML = '<h4>Window Items</h4>';
+        const itemsList = document.createElement('ul');
+        itemsList.className = 'window-item-list';
+        
+        let itemsHTML = '';
+        itemsHTML += `<li>🪹 Nest: ${windowFeatureState.hasBirdNest ? '<span style="color:var(--accent-green)">Active</span>' : 'Not built'}</li>`;
+        itemsHTML += `<li>🌿 Branch: ${windowFeatureState.hasBranch ? '<span style="color:var(--accent-green)">Found</span>' : 'Not found'}</li>`;
+        itemsHTML += `<li>🪶 Feathers: ${windowFeatureState.feathers} / ${GAME_CONFIG.maxFeathers}</li>`;
+        itemsHTML += `<li>🪲 Beetles: ${windowFeatureState.beetles} / ${GAME_CONFIG.maxBeetles}</li>`;
+        
+        itemsList.innerHTML = itemsHTML;
+        itemsSection.appendChild(itemsList);
+        content.appendChild(itemsSection);
+    }
+
     function closeAllWindows() {
         DOM_ELEMENTS.alienMediaPayoutModal.classList.add('hidden');
         DOM_ELEMENTS.giftChoiceModal.classList.add('hidden'); 
@@ -1735,6 +1710,7 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM_ELEMENTS.guideSelectionModalOverlay.classList.add('hidden');
         DOM_ELEMENTS.petModalOverlay.classList.add('hidden');
         DOM_ELEMENTS.phoneModalOverlay.classList.add('hidden');
+        DOM_ELEMENTS.windowModalOverlay.classList.add('hidden');
     }
 
     // --- GAME RESET & INIT ---
@@ -1760,7 +1736,7 @@ document.addEventListener('DOMContentLoaded', () => {
         slotMachineState.currentGridSymbols = getSymbolsForSpin();
         slotMachineState.currentMultiplier = getRandomMultiplier();
 
-        updateGridDOM(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier, false); // No animation on reset
+        updateGridDOM(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier, false);
         updateDisplays();
     }
 
@@ -1769,28 +1745,25 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM_ELEMENTS.spinBtn.addEventListener('click', spin);
         DOM_ELEMENTS.luckyBtn.addEventListener('click', toggleLuckyLines);
         
-        // Bottom Bar Triggers
-        DOM_ELEMENTS.windowTriggerBtn.addEventListener('click', toggleWindow); // UPDATED
+        DOM_ELEMENTS.windowTriggerBtn.addEventListener('click', openWindowModal); 
         DOM_ELEMENTS.petTriggerBtn.addEventListener('click', openPetModal);
         DOM_ELEMENTS.phoneTriggerBtn.addEventListener('click', openPhoneModal);
         DOM_ELEMENTS.shopTriggerBtn.addEventListener('click', openShopModal);
         DOM_ELEMENTS.guideTriggerBtn.addEventListener('click', openGuideSelectionModal);
         
-        // Modal Close Buttons
         DOM_ELEMENTS.shopModalCloseBtn.addEventListener('click', closeShopModal);
         DOM_ELEMENTS.guideSelectionModalCloseBtn.addEventListener('click', closeGuideSelectionModal);
         DOM_ELEMENTS.petModalCloseBtn.addEventListener('click', closePetModal);
         DOM_ELEMENTS.phoneModalCloseBtn.addEventListener('click', closePhoneModal);
+        DOM_ELEMENTS.windowModalCloseBtn.addEventListener('click', closeWindowModal); 
         DOM_ELEMENTS.alienMediaPayoutCloseBtn.addEventListener('click', () => DOM_ELEMENTS.alienMediaPayoutModal.classList.add('hidden'));
         
-        // Modal Overlay Clicks (to close)
-        [DOM_ELEMENTS.shopModalOverlay, DOM_ELEMENTS.guideSelectionModalOverlay, DOM_ELEMENTS.petModalOverlay, DOM_ELEMENTS.phoneModalOverlay, DOM_ELEMENTS.alienMediaPayoutModal].forEach(overlay => {
+        [DOM_ELEMENTS.shopModalOverlay, DOM_ELEMENTS.guideSelectionModalOverlay, DOM_ELEMENTS.petModalOverlay, DOM_ELEMENTS.phoneModalOverlay, DOM_ELEMENTS.alienMediaPayoutModal, DOM_ELEMENTS.windowModalOverlay].forEach(overlay => {
             overlay.addEventListener('click', (event) => {
                 if(event.target === overlay) overlay.classList.add('hidden');
             });
         });
 
-        // Specific Modal Buttons
         DOM_ELEMENTS.giftChoiceBirdBtn.addEventListener('click', () => selectGift('bird'));
         DOM_ELEMENTS.giftChoiceFoodBtn.addEventListener('click', () => selectGift('food'));
         DOM_ELEMENTS.giftChoiceLocksBtn.addEventListener('click', () => selectGift('locks'));
@@ -1804,7 +1777,7 @@ document.addEventListener('DOMContentLoaded', () => {
         slotMachineState.currentGridSymbols = getSymbolsForSpin();
         slotMachineState.currentMultiplier = getRandomMultiplier();
 
-        updateGridDOM(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier, false); // No animation on initial load
+        updateGridDOM(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier, false);
         updateDisplays();
     }
 
