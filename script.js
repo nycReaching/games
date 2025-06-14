@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
         luckyLinesSpinCost: 30,
         multiplierSlotIndex: 7, // Default last slot of bottom row (0-indexed)
         gridSize: 8,
-        initialCoins: 50,
+        initialCoins: 50000,
         initialLockItems: 3,
         baseSpinFoodConsumption: 1,
         catFoodConsumption: 1,
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
         parrotBeetleDropChance: 0.10,
         doveBranchDropChance: 0.10,
         owlFeatherDropChance: 0.10,
-        ufoAlienDropChance: 0.15, // UFO alien drop chance UPDATED
+        ufoAlienDropChance: 0.15, // UFO alien drop chance
         gameOverOnUnpaidBillChance: 0.05,
         powerBillBaseCost: 125, // UPDATED
         powerBillIncrement: 125, // UPDATED
@@ -37,7 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
         maxTotalBirdsCap: 8,
         schrodingerCatsCount: 2, // Number of 10x cats in Quantum Mode
         schrodingerCatMultiplier: 10,
-        schrodingerCatOnCatMultiplier: 50, // ADDED: 50x for cats
     };
 
     const INITIAL_SYMBOLS_CONFIG = [
@@ -59,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Mouse Toy", emoji: "🐁", cost: 200 },
         { name: "Camera", emoji: "🎥", cost: 3000 },
         { name: "Bird Nest", emoji: "🪹", cost: 1000 },
-        { name: "Black Hole", emoji: "⚫", cost: 10000 }, // UPDATED cost
+        { name: "Black Hole", emoji: "⚫", cost: 10000 },
         { name: "Cosmic Upgrade", emoji: "🔭", cost: 2000, powerCost: 2, isUpgrade: true, type: 'cosmic' },
         { name: "Quantum Upgrade", emoji: "⚛️", cost: 6000, powerCost: 5, isUpgrade: true, type: 'quantum' },
     ];
@@ -74,11 +73,18 @@ document.addEventListener('DOMContentLoaded', () => {
         phoneMessageDisplay: document.getElementById("phone-message-display"),
         foodMeterFill: document.getElementById("food-meter-fill-display"),
         foodMeterValue: document.getElementById("food-meter-value-display"),
-        playerItemBar: document.getElementById("player-item-bar"), // UPDATED
+        symbolInventoryDisplay: document.getElementById("symbol-inventory-display"),
+        playerInventoryContent: document.getElementById("player-inventory-content"),
         shopContent: document.getElementById("shop-modal-content"),
         powerMeterFill: document.getElementById("power-meter-fill"),
         powerMeterIndicatorIcon: document.getElementById("power-meter-indicator-icon"),
         nextPowerBillCostDisplay: document.getElementById("next-power-bill-cost-display"),
+        donutBuffStatusEl: document.getElementById('donut-buff-status'),
+        catBuffStatusEl: document.getElementById('cat-buff-status'),
+        phoneBuffStatusEl: document.getElementById('phone-buff-status'),
+        cosmicModeStatusEl: document.getElementById('cosmic-mode-status'),
+        quantumModeStatusEl: document.getElementById('quantum-mode-status'),
+        permanentBuffStatusEl: document.getElementById('permanent-buff-status'), 
         spinBtn: document.getElementById('spin-btn'),
         gameMainTitle: document.getElementById("game-main-title"),
         alienMediaPayoutModal: document.getElementById("alien-media-payout-modal"),
@@ -97,9 +103,10 @@ document.addEventListener('DOMContentLoaded', () => {
         guideSelectionModalContent: document.getElementById("guide-selection-modal-content"),
         
         // Mobile UI Elements
+        windowTriggerBtn: document.getElementById('window-trigger-btn'),
         petTriggerBtn: document.getElementById('pet-trigger-btn'),
         phoneTriggerBtn: document.getElementById('phone-trigger-btn'),
-
+        
         petModalOverlay: document.getElementById('pet-modal-overlay'),
         petModalCloseBtn: document.getElementById('pet-modal-close-btn'),
         petModalContent: document.getElementById('pet-modal-content'),
@@ -108,12 +115,12 @@ document.addEventListener('DOMContentLoaded', () => {
         phoneModalOverlay: document.getElementById('phone-modal-overlay'),
         phoneModalCloseBtn: document.getElementById('phone-modal-close-btn'),
         phoneModalContent: document.getElementById('phone-modal-content'),
-        
-        // NEW Window Modal elements
-        windowTriggerBtn: document.getElementById('window-trigger-btn'),
-        windowModalOverlay: document.getElementById('window-modal-overlay'),
-        windowModalCloseBtn: document.getElementById('window-modal-close-btn'),
-        windowModalContent: document.getElementById('window-modal-content'),
+
+        // ADDED: Status effect placeholders for window items
+        nestStatusEl: document.getElementById('nest-status'),
+        featherStatusEl: document.getElementById('feather-status'),
+        beetleStatusEl: document.getElementById('beetle-status'),
+        branchStatusEl: document.getElementById('branch-status'),
     };
 
     // --- GAME STATE VARIABLES ---
@@ -161,7 +168,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         activeEffects.cosmicUpgradePenaltyActive = false;
         activeEffects.quantumUpgradePenaltyActive = false;
-        activeEffects.cosmicModeCompleted = false; // ADDED for Quantum prerequisite
+        activeEffects.cosmicModeCompleted = false; 
+        activeEffects.quantumModeCompleted = false;
 
         activeEffects.alienDroppedByUFO = false; 
 
@@ -203,11 +211,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getRandomMultiplier() { return [2, 3, 5][Math.floor(Math.random() * 3)]; }
-
-    // NEW: Function to get total food symbols in bag
-    function getTotalFoodSymbolCount() {
-        return symbols.filter(s => s.isFood).reduce((total, s) => total + s.count, 0);
-    }
 
     function getSymbolsForSpin() {
         let newGridSetup = Array(GAME_CONFIG.gridSize).fill(null);
@@ -470,11 +473,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         setTimeout(() => {
+            let animatedBird = null;
             try {
                 if (uiState.isGameOver && DOM_ELEMENTS.spinBtn.textContent === 'GAME OVER') return;
 
                 slotMachineState.currentGridSymbols.forEach((item) => {
                     if (item) {
+                        // Bird item drops
                         if (item.emoji === "🦜" && Math.random() < GAME_CONFIG.parrotBeetleDropChance) {
                             if (!windowFeatureState.hasBirdNest && windowFeatureState.beetles < GAME_CONFIG.maxBeetles) {
                                 windowFeatureState.beetles++;
@@ -484,20 +489,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         } else if (item.emoji === "🦉" && Math.random() < GAME_CONFIG.owlFeatherDropChance) {
                             if (windowFeatureState.feathers < GAME_CONFIG.maxFeathers) windowFeatureState.feathers++;
                         }
-                    }
-                });
-
-                if (activeEffects.cosmicUpgradePenaltyActive) { 
-                    slotMachineState.currentGridSymbols.forEach((item) => {
-                        if (item && item.emoji === "🛸") {
-                            if (!activeEffects.hasAlienVisitor && playerState.inventory["👽"] < 1 && Math.random() < GAME_CONFIG.ufoAlienDropChance) {
+                        // Alien drop from UFO (permanent after upgrade)
+                        else if (item.emoji === "🛸") {
+                            if (activeEffects.cosmicUpgradePenaltyActive && !activeEffects.hasAlienVisitor && playerState.inventory["👽"] < 1 && Math.random() < GAME_CONFIG.ufoAlienDropChance) {
                                 playerState.inventory["👽"]++;
                                 activeEffects.alienDroppedByUFO = true;
                             }
                         }
-                    });
-                }
-
+                    }
+                });
 
                 calculatePayout();
 
@@ -517,6 +517,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (birdToFinallyAdd) {
                         if (getTotalBirdCount() < GAME_CONFIG.maxTotalBirdsCap) {
                             birdToFinallyAdd.count++;
+                            animatedBird = birdToFinallyAdd.emoji;
                         }
                     }
                     windowFeatureState.birdGainedThisSpin = null;
@@ -537,7 +538,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error("Error in spin timeout callback:", error);
             } finally {
-                updateDisplays();
+                updateDisplays(animatedBird);
             }
         }, spinCompleteTimeout);
     }
@@ -547,7 +548,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
         let itemValue = item.originalValue;
     
-        if (item.isCosmic && activeEffects.hasAlienVisitor) itemValue += 10;
+        if (item.isCosmic && activeEffects.hasAlienVisitor) itemValue += 12;
         if (item.emoji === "🍩" && activeEffects.donutBuffActive) itemValue += 3;
         else if (item.emoji === "🐈‍⬛" && activeEffects.hasPetCat) {
             let catBase = item.originalValue;
@@ -561,11 +562,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     
         if (activeEffects.quantumUpgradeActive && slotMachineState.schrodingerCells.includes(index)) {
-            if (item.emoji === "🐈‍⬛") {
-                itemValue *= GAME_CONFIG.schrodingerCatOnCatMultiplier;
-            } else {
-                itemValue *= GAME_CONFIG.schrodingerCatMultiplier;
-            }
+            itemValue *= GAME_CONFIG.schrodingerCatMultiplier;
         }
     
         if (activeEffects.quantumUpgradeActive) { 
@@ -609,42 +606,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         slotMachineState.currentWin = totalPayout;
         playerState.coins += totalPayout;
+        // displayIndividualPayouts(individualPayouts); // UPDATED: Animation removed.
     }
 
     // --- UPDATE DISPLAY FUNCTIONS ---
-    function updateCatStatus() {
-        if (!activeEffects.hasPetCat) return;
-    
-        let newStatus = '😺'; 
-        if (!activeEffects.hasMouseToy && activeEffects.spinsWithCat >= 20) {
-            newStatus = '😿'; 
-        }
-        if (getTotalBirdCount() >= 4 && !windowFeatureState.hasBirdNest) {
-            newStatus = '😼'; 
-        }
-        if (windowFeatureState.beetles > 0 && !windowFeatureState.hasBirdNest) {
-            newStatus = '🙀🪲'; 
-        }
-        if (activeEffects.sushiCatBuffActive) {
-            newStatus = '😻🍣'; 
-        }
-        activeEffects.currentCatStatus = newStatus;
-    }
-
-    function updateDisplays() {
-        updateCatStatus();
-
-        DOM_ELEMENTS.coinsDisplay.innerHTML = `<span>${playerState.coins}</span> 🪙`;
+    function updateDisplays(animatedSymbolEmoji = null) {
+        DOM_ELEMENTS.coinsDisplay.textContent = `Coins ${playerState.coins}`;
         DOM_ELEMENTS.foodMeterFill.style.width = `${(playerState.foodMeter / GAME_CONFIG.maxFoodMeter) * 100}%`;
-        
-        // UPDATED: Food meter now shows total food symbols
-        DOM_ELEMENTS.foodMeterValue.textContent = getTotalFoodSymbolCount();
+        DOM_ELEMENTS.foodMeterValue.textContent = `${playerState.foodMeter}/${GAME_CONFIG.maxFoodMeter}`;
 
+        updateSymbolInventoryDisplay(animatedSymbolEmoji);
         updatePlayerInventoryDisplay();
         updatePetModal();
         setupShop();
         updatePowerDisplay();
         updateNextPowerBillCostDisplay();
+        updateStatusEffectsWindow();
+        updateWindowButtonState(); // Update window button icon
 
         if (playerState.foodMeter <= 4 && playerState.foodMeter > 0) {
             if (DOM_ELEMENTS.gameDiv) DOM_ELEMENTS.gameDiv.classList.add('food-warning');
@@ -672,127 +650,70 @@ document.addEventListener('DOMContentLoaded', () => {
         if (DOM_ELEMENTS.luckyBtn) DOM_ELEMENTS.luckyBtn.disabled = uiState.isGameOver;
     }
 
-    // UPDATED: Now renders status indicators for active buffs
+    function updateSymbolInventoryDisplay(animatedSymbolEmoji = null) {
+        DOM_ELEMENTS.symbolInventoryDisplay.innerHTML = "";
+        symbols.filter(s => s.count > 0 && !s.hidden).forEach(symbol => {
+            const span = document.createElement("span");
+            span.textContent = `${symbol.emoji} ${symbol.count}`;
+            if (symbol.emoji === animatedSymbolEmoji) {
+                span.classList.add('symbol-pulse-animation');
+            }
+            DOM_ELEMENTS.symbolInventoryDisplay.appendChild(span);
+        });
+    }
+
     function updatePlayerInventoryDisplay() {
-        DOM_ELEMENTS.playerItemBar.innerHTML = "";
-    
-        // Special handling for Locks
-        const lockDiv = document.createElement("div");
-        lockDiv.className = 'player-item clickable';
-        lockDiv.innerHTML = `<span class="player-item-emoji">🔐</span><span class="player-item-count">${playerState.lockItems}</span>`;
+        DOM_ELEMENTS.playerInventoryContent.innerHTML = "";
+        const lockSpan = document.createElement("span");
+        lockSpan.className = 'inventory-item clickable';
+        lockSpan.textContent = `🔐 ${playerState.lockItems}`;
         if (!uiState.isGameOver) {
-            lockDiv.onclick = toggleGridLock;
+            lockSpan.onclick = toggleGridLock;
         }
-        DOM_ELEMENTS.playerItemBar.appendChild(lockDiv);
-    
-        // Loop through consumable inventory items
+        DOM_ELEMENTS.playerInventoryContent.appendChild(lockSpan);
+
         for (const itemEmoji in playerState.inventory) {
             if (playerState.inventory[itemEmoji] > 0) {
-                const itemDiv = document.createElement("div");
-                itemDiv.className = 'player-item';
-                itemDiv.innerHTML = `<span class="player-item-emoji">${itemEmoji}</span><span class="player-item-count">${playerState.inventory[itemEmoji]}</span>`;
-    
+                const itemSpan = document.createElement("span");
+                itemSpan.className = 'inventory-item';
+                itemSpan.textContent = `${itemEmoji} ${playerState.inventory[itemEmoji]}`;
                 if (!uiState.isGameOver) {
-                    let isClickable = false;
-                    let isEnabled = true;
-    
-                    switch (itemEmoji) {
-                        case "☕":
-                            isClickable = true;
-                            if (activeEffects.donutBuffActive) isEnabled = false;
-                            else itemDiv.onclick = consumeCoffee;
-                            break;
-                        case "👽":
-                            isClickable = true;
-                            if (activeEffects.hasAlienVisitor) isEnabled = false;
-                            else itemDiv.onclick = activateAlienVisitor;
-                            break;
-                        case "📃":
-                            isClickable = true;
-                            itemDiv.onclick = consumePowerBill;
-                            break;
-                        case "🎥":
-                            isClickable = true;
-                            if (!activeEffects.hasAlienVisitor) isEnabled = false;
-                            else itemDiv.onclick = consumeCamera;
-                            break;
-                        case "🎁":
-                            isClickable = true;
-                            itemDiv.classList.add("inventory-item-gift");
-                            itemDiv.onclick = showGiftChoiceModal;
-                            break;
-                    }
-    
-                    if (isClickable) {
-                        itemDiv.classList.add("clickable");
-                        if (!isEnabled) {
-                            itemDiv.classList.add("disabled");
-                            itemDiv.onclick = null;
-                        }
+                    if (itemEmoji === "☕") {
+                        itemSpan.classList.add("clickable");
+                        itemSpan.style.opacity = activeEffects.donutBuffActive ? "0.7" : "1";
+                        if (!activeEffects.donutBuffActive) itemSpan.onclick = consumeCoffee; else itemSpan.onclick = null;
+                    } else if (itemEmoji === "👽") {
+                        itemSpan.classList.add("clickable");
+                        itemSpan.style.opacity = (!activeEffects.hasAlienVisitor) ? "1" : "0.7";
+                        if (!activeEffects.hasAlienVisitor) itemSpan.onclick = activateAlienVisitor; else itemSpan.onclick = null;
+                    } else if (itemEmoji === "📃") {
+                        itemSpan.classList.add("clickable");
+                        itemSpan.onclick = consumePowerBill;
+                    } else if (itemEmoji === "🎥") {
+                        itemSpan.classList.add("clickable");
+                        itemSpan.style.opacity = activeEffects.hasAlienVisitor ? "1" : "0.7";
+                        if (activeEffects.hasAlienVisitor) itemSpan.onclick = consumeCamera; else itemSpan.onclick = null;
+                    } else if (itemEmoji === "🎁") {
+                        itemSpan.classList.add("clickable", "inventory-item-gift");
+                        itemSpan.onclick = showGiftChoiceModal;
                     }
                 }
-                DOM_ELEMENTS.playerItemBar.appendChild(itemDiv);
+                DOM_ELEMENTS.playerInventoryContent.appendChild(itemSpan);
             }
-        }
-
-        // Add non-interactive status indicators for active buffs
-        const phoneActive = phoneFeatureState.phoneOn;
-        if (phoneActive) {
-            const spinsLeft = Math.max(phoneFeatureState.investmentSpinsLeft, phoneFeatureState.takeoutSpinsLeft);
-            if (spinsLeft > 0) {
-                const itemDiv = document.createElement("div");
-                itemDiv.className = 'player-item status-indicator';
-                itemDiv.innerHTML = `<span class="player-item-emoji">📱</span><span class="player-item-count">${spinsLeft}</span>`;
-                DOM_ELEMENTS.playerItemBar.appendChild(itemDiv);
-            }
-        }
-    
-        if (activeEffects.cosmicUpgradeActive && activeEffects.cosmicUpgradeSpinsLeft > 0) {
-            const itemDiv = document.createElement("div");
-            itemDiv.className = 'player-item status-indicator';
-            itemDiv.innerHTML = `<span class="player-item-emoji">🔭</span><span class="player-item-count">${activeEffects.cosmicUpgradeSpinsLeft}</span>`;
-            DOM_ELEMENTS.playerItemBar.appendChild(itemDiv);
-        }
-    
-        if (activeEffects.quantumUpgradeActive && activeEffects.quantumUpgradeSpinsLeft > 0) {
-            const itemDiv = document.createElement("div");
-            itemDiv.className = 'player-item status-indicator';
-            itemDiv.innerHTML = `<span class="player-item-emoji">⚛️</span><span class="player-item-count">${activeEffects.quantumUpgradeSpinsLeft}</span>`;
-            DOM_ELEMENTS.playerItemBar.appendChild(itemDiv);
-        }
-        
-        if (activeEffects.donutBuffActive && activeEffects.donutBuffSpinsLeft > 0) {
-            const itemDiv = document.createElement("div");
-            itemDiv.className = 'player-item status-indicator';
-            itemDiv.innerHTML = `<span class="player-item-emoji">🍩</span><span class="player-item-count">${activeEffects.donutBuffSpinsLeft}</span>`;
-            DOM_ELEMENTS.playerItemBar.appendChild(itemDiv);
         }
     }
 
     function updatePetModal() {
         const content = DOM_ELEMENTS.petModalContent;
         content.innerHTML = "";
-        const hasAlien = activeEffects.hasAlienVisitor;
-        const hasCat = activeEffects.hasPetCat;
-    
-        if (!hasAlien && !hasCat) {
-            content.innerHTML = '<div>No companions active. Adopt a 🐈‍⬛ from the grid or activate an 👽 from your inventory.</div>';
-            DOM_ELEMENTS.petModalTitle.innerHTML = `💙 Companion`;
-            return;
-        }
-    
-        const companionsContainer = document.createElement('div');
-        companionsContainer.className = 'companions-container';
-        content.appendChild(companionsContainer);
-    
-        if (hasAlien) {
-            const alienWrapper = document.createElement('div');
-            alienWrapper.className = 'companion-info-wrapper';
-            
+
+        let titleEmoji = "💙";
+        if (activeEffects.hasAlienVisitor) {
+            titleEmoji = "👽";
             const alienText = document.createElement('div');
             alienText.className = 'alien-visitor-text';
-    
-            let alienInfo = `<span class="alien-emoji-large">👽</span><br/>Cosmic Visitor<br/>(+10 to Cosmic Symbols)`;
+
+            let alienInfo = `<span class="alien-emoji-large">👽</span><br/>Cosmic Visitor<br/>(+12 to Cosmic Symbols)`;
             const friesSymbol = symbols.find(s => s.emoji === "🍟");
             if (friesSymbol && friesSymbol.count > 0) {
                 alienInfo += `<br/><span style="font-size:0.8em; color: var(--accent-yellow);">Will consume ${friesSymbol.count} 🍟</span>`;
@@ -800,65 +721,77 @@ document.addEventListener('DOMContentLoaded', () => {
                  alienInfo += `<br/><span style="font-size:0.8em; color: var(--text-secondary);">No 🍟 to consume</span>`;
             }
             alienText.innerHTML = alienInfo;
-            alienWrapper.appendChild(alienText);
-            companionsContainer.appendChild(alienWrapper);
-        }
+            content.appendChild(alienText);
+        } else if (activeEffects.hasPetCat) {
+            titleEmoji = "🐈";
     
-        if (hasCat) {
-            const catWrapper = document.createElement('div');
-            catWrapper.className = 'companion-info-wrapper';
-    
+            let newStatus = '😺'; 
+            if (!activeEffects.hasMouseToy && activeEffects.spinsWithCat >= 20) {
+                newStatus = '😿'; 
+            }
+            if (getTotalBirdCount() >= 4 && !windowFeatureState.hasBirdNest) {
+                newStatus = '😼'; 
+            }
+            if (windowFeatureState.beetles > 0 && !windowFeatureState.hasBirdNest) {
+                newStatus = '🙀🪲'; 
+            }
+            if (activeEffects.sushiCatBuffActive) {
+                newStatus = '😻🍣'; 
+            }
+            activeEffects.currentCatStatus = newStatus;
+
             const petInfoContainer = document.createElement('div');
             petInfoContainer.className = 'pet-info-container';
-    
+
             const mainArea = document.createElement('div');
             mainArea.className = 'pet-main-area';
-    
+
             const petDiv = document.createElement('div');
             petDiv.className = 'pet-display';
             petDiv.innerHTML = `<span class="pet-status-emoji">${activeEffects.currentCatStatus}</span>`;
             mainArea.appendChild(petDiv);
-    
+
             const petDescDiv = document.createElement('div');
             petDescDiv.className = 'pet-description';
-            if (activeEffects.currentCatStatus === '😻🍣') petDescDiv.textContent = `All Cats +5! (${activeEffects.sushiCatBuffSpinsLeft} left)`;
+            if (activeEffects.currentCatStatus === '😻🍣') petDescDiv.textContent = `All Cats +5!`;
             else if (activeEffects.currentCatStatus === '😺') petDescDiv.textContent = '+1 All Cats';
             else if (activeEffects.currentCatStatus === '😿') petDescDiv.textContent = 'Wants toy/No buff';
             else if (activeEffects.currentCatStatus === '😼') petDescDiv.textContent = 'Too many birds/no buff.';
             else if (activeEffects.currentCatStatus === '🙀🪲') petDescDiv.textContent = '-1 All Cats (Scared by 🪲!)';
             mainArea.appendChild(petDescDiv);
-    
+
             petInfoContainer.appendChild(mainArea);
-    
+            content.appendChild(petInfoContainer);
+
             const petBottomArea = document.createElement('div');
             petBottomArea.className = 'pet-bottom-area';
-    
+
             if (activeEffects.hasMouseToy) {
                 const toySpan = document.createElement('span');
                 toySpan.id = 'pet-toy-display';
                 toySpan.textContent = '🐁';
                 petBottomArea.appendChild(toySpan);
             }
-    
+
             const foodConsumptionDiv = document.createElement('div');
             foodConsumptionDiv.className = 'pet-food-consumption';
             foodConsumptionDiv.textContent = `(-${GAME_CONFIG.catFoodConsumption} 🍽️ per spin)`;
             petBottomArea.appendChild(foodConsumptionDiv);
-    
-            petInfoContainer.appendChild(petBottomArea);
-            catWrapper.appendChild(petInfoContainer);
-            companionsContainer.appendChild(catWrapper);
+
+            content.appendChild(petBottomArea);
+
+        } else {
+            content.innerHTML = '<div>No companion active. Adopt a 🐈‍⬛ from the grid or activate an 👽 from your inventory.</div>';
         }
-    
-        let titleEmoji = '💙';
-        if (hasCat && hasAlien) {
-            titleEmoji = '🐈👽';
-        } else if (hasCat) {
-            titleEmoji = '🐈';
-        } else if (hasAlien) {
-            titleEmoji = '👽';
+
+        DOM_ELEMENTS.petModalTitle.innerHTML = `${titleEmoji} Companion`;
+    }
+
+    function updateWindowButtonState() {
+        if (DOM_ELEMENTS.windowTriggerBtn) {
+            DOM_ELEMENTS.windowTriggerBtn.textContent = uiState.windowOpen ? '🪟' : '⬜';
+            DOM_ELEMENTS.windowTriggerBtn.classList.toggle('toggled-off', !uiState.windowOpen);
         }
-        DOM_ELEMENTS.petModalTitle.innerHTML = `${titleEmoji} Companions`;
     }
 
     function updateGridDOM(gridSymbols, currentMultiplier, animate = false) {
@@ -906,32 +839,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const finalPayout = getSingleItemPayout(item, index);
                 baseValueSpan.textContent = finalPayout;
     
-                let isVisuallyBuffed = false;
-                if (
-                    (item.emoji === "🍩" && activeEffects.donutBuffActive) ||
-                    (item.emoji === "🐈‍⬛" && activeEffects.hasPetCat && (activeEffects.sushiCatBuffActive || activeEffects.currentCatStatus === '😺')) ||
-                    (["🦜", "🦉", "🕊️", "🐦‍🔥"].includes(item.emoji) && (windowFeatureState.feathers > 0 || activeEffects.permanentBirdBuff))
-                ) {
-                    isVisuallyBuffed = true;
-                }
-                let isAlienBuffed = item.isCosmic && activeEffects.hasAlienVisitor;
-    
-                if (isMultiplierCellForThisSpin) {
-                    baseValueSpan.classList.add(`base-value-in-multi-${currentMultiplier}x`);
-                } else if (isVisuallyBuffed || isAlienBuffed) {
-                    baseValueSpan.classList.add('base-value-buffed');
-                } else {
-                    baseValueSpan.classList.add('base-value-base');
-                }
+                // UPDATED: All conditional styling for the payout number is removed.
+                // It now uses one consistent style from the CSS.
     
             } else {
                 baseValueSpan.textContent = '';
             }
 
-            const payoutSpan = document.createElement("span");
-            payoutSpan.className = "payout-text";
-            div.appendChild(payoutSpan);
-
+            // UPDATED: The animated payout text element has been removed.
+            
             div.classList.remove('multi-2x', 'multi-3x', 'multi-5x');
 
             if (isMultiplierCellForThisSpin) {
@@ -950,7 +866,7 @@ document.addEventListener('DOMContentLoaded', () => {
                  if (slotMachineState.topRightLocked) {
                     div.classList.add("top-right-locked");
                 }
-                if (item) { 
+                if (item) { // Always show lock icon if there is a symbol
                     const lockDiv = document.createElement("div");
                     lockDiv.className = "lock-icon";
                     if(slotMachineState.topRightLocked) {
@@ -974,7 +890,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     div.onclick = () => clickFoodEmoji(item.emoji, index);
                 }
             }
-            if (item && item.emoji === "🐈‍⬛" && !activeEffects.hasPetCat && !uiState.isGameOver) {
+            if (item && item.emoji === "🐈‍⬛" && !activeEffects.hasPetCat && !activeEffects.hasAlienVisitor && !uiState.isGameOver) {
                 div.classList.add('clickable-cat');
                 div.onclick = () => clickCatEmoji(index);
             }
@@ -983,11 +899,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function displayIndividualPayouts(payouts) {
+        // UPDATED: This function is now empty to remove the payout animation.
+        // The payout value is now displayed statically by updateGridDOM.
+    }
+
     function updatePowerDisplay() {
         if (DOM_ELEMENTS.powerMeterFill) {
             DOM_ELEMENTS.powerMeterFill.style.width = `${(playerState.power / GAME_CONFIG.maxPower) * 100}%`;
         }
         if (DOM_ELEMENTS.powerMeterIndicatorIcon) {
+            // UPDATED: Removed extra icons for cosmic/quantum penalties.
             DOM_ELEMENTS.powerMeterIndicatorIcon.innerHTML = "<span class='base-power-icon'>🔌</span>";
         }
     }
@@ -995,13 +917,98 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateNextPowerBillCostDisplay() {
         if (DOM_ELEMENTS.nextPowerBillCostDisplay) {
             let displayText = "";
+            const billCost = GAME_CONFIG.powerBillBaseCost + (playerState.billsPaidSoFar * GAME_CONFIG.powerBillIncrement);
+
             if (playerState.inventory['📃'] > 0 && playerState.power <= 0) {
-                const currentBillCost = GAME_CONFIG.powerBillBaseCost + (playerState.billsPaidSoFar * GAME_CONFIG.powerBillIncrement);
-                displayText = `📃 ${currentBillCost}🪙`;
+                // UPDATED: New format for the bill display.
+                displayText = `📃${billCost}🪙`;
+            } else {
+                displayText = `Next: ${billCost}🪙`;
             }
             DOM_ELEMENTS.nextPowerBillCostDisplay.textContent = displayText;
         }
     }
+
+    function updateStatusEffectsWindow() {
+        // Standard Buffs
+        const donutActive = activeEffects.donutBuffActive && activeEffects.donutBuffSpinsLeft > 0;
+        DOM_ELEMENTS.donutBuffStatusEl.innerHTML = donutActive ? `<span class="buff-emoji">🍩</span> <span class="buff-countdown">${activeEffects.donutBuffSpinsLeft}</span>` : '';
+        DOM_ELEMENTS.donutBuffStatusEl.style.display = donutActive ? 'flex' : 'none';
+
+        // Consolidated Cat Buff Logic
+        DOM_ELEMENTS.catBuffStatusEl.innerHTML = '';
+        DOM_ELEMENTS.catBuffStatusEl.style.display = 'none';
+        if (activeEffects.hasPetCat) {
+            let catHTML = '';
+            const currentStatus = activeEffects.currentCatStatus;
+            
+            if (currentStatus === '😻🍣') {
+                catHTML = `<span class="buff-emoji">😻</span> <span class="buff-value">+5</span> <span class="buff-countdown">${activeEffects.sushiCatBuffSpinsLeft}</span>`;
+            } else if (currentStatus === '😺') {
+                catHTML = `<span class="buff-emoji">😺</span> <span class="buff-value">+1</span>`;
+            } else if (currentStatus === '🙀🪲') {
+                catHTML = `<span class="buff-emoji">🙀</span> <span class="buff-value" style="color: var(--accent-red);">-1</span>`;
+            } else if (currentStatus === '😿' || currentStatus === '😼') {
+                catHTML = `<span class="buff-emoji">${currentStatus.substring(0, 2)}</span>`;
+            }
+
+            if (catHTML) {
+                DOM_ELEMENTS.catBuffStatusEl.innerHTML = catHTML;
+                DOM_ELEMENTS.catBuffStatusEl.style.display = 'flex';
+            }
+        }
+
+        const cosmicBonusModeActive = activeEffects.cosmicUpgradeActive && activeEffects.cosmicUpgradeSpinsLeft > 0;
+        DOM_ELEMENTS.cosmicModeStatusEl.innerHTML = cosmicBonusModeActive ? `<span class="buff-emoji">🔭</span> <span class="buff-countdown">${activeEffects.cosmicUpgradeSpinsLeft}</span>` : '';
+        DOM_ELEMENTS.cosmicModeStatusEl.style.display = cosmicBonusModeActive ? 'flex' : 'none';
+
+        const quantumBonusModeActive = activeEffects.quantumUpgradeActive && activeEffects.quantumUpgradeSpinsLeft > 0;
+        DOM_ELEMENTS.quantumModeStatusEl.innerHTML = quantumBonusModeActive ? `<span class="buff-emoji">⚛️</span> <span class="buff-countdown">${activeEffects.quantumUpgradeSpinsLeft}</span>` : '';
+        DOM_ELEMENTS.quantumModeStatusEl.style.display = quantumBonusModeActive ? 'flex' : 'none';
+        
+        DOM_ELEMENTS.permanentBuffStatusEl.innerHTML = '';
+        DOM_ELEMENTS.permanentBuffStatusEl.style.display = 'none';
+        let permanentBuffsHTML = '';
+        if (activeEffects.permanentBirdBuff) {
+             permanentBuffsHTML += `<span>🐦+1</span>`;
+        } 
+        if (activeEffects.permanentFoodReplenishBuff) {
+             permanentBuffsHTML += `<span>🍽️+1</span>`;
+        }
+        if (permanentBuffsHTML) {
+            DOM_ELEMENTS.permanentBuffStatusEl.innerHTML = permanentBuffsHTML;
+            DOM_ELEMENTS.permanentBuffStatusEl.style.display = 'flex';
+        }
+
+        // Phone Buff
+        const phoneActive = phoneFeatureState.phoneOn;
+        if (phoneActive) {
+            const spinsLeft = Math.max(phoneFeatureState.investmentSpinsLeft, phoneFeatureState.takeoutSpinsLeft);
+            DOM_ELEMENTS.phoneBuffStatusEl.innerHTML = `<span class="buff-emoji">📱</span> <span class="buff-countdown">${spinsLeft}</span>`;
+            DOM_ELEMENTS.phoneBuffStatusEl.style.display = 'flex';
+        } else {
+            DOM_ELEMENTS.phoneBuffStatusEl.innerHTML = '';
+            DOM_ELEMENTS.phoneBuffStatusEl.style.display = 'none';
+        }
+
+        // NEW: Window items status
+        const nestActive = windowFeatureState.hasBirdNest;
+        DOM_ELEMENTS.nestStatusEl.innerHTML = nestActive ? `<span class="buff-emoji">🪹</span>` : '';
+        DOM_ELEMENTS.nestStatusEl.style.display = nestActive ? 'flex' : 'none';
+
+        const feathers = windowFeatureState.feathers;
+        DOM_ELEMENTS.featherStatusEl.innerHTML = feathers > 0 ? `<span class="buff-emoji">🪶</span> <span class="buff-countdown">${feathers}</span>` : '';
+        DOM_ELEMENTS.featherStatusEl.style.display = feathers > 0 ? 'flex' : 'none';
+
+        const beetles = windowFeatureState.beetles;
+        DOM_ELEMENTS.beetleStatusEl.innerHTML = beetles > 0 ? `<span class="buff-emoji">🪲</span> <span class="buff-countdown">${beetles}</span>` : '';
+        DOM_ELEMENTS.beetleStatusEl.style.display = beetles > 0 ? 'flex' : 'none';
+
+        const branchActive = windowFeatureState.hasBranch;
+        DOM_ELEMENTS.branchStatusEl.innerHTML = branchActive ? `<span class="buff-emoji">🌿</span>` : '';
+        DOM_ELEMENTS.branchStatusEl.style.display = branchActive ? 'flex' : 'none';
+    }
+
 
     // --- EVENT HANDLERS & UI INTERACTIONS ---
     function toggleLuckyLines() {
@@ -1025,6 +1032,7 @@ document.addEventListener('DOMContentLoaded', () => {
             slotMachineState.topRightSymbol = slotMachineState.currentGridSymbols[3];
             slotMachineState.topRightLocked = true;
         } else {
+            // Unlocking does not return the lock item
             slotMachineState.topRightSymbol = null;
             slotMachineState.topRightLocked = false;
         }
@@ -1032,11 +1040,9 @@ document.addEventListener('DOMContentLoaded', () => {
         updateDisplays();
     }
 
-    function toggleWindowState(fromModal = false) {
+    function toggleWindow() {
         uiState.windowOpen = !uiState.windowOpen;
-        if (fromModal) {
-            setupWindowModal(); 
-        }
+        updateDisplays();
     }
 
     function clickFoodEmoji(emoji, index) {
@@ -1069,18 +1075,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function clickCatEmoji(index) {
-        if (uiState.isGameOver || activeEffects.hasPetCat) {
+        if (uiState.isGameOver || activeEffects.hasPetCat || activeEffects.hasAlienVisitor) {
             return;
         }
         const symbolOnGrid = slotMachineState.currentGridSymbols[index];
         const catSymbolData = symbols.find(s => s.emoji === "🐈‍⬛");
-    
+
         if (symbolOnGrid && symbolOnGrid.emoji === "🐈‍⬛" && catSymbolData && catSymbolData.count > 0) {
             activeEffects.hasPetCat = true;
             activeEffects.spinsWithCat = 0;
             catSymbolData.count--;
             slotMachineState.currentGridSymbols[index] = null;
-    
+
             if (index === 3 && slotMachineState.topRightLocked) {
                 slotMachineState.topRightLocked = false;
                 slotMachineState.topRightSymbol = null;
@@ -1122,7 +1128,7 @@ document.addEventListener('DOMContentLoaded', () => {
             playerState.coins -= cost;
             activeEffects.hasMouseToy = true;
             activeEffects.spinsWithCat = 0;
-        } else if (itemEmoji === "🎥") { 
+        } else if (itemEmoji === "🎥") {
             if (!activeEffects.hasAlienVisitor) return; 
             if (playerState.inventory[itemEmoji] >= 1) return;
             playerState.coins -= cost;
@@ -1143,8 +1149,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (item.emoji === "🪹" && windowFeatureState.hasBirdNest) return;
             if (item.emoji === "🐁" && activeEffects.hasMouseToy) return;
             if (["🎥", "⚫"].includes(item.emoji) && playerState.inventory[item.emoji] >= 1) return;
-            
-            if (item.emoji === "⚫" && !activeEffects.quantumUpgradePenaltyActive) return;
+            if (item.emoji === "⚫" && !activeEffects.quantumModeCompleted) return;
 
             if (item.isUpgrade) {
                 if ((item.type === 'cosmic' && activeEffects.cosmicUpgradePenaltyActive) || (item.type === 'quantum' && activeEffects.quantumUpgradePenaltyActive)) {
@@ -1163,7 +1168,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 canBuy = false;
             } else if (item.emoji === "🐁") {
                 if (!activeEffects.hasPetCat) canBuy = false;
-            } else if (item.emoji === "🎥") { 
+            } else if (item.emoji === "🎥") {
                 if (!activeEffects.hasAlienVisitor) canBuy = false;
             }
             else if (item.isUpgrade) {
@@ -1248,7 +1253,7 @@ document.addEventListener('DOMContentLoaded', () => {
         phoneFeatureState.investmentAmount = amount;
         playerState.coins -= amount;
         phoneFeatureState.investmentActive = true;
-        phoneFeatureState.phoneOn = true; 
+        phoneFeatureState.phoneOn = true; // Phone is now active for texts
         phoneFeatureState.investmentSpinsLeft = GAME_CONFIG.investmentDuration;
         closePhoneModal();
         updateDisplays();
@@ -1307,7 +1312,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playerState.coins -= totalCost;
         phoneFeatureState.takeoutFoodAmount = amount;
         phoneFeatureState.takeoutActive = true;
-        phoneFeatureState.phoneOn = true; 
+        phoneFeatureState.phoneOn = true; // Phone is now active for texts
         phoneFeatureState.takeoutSpinsLeft = GAME_CONFIG.takeoutDuration;
         closePhoneModal();
         updateDisplays();
@@ -1434,7 +1439,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function deactivateCosmicUpgradeBonusMode(showFeedback = true) {
-        if (showFeedback) { 
+        if (showFeedback) { // This means the mode completed normally
             activeEffects.cosmicModeCompleted = true;
         }
         activeEffects.cosmicUpgradeActive = false;
@@ -1449,6 +1454,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function deactivateQuantumUpgradeBonusMode(showFeedback = true) {
+        if (showFeedback) {
+            activeEffects.quantumModeCompleted = true;
+        }
         activeEffects.quantumUpgradeActive = false;
         document.body.classList.remove("quantum-theme");
         slotMachineState.schrodingerCells = [];
@@ -1465,6 +1473,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function activateAlienVisitor() {
         if (uiState.isGameOver || playerState.inventory["👽"] <= 0 || activeEffects.hasAlienVisitor) {
             return;
+        }
+
+        if (activeEffects.hasPetCat) {
+            const catSymbol = symbols.find(s => s.emoji === "🐈‍⬛");
+            if (catSymbol) catSymbol.count = GAME_CONFIG.initialCatCount;
+            activeEffects.hasPetCat = false;
+            activeEffects.spinsWithCat = 0;
+            activeEffects.sushiCatBuffActive = false;
+            activeEffects.sushiCatBuffSpinsLeft = 0;
+            activeEffects.currentCatStatus = '😺';
         }
         playerState.inventory["👽"]--;
         activeEffects.hasAlienVisitor = true;
@@ -1494,7 +1512,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // --- GUIDE FUNCTIONS ---
+    // --- GUIDE FUNCTIONS (REWORKED) ---
     function showGuideTopics() {
         const content = DOM_ELEMENTS.guideSelectionModalContent;
         content.innerHTML = `
@@ -1542,7 +1560,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 content = `
                     <h4>🍽️ Food & Consumables</h4>
                     <p><strong>Meter:</strong> Consumed per spin. Game Over at 0.</p>
-                    <p>Click 🍟, 🍣, 🍩 on grid to eat from your available symbols. Restores ${foodRefillValue} food.</p>
+                    <p>Click 🍟, 🍣, 🍩 on grid to eat from symbol inventory. Restores ${foodRefillValue} food.</p>
                     <ul>
                         <li>🍟 <strong>Fries:</strong> Basic. Alien visitor (👽) will consume ALL 🍟 from your bag each spin!</li>
                         <li>🍣 <strong>Sushi:</strong> Eaten from grid with 🐈‍⬛ Pet Cat -> Cat +5 value (${GAME_CONFIG.sushiBuffDuration} spins).</li>
@@ -1553,9 +1571,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
             case 'cat':
                 content = `
-                    <h4>💙 Companions (Cat & Alien)</h4>
-                    <p>Open the Companion modal (💙) to view status. Click 🐈‍⬛ on grid to adopt. Click 👽 in inventory to activate.</p>
-                    <p>You can have both a Cat and an Alien as companions simultaneously.</p>
+                    <h4>💙 Companion (Cat / Alien)</h4>
+                    <p>Open the Companion modal (💙) to view status. Click 🐈‍⬛ on grid to adopt (uses 1 symbol). Click 👽 in inventory to activate (replaces cat).</p>
+                    <p>Max 1 companion (Cat or Alien).</p>
                     <p><strong>🐈‍⬛ Cat:</strong> Consumes +${GAME_CONFIG.catFoodConsumption} 🍽️ food/spin. Statuses affect 🐈‍⬛ grid value:</p>
                     <ul>
                         <li>😺 <strong>Happy:</strong> Default. +1 value.</li>
@@ -1565,8 +1583,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         <li>😻🍣 <strong>Buffed:</strong> Eat 🍣 with Cat. +5 value (${GAME_CONFIG.sushiBuffDuration} spins).</li>
                     </ul>
                     <p>🐁 <strong>Mouse Toy (Shop):</strong> Keeps cat 😺 happy.</p>
-                    <p><strong>👽 Alien:</strong> Cosmic symbols on grid +10 value. No food meter cost. Consumes ALL 🍟 from bag per spin. If you've bought the Cosmic Upgrade, 🛸 (UFO) has a ${GAME_CONFIG.ufoAlienDropChance*100}% chance to drop 👽 to your inventory (if you don't have one).</p>
-                    <p>🎥 <strong>Camera (Inventory):</strong> If 👽 is active, consume 🎥 to sell proof to media. The Alien leaves, but your cat will remain. 50/50 chance of 4500🪙 or 6000🪙 payout. Shop cost: ${cameraShopItem.cost}🪙.</p>
+                    <p><strong>👽 Alien:</strong> Cosmic symbols on grid +12 value. No food meter cost. Consumes ALL 🍟 from bag per spin. 🛸 (UFO) has a ${GAME_CONFIG.ufoAlienDropChance*100}% chance to drop 👽 to inventory during Cosmic Mode if you don't have one.</p>
+                    <p>🎥 <strong>Camera (Inventory):</strong> If 👽 is active, consume 🎥 to sell proof to media. Alien leaves. 50/50 chance of 4500🪙 or 6000🪙 payout. Shop cost: ${cameraShopItem.cost}🪙.</p>
                 `;
                 break;
             case 'phone':
@@ -1612,7 +1630,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <h5>${quantumUpgradeShopItem.emoji} Quantum Upgrade</h5>
                     <p><strong>Cost:</strong> ${quantumUpgradeShopItem.cost}🪙. <strong>Penalty:</strong> -${quantumUpgradeShopItem.powerCost}🔌/spin.</p>
                     <p>Triggers ${GAME_CONFIG.quantumModeDuration}-spin Quantum Mode: Multiplier (2x,3x,5x) applies to the entire bottom row.
-                    <br><strong>Schrödinger's Cat:</strong> Each spin, ${GAME_CONFIG.schrodingerCatsCount} random grid symbols get a 🐈 overlay. Payout is x${GAME_CONFIG.schrodingerCatMultiplier}. If it lands on 🐈‍⬛, the payout is x${GAME_CONFIG.schrodingerCatOnCatMultiplier} instead!</p>
+                    <br><strong>Schrödinger's Cat:</strong> Each spin, ${GAME_CONFIG.schrodingerCatsCount} random grid symbols get a 🐈 overlay and their payout is multiplied by an additional ${GAME_CONFIG.schrodingerCatMultiplier}x (stacks with row multiplier).</p>
                 `;
                 break;
             default:
@@ -1645,64 +1663,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function openPhoneModal() { if (!uiState.isGameOver) { setupPhoneModal(); DOM_ELEMENTS.phoneModalOverlay.classList.remove('hidden'); }}
     function closePhoneModal() { DOM_ELEMENTS.phoneModalOverlay.classList.add('hidden'); }
     
-    function openWindowModal() {
-        if (!uiState.isGameOver) {
-            setupWindowModal();
-            DOM_ELEMENTS.windowModalOverlay.classList.remove('hidden');
-        }
-    }
-
-    function closeWindowModal() {
-        DOM_ELEMENTS.windowModalOverlay.classList.add('hidden');
-    }
-
-    function setupWindowModal() {
-        const content = DOM_ELEMENTS.windowModalContent;
-        content.innerHTML = "";
-    
-        const toggleSection = document.createElement('div');
-        toggleSection.className = 'window-modal-section';
-        const toggleBtn = document.createElement('button');
-        toggleBtn.className = 'btn';
-        toggleBtn.innerHTML = uiState.windowOpen ? 'Close Window 🪟' : 'Open Window ⬜';
-        toggleBtn.onclick = () => toggleWindowState(true);
-        toggleSection.appendChild(toggleBtn);
-        content.appendChild(toggleSection);
-    
-        const birdsSection = document.createElement('div');
-        birdsSection.className = 'window-modal-section';
-        birdsSection.innerHTML = '<h4>Birds in Bag</h4>';
-        const birdGrid = document.createElement('div');
-        birdGrid.className = 'bird-display-grid';
-        const birdEmojis = ["🦜", "🦉", "🕊️", "🐦‍🔥"];
-        birdEmojis.forEach(emoji => {
-            const birdSymbol = symbols.find(s => s.emoji === emoji);
-            const count = birdSymbol ? birdSymbol.count : 0;
-            const birdDiv = document.createElement('div');
-            birdDiv.className = 'bird-display-item';
-            birdDiv.innerHTML = `<span class="bird-emoji">${emoji}</span><span class="bird-count">${count}</span>`;
-            birdGrid.appendChild(birdDiv);
-        });
-        birdsSection.appendChild(birdGrid);
-        content.appendChild(birdsSection);
-    
-        const itemsSection = document.createElement('div');
-        itemsSection.className = 'window-modal-section';
-        itemsSection.innerHTML = '<h4>Window Items</h4>';
-        const itemsList = document.createElement('ul');
-        itemsList.className = 'window-item-list';
-        
-        let itemsHTML = '';
-        itemsHTML += `<li>🪹 Nest: ${windowFeatureState.hasBirdNest ? '<span style="color:var(--accent-green)">Active</span>' : 'Not built'}</li>`;
-        itemsHTML += `<li>🌿 Branch: ${windowFeatureState.hasBranch ? '<span style="color:var(--accent-green)">Found</span>' : 'Not found'}</li>`;
-        itemsHTML += `<li>🪶 Feathers: ${windowFeatureState.feathers} / ${GAME_CONFIG.maxFeathers}</li>`;
-        itemsHTML += `<li>🪲 Beetles: ${windowFeatureState.beetles} / ${GAME_CONFIG.maxBeetles}</li>`;
-        
-        itemsList.innerHTML = itemsHTML;
-        itemsSection.appendChild(itemsList);
-        content.appendChild(itemsSection);
-    }
-
     function closeAllWindows() {
         DOM_ELEMENTS.alienMediaPayoutModal.classList.add('hidden');
         DOM_ELEMENTS.giftChoiceModal.classList.add('hidden'); 
@@ -1710,7 +1670,6 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM_ELEMENTS.guideSelectionModalOverlay.classList.add('hidden');
         DOM_ELEMENTS.petModalOverlay.classList.add('hidden');
         DOM_ELEMENTS.phoneModalOverlay.classList.add('hidden');
-        DOM_ELEMENTS.windowModalOverlay.classList.add('hidden');
     }
 
     // --- GAME RESET & INIT ---
@@ -1736,7 +1695,7 @@ document.addEventListener('DOMContentLoaded', () => {
         slotMachineState.currentGridSymbols = getSymbolsForSpin();
         slotMachineState.currentMultiplier = getRandomMultiplier();
 
-        updateGridDOM(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier, false);
+        updateGridDOM(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier, false); // No animation on reset
         updateDisplays();
     }
 
@@ -1745,7 +1704,7 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM_ELEMENTS.spinBtn.addEventListener('click', spin);
         DOM_ELEMENTS.luckyBtn.addEventListener('click', toggleLuckyLines);
         
-        DOM_ELEMENTS.windowTriggerBtn.addEventListener('click', openWindowModal); 
+        DOM_ELEMENTS.windowTriggerBtn.addEventListener('click', toggleWindow);
         DOM_ELEMENTS.petTriggerBtn.addEventListener('click', openPetModal);
         DOM_ELEMENTS.phoneTriggerBtn.addEventListener('click', openPhoneModal);
         DOM_ELEMENTS.shopTriggerBtn.addEventListener('click', openShopModal);
@@ -1755,10 +1714,9 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM_ELEMENTS.guideSelectionModalCloseBtn.addEventListener('click', closeGuideSelectionModal);
         DOM_ELEMENTS.petModalCloseBtn.addEventListener('click', closePetModal);
         DOM_ELEMENTS.phoneModalCloseBtn.addEventListener('click', closePhoneModal);
-        DOM_ELEMENTS.windowModalCloseBtn.addEventListener('click', closeWindowModal); 
         DOM_ELEMENTS.alienMediaPayoutCloseBtn.addEventListener('click', () => DOM_ELEMENTS.alienMediaPayoutModal.classList.add('hidden'));
         
-        [DOM_ELEMENTS.shopModalOverlay, DOM_ELEMENTS.guideSelectionModalOverlay, DOM_ELEMENTS.petModalOverlay, DOM_ELEMENTS.phoneModalOverlay, DOM_ELEMENTS.alienMediaPayoutModal, DOM_ELEMENTS.windowModalOverlay].forEach(overlay => {
+        [DOM_ELEMENTS.shopModalOverlay, DOM_ELEMENTS.guideSelectionModalOverlay, DOM_ELEMENTS.petModalOverlay, DOM_ELEMENTS.phoneModalOverlay, DOM_ELEMENTS.alienMediaPayoutModal].forEach(overlay => {
             overlay.addEventListener('click', (event) => {
                 if(event.target === overlay) overlay.classList.add('hidden');
             });
@@ -1777,7 +1735,7 @@ document.addEventListener('DOMContentLoaded', () => {
         slotMachineState.currentGridSymbols = getSymbolsForSpin();
         slotMachineState.currentMultiplier = getRandomMultiplier();
 
-        updateGridDOM(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier, false);
+        updateGridDOM(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier, false); // No animation on initial load
         updateDisplays();
     }
 
