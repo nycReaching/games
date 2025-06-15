@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Bird Nest", emoji: "🪹", cost: 1000 },
         { name: "Black Hole", emoji: "⚫", cost: 10000 },
         { name: "Cosmic Upgrade", emoji: "🔭", cost: 2000, powerCost: 2, isUpgrade: true, type: 'cosmic' },
-        { name: "Quantum Upgrade", emoji: "⚛️", cost: 6000, powerCost: 5, isUpgrade: true, type: 'quantum' },
+        { name: "Quantum Upgrade", emoji: "⚛️", cost: 6000, powerCost: 4, isUpgrade: true, type: 'quantum' },
     ];
 
     // --- DOM ELEMENTS ---
@@ -382,7 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let powerConsumedThisSpin = 1;
         if (activeEffects.cosmicUpgradePenaltyActive) powerConsumedThisSpin += 2;
-        if (activeEffects.quantumUpgradePenaltyActive) powerConsumedThisSpin += 5;
+        if (activeEffects.quantumUpgradePenaltyActive) powerConsumedThisSpin += 4;
 
         if (playerState.power > 0) {
             playerState.power -= powerConsumedThisSpin;
@@ -1499,8 +1499,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <p style="font-size: 24px;">🏆</p>
             <p><strong>Congratulations on your legendary run!</strong></p>
         `;
-        DOM_ELEMENTS.blackHoleModal.classList.remove('hidden');
         gameOver("Achieved Singularity!");
+        DOM_ELEMENTS.blackHoleModal.classList.remove('hidden');
     }
 
 
@@ -1612,6 +1612,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function showGuideTopics() {
         const content = DOM_ELEMENTS.guideSelectionModalContent;
         content.innerHTML = `
+            <button id="guide-how-to-play-btn" class="btn btn-how-to-play">How to Play</button>
              <div id="guide-icons-container">
                 <span class="guide-icon" data-topic="window">🪟</span>
                 <span class="guide-icon" data-topic="food">🍽️</span>
@@ -1624,6 +1625,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p>Select an icon for gameplay information.</p>
             </div>
         `;
+        document.getElementById('guide-how-to-play-btn').addEventListener('click', () => displayGuideInfo('how-to-play'));
         const guideIcons = content.querySelectorAll('.guide-icon');
         guideIcons.forEach(icon => {
             icon.addEventListener('click', () => displayGuideInfo(icon.dataset.topic));
@@ -1634,6 +1636,12 @@ document.addEventListener('DOMContentLoaded', () => {
         let content = '';
 
         switch (topic) {
+            case 'how-to-play':
+                content = `
+                    <h4>How to Play</h4>
+                    <p>Your goal is to earn as many coins as possible before running out of food, coins, or getting your power shut off. Spin the slots to win coins based on the symbols that land on the grid. Manage your resources, use items, and interact with companions to maximize your score!</p>
+                `;
+                break;
             case 'window':
                 content = `
                     <h4>🪟 The Window & Birds</h4>
@@ -1700,7 +1708,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p>Purchase powerful upgrades from the Shop (🏪).</p>
                     <ul>
                         <li><strong>🔭 Cosmic Upgrade:</strong> Permanently adds a 2-point power drain per spin. Triggers a 20-spin <strong>Cosmic Mode</strong>, adding powerful space symbols to the grid and applying the multiplier to the entire bottom row. You must complete this to unlock the Quantum Upgrade.</li>
-                        <li><strong>⚛️ Quantum Upgrade:</strong> Permanently adds a 5-point power drain per spin. Triggers a 20-spin <strong>Quantum Mode</strong>. The multiplier applies to the bottom row, and two grid cells become Schrödinger cells. If a <strong>🐈‍⬛Cat</strong> lands in a Schrödinger cell, its value is multiplied by <strong>500x</strong>!</li>
+                        <li><strong>⚛️ Quantum Upgrade:</strong> Permanently adds a 4-point power drain per spin. Triggers a 20-spin <strong>Quantum Mode</strong>. The multiplier applies to the bottom row, and two grid cells become Schrödinger cells. If a <strong>🐈‍⬛Cat</strong> lands in a Schrödinger cell, its value is multiplied by <strong>500x</strong>!</li>
                         <li><strong>⚫ Black Hole:</strong> The ultimate item, available in the shop only after completing Quantum Mode. Using it triggers a special, victorious end to your run.</li>
                     </ul>
                 `;
