@@ -1639,77 +1639,102 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'how-to-play':
                 content = `
                     <h4>How to Play</h4>
-                    <p>Your goal is to earn as many coins as possible before running out of food, coins, or getting your power shut off. Spin the slots to win coins based on the symbols that land on the grid. Manage your resources, use items, and interact with companions to maximize your score!</p>
+                    <p>Your slot machine seems to be connected with the <strong>world itself.</strong> <p>Birds fly through your window and enter the game. You order food on your phone, but it shows up as game symbols. It's all connected. The game ends if you run out of food, coins, or fail to pay your power bill in a timely manner.</p>
+                    <ul>
+                        <li><strong>Focus:</strong> Pay attention to food, hitting 0 means game over.</li>
+                        <li><strong>Budget:</strong> Keep an eye on the next power bill and time your investments and purchases accordingly.</li>
+                        <li><strong>Strategy:</strong> Use items, buffs and new companions to win bigger payouts.</li>
+			<li><strong>Goal:</strong> Upgrade your slot machine to peer into the cosmos, probe the quantum realm, and be there for its ultimate end.</li>
+                    </ul>
+                    
                 `;
                 break;
             case 'window':
                 content = `
                     <h4>🪟 The Window & Birds</h4>
-                    <p>The window affects bird symbols (🦜, 🦉, 🕊️, 🐦‍🔥). While open (🪟), each spin has a 15% chance to gain a random bird and a 15% chance for one to fly away. Close the window (⬜) to prevent this.</p>
                     <ul>
-                        <li>Birds on the grid have a 15% chance each to drop an item: <strong>🦜Parrots drop 🪲Beetles</strong>, <strong>🦉Owls drop 🪶Feathers</strong>, and <strong>🕊️Doves drop 🌿Branches</strong>.</li>
-                        <li><strong>🪶Feathers:</strong> Each feather adds +1 to the value of all bird symbols.</li>
-                        <li><strong>🪲Beetles:</strong> Sacrificed to prevent a bird from flying away.</li>
-                        <li><strong>🌿Branches:</strong> Used to tame a wild 🕊️Dove or get a discount on a 🪹Nest. Only two can drop per game.</li>
-                        <li>A <strong>🪹Nest</strong> (from the Shop) permanently protects your birds from flying away.</li>
+                        <li><strong>Window Open (🪟):</strong> 15% chance to gain a bird, 15% chance to lose one per spin.</li>
+                        <li><strong>Window Closed (⬜):</strong> Birds are safe; no gains or losses.</li>
+                        <li><strong>Bird Drops (15% chance per bird):</strong></li>
+                        <li>&nbsp;&nbsp;<strong>🦜</strong> drops <strong>🪲 Beetle</strong></li>
+                        <li>&nbsp;&nbsp;<strong>🦉</strong> drops <strong>🪶 Feather</strong></li>
+                        <li>&nbsp;&nbsp;<strong>🕊️</strong> drops <strong>🌿 Branch</strong></li>
+                        <li><strong>Items & Maximums:</strong></li>
+                        <li>&nbsp;&nbsp;<strong>Total Birds:</strong> Max 8.</li>
+                        <li>&nbsp;&nbsp;<strong>🪶 Feathers:</strong> +1 value to all birds. Max 5.</li>
+                        <li>&nbsp;&nbsp;<strong>🪲 Beetles:</strong> Consumes in place of a bird escape. Scares cats. Max 1.</li>
+                        <li>&nbsp;&nbsp;<strong>🌿 Branches:</strong> Consumes to keep a 🕊️ (from grid) or to discount 🪹 Nest in shop. Max 2 per game.</li>
+                        <li>&nbsp;&nbsp;<strong>🪹 Nest (Shop):</strong> Permanently protects all birds from leaving, prevents 🪲 and calms cat (removes 😼).</li>
                     </ul>
                 `;
                 break;
             case 'food':
                 content = `
                     <h4>🍽️ Food & Consumables</h4>
-                    <p>Your food meter decreases each spin. <strong>If it hits 0, the game is over.</strong></p>
-                    <p>Click food symbols (🍟, 🍣, 🍩) on the grid to consume one from your inventory and refill the meter. 🫐Blueberries are a special food item only provided by a tamed 🕊️Dove.</p>
-                     <ul>
-                        <li><strong>☕Coffee:</strong> An inventory item that activates a buff for 10 spins, making 🍩Donuts worth +3 more.</li>
-                        <li><strong>🍣Sushi:</strong> Clicking a sushi from the grid while you have a 🐈‍⬛Cat companion will give all cats a +5 buff for 3 spins.</li>
+                    <ul>
+                        <li><strong>Food Meter:</strong> Game ends at 0. Max food is 20.</li>
+                        <li><strong>Replenish:</strong> Click food on grid (🍟, 🍣, 🍩) to use one from your inventory.</li>
+                        <li>&nbsp;&nbsp;Food gives +10 🍽️.</li>
+                        <li>&nbsp;&nbsp;Blueberries (🫐) only give +5 🍽️.</li>
+                        <li><strong>Max Food Items:</strong> You can hold a maximum of 8 of any single food type.</li>
+                        <li><strong>Special Effects:</strong></li>
+                        <li>&nbsp;&nbsp;<strong>☕ Coffee:</strong> Use from inventory. For 10 spins, 🍩 are worth +3 more value.</li>
+                        <li>&nbsp;&nbsp;<strong>🍣 Sushi:</strong> Shares with cat. 😻 cat buff. +5 value for 3 spins.</li>
                     </ul>
                 `;
                 break;
             case 'companion':
                 content = `
                     <h4>💙 Companions</h4>
-                    <p>Companions provide powerful buffs. You can have a <strong>🐈‍⬛Cat</strong>, <strong>🕊️Dove</strong>, and <strong>👽Alien</strong> active at the same time.</p>
+                    <p>Adopt companions from the grid to gain buffs. You can have a Cat, a Dove, and an Alien all at once.</p>
                     <ul>
-                        <li><strong>🐈‍⬛ Cat:</strong> Adopt by clicking it on the grid. Consumes 1 🍽️food per spin. Its buff changes with its mood:
-                            <ul>
-                                <li><strong>😺 Happy:</strong> +1 to all Cats.</li>
-                                <li><strong>😻 Sushi:</strong> +5 to all Cats (after eating 🍣).</li>
-                                <li><strong>😿 Sad:</strong> No buff. Needs a 🐁Toy (from shop).</li>
-                                <li><strong>😼 Annoyed:</strong> No buff. Too many birds. A 🪹Nest prevents this.</li>
-                                <li><strong>🙀 Scared:</strong> -1 to all Cats. Scared by 🪲Beetles.</li>
-                            </ul>
-                        </li>
-                         <li><strong>🕊️ Dove:</strong> Tame by clicking it on the grid when you have a 🌿Branch (the branch is consumed). The Dove provides one 🫐Blueberry food item every 10 spins.</li>
-                        <li><strong>👽 Alien:</strong> Activate from your inventory. Greatly buffs Cosmic symbols (+12 value), but consumes ALL of your 🍟Fries each spin. Use a <strong>📹Camera</strong> (Shop) on an active Alien to scare it away for a large coin payout.</li>
+                        <li><strong>🐈‍⬛ Cat:</strong> Costs 1 🍽️ per spin. Its value changes with its mood.</li>
+                        <li>&nbsp;&nbsp;<strong>😺 Happy:</strong> +1 value.</li>
+                        <li>&nbsp;&nbsp;<strong>😻 Sushi:</strong> +5 value for 3 spins.</li>
+                        <li>&nbsp;&nbsp;<strong>😿 Sad:</strong> No buff. Needs a 🐁 Toy.</li>
+                        <li>&nbsp;&nbsp;<strong>😼 Annoyed:</strong> No buff. Too many birds (4+).</li>
+                        <li>&nbsp;&nbsp;<strong>🙀 Scared:</strong> -1 value. Scared by 🪲.</li>
+                        <li><strong>🕊️ Dove:</strong> Tame with a 🌿 Branch. Provides +1 🫐 every 10 spins.</li>
+                        <li><strong>👽 Alien:</strong> 🛸 has 15% chance to drop 👽. Activate from inventory. Adds +12 value to Cosmic symbols but eats all 🍟 each spin.</li>
                     </ul>
                 `;
                 break;
             case 'phone':
                 content = `
                     <h4>📱 Phone</h4>
-                    <p>Use the Phone (📱) for special actions that take 10 spins to complete. While an action is active, you may receive random text messages that give (+10🪙) or take (-35🪙) coins.</p>
-                     <ul>
-                        <li><strong>🥡 Emoji Eats:</strong> Order a delivery of random food items (🍟, 🍣, 🍩). Does not include 🫐.</li>
-                        <li><strong>🏦 Investments:</strong> Invest your coins for a chance at a profit (1.5x return) or a loss (0.5x return).</li>
+                    <p>Phone actions take 10 spins to complete. While active, you have a 25% chance each spin to get a text: +10🪙 or -35🪙.</p>
+                    <ul>
+                        <li><strong>🥡 Emoji Eats:</strong> Order a delivery of random food items.</li>
+                        <li><strong>🏦 Investments:</strong> Invest coins:</li>
+                        <li>&nbsp;&nbsp;<strong>75% chance</strong> of 1.5x profit.</li>
+                        <li>&nbsp;&nbsp;<strong>25% chance</strong> of 0.5x loss.</li>
                     </ul>
                 `;
                 break;
             case 'power':
                 content = `
                     <h4>🔌 Power & Bills</h4>
-                    <p>Power decreases by 1 each spin (more with active upgrades). If it hits 0, a <strong>📃Bill</strong> is added to your inventory.</p>
-                    <p>You must pay the bill by clicking it in your inventory. The cost increases with each bill paid. If you spin with an unpaid bill, there is a <strong>5% chance of an instant Game Over</strong>.</p>
+                     <ul>
+                        <li>Power decreases every spin (-1 base, more with upgrades).</li>
+                        <li>If power reaches 0, you get a 📃 Bill in your inventory.</li>
+                        <li>You must pay the bill by clicking it. The cost increases each time.</li>
+                        <li><strong>Warning:</strong> Spinning with an unpaid bill has a <strong>5% chance of instant Game Over</strong>.</li>
+                    </ul>
                 `;
                 break;
             case 'upgrades':
                 content = `
                     <h4>🛠️ Upgrades & Endgame</h4>
-                    <p>Purchase powerful upgrades from the Shop (🏪).</p>
+                    <p><strong>LL Button (Lucky Lines):</strong> Increases spin cost, but allows four-in-a-row to give 150 coin bonus.</p>
                     <ul>
-                        <li><strong>🔭 Cosmic Upgrade:</strong> Permanently adds a 2-point power drain per spin. Triggers a 20-spin <strong>Cosmic Mode</strong>, adding powerful space symbols to the grid and applying the multiplier to the entire bottom row. You must complete this to unlock the Quantum Upgrade.</li>
-                        <li><strong>⚛️ Quantum Upgrade:</strong> Permanently adds a 4-point power drain per spin. Triggers a 20-spin <strong>Quantum Mode</strong>. The multiplier applies to the bottom row, and two grid cells become Schrödinger cells. If a <strong>🐈‍⬛Cat</strong> lands in a Schrödinger cell, its value is multiplied by <strong>500x</strong>!</li>
-                        <li><strong>⚫ Black Hole:</strong> The ultimate item, available in the shop only after completing Quantum Mode. Using it triggers a special, victorious end to your run.</li>
+                        <li><strong>🔭 Cosmic Upgrade:</strong></li>
+                        <li>&nbsp;&nbsp;Adds permanent -2 🔌 drain per spin.</li>
+                        <li>&nbsp;&nbsp;Triggers 20-spin <strong>Cosmic Mode</strong> where the multiplier affects the entire bottom row. Gain special cosmic symbols, including the important 🛸.</li>
+                        <li><strong>⚛️ Quantum Upgrade:</strong></li>
+                        <li>&nbsp;&nbsp;Adds permanent -4 🔌 drain per spin.</li>
+                        <li>&nbsp;&nbsp;Triggers 20-spin <strong>Quantum Mode</strong> where the multiplier affects the entire bottom row. Two random grid cells per spin invoke Schrödinger's Cat experiment: if a 🐈‍⬛ lands there, its value is multiplied by <strong>500x</strong>!</li>
+                        <li><strong>⚫ Black Hole:</strong></li>
+                        <li>&nbsp;&nbsp;Available in the shop only after completing Quantum Mode. Using it wins the game.</li>
                     </ul>
                 `;
                 break;
