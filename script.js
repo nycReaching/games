@@ -149,6 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playerState.spinCount = 0;
         playerState.giftAwarded = false;
         playerState.spinsSinceLastBlueberry = 0;
+        playerState.camerasPurchasedThisGame = 0; // NEW
 
         slotMachineState.luckyLines = false;
         slotMachineState.topRightLocked = false;
@@ -504,7 +505,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                 windowFeatureState.beetles++;
                             }
                         } else if (item.emoji === "🕊️" && Math.random() < GAME_CONFIG.doveBranchDropChance) {
-                            if (!windowFeatureState.hasBranch && windowFeatureState.branchesDroppedThisGame < 2) {
+                            // UPDATED: Branch drop limit
+                            if (!windowFeatureState.hasBranch && windowFeatureState.branchesDroppedThisGame < 1) {
                                 windowFeatureState.hasBranch = true;
                                 windowFeatureState.branchesDroppedThisGame++;
                             }
@@ -581,6 +583,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (["🦜", "🦉", "🕊️", "🐦‍🔥"].includes(item.emoji)) {
             if(windowFeatureState.feathers > 0) itemValue += windowFeatureState.feathers;
             if(activeEffects.permanentBirdBuff) itemValue += 1;
+            // UPDATED: Dove pet bonus
+            if (item.emoji === "🕊️" && activeEffects.hasPetDove) itemValue += 2;
         }
     
         if (activeEffects.quantumUpgradeActive && slotMachineState.schrodingerCells.includes(index)) {
@@ -823,7 +827,7 @@ document.addEventListener('DOMContentLoaded', () => {
             doveContainer.innerHTML = `
                 <div class="pet-main-area">
                     <span class="pet-status-emoji">🕊️</span>
-                    <div class="pet-description">Peaceful Companion</div>
+                    <div class="pet-description">Peaceful Companion (+2 to 🕊️)</div>
                 </div>
                 <div class="pet-bottom-area" style="margin-top: 10px;">
                     <div class="pet-food-consumption">+1 🫐 every 10 spins</div>
@@ -864,7 +868,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gridSymbols.forEach((item, index) => {
             const div = document.createElement("div");
             div.className = "slot-cell";
-            div.classList.remove('schrodinger-cat-effect');
+            div.classList.remove('schrodinger-cat-effect', 'selectable-pet');
 
             if (animate) {
                 div.classList.add('anim-popIn');
@@ -951,11 +955,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             if (item && item.emoji === "🐈‍⬛" && !activeEffects.hasPetCat && !uiState.isGameOver) {
-                div.classList.add('clickable-cat');
+                div.classList.add('clickable-cat', 'selectable-pet'); // UPDATED
                 div.onclick = () => clickCatEmoji(index);
             }
-            if (item && item.emoji === "🕊️" && !activeEffects.hasPetDove && windowFeatureState.hasBranch && !uiState.isGameOver) {
-                div.classList.add('clickable-food'); // Re-use style for pointer
+            if (item && item.emoji === "🕊️" && !activeEffects.hasPetDove && !uiState.isGameOver) {
+                div.classList.add('clickable-food', 'selectable-pet'); // UPDATED: Re-use style for pointer, add selectable glow
                 div.onclick = () => clickDoveEmoji(index);
             }
 
@@ -1158,7 +1162,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function clickDoveEmoji(index) {
-        if (uiState.isGameOver || activeEffects.hasPetDove || !windowFeatureState.hasBranch) {
+        // UPDATED: Branch no longer required
+        if (uiState.isGameOver || activeEffects.hasPetDove) {
             return;
         }
         const symbolOnGrid = slotMachineState.currentGridSymbols[index];
@@ -1166,7 +1171,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (symbolOnGrid && symbolOnGrid.emoji === "🕊️" && doveSymbolData && doveSymbolData.count > 0) {
             activeEffects.hasPetDove = true;
-            windowFeatureState.hasBranch = false; // Consume the branch
             playerState.spinsSinceLastBlueberry = 0; // Reset counter
             doveSymbolData.count--;
             slotMachineState.currentGridSymbols[index] = null;
@@ -1217,10 +1221,12 @@ document.addEventListener('DOMContentLoaded', () => {
             activeEffects.hasMouseToy = true;
             activeEffects.spinsWithCat = 0;
         } else if (itemEmoji === "📹") {
-            if (!activeEffects.hasAlienVisitor || playerState.inventory[itemEmoji] >= 1) return;
+            // UPDATED: Camera purchase logic
+            if (!activeEffects.hasAlienVisitor || playerState.camerasPurchasedThisGame >= 3) return;
             if (playerState.coins < itemData.cost) return;
             playerState.coins -= itemData.cost;
             playerState.inventory[itemEmoji]++;
+            playerState.camerasPurchasedThisGame++;
         } else { // Handles Black Hole and other generic items
             if (playerState.inventory[itemEmoji] > 0 && itemEmoji === "⚫") return;
             if (playerState.coins < itemData.cost) return;
@@ -1235,9 +1241,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const sortedShopItems = [...SHOP_ITEMS_CONFIG].sort((a, b) => a.cost - b.cost);
     
         sortedShopItems.forEach(item => {
+            // UPDATED: Camera purchase limit
             if (item.emoji === "🪹" && windowFeatureState.hasBirdNest) return;
             if (item.emoji === "🐁" && activeEffects.hasMouseToy) return;
-            if (item.emoji === "📹" && playerState.inventory[item.emoji] >= 1) return;
+            if (item.emoji === "📹" && playerState.camerasPurchasedThisGame >= 3) return;
             
             if (item.isUpgrade) {
                 if ((item.type === 'cosmic' && activeEffects.cosmicUpgradePenaltyActive) || (item.type === 'quantum' && activeEffects.quantumUpgradePenaltyActive)) {
@@ -1257,7 +1264,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (item.emoji === "🐁") {
                 if (!activeEffects.hasPetCat) canBuy = false;
             } else if (item.emoji === "📹") {
-                if (!activeEffects.hasAlienVisitor) canBuy = false;
+                // UPDATED: Camera canBuy logic
+                if (!activeEffects.hasAlienVisitor || playerState.camerasPurchasedThisGame >= 3) canBuy = false;
             } else if (item.emoji === "⚫") {
                 if (!activeEffects.quantumModeCompleted || playerState.inventory[item.emoji] >= 1) {
                     canBuy = false;
@@ -1269,7 +1277,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
     
-            let buttonHTML = `${item.emoji} ${item.name}<strong class="shop-item-cost">${displayCost} 🪙`;
+            // UPDATED: Button HTML for Camera
+            let itemName = item.name;
+            if (item.emoji === '📹') {
+                const remaining = 3 - playerState.camerasPurchasedThisGame;
+                itemName = `${item.name} (${remaining} left)`;
+            }
+
+            let buttonHTML = `${item.emoji} ${itemName}<strong class="shop-item-cost">${displayCost} 🪙`;
             if (item.powerCost) {
                 buttonHTML += ` (-${item.powerCost}🔌)`;
             }
@@ -1663,7 +1678,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <li>&nbsp;&nbsp;<strong>Total Birds:</strong> Max 8.</li>
                         <li>&nbsp;&nbsp;<strong>🪶 Feathers:</strong> +1 value to all birds. Max 5.</li>
                         <li>&nbsp;&nbsp;<strong>🪲 Beetles:</strong> Consumes in place of a bird escape. Scares cats. Max 1.</li>
-                        <li>&nbsp;&nbsp;<strong>🌿 Branches:</strong> Consumes to keep a 🕊️ (from grid) or to discount 🪹 Nest in shop. Max 2 per game.</li>
+                        <li>&nbsp;&nbsp;<strong>🌿 Branch:</strong> Consumed to discount 🪹 Nest in shop. Only one drops per game.</li>
                         <li>&nbsp;&nbsp;<strong>🪹 Nest (Shop):</strong> Permanently protects all birds from leaving, prevents 🪲 and calms cat (removes 😼).</li>
                     </ul>
                 `;
@@ -1694,7 +1709,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <li>&nbsp;&nbsp;<strong>😿 Sad:</strong> No buff. Needs a 🐁 Toy.</li>
                         <li>&nbsp;&nbsp;<strong>😼 Annoyed:</strong> No buff. Too many birds (4+).</li>
                         <li>&nbsp;&nbsp;<strong>🙀 Scared:</strong> -1 value. Scared by 🪲.</li>
-                        <li><strong>🕊️ Dove:</strong> Tame with a 🌿 Branch. Provides +1 🫐 every 10 spins.</li>
+                        <li><strong>🕊️ Dove:</strong> Tame from the grid. Gives +2 value to all doves and provides +1 🫐 every 10 spins.</li>
                         <li><strong>👽 Alien:</strong> 🛸 has 15% chance to drop 👽. Activate from inventory. Adds +12 value to Cosmic symbols but eats all 🍟 each spin.</li>
                     </ul>
                 `;
