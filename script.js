@@ -85,16 +85,16 @@ document.addEventListener('DOMContentLoaded', () => {
         phoneBuffStatusEl: document.getElementById('phone-buff-status'),
         cosmicModeStatusEl: document.getElementById('cosmic-mode-status'),
         quantumModeStatusEl: document.getElementById('quantum-mode-status'),
-        permanentBuffStatusEl: document.getElementById('permanent-buff-status'), 
+        permanentBuffStatusEl: document.getElementById('permanent-buff-status'),
         spinBtn: document.getElementById('spin-btn'),
         gameMainTitle: document.getElementById("game-main-title"),
         alienMediaPayoutModal: document.getElementById("alien-media-payout-modal"),
         alienMediaPayoutContent: document.getElementById("alien-media-payout-content"),
         alienMediaPayoutCloseBtn: document.getElementById("alien-media-payout-close-btn"),
-        giftChoiceModal: document.getElementById("gift-choice-modal"), 
-        giftChoiceBirdBtn: document.getElementById("gift-choice-bird-btn"), 
-        giftChoiceFoodBtn: document.getElementById("gift-choice-food-btn"), 
-        giftChoiceLocksBtn: document.getElementById("gift-choice-locks-btn"), 
+        giftChoiceModal: document.getElementById("gift-choice-modal"),
+        giftChoiceBirdBtn: document.getElementById("gift-choice-bird-btn"),
+        giftChoiceFoodBtn: document.getElementById("gift-choice-food-btn"),
+        giftChoiceLocksBtn: document.getElementById("gift-choice-locks-btn"),
         shopTriggerBtn: document.getElementById("shop-trigger-btn"),
         guideTriggerBtn: document.getElementById("guide-trigger-btn"),
         shopModalOverlay: document.getElementById("shop-modal-overlay"),
@@ -102,12 +102,12 @@ document.addEventListener('DOMContentLoaded', () => {
         guideSelectionModalOverlay: document.getElementById("guide-selection-modal-overlay"),
         guideSelectionModalCloseBtn: document.getElementById("guide-selection-modal-close-btn"),
         guideSelectionModalContent: document.getElementById("guide-selection-modal-content"),
-        
+
         // Mobile UI Elements
         windowTriggerBtn: document.getElementById('window-trigger-btn'),
         petTriggerBtn: document.getElementById('pet-trigger-btn'),
         phoneTriggerBtn: document.getElementById('phone-trigger-btn'),
-        
+
         petModalOverlay: document.getElementById('pet-modal-overlay'),
         petModalCloseBtn: document.getElementById('pet-modal-close-btn'),
         petModalContent: document.getElementById('pet-modal-content'),
@@ -174,16 +174,16 @@ document.addEventListener('DOMContentLoaded', () => {
         activeEffects.cosmicUpgradeSpinsLeft = 0;
         activeEffects.quantumUpgradeActive = false;
         activeEffects.quantumUpgradeSpinsLeft = 0;
-        
+
         activeEffects.cosmicUpgradePenaltyActive = false;
         activeEffects.quantumUpgradePenaltyActive = false;
-        activeEffects.cosmicModeCompleted = false; 
+        activeEffects.cosmicModeCompleted = false;
         activeEffects.quantumModeCompleted = false;
 
-        activeEffects.alienDroppedByUFO = false; 
+        activeEffects.alienDroppedByUFO = false;
 
-        activeEffects.permanentBirdBuff = false; 
-        activeEffects.permanentFoodReplenishBuff = false; 
+        activeEffects.permanentBirdBuff = false;
+        activeEffects.permanentFoodReplenishBuff = false;
 
         windowFeatureState.birdGainedThisSpin = null;
         windowFeatureState.hasBirdNest = false;
@@ -248,7 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     shouldBeInBag = false;
                 }
             }
-            
+
             if (symbol.count > 0 && shouldBeInBag) {
                 for (let i = 0; i < symbol.count; i++) {
                     bag.push({ ...symbol });
@@ -317,8 +317,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (DOM_ELEMENTS.spinBtn.textContent === 'SPINNING...' || uiState.isGameOver || DOM_ELEMENTS.spinBtn.disabled) {
             return;
         }
-        
-        playerState.spinCount++; 
+
+        playerState.spinCount++;
         if (playerState.spinCount === 60 && !playerState.giftAwarded) {
             playerState.inventory['🎁']++;
             playerState.giftAwarded = true;
@@ -361,7 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let baseConsumption = GAME_CONFIG.baseSpinFoodConsumption;
         let foodToConsumeThisSpin = Math.max(0, baseConsumption);
         if (activeEffects.hasPetCat) foodToConsumeThisSpin += GAME_CONFIG.catFoodConsumption;
-        
+
         if (playerState.foodMeter < foodToConsumeThisSpin) {
              gameOver("Not enough food for this spin!");
              return;
@@ -452,7 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
-        
+
         if (phoneFeatureState.phoneOn && Math.random() < GAME_CONFIG.spamTextChance) {
             if (Math.random() < 0.5) {
                 playerState.coins -= GAME_CONFIG.spamTextCost; showPhoneMessage(`⚠️ Spam Text: -${GAME_CONFIG.spamTextCost} Coins!`, "loss");
@@ -464,7 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         slotMachineState.currentMultiplier = getRandomMultiplier();
         slotMachineState.currentGridSymbols = getSymbolsForSpin();
-        slotMachineState.schrodingerCells = []; 
+        slotMachineState.schrodingerCells = [];
 
         if (activeEffects.quantumUpgradeActive) {
             const availableIndicesForSchrodinger = [];
@@ -483,11 +483,11 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM_ELEMENTS.spinBtn.textContent = 'SPINNING...';
         updateGridDOM(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier, true);
 
-        const animationPopInDuration = 400;
+        const animationDuration = 600; // Corresponds to the fallAndBounce animation duration
         const baseDelayPerCell = 50;
         const numAnimatedCells = isLockEffectivelyActive ? GAME_CONFIG.gridSize - 1 : GAME_CONFIG.gridSize;
         const maxSequentialDelay = (numAnimatedCells > 0 ? numAnimatedCells - 1 : 0) * baseDelayPerCell;
-        const totalAnimationCompletionTime = maxSequentialDelay + animationPopInDuration;
+        const totalAnimationCompletionTime = maxSequentialDelay + animationDuration;
         const spinTimeoutBuffer = 100;
         const spinCompleteTimeout = totalAnimationCompletionTime + spinTimeoutBuffer;
 
@@ -569,9 +569,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getSingleItemPayout(item, index) {
         if (!item) return 0;
-    
+
         let itemValue = item.originalValue;
-    
+
         if (item.isCosmic && activeEffects.hasAlienVisitor) itemValue += 12;
         if (item.emoji === "🍩" && activeEffects.donutBuffActive) itemValue += 3;
         else if (item.emoji === "🐈‍⬛" && activeEffects.hasPetCat) {
@@ -586,27 +586,27 @@ document.addEventListener('DOMContentLoaded', () => {
             // UPDATED: Dove pet bonus
             if (item.emoji === "🕊️" && activeEffects.hasPetDove) itemValue += 2;
         }
-    
+
         if (activeEffects.quantumUpgradeActive && slotMachineState.schrodingerCells.includes(index)) {
             if (item.emoji === "🐈‍⬛") {
                 itemValue *= 500;
             }
         }
-    
-        if (activeEffects.quantumUpgradeActive) { 
-            if (index >= 4 && index <= 7) { 
+
+        if (activeEffects.quantumUpgradeActive) {
+            if (index >= 4 && index <= 7) {
                 itemValue *= slotMachineState.currentMultiplier;
             }
         } else if (activeEffects.cosmicUpgradeActive) {
             if (index >= 4 && index <= 7) {
                 itemValue *= slotMachineState.currentMultiplier;
             }
-        } else { 
+        } else {
             if (index === GAME_CONFIG.multiplierSlotIndex) {
                 itemValue *= slotMachineState.currentMultiplier;
             }
         }
-    
+
         return Math.max(0, itemValue);
     }
 
@@ -739,13 +739,13 @@ document.addEventListener('DOMContentLoaded', () => {
         content.innerHTML = "";
         let titleEmojis = [];
         const companionSections = [];
-    
+
         // Alien Section
         if (activeEffects.hasAlienVisitor) {
             titleEmojis.push("👽");
             const alienText = document.createElement('div');
             alienText.className = 'alien-visitor-text';
-    
+
             let alienInfo = `<span class="alien-emoji-large">👽</span><br/>Cosmic Visitor<br/>(+12 to Cosmic Symbols)`;
             const friesSymbol = symbols.find(s => s.emoji === "🍟");
             if (friesSymbol && friesSymbol.count > 0) {
@@ -756,13 +756,13 @@ document.addEventListener('DOMContentLoaded', () => {
             alienText.innerHTML = alienInfo;
             companionSections.push(alienText);
         }
-    
+
         // Cat Section
         if (activeEffects.hasPetCat) {
             titleEmojis.push("🐈‍⬛");
             const catContainer = document.createElement('div');
             catContainer.className = 'pet-info-container';
-    
+
             let newStatus = '😺';
             if (!activeEffects.hasMouseToy && activeEffects.spinsWithCat >= 20) {
                 newStatus = '😿';
@@ -777,15 +777,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 newStatus = '😻🍣';
             }
             activeEffects.currentCatStatus = newStatus;
-    
+
             const mainArea = document.createElement('div');
             mainArea.className = 'pet-main-area';
-    
+
             const petDiv = document.createElement('div');
             petDiv.className = 'pet-display';
             petDiv.innerHTML = `<span class="pet-status-emoji">${activeEffects.currentCatStatus}</span>`;
             mainArea.appendChild(petDiv);
-    
+
             const petDescDiv = document.createElement('div');
             petDescDiv.className = 'pet-description';
             if (activeEffects.currentCatStatus === '😻🍣') petDescDiv.textContent = `All Cats +5!`;
@@ -794,31 +794,31 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (activeEffects.currentCatStatus === '😼') petDescDiv.textContent = 'Too many birds/no buff.';
             else if (activeEffects.currentCatStatus === '🙀🪲') petDescDiv.textContent = '-1 All Cats (Scared by 🪲!)';
             mainArea.appendChild(petDescDiv);
-    
+
             catContainer.appendChild(mainArea);
-    
+
             const petBottomArea = document.createElement('div');
             petBottomArea.className = 'pet-bottom-area';
-    
+
             if (activeEffects.hasMouseToy) {
                 const toySpan = document.createElement('span');
                 toySpan.id = 'pet-toy-display';
                 toySpan.textContent = '🐁';
                 petBottomArea.appendChild(toySpan);
             }
-    
+
             const foodConsumptionDiv = document.createElement('div');
             foodConsumptionDiv.className = 'pet-food-consumption';
             foodConsumptionDiv.textContent = `(-${GAME_CONFIG.catFoodConsumption} 🍽️ per spin)`;
             petBottomArea.appendChild(foodConsumptionDiv);
-    
+
             if (petBottomArea.childElementCount > 0) {
                 catContainer.appendChild(petBottomArea);
             }
-    
+
             companionSections.push(catContainer);
         }
-    
+
         // Dove Section
         if (activeEffects.hasPetDove) {
             titleEmojis.push("🕊️");
@@ -835,7 +835,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             companionSections.push(doveContainer);
         }
-    
+
         if (companionSections.length > 0) {
             companionSections.forEach((section, index) => {
                 content.appendChild(section);
@@ -848,7 +848,7 @@ document.addEventListener('DOMContentLoaded', () => {
             content.innerHTML = '<div>No companion active. Adopt a 🐈‍⬛ or 🕊️ from the grid, or activate an 👽 from your inventory.</div>';
             titleEmojis.push("💙");
         }
-    
+
         DOM_ELEMENTS.petModalTitle.innerHTML = `${titleEmojis.join('')} Companion`;
     }
 
@@ -871,9 +871,10 @@ document.addEventListener('DOMContentLoaded', () => {
             div.classList.remove('schrodinger-cat-effect', 'selectable-pet');
 
             if (animate) {
-                div.classList.add('anim-popIn');
+                // MODIFICATION: Use new animation class
+                div.classList.add('anim-fallAndBounce');
                 if (index === 3 && isLockEffectivelyActiveForAnim) {
-                    div.style.animation = 'none';
+                    div.style.animation = 'none'; // Keep locked item static
                     div.style.opacity = '1';
                 } else {
                     let effectiveAnimIndex = index;
@@ -903,15 +904,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (item) {
                 const finalPayout = getSingleItemPayout(item, index);
                 baseValueSpan.textContent = finalPayout;
-    
+
                 if (isMultiplierCellForThisSpin) {
                     baseValueSpan.classList.add('multiplied-payout');
                 }
-    
+
             } else {
                 baseValueSpan.textContent = '';
             }
-            
+
             div.classList.remove('multi-2x', 'multi-3x', 'multi-5x');
 
             if (isMultiplierCellForThisSpin) {
@@ -1000,7 +1001,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (activeEffects.hasPetCat) {
             let catHTML = '';
             const currentStatus = activeEffects.currentCatStatus;
-            
+
             if (currentStatus === '😻🍣') {
                 catHTML = `<span class="buff-emoji">😻</span> <span class="buff-value">+5</span> <span class="buff-countdown">${activeEffects.sushiCatBuffSpinsLeft}</span>`;
             } else if (currentStatus === '😺') {
@@ -1016,7 +1017,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 DOM_ELEMENTS.catBuffStatusEl.style.display = 'flex';
             }
         }
-        
+
         // Alien Buff
         const alienActive = activeEffects.hasAlienVisitor;
         DOM_ELEMENTS.alienBuffStatusEl.innerHTML = alienActive ? `<span class="buff-emoji">👽</span> <span class="buff-value">+12</span>` : '';
@@ -1030,13 +1031,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const quantumBonusModeActive = activeEffects.quantumUpgradeActive && activeEffects.quantumUpgradeSpinsLeft > 0;
         DOM_ELEMENTS.quantumModeStatusEl.innerHTML = quantumBonusModeActive ? `<span class="buff-emoji">⚛️</span> <span class="buff-countdown">${activeEffects.quantumUpgradeSpinsLeft}</span>` : '';
         DOM_ELEMENTS.quantumModeStatusEl.style.display = quantumBonusModeActive ? 'flex' : 'none';
-        
+
         DOM_ELEMENTS.permanentBuffStatusEl.innerHTML = '';
         DOM_ELEMENTS.permanentBuffStatusEl.style.display = 'none';
         let permanentBuffsHTML = '';
         if (activeEffects.permanentBirdBuff) {
              permanentBuffsHTML += `<span>🐦+1</span>`;
-        } 
+        }
         if (activeEffects.permanentFoodReplenishBuff) {
              permanentBuffsHTML += `<span>🍽️+1</span>`;
         }
@@ -1188,7 +1189,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (uiState.isGameOver) return;
         const itemData = SHOP_ITEMS_CONFIG.find(i => i.emoji === itemEmoji);
         if (!itemData) return;
-    
+
         if (itemData.isUpgrade) {
             if (itemData.type === 'cosmic' && !activeEffects.cosmicUpgradePenaltyActive && !activeEffects.quantumUpgradeActive) {
                 if (playerState.coins < itemData.cost) return;
@@ -1207,7 +1208,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const hasDiscount = windowFeatureState.hasBranch;
             const finalCost = hasDiscount ? 250 : itemData.cost;
             if (playerState.coins < finalCost) { return; }
-    
+
             playerState.coins -= finalCost;
             windowFeatureState.hasBirdNest = true;
             if (hasDiscount) {
@@ -1235,29 +1236,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         updateDisplays();
     }
-    
+
     function setupShop() {
         DOM_ELEMENTS.shopContent.innerHTML = "";
         const sortedShopItems = [...SHOP_ITEMS_CONFIG].sort((a, b) => a.cost - b.cost);
-    
+
         sortedShopItems.forEach(item => {
             // UPDATED: Camera purchase limit
             if (item.emoji === "🪹" && windowFeatureState.hasBirdNest) return;
             if (item.emoji === "🐁" && activeEffects.hasMouseToy) return;
             if (item.emoji === "📹" && playerState.camerasPurchasedThisGame >= 3) return;
-            
+
             if (item.isUpgrade) {
                 if ((item.type === 'cosmic' && activeEffects.cosmicUpgradePenaltyActive) || (item.type === 'quantum' && activeEffects.quantumUpgradePenaltyActive)) {
                     return;
                 }
             }
-    
+
             const btn = document.createElement("button");
             btn.className = "shop-item-btn";
-    
+
             let displayCost = item.cost;
             if (item.emoji === "🪹") displayCost = windowFeatureState.hasBranch ? 250 : item.cost;
-    
+
             let canBuy = true;
             if (playerState.coins < displayCost || uiState.isGameOver) {
                 canBuy = false;
@@ -1276,7 +1277,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     canBuy = false;
                 }
             }
-    
+
             // UPDATED: Button HTML for Camera
             let itemName = item.name;
             if (item.emoji === '📹') {
@@ -1289,7 +1290,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 buttonHTML += ` (-${item.powerCost}🔌)`;
             }
              buttonHTML += `</strong>`;
-    
+
             btn.innerHTML = buttonHTML;
             btn.onclick = () => purchaseItem(item.emoji);
             btn.disabled = !canBuy;
@@ -1302,7 +1303,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (uiState.isGameOver) return;
         DOM_ELEMENTS.phoneMessageDisplay.textContent = message;
         DOM_ELEMENTS.phoneMessageDisplay.className = `phone-message-display ${type}`;
-        
+
         setTimeout(() => {
             if(DOM_ELEMENTS.phoneMessageDisplay.textContent === message) {
                 DOM_ELEMENTS.phoneMessageDisplay.textContent = '';
@@ -1310,9 +1311,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 4000);
     }
-    
+
     function setupPhoneModal() {
-        DOM_ELEMENTS.phoneModalContent.innerHTML = ''; 
+        DOM_ELEMENTS.phoneModalContent.innerHTML = '';
 
         const investmentBtn = document.createElement('button');
         investmentBtn.id = 'investments-btn';
@@ -1327,7 +1328,7 @@ document.addEventListener('DOMContentLoaded', () => {
         takeoutBtn.innerHTML = `🥡 Emoji Eats`;
         takeoutBtn.onclick = showTakeoutUI;
         DOM_ELEMENTS.phoneModalContent.appendChild(takeoutBtn);
-        
+
         const isFeatureRunning = phoneFeatureState.investmentActive || phoneFeatureState.takeoutActive;
         investmentBtn.disabled = isFeatureRunning;
         takeoutBtn.disabled = isFeatureRunning;
@@ -1336,7 +1337,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showInvestmentUI() {
         if (uiState.isGameOver || phoneFeatureState.investmentActive || phoneFeatureState.takeoutActive ) return;
-        
+
         const maxInvest = Math.min(playerState.coins, 1000);
         DOM_ELEMENTS.phoneModalContent.innerHTML = `
             <div class="investment-ui">
@@ -1379,10 +1380,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let messageText = `${profitMade ? '📈 Profit!' : '📉 Loss!'} +${payoutAmount} Coins!`;
         playerState.coins += payoutAmount;
         showPhoneMessage(messageText, profitMade ? 'profit' : 'loss');
-        
+
         phoneFeatureState.investmentAmount = 0;
         phoneFeatureState.investmentActive = false;
-        
+
         if (!phoneFeatureState.takeoutActive) {
             phoneFeatureState.phoneOn = false;
         }
@@ -1447,7 +1448,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showPhoneMessage(`🥡 +${phoneFeatureState.takeoutFoodAmount} food items delivered!`, "takeout-confirm");
         phoneFeatureState.takeoutActive = false;
         phoneFeatureState.takeoutFoodAmount = 0;
-        
+
         if (!phoneFeatureState.investmentActive) {
             phoneFeatureState.phoneOn = false;
         }
@@ -1489,7 +1490,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         playerState.inventory["📹"]--;
         activeEffects.hasAlienVisitor = false;
-        activeEffects.alienDroppedByUFO = false; 
+        activeEffects.alienDroppedByUFO = false;
 
         const payout = Math.random() < 0.5 ? 4500 : 6000;
         playerState.coins += payout;
@@ -1500,7 +1501,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         DOM_ELEMENTS.alienMediaPayoutContent.innerHTML = `You sold proof of alien life, scaring them away. Payouts: ${payout4500HTML} or ${payout6000HTML}.<br><br><strong>${negotiationText}</strong>`;
         DOM_ELEMENTS.alienMediaPayoutModal.classList.remove('hidden');
-        
+
         updateDisplays();
     }
 
@@ -1529,7 +1530,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.body.classList.add("quantum-theme");
         DOM_ELEMENTS.gameMainTitle.textContent = "QUANTUM MODE";
-        DOM_ELEMENTS.gameMainTitle.classList.add('upgrade-mode-active'); 
+        DOM_ELEMENTS.gameMainTitle.classList.add('upgrade-mode-active');
 
         updateDisplays();
     }
@@ -1586,7 +1587,7 @@ document.addEventListener('DOMContentLoaded', () => {
             DOM_ELEMENTS.gameMainTitle.textContent = "KEEP SPINNING!";
             DOM_ELEMENTS.gameMainTitle.classList.remove('upgrade-mode-active');
         }
-        
+
         updateDisplays();
     }
 
@@ -1607,9 +1608,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function selectGift(choice) {
         if (playerState.inventory["🎁"] <= 0) return;
-    
+
         playerState.inventory["🎁"]--;
-    
+
         if (choice === 'bird') {
             activeEffects.permanentBirdBuff = true;
         } else if (choice === 'food') {
@@ -1617,7 +1618,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (choice === 'locks') {
             playerState.lockItems += 3;
         }
-    
+
         DOM_ELEMENTS.giftChoiceModal.classList.add('hidden');
         updateDisplays();
     }
@@ -1661,7 +1662,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <li><strong>Strategy:</strong> Use items, buffs and new companions to win bigger payouts.</li>
 			<li><strong>Goal:</strong> Upgrade your slot machine to peer into the cosmos, probe the quantum realm, and be there for its ultimate end.</li>
                     </ul>
-                    
+
                 `;
                 break;
             case 'window':
@@ -1759,20 +1760,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const backButtonHTML = `<button id="guide-back-btn" class="btn">Back to Topics</button>`;
         const fullContent = `<div class="guide-topic-content">${content}</div>`;
-        
+
         DOM_ELEMENTS.guideSelectionModalContent.innerHTML = backButtonHTML + fullContent;
-        
+
         document.getElementById('guide-back-btn').addEventListener('click', showGuideTopics);
     }
 
     // --- MODAL CONTROL FUNCTIONS ---
     function openShopModal() { if (!uiState.isGameOver) DOM_ELEMENTS.shopModalOverlay.classList.remove('hidden'); }
     function closeShopModal() { DOM_ELEMENTS.shopModalOverlay.classList.add('hidden'); }
-    
-    function openGuideSelectionModal() { 
+
+    function openGuideSelectionModal() {
         if (!uiState.isGameOver) {
             showGuideTopics();
-            DOM_ELEMENTS.guideSelectionModalOverlay.classList.remove('hidden'); 
+            DOM_ELEMENTS.guideSelectionModalOverlay.classList.remove('hidden');
         }
     }
     function closeGuideSelectionModal() { DOM_ELEMENTS.guideSelectionModalOverlay.classList.add('hidden'); }
@@ -1782,10 +1783,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function openPhoneModal() { if (!uiState.isGameOver) { setupPhoneModal(); DOM_ELEMENTS.phoneModalOverlay.classList.remove('hidden'); }}
     function closePhoneModal() { DOM_ELEMENTS.phoneModalOverlay.classList.add('hidden'); }
-    
+
     function closeAllWindows() {
         DOM_ELEMENTS.alienMediaPayoutModal.classList.add('hidden');
-        DOM_ELEMENTS.giftChoiceModal.classList.add('hidden'); 
+        DOM_ELEMENTS.giftChoiceModal.classList.add('hidden');
         DOM_ELEMENTS.shopModalOverlay.classList.add('hidden');
         DOM_ELEMENTS.guideSelectionModalOverlay.classList.add('hidden');
         DOM_ELEMENTS.petModalOverlay.classList.add('hidden');
@@ -1824,13 +1825,13 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeGameVariables();
         DOM_ELEMENTS.spinBtn.addEventListener('click', spin);
         DOM_ELEMENTS.luckyBtn.addEventListener('click', toggleLuckyLines);
-        
+
         DOM_ELEMENTS.windowTriggerBtn.addEventListener('click', toggleWindow);
         DOM_ELEMENTS.petTriggerBtn.addEventListener('click', openPetModal);
         DOM_ELEMENTS.phoneTriggerBtn.addEventListener('click', openPhoneModal);
         DOM_ELEMENTS.shopTriggerBtn.addEventListener('click', openShopModal);
         DOM_ELEMENTS.guideTriggerBtn.addEventListener('click', openGuideSelectionModal);
-        
+
         DOM_ELEMENTS.shopModalCloseBtn.addEventListener('click', closeShopModal);
         DOM_ELEMENTS.guideSelectionModalCloseBtn.addEventListener('click', closeGuideSelectionModal);
         DOM_ELEMENTS.petModalCloseBtn.addEventListener('click', closePetModal);
@@ -1847,7 +1848,7 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM_ELEMENTS.giftChoiceBirdBtn.addEventListener('click', () => selectGift('bird'));
         DOM_ELEMENTS.giftChoiceFoodBtn.addEventListener('click', () => selectGift('food'));
         DOM_ELEMENTS.giftChoiceLocksBtn.addEventListener('click', () => selectGift('locks'));
-        
+
         DOM_ELEMENTS.luckyBtn.textContent = 'LL';
         DOM_ELEMENTS.gameMainTitle.textContent = "KEEP SPINNING!";
         DOM_ELEMENTS.gameMainTitle.classList.remove('upgrade-mode-active');
