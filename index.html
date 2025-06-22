@@ -996,7 +996,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const catContainer = document.createElement('div'); catContainer.className = 'pet-info-container';
             let newStatus = '😺';
             if (!activeEffects.hasMouseToy && activeEffects.spinsWithCat >= 20) newStatus = '😿';
-            if (getTotalBirdCount() >= 4 && !windowFeatureState.hasBirdNest) newStatus = ' ';
+            if (getTotalBirdCount() >= 4 && !windowFeatureState.hasBirdNest) newStatus = '😼';
             if (windowFeatureState.beetles > 0 && !windowFeatureState.hasBirdNest) newStatus = '🙀🪲';
             if (activeEffects.sushiCatBuffActive) newStatus = '😻🍣';
             activeEffects.currentCatStatus = newStatus;
