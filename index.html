@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Food Slot Machine - Polished</title>
     <style>
-        /* style.css - Visual Polish Overhaul v3 */
+        /* style.css - Visual Polish Overhaul v5 */
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
         /* --- Base & Normal Mode Theme (Darker & Stronger) --- */
@@ -54,27 +54,6 @@
             background-size: 30px 30px;
         }
 
-        /* --- NEW "Reel" Spin Animation --- */
-        @keyframes reelSpin {
-            0% {
-                transform: translateY(-250%);
-                filter: blur(4px);
-                opacity: 0;
-            }
-            60% {
-                transform: translateY(0);
-                filter: blur(0px);
-                opacity: 1;
-            }
-            80% {
-                transform: translateY(-10%);
-            }
-            100% {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-        
         @keyframes pulseWarningBorder {
             0%, 100% { border-color: var(--accent-red); box-shadow: 0 0 8px var(--accent-red); }
             50% { border-color: var(--accent-orange); box-shadow: 0 0 12px var(--accent-orange); }
@@ -100,8 +79,8 @@
             justify-content: flex-start;
             align-items: center;
             min-height: 100vh;
-            color: var(--text-primary-light); /* Default text color changed for dark theme */
-            padding: 15px 15px 150px 15px; /* Added more bottom padding for nav bar */
+            color: var(--text-primary-light);
+            padding: 15px 15px 160px 15px; 
             box-sizing: border-box;
             transition: background 0.5s ease;
             overflow-x: hidden;
@@ -138,7 +117,7 @@
         }
         .game.food-warning .food-meter-icon, .game.food-warning .food-meter-value { color: var(--text-primary-light); }
 
-        /* Meters (Food & Power) - Increased size for better visibility */
+        /* Meters (Food & Power) */
         .meters-wrapper { display: flex; gap: 12px; width: 100%; margin-bottom: 12px; }
         .power-meter-container, .food-meter-container { display: flex; align-items: center; gap: 8px; flex: 1; }
         .power-meter-bar, .food-meter {
@@ -159,12 +138,11 @@
             width: 100%; box-sizing: border-box;
         }
         .symbol-inventory span { transition: transform 0.2s ease, color 0.2s ease; }
-        .symbol-inventory span:hover { transform: scale(1.15); color: var(--accent-pink); }
 
-        /* Slot Grid - Kept responsive clamp, adjusted values slightly */
+        /* Slot Grid */
         .slot-grid {
             display: inline-grid;
-            grid-template-columns: repeat(4, clamp(65px, 18vw, 75px));
+            grid-template-columns: repeat(4, clamp(58px, 15vw, 70px));
             gap: clamp(8px, 2vw, 12px); margin-bottom: 12px;
         }
         .slot-cell {
@@ -174,14 +152,36 @@
             position: relative; cursor: default;
             transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
             box-shadow: inset 0 3px 6px rgba(0,0,0,0.3);
-            overflow: hidden; /* Important for the new animation */
+            overflow: hidden; 
+            perspective: 1000px; /* Essential for 3D effect */
         }
-        .slot-cell.anim-reelSpin { 
-            animation: reelSpin 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; 
-            opacity: 0; 
-        }
-        .slot-cell:hover { transform: translateY(-3px); box-shadow: var(--shadow-strong); }
         .slot-cell.clickable-food, .slot-cell.clickable-cat { cursor: pointer; }
+
+        /* NEW Flip Animation Styling */
+        .slot-flipper {
+            transform-style: preserve-3d;
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        .slot-face, .slot-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            border-radius: var(--border-radius-small);
+        }
+        .slot-face {
+            background: var(--bg-panel-accent);
+        }
+        .slot-back {
+            transform: rotateY(180deg);
+            background: transparent;
+        }
 
         /* Text inside Slot Cells */
         .slot-cell .base-value-text {
@@ -220,7 +220,6 @@
         /* Controls & Buttons */
         .controls { display: flex; gap: 10px; align-items: stretch; justify-content: center; margin: 8px 0; width: 100%; }
         .btn { padding: 12px 20px; font-size: 1.1rem; border: none; border-bottom: 4px solid rgba(0,0,0,0.4); border-radius: var(--border-radius-small); cursor: pointer; transition: all 0.15s ease; box-shadow: var(--shadow-subtle); font-weight: 700; text-transform: uppercase; background: var(--accent-teal); color: #000; }
-        .btn:hover:not(:disabled) { transform: translateY(-2px); border-bottom-width: 6px; filter: brightness(1.1); }
         .btn:active:not(:disabled) { transform: translateY(1px); border-bottom-width: 2px; }
         .btn:disabled { cursor: not-allowed; filter: brightness(0.6) grayscale(0.4); }
 
@@ -237,7 +236,6 @@
         .inventory-content { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; font-size: 1rem; }
         .inventory-item { padding: 5px 10px; background: var(--bg-panel-accent); border-radius: var(--border-radius-small); box-shadow: var(--shadow-subtle); color: var(--text-secondary); border: 1px solid var(--bg-panel-accent); }
         .inventory-item.clickable { cursor: pointer; color: var(--text-primary-light); background-color: var(--accent-teal); color: #000; }
-        .inventory-item.clickable:hover { transform: scale(1.05); filter: brightness(1.1); }
         .inventory-item-gift { background-color: var(--accent-yellow) !important; color: var(--text-primary-dark) !important; font-weight: bold;}
         .inventory-item.clickable[style*="opacity: 0.7"] { cursor: not-allowed; color: var(--text-secondary); transform: none; background-color: var(--bg-panel-accent); }
 
@@ -264,7 +262,7 @@
         .buff-value { color: var(--accent-green); }
 
 
-        /* Bottom Nav Buttons - Sizing adjusted */
+        /* Bottom Nav Buttons */
         .bottom-controls-bar { display: flex; justify-content: space-around; gap: 8px; width: 100%; }
         .utility-trigger { flex: 1; display: flex; justify-content: center; align-items: center; }
         .utility-btn {
@@ -275,7 +273,6 @@
             border: 2px solid #b8860b;
             color: #333;
         }
-        .utility-btn:hover { background-color: #ffdb58; transform: scale(1.1); }
         .utility-btn.toggled-off { background-color: rgba(0,0,0,0.25); color: rgba(255,255,255,0.4); border-color: transparent; }
 
         /* --- Modals --- */
@@ -284,7 +281,6 @@
         .modal-window { width: 100%; max-width: 500px; max-height: 90vh; position: relative; display: flex; flex-direction: column; background-color: var(--bg-modal); border-radius: var(--border-radius-main); border: 3px solid #4a4a8a; color: var(--text-primary-light); box-shadow: var(--shadow-strong); }
         .modal-title { font-size: 1.4rem; color: var(--accent-pink); text-align: center; margin: 15px 0; padding-bottom: 10px; border-bottom: 2px solid var(--accent-pink); }
         .modal-close-btn { position: absolute; top: 6px; right: 10px; font-size: 30px; color: #fff; background: none; border: none; cursor: pointer; z-index: 1001; }
-        .modal-close-btn:hover { color: var(--accent-pink); }
         .modal-content { overflow-y: auto; font-size: 1rem; line-height: 1.7; padding: 10px 15px; }
         .modal-content strong { color: var(--accent-yellow); }
         .modal-content hr { border-color: #4a4a8a; margin: 15px 0; border-style: solid; border-width: 1px 0 0 0; }
@@ -298,7 +294,6 @@
             background-color: #16213e; color: var(--text-primary-light); box-shadow: var(--shadow-subtle);
         }
         .shop-item-cost { font-weight: bold; display: block; margin-top: 5px; color: var(--text-primary-dark) !important; background: var(--accent-yellow); padding: 3px 5px; border-radius: 6px; }
-        .shop-item-btn:hover:not(:disabled) { transform: translateY(-3px); border-color: var(--accent-pink); background-color: #5c2d80; }
         .shop-item-btn:disabled { filter: grayscale(0.7) brightness(0.6); cursor: not-allowed; }
 
         /* Phone Modal */
@@ -323,7 +318,6 @@
         /* Guide Modal */
         #guide-icons-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 220px; margin: 15px auto; }
         .guide-icon { font-size: 40px; cursor: pointer; transition: transform 0.2s ease; text-align: center; }
-        .guide-icon:hover { transform: scale(1.15); color: var(--accent-pink); }
         #guide-back-btn { display: block; width: 85%; margin: 0 auto 15px auto; background-color: var(--accent-teal); }
         .guide-topic-content h4 { font-size: 1.1rem; color: var(--accent-pink); margin-top: 12px; margin-bottom: 8px; border-bottom: 1px solid #4a4a8a; padding-bottom: 5px; }
         .guide-topic-content ul { list-style-type: none; padding-left: 0; margin-bottom: 10px; }
@@ -418,7 +412,6 @@
     </div>
 </nav>
 
-<!-- Modals -->
 <div id="alien-media-payout-modal" class="modal-overlay hidden">
     <div class="modal-window">
         <button id="alien-media-payout-close-btn" class="modal-close-btn">&times;</button>
@@ -483,7 +476,6 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     // --- CONSTANTS & CONFIG ---
-    // No changes needed to game configuration constants
     const GAME_CONFIG = {
         initialCatCount: 4, maxFoodMeter: 20, maxPower: 40, cosmicModeDuration: 20,
         quantumModeDuration: 20, maxBeetles: 1, maxFeathers: 5, spinCostBase: 20,
@@ -804,18 +796,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         DOM_ELEMENTS.spinBtn.textContent = 'SPINNING...';
-        updateGridDOM(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier, true);
-        const animationDuration = 500;
-        const baseDelayPerCell = 60;
-        const numAnimatedCells = isLockEffectivelyActive ? GAME_CONFIG.gridSize - 1 : GAME_CONFIG.gridSize;
-        const maxSequentialDelay = (numAnimatedCells > 0 ? numAnimatedCells - 1 : 0) * baseDelayPerCell;
-        const totalAnimationCompletionTime = maxSequentialDelay + animationDuration;
-        const spinTimeoutBuffer = 100;
-        const spinCompleteTimeout = totalAnimationCompletionTime + spinTimeoutBuffer;
+        
+        animateSpin(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier);
+
+        const spinCompleteTimeout = 1500; 
         setTimeout(() => {
             let animatedBird = null;
             try {
                 if (uiState.isGameOver && DOM_ELEMENTS.spinBtn.textContent === 'GAME OVER') return;
+                
+                updateGridDOM(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier);
+
                 slotMachineState.currentGridSymbols.forEach((item) => {
                     if (item) {
                         if (item.emoji === "🦜" && Math.random() < GAME_CONFIG.parrotBeetleDropChance) {
@@ -1006,7 +997,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const catContainer = document.createElement('div'); catContainer.className = 'pet-info-container';
             let newStatus = '😺';
             if (!activeEffects.hasMouseToy && activeEffects.spinsWithCat >= 20) newStatus = '😿';
-            if (getTotalBirdCount() >= 4 && !windowFeatureState.hasBirdNest) newStatus = '😼';
+            if (getTotalBirdCount() >= 4 && !windowFeatureState.hasBirdNest) newStatus = ' ';
             if (windowFeatureState.beetles > 0 && !windowFeatureState.hasBirdNest) newStatus = '🙀🪲';
             if (activeEffects.sushiCatBuffActive) newStatus = '😻🍣';
             activeEffects.currentCatStatus = newStatus;
@@ -1061,40 +1052,100 @@ document.addEventListener('DOMContentLoaded', () => {
             DOM_ELEMENTS.windowTriggerBtn.classList.toggle('toggled-off', !uiState.windowOpen);
         }
     }
-    function updateGridDOM(gridSymbols, currentMultiplier, animate = false) {
+
+    function animateSpin(gridSymbols, currentMultiplier) {
         DOM_ELEMENTS.grid.innerHTML = "";
-        const baseDelayPerCell = 60;
-        const isLockEffectivelyActiveForAnim = slotMachineState.topRightLocked;
+        
+        gridSymbols.forEach((item, index) => {
+            const cell = document.createElement("div");
+            cell.className = "slot-cell";
+
+            let isMultiplierCell = false;
+            if (activeEffects.quantumUpgradeActive || activeEffects.cosmicUpgradeActive) {
+                if (index >= 4 && index <= 7) isMultiplierCell = true;
+            } else {
+                if (index === GAME_CONFIG.multiplierSlotIndex) isMultiplierCell = true;
+            }
+
+            if (isMultiplierCell) cell.classList.add(`multi-${currentMultiplier}x`);
+            if (activeEffects.quantumUpgradeActive && slotMachineState.schrodingerCells.includes(index)) cell.classList.add('schrodinger-cat-effect');
+            if (index === 3 && slotMachineState.topRightLocked) cell.classList.add("top-right-locked");
+
+            const flipper = document.createElement('div');
+            flipper.className = 'slot-flipper';
+
+            const frontFace = document.createElement('div');
+            frontFace.className = 'slot-face';
+
+            const backFace = document.createElement('div');
+            backFace.className = 'slot-back';
+            
+            const emojiSpan = document.createElement("span");
+            emojiSpan.textContent = item ? item.emoji : '';
+            backFace.appendChild(emojiSpan);
+
+            const baseValueSpan = document.createElement("span");
+            baseValueSpan.className = "base-value-text";
+            if (item) {
+                const finalPayout = getSingleItemPayout(item, index);
+                baseValueSpan.textContent = finalPayout;
+                if (isMultiplierCell) baseValueSpan.classList.add('multiplied-payout');
+            }
+            backFace.appendChild(baseValueSpan);
+            
+            if (isMultiplierCell) {
+                const multiTextSpan = document.createElement("span");
+                multiTextSpan.className = "multiplier-value-text";
+                multiTextSpan.textContent = `${currentMultiplier}x`;
+                backFace.appendChild(multiTextSpan);
+            }
+
+            flipper.appendChild(frontFace);
+            flipper.appendChild(backFace);
+            cell.appendChild(flipper);
+            DOM_ELEMENTS.grid.appendChild(cell);
+
+            requestAnimationFrame(() => {
+                const delay = index * 90;
+                flipper.style.transition = `transform 0.7s ease-in-out ${delay}ms`;
+                flipper.style.transform = 'rotateY(180deg)';
+            });
+        });
+    }
+
+    function updateGridDOM(gridSymbols, currentMultiplier) {
+        DOM_ELEMENTS.grid.innerHTML = "";
+    
         gridSymbols.forEach((item, index) => {
             const div = document.createElement("div");
             div.className = "slot-cell";
+            DOM_ELEMENTS.grid.appendChild(div);
+
             div.classList.remove('schrodinger-cat-effect', 'selectable-pet');
-            if (animate) {
-                div.classList.add('anim-reelSpin');
-                if (index === 3 && isLockEffectivelyActiveForAnim) {
-                    div.style.animation = 'none'; div.style.opacity = '1';
-                } else {
-                    let effectiveAnimIndex = index;
-                    if (isLockEffectivelyActiveForAnim && index > 3) effectiveAnimIndex--;
-                    const currentCellDelay = effectiveAnimIndex * baseDelayPerCell;
-                    div.style.animationDelay = `${currentCellDelay}ms`;
-                }
-            }
+
             const emojiSpan = document.createElement("span");
-            emojiSpan.textContent = item ? item.emoji : ''; div.appendChild(emojiSpan);
+            emojiSpan.textContent = item ? item.emoji : '';
+            div.appendChild(emojiSpan);
+
             const baseValueSpan = document.createElement("span");
-            baseValueSpan.className = "base-value-text"; div.appendChild(baseValueSpan);
+            baseValueSpan.className = "base-value-text";
+            div.appendChild(baseValueSpan);
+
             let isMultiplierCellForThisSpin = false;
             if (activeEffects.quantumUpgradeActive || activeEffects.cosmicUpgradeActive) {
                 if (index >= 4 && index <= 7) isMultiplierCellForThisSpin = true;
             } else {
                 if (index === GAME_CONFIG.multiplierSlotIndex) isMultiplierCellForThisSpin = true;
             }
+
             if (item) {
                 const finalPayout = getSingleItemPayout(item, index);
                 baseValueSpan.textContent = finalPayout;
                 if (isMultiplierCellForThisSpin) baseValueSpan.classList.add('multiplied-payout');
-            } else { baseValueSpan.textContent = ''; }
+            } else {
+                baseValueSpan.textContent = '';
+            }
+
             div.classList.remove('multi-2x', 'multi-3x', 'multi-5x');
             if (isMultiplierCellForThisSpin) {
                 div.classList.add(`multi-${currentMultiplier}x`);
@@ -1103,13 +1154,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 multiTextSpan.textContent = `${currentMultiplier}x`;
                 div.appendChild(multiTextSpan);
             }
+
             if (activeEffects.quantumUpgradeActive && slotMachineState.schrodingerCells.includes(index)) div.classList.add('schrodinger-cat-effect');
+
             if (index === 3) {
                 if (slotMachineState.topRightLocked) div.classList.add("top-right-locked");
                 if (item) {
-                    const lockDiv = document.createElement("div"); lockDiv.className = "lock-icon";
+                    const lockDiv = document.createElement("div");
+                    lockDiv.className = "lock-icon";
                     if (slotMachineState.topRightLocked) {
-                        lockDiv.textContent = '🔒'; lockDiv.classList.add("locked-state");
+                        lockDiv.textContent = '🔒';
+                        lockDiv.classList.add("locked-state");
                     } else {
                         lockDiv.textContent = '🔓';
                         if (playerState.lockItems <= 0) lockDiv.classList.add("no-locks");
@@ -1117,6 +1172,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     div.appendChild(lockDiv);
                 }
             }
+
             if (item && item.isFood && !uiState.isGameOver) {
                 const foodItemInBag = symbols.find(s => s.emoji === item.emoji);
                 if (foodItemInBag && foodItemInBag.count > 0 && playerState.foodMeter < GAME_CONFIG.maxFoodMeter) {
@@ -1124,17 +1180,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     div.onclick = () => clickFoodEmoji(item.emoji, index);
                 }
             }
+
             if (item && item.emoji === "🐈‍⬛" && !activeEffects.hasPetCat && !uiState.isGameOver) {
                 div.classList.add('clickable-cat', 'selectable-pet');
                 div.onclick = () => clickCatEmoji(index);
             }
+
             if (item && item.emoji === "🕊️" && !activeEffects.hasPetDove && !uiState.isGameOver) {
                 div.classList.add('clickable-food', 'selectable-pet');
                 div.onclick = () => clickDoveEmoji(index);
             }
-            DOM_ELEMENTS.grid.appendChild(div);
         });
     }
+
     function updatePowerDisplay() {
         if (DOM_ELEMENTS.powerMeterFill) DOM_ELEMENTS.powerMeterFill.style.width = `${(playerState.power / GAME_CONFIG.maxPower) * 100}%`;
         if (DOM_ELEMENTS.powerMeterIndicatorIcon) DOM_ELEMENTS.powerMeterIndicatorIcon.innerHTML = "<span class='base-power-icon'>🔌</span>";
@@ -1208,7 +1266,7 @@ document.addEventListener('DOMContentLoaded', () => {
             slotMachineState.topRightSymbol = null;
             slotMachineState.topRightLocked = false;
         }
-        updateGridDOM(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier, false);
+        updateGridDOM(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier);
         updateDisplays();
     }
     function toggleWindow() { uiState.windowOpen = !uiState.windowOpen; updateDisplays(); }
@@ -1228,7 +1286,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (index === 3 && slotMachineState.topRightLocked) {
                     slotMachineState.topRightLocked = false; slotMachineState.topRightSymbol = null;
                 }
-                updateGridDOM(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier, false);
+                updateGridDOM(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier);
                 updateDisplays();
             }
         }
@@ -1244,7 +1302,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (index === 3 && slotMachineState.topRightLocked) {
                 slotMachineState.topRightLocked = false; slotMachineState.topRightSymbol = null;
             }
-            updateGridDOM(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier, false);
+            updateGridDOM(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier);
             updateDisplays();
         }
     }
@@ -1259,7 +1317,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (index === 3 && slotMachineState.topRightLocked) {
                 slotMachineState.topRightLocked = false; slotMachineState.topRightSymbol = null;
             }
-            updateGridDOM(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier, false);
+            updateGridDOM(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier);
             updateDisplays();
         }
     }
@@ -1621,7 +1679,7 @@ document.addEventListener('DOMContentLoaded', () => {
         closeAllWindows();
         slotMachineState.currentGridSymbols = getSymbolsForSpin();
         slotMachineState.currentMultiplier = getRandomMultiplier();
-        updateGridDOM(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier, false);
+        updateGridDOM(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier);
         updateDisplays();
     }
     initGame();
