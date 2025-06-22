@@ -151,7 +151,6 @@
             border: 2px solid var(--border-color, #0f3460); border-radius: var(--border-radius-small);
             position: relative; cursor: default;
             transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
-            box-shadow: inset 0 3px 6px rgba(0,0,0,0.3);
             overflow: hidden; 
             perspective: 1000px; /* Essential for 3D effect */
         }
@@ -799,7 +798,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         animateSpin(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier);
 
-        const spinCompleteTimeout = 1500; 
+        const spinCompleteTimeout = 1350; 
         setTimeout(() => {
             let animatedBird = null;
             try {
