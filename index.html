@@ -5,39 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>Food Slot Machine - Polished</title>
     <style>
-        /* style.css - Visual Polish Overhaul v5 */
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        /* style.css - Visual Polish Overhaul v6 - Blueprint Theme */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap');
 
-        /* --- Base & Normal Mode Theme (Darker & Stronger) --- */
+        /* --- New "Blueprint" Theme --- */
         :root {
-            /* Primary Palette - Dark, Strong Tones */
-            --bg-main: #1a1a2e; /* Deep midnight blue */
-            --bg-panel: #16213e; /* Dark sapphire */
-            --bg-panel-accent: #0f3460; /* Richer, darker blue accent */
-            --bg-navbar: #10101c; /* Near black with a hint of blue */
-            --bg-modal: #2c2c54; /* Deep, muted purple */
-            --text-primary-light: #e0e0e0; /* Soft white for readability */
-            --text-primary-dark: #333333; /* Kept for any potential light backgrounds */
-            --text-secondary: #a7a7a7; /* Lighter grey for less important text */
+            /* Primary Palette - Greys & Blues */
+            --bg-main: #222831; /* Dark Charcoal */
+            --bg-panel: #393E46; /* Slate Grey */
+            --bg-panel-accent: #2d323a; /* Darker Slate for depth */
+            --bg-navbar: #1a1d23; /* Near Black */
+            --bg-modal: #2a2f38; /* Slightly lighter modal background */
+            --text-primary-light: #EEEEEE; /* Off-white for readability */
+            --text-primary-dark: #222831; /* Dark Charcoal for light backgrounds */
+            --text-secondary: #B0B8C4; /* Muted grey for less important text */
 
-            /* Accent Colors (Vibrant against dark background) */
-            --accent-teal: #00f5d4;
-            --accent-orange: #ff8c42;
-            --accent-pink: #ff007f;
-            --accent-green: #2eff7e;
-            --accent-red: #ff4757;
-            --accent-yellow: #feca57;
+            /* Accent Colors (Blueprint & Amber) */
+            --accent-primary: #00ADB5; /* Main Teal/Blue Accent */
+            --accent-secondary: #FFC107; /* Amber for highlights, warnings, and wins */
+            --accent-red: #E84545; /* Error / Loss Red */
+            --accent-green: #90D26D; /* Success Green */
 
-            /* Multiplier Colors (Saturated and distinct) */
-            --multiplier-2x-color: #00c4a3; /* Teal family */
-            --multiplier-3x-color: #a55eea; /* Purple family */
-            --multiplier-5x-color: #ff6b6b; /* Red-orange family */
+            /* Multiplier Colors */
+            --multiplier-2x-color: #00ADB5;
+            --multiplier-3x-color: #5C6BC0; /* Indigo */
+            --multiplier-5x-color: #FF7043; /* Deep Orange */
 
-            --font-primary: 'Poppins', sans-serif;
-            --border-radius-main: 14px;
-            --border-radius-small: 10px;
-            --shadow-subtle: 0 2px 5px rgba(0, 0, 0, 0.2);
-            --shadow-strong: 0 6px 15px rgba(0, 0, 0, 0.3);
+            --font-primary: 'Roboto Mono', monospace;
+            --border-radius-main: 4px; /* Sharper corners */
+            --border-radius-small: 2px;
+            --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.3);
+            --shadow-strong: 0 4px 10px rgba(0, 0, 0, 0.4);
         }
 
         /* --- Cosmic & Quantum Themes (Adjusted for new base) --- */
@@ -56,123 +54,124 @@
 
         @keyframes pulseWarningBorder {
             0%, 100% { border-color: var(--accent-red); box-shadow: 0 0 8px var(--accent-red); }
-            50% { border-color: var(--accent-orange); box-shadow: 0 0 12px var(--accent-orange); }
+            50% { border-color: var(--accent-secondary); box-shadow: 0 0 12px var(--accent-secondary); }
         }
         @keyframes pulseSymbol {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.4); color: var(--accent-yellow); }
+            50% { transform: scale(1.4); color: var(--accent-secondary); }
         }
         @keyframes glow {
-            0% { box-shadow: 0 0 4px var(--accent-pink); }
-            50% { box-shadow: 0 0 12px var(--accent-pink), 0 0 16px var(--accent-pink); }
-            100% { box-shadow: 0 0 4px var(--accent-pink); }
+            0% { box-shadow: 0 0 4px var(--accent-primary); }
+            50% { box-shadow: 0 0 10px var(--accent-primary), 0 0 14px var(--accent-primary); }
+            100% { box-shadow: 0 0 4px var(--accent-primary); }
         }
-        .selectable-pet { animation: glow 2s infinite ease-in-out; border-color: var(--accent-pink) !important; }
+       
+        /* --- NEW FEEDBACK ANIMATION --- */
+        @keyframes feedback-animation {
+            0% { transform: translateY(0) scale(0.9); opacity: 1; }
+            80% { transform: translateY(-80px) scale(1.1); opacity: 1; }
+            100% { transform: translateY(-100px) scale(1.1); opacity: 0; }
+        }
+        .feedback-item {
+            position: absolute;
+            padding: 8px 16px;
+            background-color: rgba(26, 29, 35, 0.85);
+            border: 1px solid var(--accent-secondary);
+            border-radius: var(--border-radius-main);
+            color: var(--text-primary-light);
+            font-size: 1rem;
+            font-weight: 700;
+            z-index: 2000;
+            pointer-events: none;
+            animation: feedback-animation 2.5s ease-out forwards;
+            text-align: center;
+        }
+        .feedback-item.positive { border-color: var(--accent-green); }
+        .feedback-item.negative { border-color: var(--accent-red); }
+        .feedback-item.neutral { border-color: var(--accent-primary); }
+        /* --- End Feedback Animation --- */
+
+        .selectable-pet { animation: glow 2s infinite ease-in-out; border-color: var(--accent-primary) !important; }
         .symbol-pulse-animation { animation: pulseSymbol 1.2s ease-in-out; }
 
         /* --- LAYOUT FIXES FOR MOBILE --- */
-        html {
-            height: 100%;
-            overflow: hidden; /* Prevents bounce scroll on iOS */
-        }
+        html { height: 100%; overflow: hidden; }
         
         body {
             font-family: var(--font-primary);
             background: var(--bg-main);
             color: var(--text-primary-light);
             transition: background 0.5s ease;
-            margin: 0;
-            padding: 0; 
+            margin: 0; padding: 0; 
             height: 100vh; /* Full viewport height */
             width: 100vw; /* Full viewport width */
             overflow: hidden; /* Lock the body from scrolling */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            display: flex; flex-direction: column; align-items: center;
         }
 
         .main-container {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            width: 100%;
-            max-width: 420px;
-            flex-grow: 1; /* Allow it to grow and fill space */
-            overflow: hidden; /* Prevent this container from scrolling */
-            margin: 0 auto; /* Center horizontally */
-            padding: 15px 15px 160px 15px; /* Top/side padding and bottom padding to avoid nav bar */
-            box-sizing: border-box;
+            display: flex; justify-content: center; align-items: flex-start;
+            width: 100%; max-width: 420px; flex-grow: 1; overflow: hidden;
+            margin: 0 auto; padding: 10px 10px 145px 10px; /* Reduced padding */
+            box-sizing: border-box; position: relative;
+        }
+        
+        #feedback-overlay {
+            position: absolute; bottom: 150px; left: 50%;
+            transform: translateX(-50%); width: 80%;
+            height: 100px; z-index: 1999; pointer-events: none;
         }
 
         /* --- Panel Styling --- */
         .game {
-            background: var(--bg-panel);
-            border-radius: var(--border-radius-main);
-            box-shadow: var(--shadow-strong);
-            padding: 15px;
+            background: var(--bg-panel); border-radius: var(--border-radius-main);
+            box-shadow: var(--shadow-strong); padding: 12px;
             transition: background 0.3s ease, border-color 0.3s ease;
-            box-sizing: border-box;
-            display: flex; /* Use Flexbox to structure the game area */
-            flex-direction: column; /* Stack header and content vertically */
-            align-items: center;
-            position: relative;
-            width: 100%;
-            text-align: center;
-            border: 3px solid var(--bg-panel-accent);
+            box-sizing: border-box; display: flex; flex-direction: column;
+            align-items: center; position: relative; width: 100%; text-align: center;
+            border: 2px solid var(--bg-panel-accent);
             height: 100%; /* Make the game fill the main-container */
-            overflow: hidden; /* Prevent the game itself from having overflow */
+            overflow: hidden; /* Prevent ANY scrolling */
         }
-        .game.food-warning {
-            background: #a12c2c !important; border-color: var(--accent-red) !important;
-        }
+        .game.food-warning { background: #a12c2c !important; border-color: var(--accent-red) !important; }
         .game.food-warning .food-meter-icon, .game.food-warning .food-meter-value { color: var(--text-primary-light); }
 
-        /* New classes to structure the game panel */
-        .game-header {
-            width: 100%;
-            flex-shrink: 0; /* Prevents the header from shrinking */
-        }
-
+        /* New classes to structure the game panel - NO SCROLL */
+        .game-header { width: 100%; flex-shrink: 0; }
         .game-content {
-            width: 100%;
-            flex-grow: 1; /* Allows this area to fill remaining space */
-            overflow-y: auto; /* Adds scrolling ONLY if content overflows */
-            overflow-x: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-             /* Custom scrollbar for aesthetics */
-            scrollbar-width: thin;
-            scrollbar-color: var(--accent-teal) var(--bg-panel-accent);
+            width: 100%; flex-grow: 1; /* Allows this area to fill remaining space */
+            overflow: hidden; /* NO SCROLLING */
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: space-around; /* Distribute space evenly */
         }
 
         #game-main-title {
-            font-size: 1.2rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;
-            letter-spacing: 1px; margin: 0 auto 12px auto; transition: all 0.3s ease-in-out;
+            font-size: 1rem; font-weight: 500; color: var(--text-secondary);
+            letter-spacing: 1px; margin: 0 auto 8px auto; transition: all 0.3s ease-in-out;
         }
         #game-main-title.upgrade-mode-active {
-            font-size: 1.4rem; font-weight: 700; letter-spacing: 2px;
-            color: var(--accent-yellow); text-shadow: 0 0 8px var(--accent-yellow);
+            font-size: 1.2rem; font-weight: 700; letter-spacing: 2px;
+            color: var(--accent-secondary); text-shadow: 0 0 8px var(--accent-secondary);
         }
         
         /* Meters (Food & Power) */
-        .meters-wrapper { display: flex; gap: 12px; width: 100%; margin-bottom: 12px; }
+        .meters-wrapper { display: flex; gap: 10px; width: 100%; margin-bottom: 8px; }
         .power-meter-container, .food-meter-container { display: flex; align-items: center; gap: 8px; flex: 1; }
         .power-meter-bar, .food-meter {
-            flex-grow: 1; height: 20px; background-color: rgba(0,0,0,0.3);
-            border: 2px solid var(--bg-panel-accent); border-radius: var(--border-radius-small); overflow: hidden;
+            flex-grow: 1; height: 18px; background-color: rgba(0,0,0,0.3);
+            border: 1px solid var(--bg-panel-accent); border-radius: var(--border-radius-small); overflow: hidden;
         }
-        .power-meter-fill { height: 100%; background: var(--accent-orange); transition: width 0.4s ease; }
+        .power-meter-fill { height: 100%; background: var(--accent-secondary); transition: width 0.4s ease; }
         .food-meter-fill { height: 100%; background: var(--accent-green); transition: width 0.4s ease; }
-        #power-meter-indicator-icon, .food-meter-icon { font-size: 26px; flex-shrink: 0; color: var(--text-primary-light); }
-        .next-power-bill-display, .food-meter-value { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); flex-shrink: 0; }
+        #power-meter-indicator-icon, .food-meter-icon { font-size: 22px; flex-shrink: 0; }
+        .next-power-bill-display, .food-meter-value { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); }
         
         /* Symbol Inventory */
         .symbol-inventory {
-            margin: 4px auto 12px; padding: 8px; font-size: 1.2rem; color: var(--text-secondary);
-            min-height: 60px; display: grid; grid-template-columns: repeat(auto-fit, minmax(48px, 1fr));
-            gap: 8px; align-items: center; background: rgba(0,0,0,0.25);
-            border: 2px solid var(--bg-panel-accent); border-radius: var(--border-radius-small);
+            margin: 4px auto 8px; padding: 6px; font-size: 1.1rem;
+            min-height: 50px; display: grid; grid-template-columns: repeat(auto-fit, minmax(45px, 1fr));
+            gap: 6px; align-items: center; background: rgba(0,0,0,0.25);
+            border: 1px solid var(--bg-panel-accent); border-radius: var(--border-radius-small);
             width: 100%; box-sizing: border-box;
         }
         .symbol-inventory span { transition: transform 0.2s ease, color 0.2s ease; }
@@ -180,199 +179,161 @@
         /* Slot Grid */
         .slot-grid {
             display: inline-grid;
-            grid-template-columns: repeat(4, clamp(58px, 15vw, 70px));
-            gap: clamp(8px, 2vw, 12px); margin-bottom: 12px;
+            grid-template-columns: repeat(4, clamp(55px, 14vw, 65px));
+            gap: clamp(6px, 1.5vw, 10px); margin-bottom: 8px;
         }
         .slot-cell {
             width: 100%; aspect-ratio: 1 / 1; display: flex; justify-content: center; align-items: center;
-            font-size: clamp(28px, 8vw, 38px); background: var(--bg-panel-accent);
-            border: 2px solid var(--border-color, #0f3460); border-radius: var(--border-radius-small);
+            font-size: clamp(26px, 7vw, 36px); background: var(--bg-panel-accent);
+            border: 1px solid var(--border-color, #2d323a); border-radius: var(--border-radius-small);
             position: relative; cursor: default;
             transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
-            overflow: hidden; 
-            perspective: 1000px; /* Essential for 3D effect */
+            overflow: hidden; perspective: 1000px;
         }
         .slot-cell.clickable-food, .slot-cell.clickable-cat { cursor: pointer; }
-
-        /* NEW Flip Animation Styling */
-        .slot-flipper {
-            transform-style: preserve-3d;
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
+        .slot-flipper { transform-style: preserve-3d; position: relative; width: 100%; height: 100%; }
         .slot-face, .slot-back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
+            position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
             border-radius: var(--border-radius-small);
         }
-        .slot-face {
-            background: var(--bg-panel-accent);
-        }
-        .slot-back {
-            transform: rotateY(180deg);
-            background: transparent;
-        }
-
-        /* Text inside Slot Cells */
+        .slot-face { background: var(--bg-panel-accent); }
+        .slot-back { transform: rotateY(180deg); background: transparent; }
         .slot-cell .base-value-text {
-            position: absolute; top: 3px; left: 4px; font-size: 0.9rem; font-weight: 700;
-            color: var(--accent-yellow); text-shadow: 1px 1px 3px rgba(0,0,0,0.9); pointer-events: none; transition: all 0.3s ease;
+            position: absolute; top: 2px; left: 3px; font-size: 0.8rem; font-weight: 700;
+            color: var(--accent-secondary); text-shadow: 1px 1px 2px rgba(0,0,0,0.9); pointer-events: none;
         }
-        .slot-cell .base-value-text.multiplied-payout {
-            font-size: 1rem; text-shadow: 0 0 6px var(--accent-yellow), 0 0 12px var(--accent-orange); transform: scale(1.1);
-        }
-        .multiplier-value-text { position: absolute; top: 3px; right: 4px; font-size: 0.9rem; font-weight: bold; text-shadow: 1px 1px 3px rgba(0,0,0,0.9); pointer-events: none; }
-
-        /* Cell States */
-        .slot-cell.top-right-locked { background-color: var(--accent-orange); border-color: var(--accent-yellow); }
-        .lock-icon { position: absolute; top: 0px; right: 1px; font-size: 1rem; z-index: 20; }
-        .lock-icon.locked-state { color: var(--accent-yellow); }
+        .slot-cell .base-value-text.multiplied-payout { text-shadow: 0 0 5px var(--accent-secondary); transform: scale(1.1); }
+        .multiplier-value-text { position: absolute; top: 2px; right: 3px; font-size: 0.8rem; font-weight: bold; }
+        .slot-cell.top-right-locked { background-color: var(--accent-secondary); border-color: var(--accent-secondary); }
+        .lock-icon { position: absolute; top: 0px; right: 1px; font-size: 0.9rem; z-index: 20; color: var(--accent-secondary); }
         .lock-icon.no-locks { opacity: 0.5; color: var(--text-secondary); }
-
-        .slot-cell.multi-2x { background-color: color-mix(in srgb, var(--multiplier-2x-color) 20%, transparent); border-color: var(--multiplier-2x-color); }
-        .slot-cell.multi-3x { background-color: color-mix(in srgb, var(--multiplier-3x-color) 20%, transparent); border-color: var(--multiplier-3x-color); }
-        .slot-cell.multi-5x { background-color: color-mix(in srgb, var(--multiplier-5x-color) 20%, transparent); border-color: var(--multiplier-5x-color); }
+        .slot-cell.multi-2x { border-color: var(--multiplier-2x-color); }
+        .slot-cell.multi-3x { border-color: var(--multiplier-3x-color); }
+        .slot-cell.multi-5x { border-color: var(--multiplier-5x-color); }
         .slot-cell.multi-2x .multiplier-value-text { color: var(--multiplier-2x-color); }
         .slot-cell.multi-3x .multiplier-value-text { color: var(--multiplier-3x-color); }
         .slot-cell.multi-5x .multiplier-value-text { color: var(--multiplier-5x-color); }
-        
-        .schrodinger-cat-effect { box-shadow: 0 0 10px var(--accent-green), inset 0 0 6px var(--accent-green) !important; border: 1px dashed var(--accent-green) !important; }
-        .schrodinger-cat-effect::after { content: "🐈"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 40px; z-index: 5; pointer-events: none; color: transparent; background: linear-gradient(45deg, var(--accent-green), var(--accent-teal)); -webkit-background-clip: text; background-clip: text; opacity: 0.6; }
+        .schrodinger-cat-effect { box-shadow: 0 0 8px var(--accent-green), inset 0 0 5px var(--accent-green) !important; border: 1px dashed var(--accent-green) !important; }
+        .schrodinger-cat-effect::after { content: "🐈"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 38px; z-index: 5; pointer-events: none; color: transparent; background: linear-gradient(45deg, var(--accent-green), var(--accent-primary)); -webkit-background-clip: text; background-clip: text; opacity: 0.6; }
 
-        /* Win Displays */
-        .win-display, .phone-message-display { font-size: 1rem; font-weight: 600; min-height: 24px; text-align: center; margin-bottom: 6px; }
+        /* Win Displays & Controls */
+        .win-display, .phone-message-display { font-size: 1rem; font-weight: 600; min-height: 22px; text-align: center; margin-bottom: 4px; }
         .win-display { color: var(--text-primary-light); }
-        .win-display.game-over { color: var(--accent-red); font-size: 1.1rem; font-weight: bold; }
+        .win-display.game-over { color: var(--accent-red); font-size: 1.1rem; }
         .phone-message-display.friendly, .phone-message-display.profit { color: var(--accent-green); }
         .phone-message-display.loss { color: var(--accent-red); }
         .phone-message-display.takeout-confirm { color: var(--text-primary-light); }
-
-        /* Controls & Buttons */
-        .controls { display: flex; gap: 10px; align-items: stretch; justify-content: center; margin: 8px 0; width: 100%; }
-        .btn { padding: 12px 20px; font-size: 1.1rem; border: none; border-bottom: 4px solid rgba(0,0,0,0.4); border-radius: var(--border-radius-small); cursor: pointer; transition: all 0.15s ease; box-shadow: var(--shadow-subtle); font-weight: 700; text-transform: uppercase; background: var(--accent-teal); color: #000; }
-        .btn:active:not(:disabled) { transform: translateY(1px); border-bottom-width: 2px; }
+        .controls { display: flex; gap: 8px; align-items: stretch; justify-content: center; margin: 4px 0; width: 100%; }
+        .btn { padding: 10px 18px; font-size: 1rem; border: none; border-bottom: 3px solid rgba(0,0,0,0.4); border-radius: var(--border-radius-small); cursor: pointer; transition: all 0.15s ease; box-shadow: var(--shadow-subtle); font-weight: 700; background: var(--accent-primary); color: var(--text-primary-dark); }
+        .btn:active:not(:disabled) { transform: translateY(1px); border-bottom-width: 1px; }
         .btn:disabled { cursor: not-allowed; filter: brightness(0.6) grayscale(0.4); }
-
         .btn-spin { flex-grow: 1; }
-        .btn-lucky { flex-shrink: 0; background-color: var(--accent-pink); }
-        .btn-lucky.active { background: var(--accent-red); filter: brightness(1.2); }
-        .btn.btn-spin-lucky { background: var(--accent-pink); }
+        .btn-lucky { flex-shrink: 0; background-color: #6a4c93; color: var(--text-primary-light); }
+        .btn-lucky.active { background: #c1121f; }
+        .btn.btn-spin-lucky { background: #c1121f; color: var(--text-primary-light); }
         .btn.btn-spin-bill-unpaid { animation: pulseWarningBorder 1.2s infinite; background: var(--accent-red); }
-
-        .coin-display { font-size: 1.2rem; font-weight: bold; margin-top: 10px; color: var(--text-primary-light); }
+        .coin-display { font-size: 1.1rem; font-weight: bold; margin-top: 6px; color: var(--accent-secondary); }
 
         /* Inventory Window */
-        .inventory-window { width: 100%; margin-top: 12px; padding: 12px; background: rgba(0,0,0,0.25); border: 1px solid var(--bg-panel-accent); border-radius: var(--border-radius-small);}
-        .inventory-content { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; font-size: 1rem; }
-        .inventory-item { padding: 5px 10px; background: var(--bg-panel-accent); border-radius: var(--border-radius-small); box-shadow: var(--shadow-subtle); color: var(--text-secondary); border: 1px solid var(--bg-panel-accent); }
-        .inventory-item.clickable { cursor: pointer; color: var(--text-primary-light); background-color: var(--accent-teal); color: #000; }
-        .inventory-item-gift { background-color: var(--accent-yellow) !important; color: var(--text-primary-dark) !important; font-weight: bold;}
-        .inventory-item.clickable[style*="opacity: 0.7"] { cursor: not-allowed; color: var(--text-secondary); transform: none; background-color: var(--bg-panel-accent); }
+        .inventory-window { width: 100%; margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.25); border: 1px solid var(--bg-panel-accent); border-radius: var(--border-radius-small);}
+        .inventory-content { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; font-size: 0.9rem; }
+        .inventory-item { padding: 4px 8px; background: var(--bg-panel-accent); border-radius: var(--border-radius-small); box-shadow: var(--shadow-subtle); color: var(--text-secondary); border: 1px solid var(--bg-panel-accent); }
+        .inventory-item.clickable { cursor: pointer; background-color: var(--accent-primary); color: var(--text-primary-dark); }
+        .inventory-item-gift { background-color: var(--accent-secondary) !important; color: var(--text-primary-dark) !important; font-weight: bold;}
+        .inventory-item.clickable[style*="opacity: 0.7"] { cursor: not-allowed; transform: none; background-color: var(--bg-panel-accent); color: var(--text-secondary); }
 
         /* --- Fixed Bottom Navigation Bar --- */
         .bottom-nav-bar {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background: var(--bg-navbar); border-top: 3px solid #3d3d5c;
-            box-shadow: 0 -4px 12px rgba(0,0,0,0.3); z-index: 500; padding: 10px 12px;
+            position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg-navbar); border-top: 2px solid #3e444f;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.3); z-index: 500; padding: 8px 10px;
             box-sizing: border-box; transition: background-color 0.3s ease, border-color 0.3s ease;
-            /* Add padding to account for home bar on iOS */
-            padding-bottom: calc(10px + env(safe-area-inset-bottom));
+            padding-bottom: calc(8px + env(safe-area-inset-bottom));
         }
-        .bottom-utility-section { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+        .bottom-utility-section { display: flex; flex-direction: column; gap: 8px; width: 100%; }
         .status-effects-window {
-            padding: 4px; width: 100%; min-height: 52px; display: flex;
-            justify-content: center; align-items: center; gap: 6px; flex-wrap: wrap;
+            padding: 4px; width: 100%; min-height: 48px; display: flex;
+            justify-content: center; align-items: center; gap: 5px; flex-wrap: wrap;
         }
         .status-effect-item {
-            min-height: 20px; display: flex; flex-direction: row; justify-content: center; align-items: center;
-            gap: 5px; flex: 1; min-width: 42px; background: rgba(0,0,0,0.3);
-            padding: 4px 6px; border-radius: var(--border-radius-small); color: var(--text-primary-light);
+            min-height: 18px; display: flex; flex-direction: row; justify-content: center; align-items: center;
+            gap: 5px; flex: 1; min-width: 40px; background: rgba(0,0,0,0.3);
+            padding: 3px 5px; border-radius: var(--border-radius-small); color: var(--text-primary-light);
         }
-        .buff-emoji { font-size: 1rem; }
-        .buff-countdown, .buff-value { font-size: 0.8rem; font-weight: bold; }
-        .buff-countdown { color: var(--accent-yellow); }
+        .buff-emoji { font-size: 0.9rem; }
+        .buff-countdown, .buff-value { font-size: 0.75rem; font-weight: bold; }
+        .buff-countdown { color: var(--accent-secondary); }
         .buff-value { color: var(--accent-green); }
-
 
         /* Bottom Nav Buttons */
         .bottom-controls-bar { display: flex; justify-content: space-around; gap: 8px; width: 100%; }
         .utility-trigger { flex: 1; display: flex; justify-content: center; align-items: center; }
         .utility-btn {
-            font-size: 24px; width: 52px; height: 52px; border-radius: 50%;
-            background-color: var(--accent-yellow);
-            display: flex; justify-content: center;
+            font-size: 22px; width: 48px; height: 48px; border-radius: 50%;
+            background-color: var(--accent-secondary); display: flex; justify-content: center;
             align-items: center; cursor: pointer; transition: all 0.2s ease;
-            border: 2px solid #b8860b;
-            color: #333;
+            border: 2px solid #b8860b; color: #333;
         }
         .utility-btn.toggled-off { background-color: rgba(0,0,0,0.25); color: rgba(255,255,255,0.4); border-color: transparent; }
 
         /* --- Modals --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.75); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 1000; transition: opacity 0.3s ease; padding: 15px; box-sizing: border-box; }
         .modal-overlay.hidden { opacity: 0; pointer-events: none; }
-        .modal-window { width: 100%; max-width: 500px; max-height: 90vh; position: relative; display: flex; flex-direction: column; background-color: var(--bg-modal); border-radius: var(--border-radius-main); border: 3px solid #4a4a8a; color: var(--text-primary-light); box-shadow: var(--shadow-strong); }
-        .modal-title { font-size: 1.4rem; color: var(--accent-pink); text-align: center; margin: 15px 0; padding-bottom: 10px; border-bottom: 2px solid var(--accent-pink); }
+        .modal-window { width: 100%; max-width: 500px; max-height: 90vh; position: relative; display: flex; flex-direction: column; background-color: var(--bg-modal); border-radius: var(--border-radius-main); border: 2px solid #4a4a8a; color: var(--text-primary-light); box-shadow: var(--shadow-strong); }
+        .modal-title { font-size: 1.3rem; color: var(--accent-primary); text-align: center; margin: 15px 0; padding-bottom: 10px; border-bottom: 1px solid var(--accent-primary); }
         .modal-close-btn { position: absolute; top: 6px; right: 10px; font-size: 30px; color: #fff; background: none; border: none; cursor: pointer; z-index: 1001; }
-        .modal-content { overflow-y: auto; font-size: 1rem; line-height: 1.7; padding: 10px 15px; }
-        .modal-content strong { color: var(--accent-yellow); }
+        .modal-content { overflow-y: auto; font-size: 0.9rem; line-height: 1.6; padding: 10px 15px; }
+        .modal-content strong { color: var(--accent-secondary); }
         .modal-content hr { border-color: #4a4a8a; margin: 15px 0; border-style: solid; border-width: 1px 0 0 0; }
-        .payout-option.highlight { color: var(--accent-yellow); font-weight: bold; background-color: color-mix(in srgb, var(--accent-yellow) 20%, transparent); padding: 2px 5px; border-radius: 4px; display: inline-block; }
+        .payout-option.highlight { color: var(--accent-secondary); font-weight: bold; background-color: color-mix(in srgb, var(--accent-secondary) 20%, transparent); padding: 2px 5px; border-radius: 4px; display: inline-block; }
 
         /* Shop Modal */
-        #shop-modal-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
+        #shop-modal-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
         .shop-item-btn {
-            padding: 10px; font-size: 0.9rem; border: 2px solid #4a4a8a; border-radius: var(--border-radius-small);
+            padding: 10px; font-size: 0.9rem; border: 1px solid #4a4a8a; border-radius: var(--border-radius-small);
             cursor: pointer; transition: all 0.2s ease; font-weight: 500; text-align: center;
-            background-color: #16213e; color: var(--text-primary-light); box-shadow: var(--shadow-subtle);
+            background-color: var(--bg-panel-accent); color: var(--text-primary-light); box-shadow: var(--shadow-subtle);
         }
-        .shop-item-cost { font-weight: bold; display: block; margin-top: 5px; color: var(--text-primary-dark) !important; background: var(--accent-yellow); padding: 3px 5px; border-radius: 6px; }
+        .shop-item-cost { font-weight: bold; display: block; margin-top: 5px; color: var(--text-primary-dark) !important; background: var(--accent-secondary); padding: 3px 5px; border-radius: 6px; }
         .shop-item-btn:disabled { filter: grayscale(0.7) brightness(0.6); cursor: not-allowed; }
 
         /* Phone Modal */
-        #phone-modal-content .btn { width: 85%; margin: 12px auto; display: block; }
+        #phone-modal-content .btn { width: 85%; margin: 10px auto; display: block; }
         #investments-btn { background: var(--accent-green); }
-        #takeout-area { background: var(--accent-orange); }
-        .investment-ui, .takeout-ui { display: flex; flex-direction: column; gap: 15px; padding: 15px; }
-        .investment-ui input[type="range"], .takeout-ui input[type="range"] { accent-color: var(--accent-pink); }
-        .investment-ui #invest-amount-display, .takeout-ui #takeout-amount-display { font-size: 1.2rem; font-weight: bold; text-align: center; }
+        #takeout-area { background: #FF7043; }
+        .investment-ui, .takeout-ui { display: flex; flex-direction: column; gap: 12px; padding: 12px; }
+        .investment-ui input[type="range"], .takeout-ui input[type="range"] { accent-color: var(--accent-primary); }
+        .investment-ui #invest-amount-display, .takeout-ui #takeout-amount-display { font-size: 1.1rem; font-weight: bold; text-align: center; }
 
         /* Pet Modal */
         #pet-modal-content { display: flex; flex-direction: column; justify-content: flex-start; align-items: center; padding: 8px; min-height: 240px; }
         .pet-info-container { text-align: center; width: 100%; }
-        .pet-status-emoji { font-size: 52px; }
+        .pet-status-emoji { font-size: 48px; }
         .pet-description { font-size: 0.9rem; color: var(--text-primary-light); min-height: 20px; font-weight: 500; margin-top: 5px; }
         .pet-bottom-area { width: 100%; text-align: center; }
-        #pet-toy-display { font-size: 24px; }
+        #pet-toy-display { font-size: 22px; }
         .pet-food-consumption { font-size: 0.8rem; color: var(--text-secondary); }
         .alien-visitor-text { font-size: 1rem; font-weight: bold; color: var(--accent-green); line-height: 1.4; text-align: center; }
-        .alien-emoji-large { font-size: 52px; }
+        .alien-emoji-large { font-size: 48px; }
 
         /* Guide Modal */
         #guide-icons-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 220px; margin: 15px auto; }
-        .guide-icon { font-size: 40px; cursor: pointer; transition: transform 0.2s ease; text-align: center; }
-        #guide-back-btn { display: block; width: 85%; margin: 0 auto 15px auto; background-color: var(--accent-teal); }
-        .guide-topic-content h4 { font-size: 1.1rem; color: var(--accent-pink); margin-top: 12px; margin-bottom: 8px; border-bottom: 1px solid #4a4a8a; padding-bottom: 5px; }
+        .guide-icon { font-size: 36px; cursor: pointer; transition: transform 0.2s ease; text-align: center; }
+        #guide-back-btn { display: block; width: 85%; margin: 0 auto 15px auto; background-color: var(--accent-primary); }
+        .guide-topic-content h4 { font-size: 1.1rem; color: var(--accent-primary); margin-top: 12px; margin-bottom: 8px; border-bottom: 1px solid #4a4a8a; padding-bottom: 5px; }
         .guide-topic-content ul { list-style-type: none; padding-left: 0; margin-bottom: 10px; }
         .guide-topic-content li { margin-bottom: 6px; }
-        .btn.btn-how-to-play { background: var(--accent-pink); display: block; width: 85%; margin: 0 auto 15px auto; }
+        .btn.btn-how-to-play { background: #6a4c93; color: var(--text-primary-light); display: block; width: 85%; margin: 0 auto 15px auto; }
 
         /* Gift Modal */
-        #gift-choice-content h4 { font-size: 1.3rem; color: var(--accent-yellow); text-align: center; border: none; }
+        #gift-choice-content h4 { font-size: 1.3rem; color: var(--accent-secondary); text-align: center; border: none; }
         .gift-choices-container { display: flex; flex-direction: column; gap: 15px; align-items: center; }
     </style>
 </head>
 <body>
 
 <div class="main-container">
-    <div class="game">
-        <!-- The header part of the game that will remain static at the top of the panel -->
+    <div id="feedback-overlay"></div> <div class="game">
         <div class="game-header">
             <h1 id="game-main-title">KEEP SPINNING!</h1>
             <div class="meters-wrapper">
@@ -396,7 +357,6 @@
             </div>
         </div>
 
-        <!-- The main content of the game that will fill the remaining space -->
         <div class="game-content">
             <div class="symbol-inventory" id="symbol-inventory-display"></div>
             <div class="slot-grid" id="slot-grid"></div>
@@ -578,6 +538,7 @@ document.addEventListener('DOMContentLoaded', () => {
         featherStatusEl: document.getElementById('feather-status'), beetleStatusEl: document.getElementById('beetle-status'),
         branchStatusEl: document.getElementById('branch-status'), blackHoleModal: document.getElementById('black-hole-modal'),
         blackHoleContent: document.getElementById('black-hole-content'), blackHoleCloseBtn: document.getElementById('black-hole-close-btn'),
+        feedbackOverlay: document.getElementById('feedback-overlay'), // NEW feedback element
     };
 
     // --- GAME STATE VARIABLES ---
@@ -593,7 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playerState.coins = GAME_CONFIG.initialCoins;
         playerState.foodMeter = GAME_CONFIG.maxFoodMeter;
         playerState.power = GAME_CONFIG.maxPower;
-        playerState.inventory = { "📹": 0, "☕": 2, "👽": 0, "�": 0, "⚫": 0, "🎁": 0 };
+        playerState.inventory = { "📹": 0, "☕": 2, "👽": 0, " ": 0, "⚫": 0, "🎁": 0 };
         playerState.lockItems = GAME_CONFIG.initialLockItems;
         playerState.billsPaidSoFar = 0;
         playerState.spinCount = 0;
@@ -614,6 +575,7 @@ document.addEventListener('DOMContentLoaded', () => {
         activeEffects.hasAlienVisitor = false;
         activeEffects.spinsWithCat = 0;
         activeEffects.currentCatStatus = '😺';
+        activeEffects.previousCatStatus = '😺'; // NEW: Track previous status for feedback
         activeEffects.hasMouseToy = false;
         activeEffects.donutBuffActive = false;
         activeEffects.donutBuffSpinsLeft = 0;
@@ -654,7 +616,7 @@ document.addEventListener('DOMContentLoaded', () => {
         symbols.forEach(s => { if (s.isCosmic) s.count = 0; });
     }
 
-    // --- HELPER FUNCTIONS ---
+    // --- HELPER & FEEDBACK FUNCTIONS ---
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -663,6 +625,17 @@ document.addEventListener('DOMContentLoaded', () => {
         return array;
     }
     function getRandomMultiplier() { return [2, 3, 5][Math.floor(Math.random() * 3)]; }
+
+    // NEW: Function to show on-screen feedback
+    function showFeedbackAnimation(text, type = 'neutral') {
+        const feedbackEl = document.createElement('div');
+        feedbackEl.className = `feedback-item ${type}`;
+        feedbackEl.innerHTML = text;
+        DOM_ELEMENTS.feedbackOverlay.appendChild(feedbackEl);
+        setTimeout(() => {
+            feedbackEl.remove();
+        }, 2500); // Remove element after animation
+    }
 
     function getSymbolsForSpin() {
         let newGridSetup = Array(GAME_CONFIG.gridSize).fill(null);
@@ -806,7 +779,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         const birdToLoseIndex = Math.floor(Math.random() * birdsEligibleToFly.length);
                         const birdToLoseEmoji = birdsEligibleToFly[birdToLoseIndex].emoji;
                         const birdSymbolInMainArray = symbols.find(s => s.emoji === birdToLoseEmoji);
-                        if (birdSymbolInMainArray && birdSymbolInMainArray.count > 0) birdSymbolInMainArray.count--;
+                        if (birdSymbolInMainArray && birdSymbolInMainArray.count > 0) {
+                            birdSymbolInMainArray.count--;
+                            showFeedbackAnimation(`-1 ${birdToLoseEmoji} Flew Away!`, 'negative'); // FEEDBACK
+                        }
                     }
                 }
             }
@@ -876,6 +852,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (birdToFinallyAdd) {
                         if (getTotalBirdCount() < GAME_CONFIG.maxTotalBirdsCap) {
                             birdToFinallyAdd.count++; animatedBird = birdToFinallyAdd.emoji;
+                            showFeedbackAnimation(`+1 ${birdToFinallyAdd.emoji} Arrived!`, 'positive'); // FEEDBACK
                         }
                     }
                     windowFeatureState.birdGainedThisSpin = null;
@@ -1018,13 +995,17 @@ document.addEventListener('DOMContentLoaded', () => {
     function updatePetModal() {
         const content = DOM_ELEMENTS.petModalContent; content.innerHTML = "";
         let titleEmojis = []; const companionSections = [];
+        
+        // Store previous cat status to check for changes
+        activeEffects.previousCatStatus = activeEffects.currentCatStatus;
+
         if (activeEffects.hasAlienVisitor) {
             titleEmojis.push("👽");
             const alienText = document.createElement('div');
             alienText.className = 'alien-visitor-text';
             let alienInfo = `<span class="alien-emoji-large">👽</span><br/>Cosmic Visitor<br/>(+12 to Cosmic Symbols)`;
             const friesSymbol = symbols.find(s => s.emoji === "🍟");
-            if (friesSymbol && friesSymbol.count > 0) alienInfo += `<br/><span style="font-size:0.8em; color: var(--accent-yellow);">Will consume ${friesSymbol.count} 🍟</span>`;
+            if (friesSymbol && friesSymbol.count > 0) alienInfo += `<br/><span style="font-size:0.8em; color: var(--accent-secondary);">Will consume ${friesSymbol.count} 🍟</span>`;
             else alienInfo += `<br/><span style="font-size:0.8em; color: var(--text-secondary);">No 🍟 to consume</span>`;
             alienText.innerHTML = alienInfo;
             companionSections.push(alienText);
@@ -1038,6 +1019,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (windowFeatureState.beetles > 0 && !windowFeatureState.hasBirdNest) newStatus = '🙀🪲';
             if (activeEffects.sushiCatBuffActive) newStatus = '😻🍣';
             activeEffects.currentCatStatus = newStatus;
+
+            // NEW: Cat status change feedback
+            if (activeEffects.currentCatStatus !== activeEffects.previousCatStatus) {
+                let feedbackText = '';
+                if(newStatus === '😺') feedbackText = 'Cat is now Happy: +1 to 🐈‍⬛';
+                if(newStatus === '😿') feedbackText = 'Cat is now Sad: No buff';
+                if(newStatus === '😼') feedbackText = 'Cat is Annoyed: No buff';
+                if(newStatus === '🙀🪲') feedbackText = 'Cat is Scared: -1 to 🐈‍⬛';
+                if(newStatus === '😻🍣') feedbackText = 'Cat loves Sushi: +5 to 🐈‍⬛';
+                if(feedbackText) showFeedbackAnimation(feedbackText, 'neutral');
+            }
+
             const mainArea = document.createElement('div'); mainArea.className = 'pet-main-area';
             const petDiv = document.createElement('div'); petDiv.className = 'pet-display';
             petDiv.innerHTML = `<span class="pet-status-emoji">${activeEffects.currentCatStatus}</span>`; mainArea.appendChild(petDiv);
@@ -1431,6 +1424,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (uiState.isGameOver) return;
         DOM_ELEMENTS.phoneMessageDisplay.textContent = message;
         DOM_ELEMENTS.phoneMessageDisplay.className = `phone-message-display ${type}`;
+
+        // NEW: Add feedback animation for phone messages
+        if (type === 'loss') {
+            showFeedbackAnimation(message, 'negative');
+        } else if (type === 'friendly' || type === 'profit') {
+            showFeedbackAnimation(message, 'positive');
+        }
+
         setTimeout(() => {
             if (DOM_ELEMENTS.phoneMessageDisplay.textContent === message) {
                 DOM_ELEMENTS.phoneMessageDisplay.textContent = '';
@@ -1724,4 +1725,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-�
