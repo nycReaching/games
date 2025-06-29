@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>Food Slot Machine - Polished</title>
     <style>
-        /* style.css - Visual Polish Overhaul v6 - Blueprint Theme */
+        /* style.css - Visual Polish Overhaul v7 - Blueprint Theme */
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap');
 
         /* --- New "Blueprint" Theme --- */
@@ -75,11 +75,11 @@
         .feedback-item {
             position: absolute;
             padding: 8px 16px;
-            background-color: rgba(26, 29, 35, 0.85);
+            background-color: rgba(26, 29, 35, 0.9);
             border: 1px solid var(--accent-secondary);
             border-radius: var(--border-radius-main);
             color: var(--text-primary-light);
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 700;
             z-index: 2000;
             pointer-events: none;
@@ -112,7 +112,7 @@
         .main-container {
             display: flex; justify-content: center; align-items: flex-start;
             width: 100%; max-width: 420px; flex-grow: 1; overflow: hidden;
-            margin: 0 auto; padding: 10px 10px 145px 10px; /* Reduced padding */
+            margin: 0 auto; padding: 10px 10px 145px 10px; /* Padding to avoid nav bar */
             box-sizing: border-box; position: relative;
         }
         
@@ -120,12 +120,13 @@
             position: absolute; bottom: 150px; left: 50%;
             transform: translateX(-50%); width: 80%;
             height: 100px; z-index: 1999; pointer-events: none;
+            display: flex; flex-direction: column-reverse; align-items: center; gap: 5px;
         }
 
         /* --- Panel Styling --- */
         .game {
             background: var(--bg-panel); border-radius: var(--border-radius-main);
-            box-shadow: var(--shadow-strong); padding: 12px;
+            box-shadow: var(--shadow-strong); padding: 10px;
             transition: background 0.3s ease, border-color 0.3s ease;
             box-sizing: border-box; display: flex; flex-direction: column;
             align-items: center; position: relative; width: 100%; text-align: center;
@@ -136,51 +137,49 @@
         .game.food-warning { background: #a12c2c !important; border-color: var(--accent-red) !important; }
         .game.food-warning .food-meter-icon, .game.food-warning .food-meter-value { color: var(--text-primary-light); }
 
-        /* New classes to structure the game panel - NO SCROLL */
+        /* REVISED: Structure to prevent scroll and ensure visibility */
         .game-header { width: 100%; flex-shrink: 0; }
         .game-content {
             width: 100%; flex-grow: 1; /* Allows this area to fill remaining space */
             overflow: hidden; /* NO SCROLLING */
             display: flex; flex-direction: column; align-items: center;
-            justify-content: space-around; /* Distribute space evenly */
+            justify-content: space-between; /* CRITICAL CHANGE for layout */
         }
 
         #game-main-title {
             font-size: 1rem; font-weight: 500; color: var(--text-secondary);
-            letter-spacing: 1px; margin: 0 auto 8px auto; transition: all 0.3s ease-in-out;
+            letter-spacing: 1px; margin: 0 auto 8px auto;
         }
         #game-main-title.upgrade-mode-active {
-            font-size: 1.2rem; font-weight: 700; letter-spacing: 2px;
-            color: var(--accent-secondary); text-shadow: 0 0 8px var(--accent-secondary);
+            font-size: 1.2rem; font-weight: 700; color: var(--accent-secondary);
         }
         
         /* Meters (Food & Power) */
         .meters-wrapper { display: flex; gap: 10px; width: 100%; margin-bottom: 8px; }
         .power-meter-container, .food-meter-container { display: flex; align-items: center; gap: 8px; flex: 1; }
         .power-meter-bar, .food-meter {
-            flex-grow: 1; height: 18px; background-color: rgba(0,0,0,0.3);
+            flex-grow: 1; height: 16px; background-color: rgba(0,0,0,0.3);
             border: 1px solid var(--bg-panel-accent); border-radius: var(--border-radius-small); overflow: hidden;
         }
         .power-meter-fill { height: 100%; background: var(--accent-secondary); transition: width 0.4s ease; }
         .food-meter-fill { height: 100%; background: var(--accent-green); transition: width 0.4s ease; }
-        #power-meter-indicator-icon, .food-meter-icon { font-size: 22px; flex-shrink: 0; }
-        .next-power-bill-display, .food-meter-value { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); }
+        #power-meter-indicator-icon, .food-meter-icon { font-size: 20px; flex-shrink: 0; }
+        .next-power-bill-display, .food-meter-value { font-size: 0.7rem; font-weight: 600; color: var(--text-secondary); }
         
         /* Symbol Inventory */
         .symbol-inventory {
-            margin: 4px auto 8px; padding: 6px; font-size: 1.1rem;
-            min-height: 50px; display: grid; grid-template-columns: repeat(auto-fit, minmax(45px, 1fr));
-            gap: 6px; align-items: center; background: rgba(0,0,0,0.25);
+            margin: 2px auto; padding: 5px; font-size: 1rem;
+            min-height: 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(42px, 1fr));
+            gap: 5px; align-items: center; background: rgba(0,0,0,0.25);
             border: 1px solid var(--bg-panel-accent); border-radius: var(--border-radius-small);
             width: 100%; box-sizing: border-box;
         }
-        .symbol-inventory span { transition: transform 0.2s ease, color 0.2s ease; }
 
         /* Slot Grid */
         .slot-grid {
             display: inline-grid;
             grid-template-columns: repeat(4, clamp(55px, 14vw, 65px));
-            gap: clamp(6px, 1.5vw, 10px); margin-bottom: 8px;
+            gap: clamp(6px, 1.5vw, 10px); margin: 4px 0; /* Reduced margin */
         }
         .slot-cell {
             width: 100%; aspect-ratio: 1 / 1; display: flex; justify-content: center; align-items: center;
@@ -201,9 +200,9 @@
         .slot-back { transform: rotateY(180deg); background: transparent; }
         .slot-cell .base-value-text {
             position: absolute; top: 2px; left: 3px; font-size: 0.8rem; font-weight: 700;
-            color: var(--accent-secondary); text-shadow: 1px 1px 2px rgba(0,0,0,0.9); pointer-events: none;
+            color: var(--accent-secondary); text-shadow: 1px 1px 2px rgba(0,0,0,0.9);
         }
-        .slot-cell .base-value-text.multiplied-payout { text-shadow: 0 0 5px var(--accent-secondary); transform: scale(1.1); }
+        .slot-cell .base-value-text.multiplied-payout { text-shadow: 0 0 5px var(--accent-secondary); }
         .multiplier-value-text { position: absolute; top: 2px; right: 3px; font-size: 0.8rem; font-weight: bold; }
         .slot-cell.top-right-locked { background-color: var(--accent-secondary); border-color: var(--accent-secondary); }
         .lock-icon { position: absolute; top: 0px; right: 1px; font-size: 0.9rem; z-index: 20; color: var(--accent-secondary); }
@@ -218,14 +217,14 @@
         .schrodinger-cat-effect::after { content: "🐈"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 38px; z-index: 5; pointer-events: none; color: transparent; background: linear-gradient(45deg, var(--accent-green), var(--accent-primary)); -webkit-background-clip: text; background-clip: text; opacity: 0.6; }
 
         /* Win Displays & Controls */
-        .win-display, .phone-message-display { font-size: 1rem; font-weight: 600; min-height: 22px; text-align: center; margin-bottom: 4px; }
+        .win-display, .phone-message-display { font-size: 0.9rem; font-weight: 600; min-height: 18px; text-align: center; margin-bottom: 2px; }
         .win-display { color: var(--text-primary-light); }
-        .win-display.game-over { color: var(--accent-red); font-size: 1.1rem; }
+        .win-display.game-over { color: var(--accent-red); font-size: 1rem; }
         .phone-message-display.friendly, .phone-message-display.profit { color: var(--accent-green); }
         .phone-message-display.loss { color: var(--accent-red); }
         .phone-message-display.takeout-confirm { color: var(--text-primary-light); }
-        .controls { display: flex; gap: 8px; align-items: stretch; justify-content: center; margin: 4px 0; width: 100%; }
-        .btn { padding: 10px 18px; font-size: 1rem; border: none; border-bottom: 3px solid rgba(0,0,0,0.4); border-radius: var(--border-radius-small); cursor: pointer; transition: all 0.15s ease; box-shadow: var(--shadow-subtle); font-weight: 700; background: var(--accent-primary); color: var(--text-primary-dark); }
+        .controls { display: flex; gap: 8px; align-items: stretch; justify-content: center; margin: 2px 0; width: 100%; }
+        .btn { padding: 8px 16px; font-size: 1rem; border: none; border-bottom: 3px solid rgba(0,0,0,0.4); border-radius: var(--border-radius-small); cursor: pointer; transition: all 0.15s ease; box-shadow: var(--shadow-subtle); font-weight: 700; background: var(--accent-primary); color: var(--text-primary-dark); }
         .btn:active:not(:disabled) { transform: translateY(1px); border-bottom-width: 1px; }
         .btn:disabled { cursor: not-allowed; filter: brightness(0.6) grayscale(0.4); }
         .btn-spin { flex-grow: 1; }
@@ -233,11 +232,11 @@
         .btn-lucky.active { background: #c1121f; }
         .btn.btn-spin-lucky { background: #c1121f; color: var(--text-primary-light); }
         .btn.btn-spin-bill-unpaid { animation: pulseWarningBorder 1.2s infinite; background: var(--accent-red); }
-        .coin-display { font-size: 1.1rem; font-weight: bold; margin-top: 6px; color: var(--accent-secondary); }
+        .coin-display { font-size: 1rem; font-weight: bold; margin-top: 2px; color: var(--accent-secondary); }
 
         /* Inventory Window */
-        .inventory-window { width: 100%; margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.25); border: 1px solid var(--bg-panel-accent); border-radius: var(--border-radius-small);}
-        .inventory-content { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; font-size: 0.9rem; }
+        .inventory-window { width: 100%; margin-top: 4px; padding: 6px; background: rgba(0,0,0,0.25); border: 1px solid var(--bg-panel-accent); border-radius: var(--border-radius-small);}
+        .inventory-content { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; font-size: 0.9rem; }
         .inventory-item { padding: 4px 8px; background: var(--bg-panel-accent); border-radius: var(--border-radius-small); box-shadow: var(--shadow-subtle); color: var(--text-secondary); border: 1px solid var(--bg-panel-accent); }
         .inventory-item.clickable { cursor: pointer; background-color: var(--accent-primary); color: var(--text-primary-dark); }
         .inventory-item-gift { background-color: var(--accent-secondary) !important; color: var(--text-primary-dark) !important; font-weight: bold;}
@@ -538,7 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
         featherStatusEl: document.getElementById('feather-status'), beetleStatusEl: document.getElementById('beetle-status'),
         branchStatusEl: document.getElementById('branch-status'), blackHoleModal: document.getElementById('black-hole-modal'),
         blackHoleContent: document.getElementById('black-hole-content'), blackHoleCloseBtn: document.getElementById('black-hole-close-btn'),
-        feedbackOverlay: document.getElementById('feedback-overlay'), // NEW feedback element
+        feedbackOverlay: document.getElementById('feedback-overlay'),
     };
 
     // --- GAME STATE VARIABLES ---
@@ -575,7 +574,7 @@ document.addEventListener('DOMContentLoaded', () => {
         activeEffects.hasAlienVisitor = false;
         activeEffects.spinsWithCat = 0;
         activeEffects.currentCatStatus = '😺';
-        activeEffects.previousCatStatus = '😺'; // NEW: Track previous status for feedback
+        activeEffects.previousCatStatus = '😺';
         activeEffects.hasMouseToy = false;
         activeEffects.donutBuffActive = false;
         activeEffects.donutBuffSpinsLeft = 0;
@@ -626,7 +625,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function getRandomMultiplier() { return [2, 3, 5][Math.floor(Math.random() * 3)]; }
 
-    // NEW: Function to show on-screen feedback
     function showFeedbackAnimation(text, type = 'neutral') {
         const feedbackEl = document.createElement('div');
         feedbackEl.className = `feedback-item ${type}`;
@@ -634,7 +632,7 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM_ELEMENTS.feedbackOverlay.appendChild(feedbackEl);
         setTimeout(() => {
             feedbackEl.remove();
-        }, 2500); // Remove element after animation
+        }, 2500);
     }
 
     function getSymbolsForSpin() {
@@ -781,7 +779,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const birdSymbolInMainArray = symbols.find(s => s.emoji === birdToLoseEmoji);
                         if (birdSymbolInMainArray && birdSymbolInMainArray.count > 0) {
                             birdSymbolInMainArray.count--;
-                            showFeedbackAnimation(`-1 ${birdToLoseEmoji} Flew Away!`, 'negative'); // FEEDBACK
+                            showFeedbackAnimation(`-1 ${birdToLoseEmoji}`, 'negative'); // REVISED FEEDBACK
                         }
                     }
                 }
@@ -789,9 +787,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (phoneFeatureState.phoneOn && Math.random() < GAME_CONFIG.spamTextChance) {
             if (Math.random() < 0.5) {
-                playerState.coins -= GAME_CONFIG.spamTextCost; showPhoneMessage(`⚠️ Spam Text: -${GAME_CONFIG.spamTextCost} Coins!`, "loss");
+                playerState.coins -= GAME_CONFIG.spamTextCost; showPhoneMessage(`⚠️ -${GAME_CONFIG.spamTextCost} 🪙`, "loss");
             } else {
-                playerState.coins += GAME_CONFIG.friendlyTextGain; showPhoneMessage(`👥 Friendly Text: +${GAME_CONFIG.friendlyTextGain} Coins!`, "friendly");
+                playerState.coins += GAME_CONFIG.friendlyTextGain; showPhoneMessage(`👥 +${GAME_CONFIG.friendlyTextGain} 🪙`, "friendly");
             }
             playerState.coins = Math.max(0, playerState.coins);
         }
@@ -852,7 +850,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (birdToFinallyAdd) {
                         if (getTotalBirdCount() < GAME_CONFIG.maxTotalBirdsCap) {
                             birdToFinallyAdd.count++; animatedBird = birdToFinallyAdd.emoji;
-                            showFeedbackAnimation(`+1 ${birdToFinallyAdd.emoji} Arrived!`, 'positive'); // FEEDBACK
+                            showFeedbackAnimation(`+1 ${birdToFinallyAdd.emoji}`, 'positive'); // REVISED FEEDBACK
                         }
                     }
                     windowFeatureState.birdGainedThisSpin = null;
@@ -996,7 +994,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const content = DOM_ELEMENTS.petModalContent; content.innerHTML = "";
         let titleEmojis = []; const companionSections = [];
         
-        // Store previous cat status to check for changes
         activeEffects.previousCatStatus = activeEffects.currentCatStatus;
 
         if (activeEffects.hasAlienVisitor) {
@@ -1020,14 +1017,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (activeEffects.sushiCatBuffActive) newStatus = '😻🍣';
             activeEffects.currentCatStatus = newStatus;
 
-            // NEW: Cat status change feedback
+            // REVISED: Cat status change feedback
             if (activeEffects.currentCatStatus !== activeEffects.previousCatStatus) {
                 let feedbackText = '';
-                if(newStatus === '😺') feedbackText = 'Cat is now Happy: +1 to 🐈‍⬛';
-                if(newStatus === '😿') feedbackText = 'Cat is now Sad: No buff';
-                if(newStatus === '😼') feedbackText = 'Cat is Annoyed: No buff';
-                if(newStatus === '🙀🪲') feedbackText = 'Cat is Scared: -1 to 🐈‍⬛';
-                if(newStatus === '😻🍣') feedbackText = 'Cat loves Sushi: +5 to 🐈‍⬛';
+                switch(newStatus) {
+                    case '😺': feedbackText = '😺 +1'; break;
+                    case '😿': feedbackText = '😿 ±0'; break;
+                    case '😼': feedbackText = '😼 ±0'; break;
+                    case '🙀🪲': feedbackText = '🙀 -1'; break;
+                    case '😻🍣': feedbackText = '😻 +5'; break;
+                }
                 if(feedbackText) showFeedbackAnimation(feedbackText, 'neutral');
             }
 
@@ -1425,11 +1424,13 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM_ELEMENTS.phoneMessageDisplay.textContent = message;
         DOM_ELEMENTS.phoneMessageDisplay.className = `phone-message-display ${type}`;
 
-        // NEW: Add feedback animation for phone messages
+        // REVISED: Add simplified feedback animation for phone messages
         if (type === 'loss') {
-            showFeedbackAnimation(message, 'negative');
-        } else if (type === 'friendly' || type === 'profit') {
-            showFeedbackAnimation(message, 'positive');
+            showFeedbackAnimation(`-${GAME_CONFIG.spamTextCost} 🪙`, 'negative');
+        } else if (type === 'friendly') {
+            showFeedbackAnimation(`+${GAME_CONFIG.friendlyTextGain} 🪙`, 'positive');
+        } else if (type === 'profit' || type === 'loss-invest') { // Add a new type for investment loss
+             // Logic moved to resolveInvestment to access payoutAmount
         }
 
         setTimeout(() => {
@@ -1485,8 +1486,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!phoneFeatureState.investmentActive && !uiState.isGameOver) return;
         const profitMade = Math.random() < 0.75;
         let payoutAmount = profitMade ? Math.floor(phoneFeatureState.investmentAmount * 1.5) : Math.floor(phoneFeatureState.investmentAmount * 0.5);
-        let messageText = `${profitMade ? '📈 Profit!' : '📉 Loss!'} +${payoutAmount} Coins!`;
-        playerState.coins += payoutAmount; showPhoneMessage(messageText, profitMade ? 'profit' : 'loss');
+        let messageText = `${profitMade ? '📈 Profit!' : '📉 Loss!'} +${payoutAmount} 🪙`;
+        playerState.coins += payoutAmount; 
+        
+        // REVISED: Investment feedback
+        if(profitMade) {
+            showPhoneMessage(messageText, 'profit');
+            showFeedbackAnimation(`📈 +${payoutAmount} 🪙`, 'positive');
+        } else {
+            showPhoneMessage(messageText, 'loss');
+            showFeedbackAnimation(`📉 +${payoutAmount} 🪙`, 'negative');
+        }
+
         phoneFeatureState.investmentAmount = 0; phoneFeatureState.investmentActive = false;
         if (!phoneFeatureState.takeoutActive) phoneFeatureState.phoneOn = false;
         updateDisplays();
