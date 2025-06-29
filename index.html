@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>Food Slot Machine - Polished</title>
     <style>
-        /* style.css - Visual Polish Overhaul v7 - Blueprint Theme */
+        /* style.css - Visual Polish Overhaul v8 - Layout & Animation Fix */
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap');
 
         /* --- New "Blueprint" Theme --- */
@@ -109,15 +109,17 @@
             display: flex; flex-direction: column; align-items: center;
         }
 
+        /* REVISED: Main container now uses flexbox to manage space */
         .main-container {
             display: flex; justify-content: center; align-items: flex-start;
             width: 100%; max-width: 420px; flex-grow: 1; overflow: hidden;
-            margin: 0 auto; padding: 10px 10px 145px 10px; /* Padding to avoid nav bar */
+            margin: 0 auto; padding: 10px; /* REVISED: Removed large bottom padding */
             box-sizing: border-box; position: relative;
         }
         
         #feedback-overlay {
-            position: absolute; bottom: 150px; left: 50%;
+            position: absolute; bottom: 120px; /* REVISED: Adjusted position */
+            left: 50%;
             transform: translateX(-50%); width: 80%;
             height: 100px; z-index: 1999; pointer-events: none;
             display: flex; flex-direction: column-reverse; align-items: center; gap: 5px;
@@ -143,7 +145,7 @@
             width: 100%; flex-grow: 1; /* Allows this area to fill remaining space */
             overflow: hidden; /* NO SCROLLING */
             display: flex; flex-direction: column; align-items: center;
-            justify-content: space-between; /* CRITICAL CHANGE for layout */
+            justify-content: space-around; /* CRITICAL CHANGE for layout */
         }
 
         #game-main-title {
@@ -242,12 +244,18 @@
         .inventory-item-gift { background-color: var(--accent-secondary) !important; color: var(--text-primary-dark) !important; font-weight: bold;}
         .inventory-item.clickable[style*="opacity: 0.7"] { cursor: not-allowed; transform: none; background-color: var(--bg-panel-accent); color: var(--text-secondary); }
 
-        /* --- Fixed Bottom Navigation Bar --- */
+        /* REVISED: Bottom Navigation Bar is now part of the flex layout */
         .bottom-nav-bar {
-            position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg-navbar); border-top: 2px solid #3e444f;
-            box-shadow: 0 -4px 12px rgba(0,0,0,0.3); z-index: 500; padding: 8px 10px;
-            box-sizing: border-box; transition: background-color 0.3s ease, border-color 0.3s ease;
-            padding-bottom: calc(8px + env(safe-area-inset-bottom));
+            width: 100%; 
+            max-width: 420px; /* Match the main container width */
+            background: var(--bg-navbar); 
+            border-top: 2px solid #3e444f;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.3); 
+            z-index: 500; 
+            padding: 8px 10px;
+            box-sizing: border-box; 
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            flex-shrink: 0; /* Prevents it from shrinking */
         }
         .bottom-utility-section { display: flex; flex-direction: column; gap: 8px; width: 100%; }
         .status-effects-window {
@@ -324,15 +332,53 @@
         .guide-topic-content li { margin-bottom: 6px; }
         .btn.btn-how-to-play { background: #6a4c93; color: var(--text-primary-light); display: block; width: 85%; margin: 0 auto 15px auto; }
 
-        /* Gift Modal */
+        /* Gift Modals */
         #gift-choice-content h4 { font-size: 1.3rem; color: var(--accent-secondary); text-align: center; border: none; }
         .gift-choices-container { display: flex; flex-direction: column; gap: 15px; align-items: center; }
+
+        /* --- NEW: Special Gift Alert Modal Styles --- */
+        @keyframes gift-glow {
+            0%, 100% { box-shadow: 0 0 15px var(--accent-secondary), 0 0 25px var(--accent-secondary); border-color: var(--accent-secondary); }
+            50% { box-shadow: 0 0 25px #FFD700, 0 0 40px #FFD700; border-color: #FFD700; }
+        }
+        .modal-window.gift-alert-window {
+            text-align: center;
+            border: 3px solid var(--accent-secondary);
+            animation: gift-glow 2s infinite ease-in-out;
+        }
+        #special-gift-alert-content h2 {
+            font-size: 2rem;
+            color: var(--accent-secondary);
+            margin-bottom: 15px;
+        }
+        #special-gift-alert-content .gift-emoji {
+            font-size: 80px;
+            display: block;
+            margin: 20px 0;
+            transform-origin: bottom center;
+            animation: gift-bounce 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+        }
+        @keyframes gift-bounce {
+            0% { transform: scale(0.5); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        #special-gift-alert-content p {
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+        }
+        #special-gift-alert-close-btn {
+            display: block;
+            width: 80%;
+            margin: 0 auto;
+        }
     </style>
 </head>
 <body>
 
 <div class="main-container">
-    <div id="feedback-overlay"></div> <div class="game">
+    <div id="feedback-overlay"></div> 
+    <div class="game">
         <div class="game-header">
             <h1 id="game-main-title">KEEP SPINNING!</h1>
             <div class="meters-wrapper">
@@ -408,6 +454,7 @@
     </div>
 </nav>
 
+<!-- Modals -->
 <div id="alien-media-payout-modal" class="modal-overlay hidden">
     <div class="modal-window">
         <button id="alien-media-payout-close-btn" class="modal-close-btn">&times;</button>
@@ -425,6 +472,15 @@
                 <button id="gift-choice-food-btn" class="btn">🍽️ +1 Food Replenish</button>
                 <button id="gift-choice-locks-btn" class="btn">🔐 +3 Lock Items</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- NEW: Special Gift Alert Modal -->
+<div id="special-gift-alert-modal" class="modal-overlay hidden">
+    <div class="modal-window gift-alert-window">
+        <div id="special-gift-alert-content" class="modal-content">
+            <!-- Content is generated by JavaScript -->
         </div>
     </div>
 </div>
@@ -498,7 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { emoji: "🪐", value: 16, count: 0, refill: 0, isFood: false, isCosmic: true, hidden: false },
         { emoji: "🌠", value: 11, count: 0, refill: 0, isFood: false, isCosmic: true, hidden: false },
         { emoji: "🌒", value: 9, count: 0, refill: 0, isFood: false, isCosmic: true, hidden: false },
-        { emoji: "🛸", value: 7, count: 0, refill: 0, isFood: false, isCosmic: true, hidden: false }
+        { emoji: "�", value: 7, count: 0, refill: 0, isFood: false, isCosmic: true, hidden: false }
     ];
 
     const SHOP_ITEMS_CONFIG = [
@@ -538,6 +594,8 @@ document.addEventListener('DOMContentLoaded', () => {
         branchStatusEl: document.getElementById('branch-status'), blackHoleModal: document.getElementById('black-hole-modal'),
         blackHoleContent: document.getElementById('black-hole-content'), blackHoleCloseBtn: document.getElementById('black-hole-close-btn'),
         feedbackOverlay: document.getElementById('feedback-overlay'),
+        specialGiftAlertModal: document.getElementById('special-gift-alert-modal'), // NEW
+        specialGiftAlertContent: document.getElementById('special-gift-alert-content'), // NEW
     };
 
     // --- GAME STATE VARIABLES ---
@@ -699,9 +757,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function spin() {
         if (DOM_ELEMENTS.spinBtn.textContent === 'SPINNING...' || uiState.isGameOver || DOM_ELEMENTS.spinBtn.disabled) return;
         playerState.spinCount++;
+        // REVISED: Gift logic now calls the special alert function
         if (playerState.spinCount === 60 && !playerState.giftAwarded) {
             playerState.inventory['🎁']++;
             playerState.giftAwarded = true;
+            showSpecialGiftAlert();
         }
         DOM_ELEMENTS.phoneMessageDisplay.textContent = '';
         DOM_ELEMENTS.phoneMessageDisplay.className = 'phone-message-display';
@@ -779,7 +839,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const birdSymbolInMainArray = symbols.find(s => s.emoji === birdToLoseEmoji);
                         if (birdSymbolInMainArray && birdSymbolInMainArray.count > 0) {
                             birdSymbolInMainArray.count--;
-                            showFeedbackAnimation(`-1 ${birdToLoseEmoji}`, 'negative'); // REVISED FEEDBACK
+                            showFeedbackAnimation(`-1 ${birdToLoseEmoji}`, 'negative');
                         }
                     }
                 }
@@ -810,7 +870,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         animateSpin(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier);
 
-        const spinCompleteTimeout = 1350; 
+        const spinCompleteTimeout = 800; // REVISED: Faster timeout
         setTimeout(() => {
             let animatedBird = null;
             try {
@@ -850,7 +910,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (birdToFinallyAdd) {
                         if (getTotalBirdCount() < GAME_CONFIG.maxTotalBirdsCap) {
                             birdToFinallyAdd.count++; animatedBird = birdToFinallyAdd.emoji;
-                            showFeedbackAnimation(`+1 ${birdToFinallyAdd.emoji}`, 'positive'); // REVISED FEEDBACK
+                            showFeedbackAnimation(`+1 ${birdToFinallyAdd.emoji}`, 'positive');
                         }
                     }
                     windowFeatureState.birdGainedThisSpin = null;
@@ -1017,7 +1077,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (activeEffects.sushiCatBuffActive) newStatus = '😻🍣';
             activeEffects.currentCatStatus = newStatus;
 
-            // REVISED: Cat status change feedback
             if (activeEffects.currentCatStatus !== activeEffects.previousCatStatus) {
                 let feedbackText = '';
                 switch(newStatus) {
@@ -1135,8 +1194,9 @@ document.addEventListener('DOMContentLoaded', () => {
             DOM_ELEMENTS.grid.appendChild(cell);
 
             requestAnimationFrame(() => {
-                const delay = index * 90;
-                flipper.style.transition = `transform 0.7s ease-in-out ${delay}ms`;
+                // REVISED: Faster animation
+                const delay = index * 50; 
+                flipper.style.transition = `transform 0.4s ease-in-out ${delay}ms`;
                 flipper.style.transform = 'rotateY(180deg)';
             });
         });
@@ -1424,13 +1484,10 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM_ELEMENTS.phoneMessageDisplay.textContent = message;
         DOM_ELEMENTS.phoneMessageDisplay.className = `phone-message-display ${type}`;
 
-        // REVISED: Add simplified feedback animation for phone messages
         if (type === 'loss') {
             showFeedbackAnimation(`-${GAME_CONFIG.spamTextCost} 🪙`, 'negative');
         } else if (type === 'friendly') {
             showFeedbackAnimation(`+${GAME_CONFIG.friendlyTextGain} 🪙`, 'positive');
-        } else if (type === 'profit' || type === 'loss-invest') { // Add a new type for investment loss
-             // Logic moved to resolveInvestment to access payoutAmount
         }
 
         setTimeout(() => {
@@ -1489,7 +1546,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let messageText = `${profitMade ? '📈 Profit!' : '📉 Loss!'} +${payoutAmount} 🪙`;
         playerState.coins += payoutAmount; 
         
-        // REVISED: Investment feedback
         if(profitMade) {
             showPhoneMessage(messageText, 'profit');
             showFeedbackAnimation(`📈 +${payoutAmount} 🪙`, 'positive');
@@ -1643,6 +1699,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (uiState.isGameOver || playerState.inventory["🎁"] <= 0) return;
         DOM_ELEMENTS.giftChoiceModal.classList.remove('hidden');
     }
+    // NEW: Function to show the special gift alert
+    function showSpecialGiftAlert() {
+        if (uiState.isGameOver) return;
+        DOM_ELEMENTS.specialGiftAlertContent.innerHTML = `
+            <h2>A Gift For You!</h2>
+            <span class="gift-emoji">🎁</span>
+            <p>You've earned a special reward! Check your inventory to open it.</p>
+            <button id="special-gift-alert-close-btn" class="btn">Awesome!</button>
+        `;
+        DOM_ELEMENTS.specialGiftAlertModal.classList.remove('hidden');
+        document.getElementById('special-gift-alert-close-btn').onclick = () => {
+            DOM_ELEMENTS.specialGiftAlertModal.classList.add('hidden');
+        };
+    }
     function selectGift(choice) {
         if (playerState.inventory["🎁"] <= 0) return;
         playerState.inventory["🎁"]--;
@@ -1700,6 +1770,7 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM_ELEMENTS.petModalOverlay.classList.add('hidden');
         DOM_ELEMENTS.phoneModalOverlay.classList.add('hidden');
         DOM_ELEMENTS.blackHoleModal.classList.add('hidden');
+        DOM_ELEMENTS.specialGiftAlertModal.classList.add('hidden'); // NEW
     }
     function initGame() {
         initializeGameVariables();
@@ -1716,7 +1787,7 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM_ELEMENTS.phoneModalCloseBtn.addEventListener('click', closePhoneModal);
         DOM_ELEMENTS.alienMediaPayoutCloseBtn.addEventListener('click', () => DOM_ELEMENTS.alienMediaPayoutModal.classList.add('hidden'));
         DOM_ELEMENTS.blackHoleCloseBtn.addEventListener('click', () => DOM_ELEMENTS.blackHoleModal.classList.add('hidden'));
-        [DOM_ELEMENTS.shopModalOverlay, DOM_ELEMENTS.guideSelectionModalOverlay, DOM_ELEMENTS.petModalOverlay, DOM_ELEMENTS.phoneModalOverlay, DOM_ELEMENTS.alienMediaPayoutModal, DOM_ELEMENTS.blackHoleModal].forEach(overlay => {
+        [DOM_ELEMENTS.shopModalOverlay, DOM_ELEMENTS.guideSelectionModalOverlay, DOM_ELEMENTS.petModalOverlay, DOM_ELEMENTS.phoneModalOverlay, DOM_ELEMENTS.alienMediaPayoutModal, DOM_ELEMENTS.blackHoleModal, DOM_ELEMENTS.specialGiftAlertModal].forEach(overlay => {
             overlay.addEventListener('click', (event) => { if (event.target === overlay) overlay.classList.add('hidden'); });
         });
         DOM_ELEMENTS.giftChoiceBirdBtn.addEventListener('click', () => selectGift('bird'));
