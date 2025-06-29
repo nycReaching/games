@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>Food Slot Machine - Polished</title>
     <style>
-        /* style.css - Visual Polish Overhaul v8 - Layout & Animation Fix */
+        /* style.css - Visual Polish Overhaul v9 - Final Layout Fix */
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap');
 
         /* --- New "Blueprint" Theme --- */
@@ -103,22 +103,24 @@
             color: var(--text-primary-light);
             transition: background 0.5s ease;
             margin: 0; padding: 0; 
-            height: 100vh; /* Full viewport height */
             width: 100vw; /* Full viewport width */
             overflow: hidden; /* Lock the body from scrolling */
             display: flex; flex-direction: column; align-items: center;
+            /* REVISED: Use custom property for true 100% height */
+            height: 100vh; /* Fallback */
+            height: calc(var(--vh, 1vh) * 100);
         }
 
         /* REVISED: Main container now uses flexbox to manage space */
         .main-container {
             display: flex; justify-content: center; align-items: flex-start;
             width: 100%; max-width: 420px; flex-grow: 1; overflow: hidden;
-            margin: 0 auto; padding: 10px; /* REVISED: Removed large bottom padding */
+            margin: 0 auto; padding: 10px; 
             box-sizing: border-box; position: relative;
         }
         
         #feedback-overlay {
-            position: absolute; bottom: 120px; /* REVISED: Adjusted position */
+            position: absolute; bottom: 120px; 
             left: 50%;
             transform: translateX(-50%); width: 80%;
             height: 100px; z-index: 1999; pointer-events: none;
@@ -145,7 +147,7 @@
             width: 100%; flex-grow: 1; /* Allows this area to fill remaining space */
             overflow: hidden; /* NO SCROLLING */
             display: flex; flex-direction: column; align-items: center;
-            justify-content: space-around; /* CRITICAL CHANGE for layout */
+            justify-content: space-between; /* REVISED: Tighter packing than space-around */
         }
 
         #game-main-title {
@@ -244,7 +246,7 @@
         .inventory-item-gift { background-color: var(--accent-secondary) !important; color: var(--text-primary-dark) !important; font-weight: bold;}
         .inventory-item.clickable[style*="opacity: 0.7"] { cursor: not-allowed; transform: none; background-color: var(--bg-panel-accent); color: var(--text-secondary); }
 
-        /* REVISED: Bottom Navigation Bar is now part of the flex layout */
+        /* Bottom Navigation Bar */
         .bottom-nav-bar {
             width: 100%; 
             max-width: 420px; /* Match the main container width */
@@ -373,6 +375,15 @@
             margin: 0 auto;
         }
     </style>
+    <!-- NEW: Script to fix viewport height issue on mobile browsers -->
+    <script>
+        const setVh = () => {
+            document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+        };
+        window.addEventListener('resize', setVh);
+        window.addEventListener('orientationchange', setVh);
+        setVh();
+    </script>
 </head>
 <body>
 
@@ -470,7 +481,7 @@
             <div class="gift-choices-container">
                 <button id="gift-choice-bird-btn" class="btn">🐦 +1 To All Birds</button>
                 <button id="gift-choice-food-btn" class="btn">🍽️ +1 Food Replenish</button>
-                <button id="gift-choice-locks-btn" class="btn">🔐 +3 Lock Items</button>
+                <button id="gift-choice-locks-btn" class="btn">� +3 Lock Items</button>
             </div>
         </div>
     </div>
@@ -554,7 +565,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { emoji: "🪐", value: 16, count: 0, refill: 0, isFood: false, isCosmic: true, hidden: false },
         { emoji: "🌠", value: 11, count: 0, refill: 0, isFood: false, isCosmic: true, hidden: false },
         { emoji: "🌒", value: 9, count: 0, refill: 0, isFood: false, isCosmic: true, hidden: false },
-        { emoji: "�", value: 7, count: 0, refill: 0, isFood: false, isCosmic: true, hidden: false }
+        { emoji: "🛸", value: 7, count: 0, refill: 0, isFood: false, isCosmic: true, hidden: false }
     ];
 
     const SHOP_ITEMS_CONFIG = [
@@ -594,8 +605,8 @@ document.addEventListener('DOMContentLoaded', () => {
         branchStatusEl: document.getElementById('branch-status'), blackHoleModal: document.getElementById('black-hole-modal'),
         blackHoleContent: document.getElementById('black-hole-content'), blackHoleCloseBtn: document.getElementById('black-hole-close-btn'),
         feedbackOverlay: document.getElementById('feedback-overlay'),
-        specialGiftAlertModal: document.getElementById('special-gift-alert-modal'), // NEW
-        specialGiftAlertContent: document.getElementById('special-gift-alert-content'), // NEW
+        specialGiftAlertModal: document.getElementById('special-gift-alert-modal'), 
+        specialGiftAlertContent: document.getElementById('special-gift-alert-content'), 
     };
 
     // --- GAME STATE VARIABLES ---
@@ -757,7 +768,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function spin() {
         if (DOM_ELEMENTS.spinBtn.textContent === 'SPINNING...' || uiState.isGameOver || DOM_ELEMENTS.spinBtn.disabled) return;
         playerState.spinCount++;
-        // REVISED: Gift logic now calls the special alert function
+        
         if (playerState.spinCount === 60 && !playerState.giftAwarded) {
             playerState.inventory['🎁']++;
             playerState.giftAwarded = true;
@@ -870,7 +881,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         animateSpin(slotMachineState.currentGridSymbols, slotMachineState.currentMultiplier);
 
-        const spinCompleteTimeout = 800; // REVISED: Faster timeout
+        const spinCompleteTimeout = 800; 
         setTimeout(() => {
             let animatedBird = null;
             try {
@@ -1194,7 +1205,7 @@ document.addEventListener('DOMContentLoaded', () => {
             DOM_ELEMENTS.grid.appendChild(cell);
 
             requestAnimationFrame(() => {
-                // REVISED: Faster animation
+                
                 const delay = index * 50; 
                 flipper.style.transition = `transform 0.4s ease-in-out ${delay}ms`;
                 flipper.style.transform = 'rotateY(180deg)';
@@ -1699,7 +1710,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (uiState.isGameOver || playerState.inventory["🎁"] <= 0) return;
         DOM_ELEMENTS.giftChoiceModal.classList.remove('hidden');
     }
-    // NEW: Function to show the special gift alert
+    
     function showSpecialGiftAlert() {
         if (uiState.isGameOver) return;
         DOM_ELEMENTS.specialGiftAlertContent.innerHTML = `
@@ -1770,7 +1781,7 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM_ELEMENTS.petModalOverlay.classList.add('hidden');
         DOM_ELEMENTS.phoneModalOverlay.classList.add('hidden');
         DOM_ELEMENTS.blackHoleModal.classList.add('hidden');
-        DOM_ELEMENTS.specialGiftAlertModal.classList.add('hidden'); // NEW
+        DOM_ELEMENTS.specialGiftAlertModal.classList.add('hidden'); 
     }
     function initGame() {
         initializeGameVariables();
