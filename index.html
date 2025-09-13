@@ -2,978 +2,1646 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Emoji Slot Machine</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Loot Grab RPG (90s Edition)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* --- Core Layout & Typography --- */
-        @import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
-
+        /* --- 90s PC GAME VISUAL RE-SKIN --- */
         :root {
-            --bg-color: #1a1a2e;
-            --machine-color: #16213e;
-            --window-bg: #0f3460;
-            --text-color: #e94560;
-            --highlight-color: #e94560;
-            --button-bg: #3e236d; 
-            --button-text: #ffffff;
-            --font-family: 'Anton', sans-serif;
-            --glow-color: rgba(233, 69, 96, 0.7);
+            --bg-panel: #C0C0C0; /* Classic Windows Grey */
+            --border-light: #FFFFFF;
+            --border-dark: #555555;
+            --text-color: #000000;
+            --title-blue: #000080; /* Classic title bar blue */
         }
-
-        html {
-            height: -webkit-fill-available;
-        }
-        
         body {
-            background-color: var(--bg-color);
-            font-family: var(--font-family);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: var(--button-text);
-            padding: clamp(15px, 4vh, 25px) clamp(5px, 2vw, 10px);
-            box-sizing: border-box;
-            margin: 0;
-            min-height: 100vh;
-            min-height: -webkit-fill-available;
-            letter-spacing: 1.5px; 
+            font-family: 'VT323', monospace;
+            background-color: #008080; /* Teal background */
+            color: var(--text-color);
+            touch-action: manipulation;
         }
-
-        .game-container {
-            display: flex;
-            flex-direction: column;
-            gap: clamp(15px, 3vh, 20px);
-            padding: clamp(10px, 2vw, 15px);
-            background-color: rgba(0, 0, 0, 0.2);
-            border-radius: 20px;
-            border: 2px solid var(--highlight-color);
-            box-shadow: 0 0 30px var(--glow-color), inset 0 0 10px rgba(255,255,255,0.1);
-            width: 100%;
-            max-width: 480px;
-            box-sizing: border-box;
-            max-height: 100vh;
-            overflow-y: auto;
-            transition: border-color 0.5s ease, box-shadow 0.5s ease;
+        /* Disable Tailwind's default modern filters */
+        *, ::before, ::after {
+            --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ;
         }
-        
-        /* --- Info Bars --- */
-        .top-bar-container, .bottom-bar-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: clamp(5px, 2vw, 10px);
-            width: 100%;
+        .text-shadow { text-shadow: 1px 1px 0px rgba(0,0,0,0.7); }
+        #game-container {
+            background-color: var(--bg-panel);
+            border: 2px solid;
+            border-color: var(--border-light) var(--border-dark) var(--border-dark) var(--border-light);
+            box-shadow: 4px 4px 0px #000;
         }
-        
-        .bottom-bar-container {
-            grid-template-columns: 1.5fr 2fr 1.5fr;
+        /* Standard raised panel (like a window or dialog) */
+        .retro-panel {
+            border: 2px solid;
+            border-color: var(--border-light) var(--border-dark) var(--border-dark) var(--border-light);
+            background-color: var(--bg-panel);
         }
-
-        .info-box {
-            padding: 8px 12px;
-            border-radius: 8px;
-            text-align: center;
-            font-size: clamp(18px, 5vw, 24px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            min-height: 54px; 
-            box-sizing: border-box; 
-            transition: background-color 0.3s ease, filter 0.3s ease, transform 0.2s ease, background-image 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
-            position: relative;
+        /* Sunken/inset panel (like a text field or status bar) */
+        .retro-panel-inset {
+            border: 2px solid;
+            border-color: var(--border-dark) var(--border-light) var(--border-light) var(--border-dark);
+            background-color: #B0B0B0;
+            box-shadow: inset 1px 1px 2px rgba(0,0,0,0.4);
+            padding: 2px 4px;
         }
-        .info-box:active {
-            transform: scale(0.97);
+        /* Classic 3D button style */
+        .retro-btn {
+            border: 2px solid !important;
+            border-color: var(--border-light) var(--border-dark) var(--border-dark) var(--border-light) !important;
+            box-shadow: 1px 1px 0px #000 !important;
+            transition: none !important;
+            color: var(--text-color);
+            line-height: 1;
         }
-        
-        .info-box-container { 
-            perspective: 1000px; 
+        .retro-btn:active {
+            transform: translate(1px, 1px) !important;
+            border-color: var(--border-dark) var(--border-light) var(--border-light) var(--border-dark) !important;
+            box-shadow: none !important;
+            filter: none !important;
+        }
+        /* Progress Bars */
+        .progress-bar-container {
+            border: 2px solid;
+            border-color: var(--border-dark) var(--border-light) var(--border-light) var(--border-dark);
+            height: 16px;
+            padding: 2px;
+            background-color: var(--border-dark);
+        }
+        .progress-bar-fill {
+            transition: width 0.2s linear;
             height: 100%;
         }
-        #coins-display { 
-            position: relative;
-            cursor: pointer;
-            border: 2px solid #e0bd00;
-            width: 100%;
-            height: 100%;
-            background-image: linear-gradient(to bottom right, #ffeb3b, #ffc107);
-            color: #ffffff;
-            font-size: clamp(28px, 8vw, 36px);
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+        /* Modals */
+        .retro-modal-content {
+            border: 2px solid;
+            border-color: var(--border-light) var(--border-dark) var(--border-dark) var(--border-light);
+            background-color: var(--bg-panel);
+            box-shadow: 5px 5px 0px #000;
         }
-
-        #price-display { 
-            background-image: linear-gradient(to bottom right, #32cd32, #228b22);
-            border: 2px solid #A4DE02; 
-            cursor: default;
+        /* --- EMOJI & ANIMATION STYLES (Tweaked for Retro Feel) --- */
+        .emoji-red-stamp {
+            filter: drop-shadow(0 0 3px #ef4444) drop-shadow(0 0 5px #b91c1c); /* Red glow for strong enemy */
         }
-
-        #selector-display { 
-            background-image: linear-gradient(to bottom right, #4B0082, #2c0047);
-            border: 2px solid #4B0082;
-            justify-content: center;
-            padding: 0;
-            font-size: clamp(28px, 8vw, 38px);
-            color: white;
+        @keyframes pulse { 50% { transform: scale(1.05); } }
+        .pulse-animation { animation: pulse 1.5s infinite ease-in-out; }
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
+          20%, 40%, 60%, 80% { transform: translateX(3px); }
         }
-        
-        .bottom-box-2 {
-            background-color: #000000;
-            background-image: 
-                linear-gradient(45deg, #4B0082 25%, transparent 25%), 
-                linear-gradient(-45deg, #4B0082 25%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, #4B0082 75%),
-                linear-gradient(-45deg, transparent 75%, #4B0082 75%);
-            background-size: 20px 20px;
-            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-            border: 2px solid #4B0082;
-            padding: 0 10px;
+        .shake-animation { animation: shake 0.3s ease-in-out; }
+        @keyframes float-up { to { transform: translateY(-50px) translateX(-50%); opacity: 0; } }
+        .damage-number {
+          position: absolute; font-size: 2rem; font-weight: bold; color: white;
+          text-shadow: 2px 2px 0 black; pointer-events: none;
+          animation: float-up 1s ease-out forwards;
         }
-        
-        .slider-container {
-            display: flex;
-            align-items: center;
-            padding: 0;
+        @keyframes flip-horizontal { 50% { transform: scaleX(-1); } 100% { transform: scaleX(1); } }
+        .flip-animation { animation: flip-horizontal 0.5s ease-in-out; }
+        @keyframes damage-flash { 50% { transform: scale(1.7); color: #facc15; } }
+        .damage-flash-animation { animation: damage-flash 0.4s ease-in-out; }
+        @keyframes border-pulse { 50% { border-color: #FF0000; } }
+        .border-pulse-animation { animation: border-pulse 1s infinite; }
+        .screen-flash { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: white; opacity: 0; pointer-events: none; z-index: 999; }
+        @keyframes screen-flash-anim { from { opacity: 0.4; } to { opacity: 0; } }
+        .flash-animation { animation: screen-flash-anim 0.3s ease-out; }
+        #battle-selector {
+            animation: none;
+            border: 3px solid #FFFF00 !important;
+            background: rgba(255, 255, 0, 0.3) !important;
+            box-shadow: none !important;
+            transition: transform 0.1s linear;
         }
-        
-        #tokens-button {
-            background-image: linear-gradient(to bottom right, #007bff, #0056b3);
-            border: 2px solid #0056b3;
-            color: white;
-            cursor: pointer;
-            width: 100%;
-            font-size: 20px;
+        @keyframes fade-out-and-shrink { to { transform: scale(0.5); opacity: 0; } }
+        .enemy-fade-out { animation: fade-out-and-shrink 0.4s ease-out forwards; }
+        .enemy-defeated { transition: width 0.3s ease-out, padding 0.3s ease-out, margin 0.3s ease-out; width: 0px !important; padding: 0 !important; margin: 0 !important; overflow: hidden; }
+        @keyframes pulse-orange { 50% { background-color: #f97316; } }
+        .pulse-orange-animation { animation: pulse-orange 1s infinite steps(2, jump-none); }
+        .glow-orange-text-animation { animation: none; color: #f97316 !important; }
+        @keyframes reward-highlight {
+            50% { border-color: #FF0000; box-shadow: 0 0 0 2px #FF0000; transform: scale(1.03); }
         }
-
-        .right-buttons-container {
-            display: flex;
-        }
-
-        #help-button { 
-            flex: 1 1 0;
-            width: 100%;
-            font-size: 20px;
-            background-image: linear-gradient(to bottom right, #FFA500, #cc8400);
-            color: #ffffff;
-            border: 2px solid #cc8400;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .machine {
-            background-color: #000000;
-            background-image: 
-                linear-gradient(45deg, #4B0082 25%, transparent 25%), 
-                linear-gradient(-45deg, #4B0082 25%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, #4B0082 75%),
-                linear-gradient(-45deg, transparent 75%, #4B0082 75%);
-            background-size: 20px 20px;
-            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-            padding: clamp(10px, 3vw, 15px);
-            border-radius: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: clamp(10px, 3vw, 15px);
-            border: 2px solid #4B0082;
-            width: 100%;
-            box-sizing: border-box;
-            position: relative;
-            box-shadow: inset 0 0 15px rgba(75, 0, 130, 0.6);
-        }
-        
-        .controls {
-            background-image: linear-gradient(to bottom, #16213e, #0f3460);
-            padding: clamp(10px, 3vw, 15px);
-            border-radius: 15px;
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: clamp(10px, 3vw, 15px);
-            border: 2px solid #0f3460;
-            width: 100%;
-            box-sizing: border-box;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-        }
-
-        .slot-windows {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: clamp(5px, 2vw, 10px);
-            width: 100%;
-            background-color: #000;
-            padding: clamp(5px, 2vw, 10px);
-            border-radius: 10px;
-            border: 2px solid #0a2444;
-            box-sizing: border-box;
-        }
-
-        .reel-window {
-            aspect-ratio: 1 / 1; 
-            width: 100%;
-            background: 
-                radial-gradient(gray 1px, transparent 0),
-                radial-gradient(gray 1px, transparent 0),
-                radial-gradient(circle at 70% 30%, #333, #000 70%);
-            background-size: 10px 10px, 10px 10px, 100% 100%;
-            background-position: 0 0, 5px 5px, 0 0;
-            border-radius: 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: clamp(24px, 10vw, 50px);
-            overflow: hidden; 
-            box-shadow: 3px 3px 8px rgba(0,0,0,0.5), inset 1px 1px 2px rgba(255,255,255,0.2), 0 0 10px rgba(42, 75, 124, 0.5);
-            border: 2px solid #0a2444;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease-out, background 0.3s ease;
-            position: relative;
-        }
-        
-        #spin-button {
-            padding: 15px 20px;
-            font-size: clamp(28px, 8vw, 40px);
-            background-color: #e60023;
-            color: var(--button-text);
-            border: 2px solid #990017;
-            box-shadow: inset 0 -3px 0 rgba(0,0,0,0.3), 0 0 20px rgba(230, 0, 35, 0.5);
-            border-radius: 10px;
-            cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.2s, background-color 0.2s, background-image 0.2s, border-color 0.2s, color 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            width: 100%;
-            font-family: var(--font-family);
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
-        }
-
-        #spin-button:active:not(:disabled) {
-            transform: translateY(2px) scale(0.98);
-            box-shadow: inset 0 -1px 0 rgba(0,0,0,0.3);
-        }
-
-        #spin-button:disabled {
-            background-color: #555;
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: scale(1);
-            border-color: #333;
-        }
-
-        .reel-wagers {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: clamp(5px, 2vw, 10px);
-            width: 100%;
-            box-sizing: border-box;
-            padding: 0 clamp(5px, 2vw, 10px);
-        }
-        
-        .wager-window {
-            width: 100%;
-            padding: 5px;
-            background: rgba(0,0,0,0.5);
-            border-radius: 8px;
-            min-height: 50px;
-            box-sizing: border-box;
-            border: 2px solid transparent;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .wager-window:active {
-            transform: scale(0.97);
-        }
-
-        .wager-window.selected {
-            border-color: gold;
-            box-shadow: 0 0 10px gold, inset 0 0 5px rgba(255, 215, 0, 0.3);
-        }
-        
-        .wager-content-symbol {
-            font-size: clamp(22px, 7vw, 28px);
-        }
-
-        .wager-content-amount {
-            font-size: clamp(20px, 6vw, 26px);
-            font-weight: bold;
-            color: #ffd700;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
-        }
-
-        .control-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: clamp(5px, 2vw, 10px);
-            width: 100%;
-        }
-        
-        .btn {
-            padding: 12px 5px;
-            border-radius: 8px;
-            border: 2px solid transparent;
-            background-color: var(--button-bg);
-            color: var(--button-text);
-            font-size: clamp(14px, 4vw, 16px);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-family: var(--font-family);
-            letter-spacing: 1.5px;
-        }
-        
-        .btn:active:not(:disabled) { transform: translateY(0px) scale(0.95); }
-        
-        .symbol-btn { 
-            font-size: clamp(20px, 7vw, 30px);
-            padding: 15px 5px;
-            border-width: 2px;
-            border-style: solid;
-            background-color: #000000;
-            letter-spacing: 0;
-            position: relative;
-        }
-        
-        #reset-symbols-btn {
-            background-color: #000000;
-            border-color: #999999;
-        }
-
-        .symbol-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            background-color: #2a2a2a;
-            transform: none;
-        }
-        
-        .spinning .reel-display { 
-            filter: blur(4px); 
-        }
-
-        @keyframes reel-spin-glow {
-            0% {
-                border-color: #0a2444;
-                box-shadow: 3px 3px 8px rgba(0,0,0,0.5), inset 1px 1px 2px rgba(255,255,255,0.2), 0 0 10px rgba(42, 75, 124, 0.5);
-            }
-            50% {
-                border-color: #3a8dff;
-                box-shadow: 3px 3px 8px rgba(0,0,0,0.5), inset 1px 1px 2px rgba(255,255,255,0.2), 0 0 25px rgba(58, 141, 255, 0.8);
-            }
-            100% {
-                border-color: #0a2444;
-                box-shadow: 3px 3px 8px rgba(0,0,0,0.5), inset 1px 1px 2px rgba(255,255,255,0.2), 0 0 10px rgba(42, 75, 124, 0.5);
-            }
-        }
-
-        .reel-window.spinning {
-            animation: reel-spin-glow 1s ease-in-out infinite;
-        }
-
-        @keyframes win-pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.15); text-shadow: 0 0 25px #fffc79; }
-            100% { transform: scale(1); }
-        }
-
-        .win-animation { animation: win-pulse 1s ease-in-out; }
-
-        #message-box {
-            position: absolute;
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.8);
-            background: transparent;
-            color: #ffd700;
-            padding: 0;
-            border: none;
-            box-shadow: none;
-            font-size: clamp(40px, 15vw, 80px);
-            font-weight: bold;
-            text-align: center;
-            text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
-            z-index: 1000;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-        }
-
-        #message-box.show {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
-            pointer-events: auto;
-        }
-        
-        .custom-slider {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 10px;
-            border-radius: 5px;
-            background: linear-gradient(90deg, #000000, #ffffff);
-            outline: none;
-            opacity: 0.9;
-            transition: opacity .2s;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .custom-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 24px;
-            height: 24px;
-            background: #ffd700;
-            border: 2px solid #000;
-            border-radius: 50%;
-            cursor: pointer;
-            margin-top: -7px;
-            box-shadow: 0 0 5px rgba(0,0,0,0.5);
-        }
-        .custom-slider::-moz-range-thumb {
-            width: 24px;
-            height: 24px;
-            background: #ffd700;
-            border: 2px solid #000;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 5px rgba(0,0,0,0.5);
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 2000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.7);
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            margin: auto;
-            padding: 20px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 500px;
-            position: relative;
-            min-height: 50vh;
-        }
-
-        #help-modal .modal-content {
-            background-color: #1e1e2f;
-            border: 2px solid #4e4e6a;
-            box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
-            padding: 0;
-            overflow: hidden;
-        }
-        .modal-scroll-wrapper {
-            max-height: 80vh;
-            overflow-y: auto;
-            padding: 25px 30px;
-        }
-        
-        #tokens-modal .modal-content {
-            background-color: #8B4513;
-            background-image: 
-                linear-gradient(45deg, #D4AF37 25%, transparent 25%), 
-                linear-gradient(-45deg, #D4AF37 25%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, #D4AF37 75%),
-                linear-gradient(-45deg, transparent 75%, #D4AF37 75%);
-            background-size: 20px 20px;
-            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-            border: 2px solid #D4AF37;
-        }
-
-        .close-button {
-            color: #aaa;
-            float: right;
-            font-size: 32px;
-            position: absolute;
-            top: 5px;
-            right: 15px;
-            z-index: 5;
-        }
-
-        .close-button:hover,
-        .close-button:focus {
-            color: #fff;
-            text-decoration: none;
-            cursor: pointer;
-        }
+        .reward-highlight-anim { animation: reward-highlight 0.5s ease-in-out; }
+        .reward-selected { border-color: #FF0000 !important; box-shadow: 0 0 0 3px #FFFF00 !important; transform: scale(1.08) !important; cursor: pointer; }
+        .reward-fade-out { opacity: 0.3; transform: scale(0.95); }
     </style>
 </head>
-<body>
+<body class="flex items-center justify-center min-h-screen p-2">
 
-    <div class="game-container">
-        <div class="top-bar-container">
-            <div class="info-box-container">
-                <div id="coins-display" class="info-box">100</div>
-            </div>
-            <div id="price-display" class="info-box">
-                Cost: 5
-            </div>
-            <div id="selector-display" class="info-box">
-                0
-            </div>
-        </div>
-
-        <div class="machine">
-            <div id="message-box"></div>
-            <div class="slot-windows">
-                <div class="reel-window" data-reel-window="0"><div class="reel-display">❔</div></div>
-                <div class="reel-window" data-reel-window="1"><div class="reel-display">❔</div></div>
-                <div class="reel-window" data-reel-window="2"><div class="reel-display">❔</div></div>
-                <div class="reel-window" data-reel-window="3"><div class="reel-display">❔</div></div>
-            </div>
-            <div class="reel-wagers">
-                <div class="wager-window" id="wager-window-0" data-reel="0"></div>
-                <div class="wager-window" id="wager-window-1" data-reel="1"></div>
-                <div class="wager-window" id="wager-window-2" data-reel="2"></div>
-                <div class="wager-window" id="wager-window-3" data-reel="3"></div>
-            </div>
-            <div class="controls">
-                <div class="control-grid symbol-buttons">
-                    <button class="btn symbol-btn"><span class="symbol-icon">🍒</span></button>
-                    <button class="btn symbol-btn"><span class="symbol-icon">🍊</span></button>
-                    <button class="btn symbol-btn"><span class="symbol-icon">🍇</span></button>
-                    <button class="btn symbol-btn"><span class="symbol-icon">🍋‍🟩</span></button>
-                    <button class="btn symbol-btn"><span class="symbol-icon">🔔</span></button>
-                    <button class="btn symbol-btn"><span class="symbol-icon">💎</span></button>
-                    <button class="btn symbol-btn"><span class="symbol-icon clown-icon">🤡</span></button>
-                    <button class="btn symbol-btn"><span class="symbol-icon">❔</span></button>
+    <!-- Mobile Screen Container -->
+    <div id="game-container" class="w-full max-w-sm h-[95vh] max-h-[850px] p-2 flex flex-col gap-2 relative overflow-hidden transition-colors duration-500">
+        <div id="screen-flash-overlay" class="screen-flash"></div>
+        
+        <!-- =================================================================== -->
+        <!-- Top Section: Player Stats & Info -->
+        <!-- =================================================================== -->
+        <div class="flex-shrink-0 retro-panel p-2 flex flex-col gap-2">
+            <!-- Row 1: Core Stats (HP, Armor) & Currency -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center text-3xl gap-4">
+                    <div class="flex items-center gap-1.5">
+                        <span id="health-icon" class="transition-transform duration-200">❤️</span>
+                        <span id="health-value" class="w-8 text-left text-2xl">10</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span id="armor-icon" class="text-zinc-400">🛡️</span>
+                        <span id="armor-value" class="w-8 text-left text-2xl">3</span>
+                    </div>
+                </div>
+                <div class="flex items-center text-2xl gap-3">
+                    <div class="flex items-center gap-1.5"><span class="text-3xl">💰</span><span id="gold-value" class="w-8 text-left">99</span></div>
+                    <div class="flex items-center gap-1.5"><span class="text-3xl">🌒</span><span id="moonstone-value" class="w-8 text-left">3</span></div>
                 </div>
             </div>
-            <button id="spin-button">SPIN</button>
-        </div>
-        
-        <div class="bottom-bar-container">
-            <div id="tokens-button" class="info-box">🔒</div>
-            <div class="info-box bottom-box-2 slider-container">
-                <input type="range" min="0" max="8" value="0" step="1" class="custom-slider">
+            
+            <!-- Row 2: Slim Progress Bars -->
+            <div class="flex flex-col w-full gap-1.5">
+                <div class="w-full progress-bar-container">
+                    <div id="magic-bar" class="bg-cyan-400 progress-bar-fill" style="width: 100%;"></div>
+                </div>
+                <div class="w-full progress-bar-container">
+                    <div id="kill-bar" class="bg-red-600 progress-bar-fill" style="width: 0%;"></div>
+                </div>
             </div>
-            <div class="right-buttons-container">
-                <div id="help-button" class="info-box">❔</div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Help Modal -->
-    <div id="help-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-scroll-wrapper">
-                <span class="close-button" data-modal="help-modal">&times;</span>
-                <!-- Help content removed as requested -->
+            <!-- Row 3: Player Status Effects -->
+            <div id="player-status-effects" class="flex items-center justify-start text-2xl gap-1 h-6">
+                <!-- Status icons will be managed by JS -->
+                <div class="relative status-effect-icon hidden" data-effect="⚡"><span>⚡</span><span class="stack-counter absolute -bottom-1 -right-1 text-base text-shadow bg-black/70 text-white rounded-full w-4 h-4 flex items-center justify-center leading-none"></span></div>
+                <div class="relative status-effect-icon hidden" data-effect="🌟"><span>🌟</span><span class="stack-counter absolute -bottom-1 -right-1 text-base text-shadow bg-black/70 text-white rounded-full w-4 h-4 flex items-center justify-center leading-none"></span></div>
+                <div class="relative status-effect-icon hidden" data-effect="❇️"><span>❇️</span><span class="stack-counter absolute -bottom-1 -right-1 text-base text-shadow bg-black/70 text-white rounded-full w-4 h-4 flex items-center justify-center leading-none"></span></div>
+                <div class="relative status-effect-icon hidden" data-effect="🐌"><span>🐌</span><span class="stack-counter absolute -bottom-1 -right-1 text-base text-shadow bg-black/70 text-white rounded-full w-4 h-4 flex items-center justify-center leading-none"></span></div>
+                <div class="relative status-effect-icon hidden" data-effect="🕯️"><span>🕯️</span><span class="stack-counter absolute -bottom-1 -right-1 text-base text-shadow bg-black/70 text-white rounded-full w-4 h-4 flex items-center justify-center leading-none"></span></div>
+                <div class="relative status-effect-icon hidden" data-effect="☠️"><span>☠️</span><span class="stack-counter absolute -bottom-1 -right-1 text-base text-shadow bg-black/70 text-white rounded-full w-4 h-4 flex items-center justify-center leading-none"></span></div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- Main Game Area -->
+        <!-- =================================================================== -->
+        <div class="flex-grow flex flex-col gap-3 retro-panel p-2">
+            
+            <!-- UNIFIED BATTLE WINDOW -->
+            <div class="flex-shrink-0 retro-panel-inset flex flex-col justify-between p-1">
+                <!-- Top part: Info Display / Start Button -->
+                <div id="battle-details-window" class="relative flex-shrink-0 h-16 flex items-center justify-center text-center">
+                    <div id="wave-counter" class="absolute top-0 left-1.5 text-base italic text-gray-700"></div>
+                    <div id="battle-details-content" class="w-full h-full flex items-center justify-center">
+                        <button id="start-battle-btn" class="retro-btn bg-amber-800 text-white text-xl py-2 px-6 disabled:opacity-50 disabled:cursor-not-allowed">Start Battle</button>
+                    </div>
+                </div>
+
+                <!-- Bottom part: Enemy Reel -->
+                <div id="enemy-container" class="relative flex items-center select-none cursor-grab active:cursor-grabbing overflow-hidden h-24 retro-panel-inset">
+                    <div id="enemy-slider" class="absolute top-0 left-0 h-full bg-black/20 border-2 border-black/30 pointer-events-none z-10" style="transition: transform 0.2s ease-out;"></div>
+                    <div id="battle-selector" class="hidden absolute top-0 left-0 pointer-events-none z-30"></div>
+                    <div id="enemy-list" class="absolute inset-0 flex items-center justify-between pl-1 pr-3 z-20">
+                        <!-- Icons populated by JS -->
+                        <span class="text-3xl"></span><span class="text-3xl"></span><span class="text-3xl"></span><span class="text-3xl"></span><span class="text-3xl"></span><span class="text-3xl"></span><span class="text-3xl"></span><span class="text-3xl"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Central Action Bar -->
+            <div class="flex-shrink-0 flex justify-around items-center gap-3">
+                <button id="reshuffleBtn" class="relative w-1/3 h-14 bg-blue-800 focus:outline-none flex items-center justify-center text-4xl retro-btn">
+                    🔃
+                    <span id="reshuffle-counter" class="absolute bottom-1 right-2 text-lg text-black"></span>
+                </button>
+                <button id="attackBtn" class="w-1/3 h-14 bg-red-500 focus:outline-none flex items-center justify-center text-3xl text-black retro-btn"><span id="attack-icon">💥</span><span id="attack-value" class="text-2xl">10</span></button>
+                <button id="luckBtn" class="w-1/3 h-14 bg-green-400 focus:outline-none flex items-center justify-center text-black text-xl retro-btn gap-1"><span class="text-3xl">🍀</span><span id="luck-value">10</span>%</button>
+            </div>
+            
+            <!-- Lower Interaction Area -->
+            <div class="flex-grow flex gap-3">
+                <!-- Side Window / Spell Info -->
+                <div id="side-window-left" class="w-1/2 flex flex-col items-center justify-center retro-panel-inset p-2 overflow-hidden text-lg text-center">
+                    <!-- Spell descriptions / Battle Log will appear here -->
+                </div>
+
+                <!-- 3x3 Grid + Side Buttons -->
+                <div class="w-1/2 flex flex-col gap-3">
+                     <!-- Spell Buttons (3x1) -->
+                    <div class="grid grid-cols-3 gap-2">
+                        <button id="flameheartBtn" class="h-14 bg-cyan-400 focus:outline-none text-4xl flex items-center justify-center retro-btn">❤️‍🔥</button>
+                        <button id="frostbiteBtn" class="h-14 bg-cyan-400 focus:outline-none text-4xl flex items-center justify-center retro-btn">❄️</button>
+                        <button id="armorheartBtn" class="h-14 bg-cyan-400 focus:outline-none text-4xl flex items-center justify-center retro-btn">🩶</button>
+                    </div>
+                     <!-- Equipment Slots (3x1) -->
+                    <div class="grid grid-cols-3 gap-2">
+                        <button class="equip-slot h-14 relative bg-blue-400 focus:outline-none text-4xl flex items-center justify-center retro-btn"></button>
+                        <button class="equip-slot h-14 relative bg-blue-400 focus:outline-none text-4xl flex items-center justify-center retro-btn"></button>
+                        <button class="equip-slot h-14 relative bg-blue-400 focus:outline-none text-4xl flex items-center justify-center retro-btn"></button>
+                    </div>
+                     <!-- Menu Buttons (3x1) -->
+                    <div class="grid grid-cols-3 gap-2">
+                         <button id="fortunesBtn" class="h-14 bg-violet-500 text-4xl focus:outline-none flex items-center justify-center retro-btn">🔮</button>
+                        <button id="buildBtn" class="h-14 bg-slate-500 text-4xl focus:outline-none flex items-center justify-center retro-btn">🔨</button>
+                        <button id="shopBtn" class="h-14 bg-amber-500 text-4xl focus:outline-none flex items-center justify-center retro-btn">🪙</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- =================================================================== -->
+        <!-- MODAL WINDOWS -->
+        <!-- =================================================================== -->
+        <div id="fortunesModal" class="hidden absolute inset-0 bg-black/70 flex items-center justify-center z-30 p-4">
+            <div class="relative retro-modal-content p-4 w-full max-w-xs">
+                <div id="fortunes-content" class="w-full text-xl space-y-4 text-center"></div>
+            </div>
+        </div>
+        <div id="buildModal" class="hidden absolute inset-0 bg-black/70 flex items-center justify-center z-30 p-4">
+            <div class="relative retro-modal-content p-4 w-full max-w-xs">
+                <div class="w-full text-xl space-y-4">
+                    <div class="flex justify-between items-center"><span>WEAPON</span><button data-slot-type="weapon" class="w-24 h-14 bg-slate-400 flex items-center justify-center text-4xl retro-btn"></button></div>
+                    <div class="flex justify-between items-center"><span>ARMOR</span><button data-slot-type="armor" class="w-24 h-14 bg-slate-400 flex items-center justify-center text-4xl retro-btn"></button></div>
+                    <div class="flex justify-between items-center"><span>RING</span><button data-slot-type="ring" class="w-24 h-14 bg-slate-400 flex items-center justify-center text-4xl retro-btn"></button></div>
+                </div>
+            </div>
+        </div>
+        <div id="shopModal" class="hidden absolute inset-0 bg-black/70 flex items-center justify-center z-30 p-4">
+            <div class="relative retro-modal-content p-4 w-full max-w-xs">
+                <div id="shop-items-container" class="w-full max-w-xs text-xl space-y-2"></div>
+            </div>
+        </div>
+        <div id="reelModal" class="hidden absolute inset-0 bg-black/70 flex items-center justify-center z-50">
+            <div class="relative retro-modal-content p-3">
+                <div id="reel-items" class="flex gap-2 text-4xl">
+                    <button class="reel-item p-1 transition-transform active:scale-95">☠️</button>
+                    <button class="reel-item p-1 transition-transform active:scale-95">🕯️</button>
+                    <button class="reel-item p-1 transition-transform active:scale-95">🐌</button>
+                    <button class="reel-item p-1 transition-transform active:scale-95">❇️</button>
+                    <button class="reel-item p-1 transition-transform active:scale-95">🌟</button>
+                    <button class="reel-item p-1 transition-transform active:scale-95">⚡</button>
+                </div>
+            </div>
+        </div>
+        <div id="equipmentChoiceModal" class="hidden absolute inset-0 bg-black/70 flex items-center justify-center z-40 p-4">
+            <div class="relative retro-modal-content p-4 w-full max-w-xs">
+                <div id="equipmentChoiceContent" class="text-xl space-y-3"></div>
+            </div>
+        </div>
+        <div id="fortuneDetailModal" class="hidden absolute inset-0 bg-black/70 flex items-center justify-center z-40 p-4">
+            <div class="relative retro-modal-content p-4 w-full max-w-xs">
+                <div id="fortuneDetailContent" class="text-xl space-y-2 text-center">
+                    <!-- Fortune details will be injected here -->
+                </div>
+            </div>
+        </div>
+        <div id="giftModal" class="hidden absolute inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+            <div class="relative retro-modal-content p-6 w-full max-w-xs text-center border-2 border-red-500">
+                <h2 class="text-3xl mb-4 text-amber-600">A Gift!</h2>
+                <div id="gift-rewards" class="space-y-3 mb-6">
+                    <div data-reward="armor" class="gift-reward-item retro-panel-inset p-3 border-2 border-transparent transition-all duration-400 flex items-center justify-center">
+                        <span class="text-3xl">🛡️</span>
+                        <span class="ml-2 text-xl">+1 Max Armor</span>
+                    </div>
+                    <div data-reward="gold" class="gift-reward-item retro-panel-inset p-3 border-2 border-transparent transition-all duration-400 flex items-center justify-center">
+                        <span class="text-3xl">💰</span>
+                        <span class="ml-2 text-xl">+15 Gold</span>
+                    </div>
+                    <div data-reward="luck" class="gift-reward-item retro-panel-inset p-3 border-2 border-transparent transition-all duration-400 flex items-center justify-center">
+                        <span class="text-3xl">🍀</span>
+                        <span class="ml-2 text-xl">+1% Luck</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ADDED: Kill Meter Upgrade Modal -->
+        <div id="killMeterModal" class="hidden absolute inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+            <div class="relative retro-modal-content p-6 w-full max-w-xs text-center">
+                <h2 class="text-3xl mb-6 text-orange-600">UPGRADE!</h2>
+                <div id="kill-meter-rewards" class="space-y-4">
+                    <button data-upgrade="health" class="retro-btn w-full p-4 text-xl flex items-center justify-center gap-3 bg-slate-400">
+                        <span>❤️</span>
+                        <span>+1 Max Health</span>
+                    </button>
+                    <button data-upgrade="luck" class="retro-btn w-full p-4 text-xl flex items-center justify-center gap-3 bg-slate-400">
+                        <span>🍀</span>
+                        <span>+5% Luck</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- ADDED: Luck Modal -->
+        <div id="luckModal" class="hidden absolute inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+            <div class="relative retro-modal-content p-6 w-full max-w-xs text-center">
+                <h2 class="text-3xl mb-6 text-green-700">LUCK</h2>
+                <div id="luck-options" class="space-y-4">
+                    <button data-luck="attack" class="retro-btn w-full p-4 text-xl flex items-center justify-center gap-3 bg-slate-400">
+                        <span>💥</span>
+                        <span>Attack</span>
+                    </button>
+                    <button data-luck="magic" class="retro-btn w-full p-4 text-xl flex items-center justify-center gap-3 bg-slate-400">
+                        <span>✨</span>
+                        <span>Magic</span>
+                    </button>
+                    <button data-luck="choices" class="retro-btn w-full p-4 text-xl flex items-center justify-center gap-3 bg-slate-400">
+                        <span>🎲</span>
+                        <span>Choices</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-    
-    <!-- Tokens/Unlocks Modal -->
-    <div id="tokens-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" data-modal="tokens-modal">&times;</span>
-            <!-- Unlock content removed as requested -->
-        </div>
-    </div>
-
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- Constants ---
-            const ALL_SYMBOLS = ['🍒', '🍊', '🍇', '🍋‍🟩', '🔔', '💎', '🤡'];
-            const GRID_SYMBOLS = ['🍒', '🍊', '🍇', '🍋‍🟩', '🔔', '💎', '🤡'];
-            const REEL_COUNT = 4;
-            const WAGER_MULTIPLIER = 10;
-            // ADDED: Base price for a spin without wagers
-            const BASE_SPIN_PRICE = 5;
-
-            // --- Game State ---
-            let totalCoins = 100;
-            let spinCount = 0;
-            let selectedReel = 0;
-            let isAnimating = false;
-            let currentClownRotation = 0;
-            let wagers = Array(REEL_COUNT).fill(0).map(() => ({}));
-
             // --- DOM Elements ---
-            const reelWagersContainer = document.querySelector('.reel-wagers');
-            const symbolButtonsContainer = document.querySelector('.symbol-buttons');
-            const spinButton = document.getElementById('spin-button');
-            const wagerWindowDisplays = Array(REEL_COUNT).fill(0).map((_, i) => document.getElementById(`wager-window-${i}`));
-            const reelWindowElements = document.querySelectorAll('.reel-window');
-            const reelDisplayElements = Array.from(reelWindowElements).map(w => w.querySelector('.reel-display'));
-            const coinsDisplay = document.getElementById('coins-display');
-            const priceDisplay = document.getElementById('price-display');
-            const selectorDisplay = document.getElementById('selector-display');
-            const messageBox = document.getElementById('message-box');
-            const helpButton = document.getElementById('help-button');
-            const helpModal = document.getElementById('help-modal');
-            const clownSlider = document.querySelector('.custom-slider');
-            const tokensButton = document.getElementById('tokens-button');
-            const tokensModal = document.getElementById('tokens-modal');
-            const closeButtons = document.querySelectorAll('.close-button');
+            const gameContainer = document.getElementById('game-container');
+            const goldValueEl = document.getElementById('gold-value');
+            const moonstoneValueEl = document.getElementById('moonstone-value');
+            const reshuffleCounter = document.getElementById('reshuffle-counter');
+            const shopItemsContainer = document.getElementById('shop-items-container');
+            let enemyContainer = document.getElementById('enemy-container');
+            let enemySlider = document.getElementById('enemy-slider');
+            let battleSelector = document.getElementById('battle-selector');
+            const reshuffleBtn = document.getElementById('reshuffleBtn');
+            const reelModal = document.getElementById('reelModal');
+            const equipSlots = document.querySelectorAll('.equip-slot');
+            const reelItems = document.querySelectorAll('.reel-item');
+            const equipmentChoiceModal = document.getElementById('equipmentChoiceModal');
+            const equipmentChoiceContent = document.getElementById('equipmentChoiceContent');
+            let startBattleBtn = document.getElementById('start-battle-btn');
+            const sideWindowLeft = document.getElementById('side-window-left');
+            const battleDetailsWindow = document.getElementById('battle-details-window');
+            const battleDetailsContentEl = document.getElementById('battle-details-content');
+            const waveCounterEl = document.getElementById('wave-counter');
+            const flameheartBtn = document.getElementById('flameheartBtn');
+            const frostbiteBtn = document.getElementById('frostbiteBtn');
+            const armorheartBtn = document.getElementById('armorheartBtn');
+            const fortunesContent = document.getElementById('fortunes-content');
+            const fortuneDetailModal = document.getElementById('fortuneDetailModal');
+            const fortuneDetailContent = document.getElementById('fortuneDetailContent');
+            const attackBtn = document.getElementById('attackBtn');
+            const attackValueEl = document.getElementById('attack-value');
+            const armorValueEl = document.getElementById('armor-value');
+            const healthValueEl = document.getElementById('health-value');
+            const killBarEl = document.getElementById('kill-bar');
+            const magicBarEl = document.getElementById('magic-bar');
+            const healthIconEl = document.getElementById('health-icon');
+            const luckBtn = document.getElementById('luckBtn');
+            const luckValueEl = document.getElementById('luck-value');
+            const giftModal = document.getElementById('giftModal');
+            let giftRewardItems = document.querySelectorAll('.gift-reward-item');
+            const killMeterModal = document.getElementById('killMeterModal');
+            const killMeterRewards = document.getElementById('kill-meter-rewards');
+            const luckModal = document.getElementById('luckModal');
+            
+            const modalMap = {
+                fortunesBtn: { modal: document.getElementById('fortunesModal'), button: document.getElementById('fortunesBtn') },
+                buildBtn: { modal: document.getElementById('buildModal'), button: document.getElementById('buildBtn') },
+                shopBtn: { modal: document.getElementById('shopModal'), button: document.getElementById('shopBtn') }
+            };
+            const allModals = Object.values(modalMap).map(item => item.modal);
+            
+            // --- Game Data ---
+            const shopItems = [
+                { id: 'tonic', name: '🍶 TONIC', cost: 5, desc: 'Restores 6 HP.' },
+                { id: 'cross', name: '✝️ CROSS', cost: 15, desc: 'Cures curse, +1 max HP.' },
+                { id: 'gem', name: '💎 GEM', cost: 25, desc: 'Gain a buff, give a debuff.' },
+                { id: 'fairy', name: '🧚🏼 FAIRY', cost: 40, desc: 'Restores magic meter.' },
+                { id: 'moonstone', name: '🌒 MOONSTONE', cost: 50, desc: 'Enables status stones.' },
+                { id: 'infinityRing', name: '♾️ Infinity Ring', cost: 75, desc: 'Take damage to reroll.', oneTime: true },
+            ];
+            const enemyData = {
+                '💀': { name: 'Skeleton' },'🐺': { name: 'Wolf' },'🐸': { name: 'Frog', special: '☠️' },'🦄': { name: 'Unicorn', special: '❇️' },'🐲': { name: 'Dragon' },'🐍': { name: 'Serpent', special: '☠️' },'🐀': { name: 'Rat' },'🐦‍⬛': { name: 'Crow', special: '🕯️' },'🕷️': { name: 'Spider', special: '☠️' },'🦂': { name: 'Scorpion' },'🦟': { name: 'Mosquito', special: '🐌' },'🧟': { name: 'Zombie', special: '🐌' },'🧞': { name: 'Genie', special: '❇️' },'🧌': { name: 'Troll' },'🥷': { name: 'Ninja', special: '🫳' },'🧛': { name: 'Vampire', special: '🕯️' },'🦹': { name: 'Supervillain' },'🎁': { name: 'Gift' }
+            };
+            const equipmentOptions = {
+                weapon: [
+                    { emoji: '🏹', name: 'Bow (+1 💥)', desc: 'Durable, useful item.' }, 
+                    { emoji: '🗡️', name: 'Dagger (+1 💥)', desc: 'Durable, useful item.' }, 
+                    { emoji: '🔨', name: 'Hammer (+1 💥)', desc: 'Durable, useful item.' }
+                ],
+                armor: [
+                    { emoji: '🧥', name: 'Leather Gear (+1 🛡️)', desc: 'Durable, useful item.' }, 
+                    { emoji: '🪨', name: 'Rock Bracer (+1 🛡️)', desc: 'Durable, useful item.' }, 
+                    { emoji: '🕸️', name: 'Cloak (+1 🛡️)', desc: 'Durable, useful item.' }
+                ],
+                ring: [
+                    { emoji: '💍', name: 'Eccentric Jewel', desc: 'Durable, useful item.' }
+                ]
+            };
+            const spellDescriptions = {
+                flameheart: { title: "❤️‍🔥 Flameheart:", desc1: "Deal 5 and heal 5 HP.", desc2: "Depletes half magic bar." },
+                frostbite: { title: "❄️ Frostbite:", desc1: "Deal 5 damage & inflict 🐌.", desc2: "Depletes half magic bar." },
+                armorheart: { title: "🩶 Armorheart:", desc1: "Add current health to armor.", desc2: "Depletes half magic bar." }
+            };
+            const symbolDescriptions = {
+                '☠️': { title: "☠️ Poison", desc: "Inflicts damage over time.", costDesc: "Cost: 1 🌒" },'🕯️': { title: "🕯️ Curse", desc: "Weakens enemy attacks.", costDesc: "Cost: 1 🌒" },'🐌': { title: "🐌 Slow", desc: "Reduces enemy speed.", costDesc: "Cost: 1 🌒" },'❇️': { title: "❇️ Regen", desc: "Heals you over time.", costDesc: "Cost: 1 🌒" },'🌟': { title: "🌟 Blessing", desc: "Increases your damage.", costDesc: "Cost: 1 🌒" },'⚡': { title: "⚡ Rush", desc: "Grants extra actions.", costDesc: "Cost: 1 🌒" }
+            };
+            const sacrifices = [
+                { title: '🩸 Blood Pact', desc: '-3 Max HP' },
+                { title: '🦶🏼 Broken Ankle', desc: '-10% Luck' },
+                { title: '💔 Heartbreak', desc: '❤️‍🔥 or 🩶 per battle' },
+                { title: '📜 Gambling Debt', desc: '-30 Gold' },
+                { title: '🫳🏽 Clumsy', desc: 'Lose 1 🌘' },
+                { title: '🎭 Unstable Mind', desc: 'Share 🍶 with enemy' }
+            ];
+            const fortunes = [
+                { text: 'Durable Stones', rarity: '🔵', desc: '+1 Status stone use', color: 'text-sky-600' },
+                { text: 'Efficient Magic', rarity: '🔵', desc: '1/2 MP cost', color: 'text-sky-600' },
+                { text: 'Bartering Edge', rarity: '🔵', desc: '15% shop discount', color: 'text-sky-600' },
+                { text: 'Archer\'s Edge', rarity: '🟡', desc: 'Attacks all with 🏹', color: 'text-amber-600' },
+                { text: 'Enchantment', rarity: '🟡', desc: '🧚🏼also grants ❇️', color: 'text-amber-600' },
+                { text: 'Battle Grace', rarity: '🟡', desc: 'Buffs restore 1 🛡️', color: 'text-amber-600' },
+                { text: 'Prolonged Torment', rarity: '🎉', desc: '2x Debuff durations', color: 'text-pink-600' },
+                { text: 'Thief Strike', rarity: '🎉', desc: 'Steal 2 gold with 🗡️', color: 'text-pink-600' },
+                { text: 'Toxic Decay', rarity: '🎉', desc: '☠️ can stack', color: 'text-pink-600' }
+            ];
 
-            /**
-             * Rotates the clown emoji. Purely aesthetic.
-             */
-            const applyClownRotation = () => {
-                const clownSymbol = '🤡';
-                const rotationStyle = `rotate(${currentClownRotation}deg)`;
+            // --- State ---
+            let playerState = {
+                gold: 99, moonstones: 3, rerolls: 5, killCount: 0, 
+                maxHealth: 10, health: 10, armor: 3, maxArmor: 3,
+                magic: 100, maxMagic: 100,
+                luck: 10,
+                equipment: { weapon: null, armor: null, ring: null }, 
+                inventory: { tonic: 0, gem: 0, cross: 0, fairy: 0, moonstone: 3, infinityRing: 0 }, 
+                statusEffects: { '☠️': 0, '🕯️': 0, '🐌': 0, '❇️': 0, '🌟': 0, '⚡': 0 }
+            };
+            playerState.health = playerState.maxHealth; // Ensure health starts at max
 
-                document.querySelectorAll('.clown-icon').forEach(icon => {
-                    icon.style.transform = rotationStyle;
-                    icon.style.display = 'inline-block';
-                });
+            let waveCount = 1;
+            let battleStarted = false;
+            const enemyPool = Object.keys(enemyData).filter(e => e !== '🎁');
+            const giftEmoji = '🎁';
+            const numIcons = 8;
+            const groupSize = 3;
+            let isReshuffling = false;
+            let activeEquipSlot = null;
+            let activeBuildSlot = null;
+            let isDragging = false;
+            let startX, startY;
+            let initialTranslateX;
+            let currentTranslateX = 0;
+            let dragStartTime;
+            let currentBattleTargetIndex = 0;
+            let currentEnemiesInBattle = [];
+            let fortunePhase = 'sacrifice'; 
+            let selectedFortunes = [];
+            let currentSacrifice = null;
+            
+            const delay = ms => new Promise(res => setTimeout(res, ms));
 
-                document.querySelectorAll('.reel-display, .wager-content-symbol').forEach(el => {
-                    if (el.textContent.includes(clownSymbol)) {
-                        el.style.transform = rotationStyle;
-                        el.style.display = 'inline-block';
+            // --- Battle Animations ---
+            const showDamageNumber = (damage, element) => {
+                const damageEl = document.createElement('div');
+                damageEl.textContent = damage;
+                damageEl.className = 'damage-number';
+                const rect = element.getBoundingClientRect();
+                const gameRect = gameContainer.getBoundingClientRect();
+                const top = rect.top - gameRect.top;
+                const left = rect.left - gameRect.left + (rect.width / 2);
+                damageEl.style.top = `${top}px`;
+                damageEl.style.left = `${left}px`;
+                damageEl.style.transform = 'translateX(-50%)';
+                gameContainer.appendChild(damageEl);
+                setTimeout(() => { damageEl.remove(); }, 1000);
+            };
+
+            // --- UI Update Logic ---
+            const updateStatusEffectsUI = () => {
+                const statusEffectIcons = document.querySelectorAll('.status-effect-icon');
+                statusEffectIcons.forEach(icon => {
+                    const effect = icon.dataset.effect;
+                    const stacks = playerState.statusEffects[effect];
+                    const wasHidden = icon.classList.contains('hidden');
+                    if (stacks > 0) {
+                        icon.classList.remove('hidden');
+                        icon.querySelector('.stack-counter').textContent = stacks;
+                        if (wasHidden) {
+                            icon.classList.add('damage-flash-animation');
+                            setTimeout(() => icon.classList.remove('damage-flash-animation'), 400);
+                        }
                     } else {
-                        el.style.transform = 'none';
+                        icon.classList.add('hidden');
                     }
                 });
             };
-            
-            /**
-             * Applies colored borders to the symbol buttons based on the current symbol.
-             */
-            const applySymbolButtonBorders = () => {
-                const symbolColors = {
-                    '🍒': '#E01F3D', '🍊': '#F58216', '🍇': '#8A2BE2', 
-                    '🍋‍🟩': '#A4DE02', '🔔': '#FFD700', '💎': '#50A6C2', '🤡': '#FF69B4'
+            const updatePlayerUI = () => {
+                goldValueEl.textContent = playerState.gold;
+                moonstoneValueEl.textContent = playerState.moonstones;
+                reshuffleCounter.textContent = playerState.rerolls;
+                armorValueEl.textContent = playerState.armor;
+                healthValueEl.textContent = playerState.health;
+                luckValueEl.textContent = playerState.luck;
+                
+                if(magicBarEl) {
+                    const magicPercentage = (playerState.magic / playerState.maxMagic) * 100;
+                    magicBarEl.style.width = `${magicPercentage}%`;
+                }
+
+                const isCharged = playerState.killCount >= 10;
+                
+                if (isCharged) {
+                    killBarEl.style.width = '100%';
+                    killBarEl.classList.remove('bg-red-600');
+                    killBarEl.classList.add('bg-orange-500', 'pulse-orange-animation');
+                } else {
+                    const killPercentage = (playerState.killCount / 10) * 100;
+                    killBarEl.style.width = `${killPercentage}%`;
+                    killBarEl.classList.add('bg-red-600');
+                    killBarEl.classList.remove('bg-orange-500', 'pulse-orange-animation');
+                }
+                
+                // REMOVED glow from buttons when charged
+                luckBtn.classList.remove('glow-orange-text-animation');
+                healthIconEl.classList.remove('glow-orange-text-animation');
+                
+                if (playerState.rerolls <= 0 || battleStarted) {
+                    reshuffleBtn.disabled = true;
+                    reshuffleBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                     reshuffleBtn.disabled = false;
+                    reshuffleBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            };
+            const updateEnemyStatusUI = (enemyIndex) => {
+                const enemy = currentEnemiesInBattle[enemyIndex];
+                if (!enemy || !enemy.ref) return;
+
+                const enemyWrapper = enemy.ref;
+                const healthBarFill = enemyWrapper.querySelector('.health-bar-fill');
+
+                if (!healthBarFill) return;
+
+                // Update health bar color
+                const debuffColors = {
+                    '☠️': 'bg-purple-600',
+                    '🐌': 'bg-yellow-800', 
+                    '🕯️': 'bg-gray-500'
                 };
 
-                document.querySelectorAll('.symbol-btn').forEach(button => {
-                    const icon = button.querySelector('.symbol-icon');
-                    if (icon) {
-                        const symbol = icon.textContent.trim();
-                        button.style.borderColor = symbolColors[symbol] || 'transparent';
-                    }
-                });
-            };
-            
-            /**
-             * Randomizes the symbols displayed in the control grid.
-             */
-            const randomizeSymbolGrid = () => {
-                const symbolIcons = document.querySelectorAll('.symbol-buttons .symbol-icon');
-                symbolIcons.forEach(icon => {
-                    const randomSymbol = GRID_SYMBOLS[Math.floor(Math.random() * GRID_SYMBOLS.length)];
-                    icon.textContent = randomSymbol;
-                });
-                applySymbolButtonBorders();
-            };
+                // Remove all potential color classes
+                healthBarFill.classList.remove('bg-red-600', 'bg-purple-600', 'bg-yellow-800', 'bg-gray-500');
 
-            /**
-             * Shows a message to the player, with an optional win animation.
-             */
-            const displayMessage = (content, duration = 2000, isWinAnimation = false) => {
-                messageBox.classList.add('show');
-
-                if (isWinAnimation && typeof content === 'number') {
-                    let currentAmount = 0;
-                    const totalAmount = content;
-                    const animationDuration = duration * 0.75;
-                    const stepTime = 25;
-                    const totalSteps = animationDuration / stepTime;
-                    const increment = totalAmount / totalSteps;
-
-                    const counter = setInterval(() => {
-                        currentAmount += increment;
-                        if (currentAmount >= totalAmount) {
-                            currentAmount = totalAmount;
-                            clearInterval(counter);
-                        }
-                        messageBox.innerHTML = `Win ${Math.ceil(currentAmount)}!`;
-                    }, stepTime);
-                } else {
-                    messageBox.innerHTML = content;
+                const newColor = debuffColors[enemy.lastDebuff] || 'bg-red-600';
+                healthBarFill.classList.add(newColor);
+                
+                // Update the info display if the affected enemy is the current target
+                if (enemyIndex === currentBattleTargetIndex) {
+                    updateEnemyDisplay(enemy);
                 }
-
-                setTimeout(() => {
-                    messageBox.classList.remove('show');
-                }, duration);
+            };
+            const updateWaveCounterUI = () => { if (waveCounterEl) waveCounterEl.textContent = `Wave ${waveCount}`; };
+            const updateEnemyDisplay = (enemy) => {
+                if (!enemy) return;
+                const data = enemyData[enemy.emoji];
+                const name = data?.name || 'Unknown';
+                let statsHtml = '<div class="h-4"></div>';
+                if (!enemy.isGift) {
+                    const hp = enemy.hp;
+                    const dmg = enemy.isStamped ? '2' : '1';
+                    const specialIcon = data.special ? ` (${data.special})` : '';
+                    const statusIcons = enemy.statusEffects.map(s => `<span class="text-xl">${s}</span>`).join('');
+                    statsHtml = `<div class="text-lg mt-1 flex justify-center items-center gap-1.5">${statusIcons} <span class="text-red-500">❤️</span> ${hp} 💥 ${dmg}${specialIcon}</div>`;
+                }
+                battleDetailsContentEl.innerHTML = `
+                    <div class="h-full flex flex-col justify-center items-center">
+                        <div class="text-2xl">${enemy.emoji} ${name}</div>
+                        ${statsHtml}
+                    </div>`;
+            };
+            const displayInfoInSideWindow = (title, ...descriptions) => {
+                if (battleStarted) return; 
+                 sideWindowLeft.innerHTML = `
+                    <div class="w-full p-1">
+                        <p class="mb-1">${title}</p>
+                        ${descriptions.map(d => `<p>${d}</p>`).join('')}
+                    </div>`;
+            };
+            const displaySpellInfo = (spellKey) => {
+                const spell = spellDescriptions[spellKey];
+                if (!spell) return;
+                displayInfoInSideWindow(spell.title, spell.desc1, spell.desc2);
             };
 
-            /**
-             * Updates the total cost display based on current wagers.
-             */
-            const updateSpinPriceDisplay = () => {
-                const totalWagerAmount = wagers.reduce((sum, reelWagers) => {
-                    return sum + Object.values(reelWagers).reduce((a, b) => a + b, 0);
-                }, 0);
-                // MODIFIED: Show base price if no wagers are placed
-                const cost = totalWagerAmount > 0 ? totalWagerAmount : BASE_SPIN_PRICE;
-                priceDisplay.textContent = `Cost: ${cost}`;
+            // --- Fortunes Modal Logic ---
+            const showFortunes = () => {
+                fortunePhase = 'fortune';
+                fortunesContent.innerHTML = ''; 
+                const title = document.createElement('h2');
+                title.className = 'text-3xl mb-4 text-violet-800';
+                title.textContent = 'FORTUNE';
+                fortunesContent.appendChild(title);
+                const shuffled = shuffle([...fortunes]);
+                const options = shuffled.slice(0, 3);
+                options.forEach(fortune => {
+                    const button = document.createElement('button');
+                    button.className = `retro-btn bg-slate-400 px-4 py-2 w-full whitespace-normal leading-tight flex flex-col items-center`;
+                    button.innerHTML = `
+                        <span class="${fortune.color}">${fortune.rarity} ${fortune.text}</span>
+                        <span class="text-base font-normal text-black">${fortune.desc}</span>
+                    `;
+                    button.addEventListener('click', (e) => {
+                        e.stopPropagation(); 
+                        if (currentSacrifice && selectedFortunes.length < 4) {
+                            selectedFortunes.push({ sacrifice: currentSacrifice, fortune: fortune });
+                        }
+                        currentSacrifice = null;
+                        closeModal(modalMap.fortunesBtn.modal);
+                    });
+                    fortunesContent.appendChild(button);
+                });
             };
-            
-            /**
-             * Updates all displays in the top bar (coins, spin price, etc.).
-             */
-            const updateTopBar = () => {
-                coinsDisplay.textContent = totalCoins;
-                selectorDisplay.textContent = spinCount;
-                updateSpinPriceDisplay();
-                applyClownRotation();
-            };
-
-            /**
-             * Renders the current wagers in the wager windows.
-             */
-            const updateWagerDisplay = () => {
-                wagerWindowDisplays.forEach((wagerWindow, index) => {
-                    wagerWindow.innerHTML = ''; // Clear existing content
-                    const reelWagers = wagers[index];
-                    const wageredSymbol = Object.keys(reelWagers)[0]; // There will only be one
-
-                    if (wageredSymbol) {
-                        const amount = reelWagers[wageredSymbol];
-                        wagerWindow.innerHTML = `
-                            <span class="wager-content-symbol">${wageredSymbol}</span>
-                            <span class="wager-content-amount">${amount}</span>
+            const showSacrifices = () => {
+                fortunePhase = 'sacrifice';
+                fortunesContent.innerHTML = ''; 
+                if (selectedFortunes.length < 4) {
+                    const title = document.createElement('h2');
+                    title.className = 'text-3xl mb-4 text-violet-800';
+                    title.textContent = 'SACRIFICE';
+                    fortunesContent.appendChild(title);
+                    const shuffledSacrifices = shuffle([...sacrifices]);
+                    const selectedSacrifices = shuffledSacrifices.slice(0, 2);
+                    selectedSacrifices.forEach(sacrifice => {
+                        const button = document.createElement('button');
+                        button.className = 'retro-btn bg-slate-400 px-4 py-2 w-full whitespace-normal leading-tight flex flex-col items-center';
+                        button.innerHTML = `
+                            <span>${sacrifice.title}</span>
+                            <span class="text-base font-normal">${sacrifice.desc}</span>
                         `;
-                    }
-                });
-                applyClownRotation();
-            };
-            
-            /**
-             * Updates the UI to show which wager window is currently selected.
-             */
-            const updateSelectedReelUI = () => {
-                wagerWindowDisplays.forEach((wagerWindow, index) => {
-                    wagerWindow.classList.toggle('selected', index === selectedReel);
-                });
-            };
-            
-            /**
-             * Handles clicking a symbol button to place a wager.
-             */
-            const handleSymbolClick = (event) => {
-                if (isAnimating) return;
-                const button = event.target.closest('.symbol-btn');
-                if (!button || button.disabled) return;
-
-                const symbol = button.querySelector('.symbol-icon').textContent.trim();
-                const currentWagersForReel = wagers[selectedReel];
-                const existingWagerSymbol = Object.keys(currentWagersForReel)[0];
-                
-                if (existingWagerSymbol && existingWagerSymbol !== symbol) {
-                    wagers[selectedReel] = { [symbol]: 1 };
-                } else {
-                    currentWagersForReel[symbol] = (currentWagersForReel[symbol] || 0) + 1;
-                }
-                
-                updateWagerDisplay();
-                updateSpinPriceDisplay();
-            };
-
-            /**
-             * Handles the main spin logic.
-             */
-            const handleSpin = async () => {
-                if (isAnimating) return;
-
-                const totalWagerAmount = wagers.reduce((sum, reelWagers) => {
-                    return sum + Object.values(reelWagers).reduce((a, b) => a + b, 0);
-                }, 0);
-                
-                // MODIFIED: Determine spin cost
-                const spinCost = totalWagerAmount > 0 ? totalWagerAmount : BASE_SPIN_PRICE;
-
-                if (totalCoins < spinCost) {
-                    displayMessage("Not enough coins!", 1000);
-                    return;
-                }
-                
-                totalCoins -= spinCost;
-                spinCount++;
-                
-                updateTopBar();
-                spinButton.disabled = true;
-                symbolButtonsContainer.querySelectorAll('.symbol-btn').forEach(b => b.disabled = true);
-                isAnimating = true;
-                reelWindowElements.forEach(rw => rw.classList.remove('win-animation'));
-
-                // MODIFIED: Reverted to sequential spin for anticipation
-                const results = [];
-                for (let i = 0; i < REEL_COUNT; i++) {
-                    const finalSymbol = await spinReel(i);
-                    results.push(finalSymbol);
-                }
-
-                checkForWin(results, totalWagerAmount);
-                
-                // Reset wagers for the next round
-                wagers = Array(REEL_COUNT).fill(0).map(() => ({}));
-                
-                setTimeout(() => {
-                    updateWagerDisplay();
-                    updateTopBar();
-                    isAnimating = false;
-                    spinButton.disabled = false;
-                    symbolButtonsContainer.querySelectorAll('.symbol-btn').forEach(b => b.disabled = false);
-                    reelWindowElements.forEach(rw => rw.classList.remove('win-animation'));
-                }, 2000);
-            };
-
-            /**
-             * Animates a single reel spinning.
-             */
-            const spinReel = (reelIndex) => {
-                return new Promise(resolve => {
-                    const display = reelDisplayElements[reelIndex];
-                    const windowEl = reelWindowElements[reelIndex];
-                    
-                    windowEl.classList.add('spinning');
-                    // MODIFIED: Increased duration for slower spin
-                    const spinAnimDuration = 1000 + (reelIndex * 200); // Stagger the stop time
-                    const flickerInterval = 50;
-
-                    const flicker = setInterval(() => {
-                        const randomSymbol = ALL_SYMBOLS[Math.floor(Math.random() * ALL_SYMBOLS.length)];
-                        display.textContent = randomSymbol;
-                    }, flickerInterval);
-
-                    setTimeout(() => {
-                        clearInterval(flicker);
-                        const finalSymbol = ALL_SYMBOLS[Math.floor(Math.random() * ALL_SYMBOLS.length)];
-                        display.textContent = finalSymbol;
-                        windowEl.classList.remove('spinning');
-                        applyClownRotation();
-                        resolve(finalSymbol);
-                    }, spinAnimDuration);
-                });
-            };
-
-            /**
-             * Checks the spin results for any winning combinations.
-             */
-            const checkForWin = (results, totalWagerAmount) => {
-                let totalWinnings = 0;
-                const winningReelIndexes = new Set();
-
-                // Check for wager wins first
-                if (totalWagerAmount > 0) {
-                    results.forEach((finalSymbol, reelIndex) => {
-                        const reelWagers = wagers[reelIndex];
-                        if (reelWagers[finalSymbol] && reelWagers[finalSymbol] > 0) {
-                            const wagerAmount = reelWagers[finalSymbol];
-                            totalWinnings += wagerAmount * WAGER_MULTIPLIER;
-                            winningReelIndexes.add(reelIndex);
-                        }
+                        button.addEventListener('click', (e) => {
+                            e.stopPropagation(); 
+                            currentSacrifice = sacrifice.title;
+                            showFortunes();
+                        });
+                        fortunesContent.appendChild(button);
                     });
                 } else {
-                    // MODIFIED: Added line win logic for non-wagered spins
-                    const payoutTable = {
-                        '🍒': { 3: 10, 4: 25 }, '🍊': { 3: 10, 4: 25 },
-                        '🍇': { 3: 10, 4: 25 }, '🍋‍🟩': { 3: 10, 4: 25 },
-                        '🔔': { 3: 20, 4: 50 }, '💎': { 3: 25, 4: 75 }
-                    };
+                    const fullMessage = document.createElement('p');
+                    fullMessage.className = 'text-xl';
+                    fullMessage.textContent = "Your destiny is sealed.";
+                    fortunesContent.appendChild(fullMessage);
+                }
+                if (selectedFortunes.length > 0) {
+                    const fortuneListContainer = document.createElement('div');
+                    fortuneListContainer.className = 'mt-6 pt-4 border-t-2 border-gray-500 w-full';
+                    const fortuneList = document.createElement('div');
+                    fortuneList.className = 'flex flex-wrap justify-center gap-2 text-base text-center';
+                    selectedFortunes.forEach(sf => {
+                        const fortuneEntry = document.createElement('div');
+                        fortuneEntry.className = 'p-2 bg-slate-300 retro-panel-inset w-2/5 cursor-pointer';
+                        fortuneEntry.innerHTML = `<p class="pointer-events-none">${sf.sacrifice}</p><p class="pointer-events-none ${sf.fortune.color}">${sf.fortune.rarity} ${sf.fortune.text}</p>`;
+                        fortuneEntry.addEventListener('click', () => {
+                            fortuneDetailContent.innerHTML = `
+                                <h3 class="text-2xl ${sf.fortune.color}">${sf.fortune.rarity} ${sf.fortune.text}</h3>
+                                <p class="mt-2 text-lg">${sf.fortune.desc}</p>
+                                <hr class="my-2 border-gray-500">
+                                <p class="text-base text-gray-700">Sacrifice: ${sf.sacrifice}</p>
+                            `;
+                            fortuneDetailModal.classList.remove('hidden');
+                        });
+                        fortuneList.appendChild(fortuneEntry);
+                    });
+                    fortuneListContainer.appendChild(fortuneList);
+                    fortunesContent.appendChild(fortuneListContainer);
+                }
+            };
 
-                    const rawWildCount = results.filter(s => s === '🤡').length;
-                    const symbolsToCount = results.filter(s => s !== '🤡');
-                    const symbolCounts = symbolsToCount.reduce((acc, symbol) => {
-                        acc[symbol] = (acc[symbol] || 0) + 1;
-                        return acc;
-                    }, {});
-                    
-                    let winTypeFound = 0;
-                    let winningSymbol = null;
+            // --- Shop Logic ---
+            const renderShop = () => {
+                shopItemsContainer.innerHTML = '';
+                shopItems.forEach(item => {
+                    const itemOwned = playerState.inventory[item.id] || 0;
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'flex justify-between items-center py-1';
+                    let buttonHtml;
 
-                    for (const symbol in symbolCounts) {
-                        if (payoutTable[symbol] && symbolCounts[symbol] + rawWildCount === 4) {
-                            totalWinnings += payoutTable[symbol][4];
-                            winTypeFound = 4;
-                            winningSymbol = symbol;
-                            break;
+                    if (item.oneTime && itemOwned > 0) {
+                        buttonHtml = `<button class="retro-btn bg-gray-400 px-4 py-1 opacity-70 cursor-not-allowed" disabled>OWNED</button>`;
+                    } else if (battleStarted) {
+                         if (item.id === 'moonstone') {
+                            buttonHtml = `<button data-item-id="${item.id}" class="retro-btn bg-gray-400 px-4 py-1 opacity-50 cursor-not-allowed" disabled>PASSIVE</button>`;
+                        } else {
+                            buttonHtml = `<button data-item-id="${item.id}" class="retro-btn bg-green-500 px-4 py-1 ${itemOwned > 0 ? '' : 'opacity-50 cursor-not-allowed'}" ${itemOwned === 0 ? 'disabled' : ''}>USE</button>`;
                         }
+                    } else {
+                        const canAfford = playerState.gold >= item.cost;
+                        buttonHtml = `<button data-item-id="${item.id}" class="retro-btn bg-slate-400 px-3 py-1 ${canAfford ? '' : 'opacity-50 cursor-not-allowed'}" ${!canAfford ? 'disabled' : ''}>🪙${item.cost}</button>`;
                     }
-                    if (!winTypeFound) {
-                        for (const symbol in symbolCounts) {
-                            if (payoutTable[symbol] && symbolCounts[symbol] + rawWildCount === 3) {
-                                totalWinnings += payoutTable[symbol][3];
-                                winTypeFound = 3;
-                                winningSymbol = symbol;
-                                break;
+                    itemDiv.innerHTML = `
+                        <div class="flex-grow pr-4">
+                            <span class="whitespace-nowrap">${item.name} (${itemOwned})</span>
+                            <p class="text-base leading-tight">${item.desc}</p>
+                        </div>
+                        ${buttonHtml}`;
+                    shopItemsContainer.appendChild(itemDiv);
+                });
+            };
+            const buyItem = (itemId) => {
+                const item = shopItems.find(i => i.id === itemId);
+                if (!item || playerState.gold < item.cost) return; 
+                playerState.gold -= item.cost;
+                playerState.inventory[item.id]++;
+                if (item.id === 'moonstone') {
+                    playerState.moonstones++;
+                }
+                updatePlayerUI();
+                renderShop();
+            };
+
+            const useItem = (itemId) => {
+                if (playerState.inventory[itemId] <= 0) return;
+
+                const item = shopItems.find(i => i.id === itemId);
+                if (!item || item.id === 'moonstone') return;
+
+                playerState.inventory[itemId]--;
+
+                switch (itemId) {
+                    case 'tonic':
+                        playerState.health = Math.min(playerState.maxHealth, playerState.health + 6);
+                        healthValueEl.classList.add('damage-flash-animation');
+                        setTimeout(() => healthValueEl.classList.remove('damage-flash-animation'), 400);
+                        break;
+                    case 'cross':
+                        if (playerState.statusEffects['🕯️'] > 0) {
+                            playerState.statusEffects['🕯️'] = 0;
+                            updateStatusEffectsUI();
+                        }
+                        playerState.maxHealth++;
+                        playerState.health++;
+                        break;
+                    case 'gem':
+                        // Receive a random buff
+                        const playerBuffs = ['❇️', '🌟', '⚡'];
+                        const randomBuff = playerBuffs[Math.floor(Math.random() * playerBuffs.length)];
+                        playerState.statusEffects[randomBuff]++;
+                        updateStatusEffectsUI();
+                        
+                        // Deal a random debuff
+                        const enemyDebuffs = ['☠️', '🕯️', '🐌'];
+                        const randomDebuff = enemyDebuffs[Math.floor(Math.random() * enemyDebuffs.length)];
+                        const targetEnemy = currentEnemiesInBattle[currentBattleTargetIndex];
+                        if (targetEnemy && !targetEnemy.isDefeated && !targetEnemy.isGift) {
+                            if (!targetEnemy.statusEffects.includes(randomDebuff)) {
+                                targetEnemy.statusEffects.push(randomDebuff);
+                            }
+                            targetEnemy.lastDebuff = randomDebuff;
+                            updateEnemyStatusUI(currentBattleTargetIndex);
+                        }
+                        break;
+                    case 'fairy':
+                        playerState.magic = playerState.maxMagic;
+                        break;
+                }
+
+                updatePlayerUI();
+                renderShop(); // To update inventory count
+            };
+
+            shopItemsContainer.addEventListener('click', (e) => {
+                const button = e.target.closest('button');
+                if (!button || !button.dataset.itemId) return;
+                
+                e.stopPropagation(); 
+                const itemId = button.dataset.itemId;
+
+                if (battleStarted) {
+                    useItem(itemId);
+                } else {
+                    buyItem(itemId);
+                }
+            });
+
+            // --- Modal, Equipment & Build Logic ---
+            const openModal = (modalToOpen) => {
+                if (!modalToOpen) return;
+                if (modalToOpen.id === 'shopModal') renderShop();
+                else if (modalToOpen.id === 'fortunesModal') showSacrifices(); 
+                allModals.forEach(m => m.classList.add('hidden')); 
+                modalToOpen.classList.remove('hidden');
+            };
+            const closeModal = (modalToClose) => { if (modalToClose) modalToClose.classList.add('hidden'); };
+            
+            equipSlots.forEach(slot => {
+                slot.addEventListener('click', () => {
+                    if (battleStarted) {
+                        const symbol = slot.dataset.symbol;
+                        let uses = parseInt(slot.dataset.uses || '0', 10);
+                        const playerBuffs = ['❇️', '🌟', '⚡'];
+                        const enemyDebuffs = ['☠️', '🕯️', '🐌'];
+
+                        if (playerBuffs.includes(symbol) && uses > 0) {
+                            uses--;
+                            slot.dataset.uses = uses;
+                            const counterSpan = slot.querySelector('.absolute');
+                            if (counterSpan) counterSpan.textContent = uses;
+                            
+                            if (uses <= 0) {
+                                slot.innerHTML = '';
+                                delete slot.dataset.symbol;
+                                delete slot.dataset.uses;
+                            }
+                            
+                            playerState.statusEffects[symbol] = 1;
+                            updateStatusEffectsUI();
+                        } else if (enemyDebuffs.includes(symbol) && uses > 0) {
+                            const targetEnemy = currentEnemiesInBattle[currentBattleTargetIndex];
+                            if (targetEnemy && !targetEnemy.isDefeated && !targetEnemy.isGift) {
+                                uses--;
+                                slot.dataset.uses = uses;
+                                const counterSpan = slot.querySelector('.absolute');
+                                if (counterSpan) counterSpan.textContent = uses;
+                                
+                                if (uses <= 0) {
+                                    slot.innerHTML = '';
+                                    delete slot.dataset.symbol;
+                                    delete slot.dataset.uses;
+                                }
+
+                                if (!targetEnemy.statusEffects.includes(symbol)) {
+                                    targetEnemy.statusEffects.push(symbol);
+                                }
+                                targetEnemy.lastDebuff = symbol;
+                                updateEnemyStatusUI(currentBattleTargetIndex);
                             }
                         }
+                        return; 
                     }
+                    const symbol = slot.dataset.symbol;
+                    if (symbol) {
+                        const info = symbolDescriptions[symbol];
+                        if (info) displayInfoInSideWindow(info.title, info.desc, info.costDesc);
+                    } else {
+                        activeEquipSlot = slot;
+                        reelItems.forEach(item => {
+                            item.disabled = playerState.moonstones <= 0;
+                            item.classList.toggle('opacity-50', playerState.moonstones <= 0);
+                            item.classList.toggle('cursor-not-allowed', playerState.moonstones <= 0);
+                        });
+                        reelModal.classList.remove('hidden');
+                    }
+                });
+            });
 
-                    if (winTypeFound > 0) {
-                        results.forEach((symbol, index) => {
-                            if (symbol === winningSymbol || symbol === '🤡') {
-                                winningReelIndexes.add(index);
+            reelItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    if (activeEquipSlot) {
+                        playerState.moonstones--;
+                        playerState.inventory.moonstone--; 
+                        updatePlayerUI();
+                        const symbol = item.textContent;
+                        activeEquipSlot.innerHTML = ''; 
+                        activeEquipSlot.dataset.symbol = symbol;
+                        activeEquipSlot.dataset.uses = '3';
+                        const emojiSpan = document.createElement('span');
+                        emojiSpan.textContent = symbol;
+                        activeEquipSlot.appendChild(emojiSpan);
+                        const counterSpan = document.createElement('span');
+                        counterSpan.className = 'absolute bottom-1 right-2 text-lg text-black';
+                        counterSpan.textContent = '3';
+                        activeEquipSlot.appendChild(counterSpan);
+                        reelModal.classList.add('hidden');
+                        activeEquipSlot = null;
+                    }
+                });
+            });
+            reelModal.addEventListener('click', (e) => { if (e.target === reelModal) reelModal.classList.add('hidden'); });
+            
+            const openEquipmentChoiceModal = (slotType) => {
+                equipmentChoiceContent.innerHTML = '';
+                
+                let currentOptions = equipmentOptions[slotType] ? [...equipmentOptions[slotType]] : [];
+
+                if (slotType === 'ring' && playerState.inventory.infinityRing > 0) {
+                    currentOptions.push({ emoji: '♾️', name: 'Infinity Ring', desc: 'Take damage to reroll.' });
+                }
+
+                currentOptions.forEach(item => {
+                    const itemButton = document.createElement('button');
+                    itemButton.className = 'retro-btn bg-slate-400 px-4 py-2 w-full text-left flex items-center whitespace-normal';
+                    itemButton.innerHTML = `
+                        <span class="text-4xl w-12">${item.emoji}</span>
+                        <div>
+                            <span class="text-xl">${item.name}</span>
+                            <p class="text-base leading-tight">${item.desc}</p>
+                        </div>
+                    `;
+                    itemButton.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (activeBuildSlot) {
+                            const currentSlotType = activeBuildSlot.dataset.slotType;
+                            const wasEquipped = !!playerState.equipment[currentSlotType];
+                            playerState.equipment[currentSlotType] = item;
+                            activeBuildSlot.innerHTML = item.emoji;
+                            
+                            if (currentSlotType === 'weapon') {
+                                document.getElementById('attack-icon').textContent = item.emoji;
+                                if (!wasEquipped) {
+                                    attackValueEl.textContent = parseInt(attackValueEl.textContent, 10) + 1;
+                                }
+                            } else if (currentSlotType === 'armor') {
+                                document.getElementById('armor-icon').textContent = item.emoji;
+                                if (!wasEquipped) {
+                                    playerState.maxArmor += 1;
+                                    playerState.armor += 1;
+                                }
+                            }
+                            
+                            updatePlayerUI();
+                        }
+                        equipmentChoiceModal.classList.add('hidden');
+                    });
+                    equipmentChoiceContent.appendChild(itemButton);
+                });
+                equipmentChoiceModal.classList.remove('hidden');
+            };
+
+            document.querySelectorAll('[data-slot-type]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    activeBuildSlot = btn;
+                    openEquipmentChoiceModal(btn.dataset.slotType);
+                });
+            });
+            equipmentChoiceModal.addEventListener('click', (e) => { if (e.target === equipmentChoiceModal) equipmentChoiceModal.classList.add('hidden'); });
+
+            // --- Enemy Slider & Reshuffle Logic ---
+            const calculateSliderDimensions = () => {
+                if(battleStarted) return {};
+                const enemyList = document.getElementById('enemy-list');
+                if (!enemyList) return { iconWidth: 0, sliderWidth: 0, listPaddingLeft: 0, maxTranslateX: 0 };
+
+                const spans = enemyList.querySelectorAll('span');
+                if (spans.length < 2) return { iconWidth: 0, sliderWidth: 0, listPaddingLeft: 0, maxTranslateX: 0 };
+
+                const listPaddingLeft = parseFloat(getComputedStyle(enemyList).paddingLeft);
+
+                const firstRect = spans[0].getBoundingClientRect();
+                const secondRect = spans[1].getBoundingClientRect();
+                const iconWidth = secondRect.left - firstRect.left;
+
+                const sliderWidth = iconWidth * (groupSize - 1) + firstRect.width;
+                enemySlider.style.width = `${sliderWidth}px`;
+                
+                const maxTranslateX = (numIcons - groupSize) * iconWidth;
+
+                return { iconWidth, sliderWidth, listPaddingLeft, maxTranslateX };
+            };
+            const getEventCoords = (e) => ({ x: e.touches ? e.touches[0].clientX : e.clientX, y: e.touches ? e.touches[0].clientY : e.clientY });
+            const dragStart = (e) => {
+                if (battleStarted || isReshuffling) return;
+                isDragging = true;
+                const coords = getEventCoords(e);
+                startX = coords.x; startY = coords.y; dragStartTime = Date.now();
+                enemySlider.style.transition = 'none';
+                initialTranslateX = currentTranslateX;
+                document.addEventListener('mousemove', dragMove);
+                document.addEventListener('touchmove', dragMove, { passive: false });
+                document.addEventListener('mouseup', dragEnd);
+                document.addEventListener('touchend', dragEnd);
+            };
+            const dragMove = (e) => {
+                if (!isDragging) return;
+                e.preventDefault();
+                const deltaX = getEventCoords(e).x - startX;
+                const newLogicalPos = initialTranslateX + deltaX;
+
+                const { listPaddingLeft, maxTranslateX } = calculateSliderDimensions();
+                
+                const clampedLogicalPos = Math.max(0, Math.min(newLogicalPos, maxTranslateX));
+                
+                enemySlider.style.transform = `translateX(${clampedLogicalPos + listPaddingLeft}px)`;
+            };
+            const dragEnd = (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                const endCoords = e.changedTouches ? e.changedTouches[0] : e;
+                const deltaX = endCoords.clientX - startX, deltaY = endCoords.clientY - startY, deltaTime = Date.now() - dragStartTime;
+                document.removeEventListener('mousemove', dragMove);
+                document.removeEventListener('touchmove', dragMove);
+                document.removeEventListener('mouseup', dragEnd);
+                document.removeEventListener('touchend', dragEnd);
+                enemySlider.style.transition = 'transform 0.2s ease-out';
+                const { iconWidth, listPaddingLeft } = calculateSliderDimensions();
+
+                const transformMatrix = new WebKitCSSMatrix(getComputedStyle(enemySlider).transform);
+                const finalVisualTranslateX = transformMatrix.m41;
+                const logicalTranslateX = finalVisualTranslateX - listPaddingLeft;
+                
+                if (deltaTime < 250 && Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) {
+                    const tappedX = endCoords.clientX - enemyContainer.getBoundingClientRect().left;
+                    const logicalTappedX = tappedX - listPaddingLeft;
+                    const tappedIndex = Math.floor(logicalTappedX / iconWidth);
+                    const targetIndex = Math.max(0, Math.min(numIcons - groupSize, tappedIndex - 1));
+                    currentTranslateX = targetIndex * iconWidth;
+                } else { 
+                    const closestSnapIndex = Math.round(logicalTranslateX / iconWidth);
+                    const clampedIndex = Math.min(numIcons - groupSize, Math.max(0, closestSnapIndex));
+                    currentTranslateX = clampedIndex * iconWidth;
+                }
+                const finalTransform = currentTranslateX + listPaddingLeft;
+                enemySlider.style.transform = `translateX(${finalTransform}px)`;
+            };
+            const shuffle = (array) => {
+                for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; }
+                return array;
+            };
+            const reshuffleEnemies = (isInitial = false) => {
+                if (isReshuffling || (!isInitial && playerState.rerolls <= 0)) return;
+                if (!isInitial) { playerState.rerolls--; updatePlayerUI(); }
+                isReshuffling = true;
+                if(startBattleBtn) startBattleBtn.disabled = true;
+                enemyContainer.classList.remove('cursor-grab', 'active:cursor-grabbing');
+                if (enemySlider) enemySlider.classList.add('hidden');
+                const enemySpans = Array.from(document.querySelectorAll('#enemy-list > span'));
+                const fadeOutDuration = isInitial ? 0 : 200; 
+                enemySpans.forEach(span => { span.style.transition = `opacity ${fadeOutDuration}ms ease-out`; span.style.opacity = '0'; });
+                setTimeout(() => {
+                    const finalEnemySet = shuffle([...shuffle([...enemyPool]).slice(0, 7), giftEmoji]);
+                    enemySpans.forEach((span, index) => {
+                        span.textContent = finalEnemySet[index];
+                        span.className = 'text-3xl'; 
+                        span.style.transition = 'opacity 0.4s ease-out';
+                    });
+                    const stampableSpans = enemySpans.filter(span => span.textContent !== giftEmoji);
+                    if (stampableSpans.length > 0) stampableSpans[Math.floor(Math.random() * stampableSpans.length)].classList.add('emoji-red-stamp');
+                    
+                    const totalRevealTime = 1000;
+                    enemySpans.forEach((span, index) => { setTimeout(() => { span.style.opacity = '1'; }, index * (totalRevealTime / enemySpans.length)); });
+                    
+                    setTimeout(() => {
+                        const { listPaddingLeft } = calculateSliderDimensions();
+                        currentTranslateX = 0; // Logical position
+                        if (enemySlider) enemySlider.style.transform = `translateX(${listPaddingLeft}px)`;
+
+                        isReshuffling = false;
+                        if (!battleStarted) { 
+                            if (enemySlider) enemySlider.classList.remove('hidden');
+                            updatePlayerUI();
+                            enemyContainer.classList.add('cursor-grab', 'active:cursor-grabbing');
+                            if(startBattleBtn) startBattleBtn.disabled = false;
+                        }
+                    }, totalRevealTime);
+                }, fadeOutDuration);
+            };
+
+            // --- Spell Logic ---
+            const executeSpell = (spellKey) => {
+                if (!battleStarted || playerState.magic < 50) return; // Not enough magic or not in battle
+
+                playerState.magic -= 50;
+                updatePlayerUI(); // Updates magic bar as well
+
+                const targetEnemy = currentEnemiesInBattle[currentBattleTargetIndex];
+                const enemyWrapper = targetEnemy?.ref;
+
+                switch (spellKey) {
+                    case 'flameheart':
+                        // Deal 5 damage
+                        if (targetEnemy && !targetEnemy.isDefeated && !targetEnemy.isGift) {
+                            const damage = 5;
+                            showDamageNumber(damage, enemyWrapper);
+                            targetEnemy.hp = Math.max(0, targetEnemy.hp - damage);
+                            const healthBarFill = enemyWrapper.querySelector('.health-bar-fill');
+                            if (healthBarFill) healthBarFill.style.width = `${(targetEnemy.hp / targetEnemy.maxHp) * 100}%`;
+                            updateEnemyDisplay(targetEnemy);
+                            if (targetEnemy.hp <= 0) {
+                                handleEnemyDefeat(currentBattleTargetIndex);
+                            }
+                        }
+                        // Heal 5 HP
+                        playerState.health = Math.min(playerState.maxHealth, playerState.health + 5);
+                        healthValueEl.classList.add('damage-flash-animation'); // Use existing flash for feedback
+                        setTimeout(() => healthValueEl.classList.remove('damage-flash-animation'), 400);
+                        updatePlayerUI();
+                        break;
+
+                    case 'frostbite':
+                        // Deal 5 damage
+                        if (targetEnemy && !targetEnemy.isDefeated && !targetEnemy.isGift) {
+                            const damage = 5;
+                            showDamageNumber(damage, enemyWrapper);
+                            targetEnemy.hp = Math.max(0, targetEnemy.hp - damage);
+                            const healthBarFill = enemyWrapper.querySelector('.health-bar-fill');
+                            if (healthBarFill) healthBarFill.style.width = `${(targetEnemy.hp / targetEnemy.maxHp) * 100}%`;
+                            
+                            // Inflict slow
+                            if (!targetEnemy.statusEffects.includes('🐌')) {
+                                targetEnemy.statusEffects.push('🐌');
+                            }
+                            targetEnemy.lastDebuff = '🐌';
+                            updateEnemyStatusUI(currentBattleTargetIndex);
+
+                            updateEnemyDisplay(targetEnemy);
+                            if (targetEnemy.hp <= 0) {
+                                handleEnemyDefeat(currentBattleTargetIndex);
+                            }
+                        }
+                        break;
+
+                    case 'armorheart':
+                        // Add current health to armor
+                        playerState.armor += playerState.health;
+                        updatePlayerUI();
+                        armorValueEl.classList.add('damage-flash-animation');
+                        setTimeout(() => armorValueEl.classList.remove('damage-flash-animation'), 400);
+                        break;
+                }
+            };
+
+            // --- Initial Setup & Listeners ---
+            flameheartBtn.addEventListener('click', () => {
+                if (battleStarted) {
+                    executeSpell('flameheart');
+                } else {
+                    displaySpellInfo('flameheart');
+                }
+            });
+            frostbiteBtn.addEventListener('click', () => {
+                if (battleStarted) {
+                    executeSpell('frostbite');
+                } else {
+                    displaySpellInfo('frostbite');
+                }
+            });
+            armorheartBtn.addEventListener('click', () => {
+                if (battleStarted) {
+                    executeSpell('armorheart');
+                } else {
+                    displaySpellInfo('armorheart');
+                }
+            });
+
+            Object.values(modalMap).forEach(item => {
+                item.button.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openModal(item.modal);
+                });
+                item.modal.addEventListener('click', (e) => {
+                    if (e.target === item.modal) closeModal(item.modal);
+                });
+            });
+
+            fortuneDetailModal.addEventListener('click', (e) => {
+                if (e.target === fortuneDetailModal) {
+                    fortuneDetailModal.classList.add('hidden');
+                }
+            });
+
+            const positionBattleSelector = (targetElement) => {
+                 if (!targetElement) return;
+                 const containerRect = enemyContainer.getBoundingClientRect();
+                 const targetRect = targetElement.getBoundingClientRect();
+                 const selectorWidth = 68, selectorHeight = 80;
+                 battleSelector.style.width = `${selectorWidth}px`;
+                 battleSelector.style.height = `${selectorHeight}px`;
+                 const leftOffset = targetRect.left - containerRect.left + (targetRect.width - selectorWidth) / 2;
+                 const topOffset = targetRect.top - containerRect.top + (targetRect.height - selectorHeight) / 2;
+                 battleSelector.style.transform = `translate(${leftOffset}px, ${topOffset}px)`;
+            };
+            
+            // --- Battle Mode Interaction ---
+            const battleDragStart = (e) => {
+                const coords = getEventCoords(e); startX = coords.x; startY = coords.y; dragStartTime = Date.now(); isDragging = false; 
+                document.addEventListener('mousemove', battleDragMove);
+                document.addEventListener('touchmove', battleDragMove, { passive: false });
+                document.addEventListener('mouseup', battleDragEnd);
+                document.addEventListener('touchend', battleDragEnd);
+            };
+            const battleDragMove = (e) => {
+                const coords = getEventCoords(e);
+                if (!isDragging && Math.abs(coords.x - startX) > 10) isDragging = true;
+                if (!isDragging) return;
+                e.preventDefault();
+                const enemyWrappers = currentEnemiesInBattle.map(e => e.ref);
+                let targetIndex = -1;
+                for (let i = 0; i < enemyWrappers.length; i++) {
+                    const wrapper = enemyWrappers[i];
+                    if (currentEnemiesInBattle[i].isDefeated) continue;
+                    const wrapperRect = wrapper.getBoundingClientRect();
+                    if (coords.x >= wrapperRect.left && coords.x <= wrapperRect.right) { targetIndex = i; break; }
+                }
+                if (targetIndex !== -1 && targetIndex !== currentBattleTargetIndex) {
+                    currentBattleTargetIndex = targetIndex;
+                    positionBattleSelector(enemyWrappers[currentBattleTargetIndex]);
+                    updateEnemyDisplay(currentEnemiesInBattle[currentBattleTargetIndex]);
+                }
+            };
+            const battleDragEnd = (e) => {
+                document.removeEventListener('mousemove', battleDragMove);
+                document.removeEventListener('touchmove', battleDragMove);
+                document.removeEventListener('mouseup', battleDragEnd);
+                document.removeEventListener('touchend', battleDragEnd);
+                setTimeout(() => { isDragging = false; }, 50);
+            };
+
+            // --- BATTLE LOGIC ---
+            const playerTakesDamage = (damage) => {
+                const damageAbsorbed = Math.min(playerState.armor, damage);
+                if (damageAbsorbed > 0) {
+                    playerState.armor -= damageAbsorbed;
+                    armorValueEl.classList.add('damage-flash-animation');
+                    setTimeout(() => armorValueEl.classList.remove('damage-flash-animation'), 400);
+                }
+                const remainingDamage = damage - damageAbsorbed;
+                if (remainingDamage > 0) {
+                    playerState.health = Math.max(0, playerState.health - remainingDamage);
+                    healthValueEl.classList.add('damage-flash-animation');
+                    setTimeout(() => healthValueEl.classList.remove('damage-flash-animation'), 400);
+                }
+                if (playerState.health <= 5 && playerState.health > 0) {
+                    gameContainer.classList.add('border-pulse-animation', 'border-red-500');
+                } else {
+                    gameContainer.classList.remove('border-pulse-animation', 'border-red-500');
+                    gameContainer.style.borderColor = '';
+                }
+                updatePlayerUI();
+                if (playerState.health <= 0) {
+                    attackBtn.disabled = true;
+                    gameContainer.classList.remove('border-pulse-animation', 'border-red-500');
+                }
+            };
+
+            const enemyAttackPhase = async () => {
+                if (playerState.health <= 0) return;
+                attackBtn.disabled = true;
+                await delay(400);
+                const livingEnemies = currentEnemiesInBattle.filter(enemy => !enemy.isDefeated && !enemy.isGift);
+                for (const enemy of livingEnemies) {
+                    if (playerState.health <= 0) break;
+                    const enemyWrapper = enemy.ref;
+                    enemyWrapper.classList.add('flip-animation');
+                    setTimeout(() => enemyWrapper.classList.remove('flip-animation'), 500);
+                    await delay(500); 
+                    playerTakesDamage(enemy.isStamped ? 2 : 1);
+                    const enemyInfo = enemyData[enemy.emoji];
+                    if (enemyInfo.special && ['☠️', '🕯️', '🐌'].includes(enemyInfo.special)) {
+                        playerState.statusEffects[enemyInfo.special] = 1; 
+                        updateStatusEffectsUI();
+                    }
+                    await delay(400);
+                }
+                if (playerState.health > 0) attackBtn.disabled = false;
+            };
+            const endBattle = () => {
+                battleStarted = false; currentEnemiesInBattle = []; playerState.armor = playerState.maxArmor; sideWindowLeft.innerHTML = ''; 
+                playerState.magic = playerState.maxMagic;
+                playerState.statusEffects = { '☠️': 0, '🕯️': 0, '🐌': 0, '❇️': 0, '🌟': 0, '⚡': 0 };
+                updateStatusEffectsUI(); waveCount++; updateWaveCounterUI();
+                enemyContainer.innerHTML = `<div id="enemy-slider" class="absolute top-0 left-0 h-full bg-black/20 border-2 border-black/30 pointer-events-none z-10" style="transition: transform 0.2s ease-out;"></div>
+        <div id="battle-selector" class="hidden absolute top-0 left-0 pointer-events-none z-30"></div>
+        <div id="enemy-list" class="absolute inset-0 flex items-center justify-between pl-1 pr-3 z-20">
+            ${Array(numIcons).fill('<span class="text-3xl"></span>').join('')}
+        </div>`;
+                enemySlider = document.getElementById('enemy-slider'); battleSelector = document.getElementById('battle-selector');
+                enemyContainer.classList.remove('justify-center', 'gap-4', 'cursor-default');
+                enemyContainer.classList.add('cursor-grab', 'active:cursor-grabbing');
+                battleDetailsContentEl.innerHTML = '<button id="start-battle-btn" class="retro-btn bg-amber-800 text-white text-xl py-2 px-6 disabled:opacity-50 disabled:cursor-not-allowed">Start Battle</button>';
+                startBattleBtn = document.getElementById('start-battle-btn');
+                if (startBattleBtn) startBattleBtn.addEventListener('click', startBattle);
+                updatePlayerUI();
+                enemyContainer.addEventListener('mousedown', dragStart); enemyContainer.addEventListener('touchstart', dragStart);
+                reshuffleEnemies(); calculateSliderDimensions();
+            };
+            const checkBattleEnd = () => {
+                if (currentEnemiesInBattle.every(enemy => enemy.isDefeated)) {
+                    setTimeout(endBattle, 1500);
+                }
+            };
+            
+            const findNextTarget = (startIndex) => {
+                const numEnemies = currentEnemiesInBattle.length;
+                if (currentEnemiesInBattle.every(e => e.isDefeated)) {
+                    return -1;
+                }
+                let nextIndex = startIndex;
+                do {
+                    nextIndex = (nextIndex + 1) % numEnemies;
+                } while (currentEnemiesInBattle[nextIndex].isDefeated);
+                return nextIndex;
+            };
+
+            const showKillMeterUpgradeModal = () => {
+                killMeterModal.classList.remove('hidden');
+                attackBtn.disabled = true; // Disable attacks while modal is open
+            };
+
+            const handleEnemyDefeat = (defeatedIndex) => {
+                const enemy = currentEnemiesInBattle[defeatedIndex];
+                if (!enemy || enemy.isDefeated) return false;
+
+                enemy.isDefeated = true;
+                const enemyWrapper = enemy.ref;
+                enemyWrapper.style.pointerEvents = 'none';
+                enemyWrapper.classList.add('enemy-fade-out');
+
+                let upgradeTriggered = false;
+                if (!enemy.isGift) {
+                    playerState.killCount += enemy.isStamped ? 3 : 1;
+                    if (playerState.killCount >= 10) {
+                        playerState.killCount = 10;
+                        showKillMeterUpgradeModal();
+                        upgradeTriggered = true;
+                    }
+                }
+                updatePlayerUI();
+                
+                const nextTargetIndex = findNextTarget(defeatedIndex);
+
+                setTimeout(() => {
+                    enemyWrapper.classList.add('enemy-defeated'); 
+                    
+                    if (nextTargetIndex !== -1) {
+                        currentBattleTargetIndex = nextTargetIndex;
+                        const nextTargetWrapper = currentEnemiesInBattle[nextTargetIndex].ref;
+                        positionBattleSelector(nextTargetWrapper);
+                        updateEnemyDisplay(currentEnemiesInBattle[nextTargetIndex]);
+                    } else {
+                        battleSelector.classList.add('hidden');
+                    }
+                }, 400);
+
+                checkBattleEnd();
+                return upgradeTriggered;
+            };
+
+            // --- Gift Modal Logic ---
+            const getTieredReward = (baseValue) => {
+                const rand = Math.random();
+                if (rand < 0.5) { // 50% chance
+                    return { value: baseValue, color: 'text-sky-600' };
+                } else if (rand < 0.85) { // 35% chance
+                    return { value: baseValue * 2, color: 'text-amber-600' };
+                } else { // 15% chance
+                    return { value: baseValue * 4, color: 'text-pink-600' };
+                }
+            };
+
+            const awardGiftBuff = (rewardType, amount) => {
+                switch (rewardType) {
+                    case 'armor':
+                        playerState.maxArmor += amount;
+                        playerState.armor += amount;
+                        break;
+                    case 'gold':
+                        playerState.gold += amount;
+                        break;
+                    case 'luck':
+                        playerState.luck += amount;
+                        break;
+                }
+                updatePlayerUI();
+            };
+
+            const startGiftRandomizer = () => {
+                const rewards = Array.from(giftRewardItems);
+                const numRewards = rewards.length;
+                const winningIndex = Math.floor(Math.random() * numRewards);
+
+                let delayMs = 150;
+                const totalSpins = 10 + winningIndex;
+                let spinCount = 0;
+
+                const continueGameHandler = async () => {
+                    giftModal.classList.add('hidden');
+                    handleEnemyDefeat(currentBattleTargetIndex);
+                    if (!currentEnemiesInBattle.every(e => e.isDefeated)) {
+                        await enemyAttackPhase();
+                    } else if (playerState.health > 0) {
+                        attackBtn.disabled = false;
+                    }
+                };
+
+                const spin = () => {
+                    if (spinCount >= totalSpins) {
+                        rewards.forEach(r => r.classList.remove('reward-highlight-anim'));
+                        
+                        rewards.forEach((rewardEl, index) => {
+                            if (index === winningIndex) {
+                                rewardEl.classList.add('reward-selected');
+                                rewardEl.style.cursor = 'pointer';
+                                rewardEl.addEventListener('click', continueGameHandler, { once: true });
+                            } else {
+                                rewardEl.classList.add('reward-fade-out');
                             }
                         });
+                        
+                        const winningElement = rewards[winningIndex];
+                        const winningRewardType = winningElement.dataset.reward;
+                        const winningValue = parseInt(winningElement.dataset.value, 10);
+                        awardGiftBuff(winningRewardType, winningValue);
+                        return;
+                    }
+
+                    rewards.forEach(r => r.classList.remove('reward-highlight-anim', 'reward-selected'));
+                    const highlightIndex = spinCount % numRewards;
+                    rewards[highlightIndex].classList.add('reward-highlight-anim');
+
+                    if (spinCount > 5) delayMs += 50;
+
+                    spinCount++;
+                    setTimeout(spin, delayMs);
+                };
+                spin();
+            };
+
+            const showGiftPopup = () => {
+                attackBtn.disabled = true;
+                giftModal.classList.remove('hidden');
+                giftRewardItems = document.querySelectorAll('.gift-reward-item');
+
+                const rewardTiers = {
+                    armor: getTieredReward(1),
+                    gold: getTieredReward(15),
+                    luck: getTieredReward(1),
+                };
+
+                giftRewardItems.forEach(item => {
+                    const rewardType = item.dataset.reward;
+                    const rewardData = rewardTiers[rewardType];
+                    
+                    item.dataset.value = rewardData.value;
+
+                    const textSpan = item.querySelector('.text-xl');
+                    
+                    textSpan.classList.remove('text-sky-600', 'text-amber-600', 'text-pink-600', 'text-black');
+                    textSpan.classList.add(rewardData.color);
+
+                    if (rewardType === 'armor') {
+                        textSpan.textContent = `+${rewardData.value} Max Armor`;
+                    } else if (rewardType === 'gold') {
+                        textSpan.textContent = `+${rewardData.value} Gold`;
+                    } else if (rewardType === 'luck') {
+                        textSpan.textContent = `+${rewardData.value}% Luck`;
+                    }
+
+                    item.classList.remove('reward-selected', 'reward-highlight-anim', 'reward-fade-out');
+                    item.style.cursor = 'default';
+                });
+
+                startGiftRandomizer();
+            };
+
+            attackBtn.addEventListener('click', async () => {
+                if (!battleStarted || playerState.health <= 0 || attackBtn.disabled) return;
+                const targetEnemy = currentEnemiesInBattle[currentBattleTargetIndex];
+                if (!targetEnemy || targetEnemy.isDefeated) return;
+                const enemyWrapper = targetEnemy.ref;
+                enemyWrapper.classList.add('shake-animation');
+                setTimeout(() => enemyWrapper.classList.remove('shake-animation'), 300);
+
+                let giftOpened = false;
+                let upgradeTriggered = false;
+
+                if (targetEnemy.isGift) {
+                    giftOpened = true;
+                    showGiftPopup();
+                } else {
+                    const attackPower = parseInt(attackValueEl.textContent, 10);
+                    showDamageNumber(attackPower, enemyWrapper);
+                    targetEnemy.hp = Math.max(0, targetEnemy.hp - attackPower);
+                    const healthBarFill = enemyWrapper.querySelector('.health-bar-fill');
+                    if (healthBarFill) healthBarFill.style.width = `${(targetEnemy.hp / targetEnemy.maxHp) * 100}%`;
+                    updateEnemyDisplay(targetEnemy);
+                    if (targetEnemy.hp <= 0) {
+                        upgradeTriggered = handleEnemyDefeat(currentBattleTargetIndex);
                     }
                 }
-                
-                if (totalWinnings > 0) {
-                    totalCoins += totalWinnings;
-                    displayMessage(totalWinnings, 2000, true);
-                    
-                    winningReelIndexes.forEach(index => {
-                        reelWindowElements[index].classList.add('win-animation');
-                    });
-                }
-                
-                updateTopBar();
-            };
 
-            /**
-             * Shows or hides a modal.
-             */
-            const showModal = (modalElement) => {
-                modalElement.style.display = 'flex';
-            };
-            const hideModal = (modalElement) => {
-                modalElement.style.display = 'none';
-            };
-
-            // --- Event Listeners ---
-            reelWagersContainer.addEventListener('click', (event) => {
-                if (isAnimating) return;
-                const wagerWindow = event.target.closest('.wager-window');
-                if (wagerWindow) {
-                    selectedReel = parseInt(wagerWindow.dataset.reel);
-                    updateSelectedReelUI();
+                if (!giftOpened && !currentEnemiesInBattle.every(e => e.isDefeated) && !upgradeTriggered) {
+                    await enemyAttackPhase();
                 }
             });
 
-            symbolButtonsContainer.addEventListener('click', handleSymbolClick);
-            spinButton.addEventListener('click', handleSpin);
+            luckBtn.addEventListener('click', () => {
+                if (!battleStarted) {
+                    luckModal.classList.remove('hidden');
+                }
+                // No action during battle
+            });
+
+            luckModal.addEventListener('click', (e) => {
+                // Close if the overlay is clicked, or if a button inside is clicked for now
+                if (e.target === luckModal || e.target.closest('button')) {
+                    luckModal.classList.add('hidden');
+                }
+            });
+
+            healthIconEl.addEventListener('click', () => {
+                // No action on click anymore for upgrade
+            });
             
-            helpButton.addEventListener('click', () => showModal(helpModal));
-            tokensButton.addEventListener('click', () => showModal(tokensModal));
-            
-            closeButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const modalId = button.dataset.modal;
-                    const modalToClose = document.getElementById(modalId);
-                    if(modalToClose) hideModal(modalToClose);
+            killMeterRewards.addEventListener('click', (e) => {
+                const button = e.target.closest('button');
+                if (!button) return;
+
+                const upgradeType = button.dataset.upgrade;
+                
+                if (upgradeType === 'health') {
+                    playerState.maxHealth++;
+                    playerState.health = playerState.maxHealth;
+                } else if (upgradeType === 'luck') {
+                    playerState.luck += 5;
+                }
+                
+                playerState.killCount = 0;
+                updatePlayerUI();
+                killMeterModal.classList.add('hidden');
+                
+                // If the battle isn't over, proceed with the enemy's turn
+                if (battleStarted && !currentEnemiesInBattle.every(e => e.isDefeated)) {
+                    enemyAttackPhase();
+                } else if (playerState.health > 0) {
+                    // Re-enable attack button if battle is not over and it's player's turn again
+                    attackBtn.disabled = false;
+                }
+            });
+
+            const startBattle = () => {
+                if (battleStarted || isReshuffling) return;
+                const flashOverlay = document.getElementById('screen-flash-overlay');
+                if (flashOverlay) {
+                    flashOverlay.classList.add('flash-animation');
+                    setTimeout(() => flashOverlay.classList.remove('flash-animation'), 300);
+                }
+                const { iconWidth } = calculateSliderDimensions();
+                const startIndex = Math.round(currentTranslateX / iconWidth);
+                battleStarted = true; sideWindowLeft.innerHTML = ''; 
+                enemyContainer.removeEventListener('mousedown', dragStart); enemyContainer.removeEventListener('touchstart', dragStart);
+                if(startBattleBtn) startBattleBtn.remove();
+                updatePlayerUI(); 
+                enemyContainer.classList.remove('cursor-grab', 'active:cursor-grabbing'); enemyContainer.classList.add('cursor-default'); enemySlider.classList.add('hidden');
+                const selectedEnemySpans = Array.from(document.querySelectorAll('#enemy-list > span')).slice(startIndex, startIndex + groupSize);
+                currentEnemiesInBattle = selectedEnemySpans.map(span => {
+                    const isStamped = span.classList.contains('emoji-red-stamp'), isGift = span.textContent === giftEmoji;
+                    const hp = isGift ? 1 : (isStamped ? 20 : 10);
+                    return { 
+                        emoji: span.textContent, 
+                        isStamped, 
+                        isGift, 
+                        hp, 
+                        maxHp: hp, 
+                        isDefeated: false, 
+                        ref: null,
+                        statusEffects: [],
+                        lastDebuff: null 
+                    };
                 });
-            });
+                enemyContainer.innerHTML = ''; enemyContainer.appendChild(battleSelector);
+                enemyContainer.classList.remove('justify-around'); enemyContainer.classList.add('justify-center', 'gap-4');
+                currentEnemiesInBattle.forEach((enemy, index) => {
+                    const enemyWrapper = document.createElement('div');
+                    enemyWrapper.className = 'relative cursor-pointer h-[70px] w-[60px] flex flex-col items-center justify-center transition-opacity duration-300';
+                    const newEnemySpan = document.createElement('span');
+                    newEnemySpan.className = 'text-5xl relative z-10'; newEnemySpan.textContent = enemy.emoji;
+                    if (enemy.isStamped) newEnemySpan.classList.add('emoji-red-stamp');
+                    enemyWrapper.appendChild(newEnemySpan);
+                    if (!enemy.isGift) {
+                        const healthBarContainer = document.createElement('div');
+                        healthBarContainer.className = 'w-12 h-3 bg-black/50 mt-2 border border-zinc-900';
+                        
+                        const healthBarFill = document.createElement('div');
+                        healthBarFill.className = 'health-bar-fill h-full bg-red-600 transition-all duration-300';
+                        healthBarFill.style.width = '100%';
+                        healthBarContainer.appendChild(healthBarFill);
 
-            clownSlider.addEventListener('input', (event) => {
-                // The slider currently has no function.
-            });
-
-            window.addEventListener('click', (event) => {
-                if (event.target == helpModal) hideModal(helpModal);
-                if (event.target == tokensModal) hideModal(tokensModal);
-            });
+                        enemyWrapper.appendChild(healthBarContainer);
+                    }
+                    enemy.ref = enemyWrapper; 
+                    enemyWrapper.addEventListener('click', () => {
+                        if (isDragging || enemy.isDefeated) return;
+                        currentBattleTargetIndex = index;
+                        positionBattleSelector(enemyWrapper);
+                        updateEnemyDisplay(currentEnemiesInBattle[index]);
+                    });
+                    enemyContainer.appendChild(enemyWrapper);
+                });
+                const firstLivingEnemyIndex = currentEnemiesInBattle.findIndex(e => !e.isDefeated);
+                const firstEnemyWrapper = currentEnemiesInBattle[firstLivingEnemyIndex].ref;
+                battleSelector.classList.remove('hidden');
+                currentBattleTargetIndex = firstLivingEnemyIndex;
+                updateEnemyDisplay(currentEnemiesInBattle[firstLivingEnemyIndex]);
+                setTimeout(() => positionBattleSelector(firstEnemyWrapper), 50);
+                enemyContainer.addEventListener('mousedown', battleDragStart);
+                enemyContainer.addEventListener('touchstart', battleDragStart);
+                if (!modalMap.shopBtn.modal.classList.contains('hidden')) renderShop();
+            };
             
-            // --- Initial Game Setup ---
-            randomizeSymbolGrid();
-            updateSelectedReelUI();
-            updateTopBar();
+            // --- Final Setup ---
+            if(startBattleBtn) startBattleBtn.addEventListener('click', startBattle);
+            calculateSliderDimensions();
+            window.addEventListener('resize', calculateSliderDimensions);
+            enemyContainer.addEventListener('mousedown', dragStart);
+            enemyContainer.addEventListener('touchstart', dragStart);
+            document.addEventListener('mouseup', dragEnd);
+            document.addEventListener('touchend', dragEnd);
+            reshuffleBtn.addEventListener('click', () => { if (!battleStarted && !isReshuffling) reshuffleEnemies(); });
+            reshuffleEnemies(true);
+            updatePlayerUI(); 
+            updateWaveCounterUI();
+            updateStatusEffectsUI();
         });
     </script>
+
 </body>
 </html>
+
