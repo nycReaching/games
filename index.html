@@ -2,860 +2,399 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>⚔️ Dungeon Crawler</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Minimalist Roguelike</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
-            color: #fff;
-            height: 100vh;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .game-container {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            max-width: 430px;
-            margin: 0 auto;
-            background: rgba(0,0,0,0.3);
-        }
-
-        /* Header Stats */
-        .header-stats {
-            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 100%);
-            padding: 15px;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .stat-box {
-            text-align: center;
-            position: relative;
-        }
-
-        .stat-label {
-            font-size: 10px;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .stat-value {
-            font-size: 20px;
-            font-weight: bold;
-            background: linear-gradient(135deg, #ff6b6b, #ff8787);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-top: 2px;
-        }
-
-        .stat-value.gold {
-            background: linear-gradient(135deg, #ffd700, #ffed4e);
-            -webkit-background-clip: text;
-        }
-
-        .stat-value.xp {
-            background: linear-gradient(135deg, #4ecdc4, #44a3aa);
-            -webkit-background-clip: text;
-        }
-
-        /* Main Game Area */
-        .game-area {
-            flex: 1;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .battle-arena {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            position: relative;
-        }
-
-        .enemy-container {
-            position: relative;
-            margin-bottom: 40px;
-        }
-
-        .enemy {
-            font-size: 80px;
-            filter: drop-shadow(0 10px 30px rgba(0,0,0,0.5));
-            animation: float 3s ease-in-out infinite;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .enemy:active {
-            transform: scale(0.9);
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .enemy-hp {
-            position: absolute;
-            bottom: -30px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 6px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .enemy-hp-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #ff4444, #ff6666);
-            width: 75%;
-            transition: width 0.3s ease;
-            border-radius: 3px;
-        }
-
-        .damage-number {
-            position: absolute;
-            font-size: 24px;
-            font-weight: bold;
-            color: #ff4444;
-            animation: damageFloat 1s ease-out forwards;
-            pointer-events: none;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-        }
-
-        @keyframes damageFloat {
-            0% {
-                transform: translateY(0) scale(0.5);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-60px) scale(1);
-                opacity: 0;
-            }
-        }
-
-        /* Action Cards */
-        .action-cards {
-            padding: 15px;
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.8) 100%);
-        }
-
-        .action-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 12px;
-            padding: 15px 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-            backdrop-filter: blur(10px);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .action-card:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .action-card:hover:before {
-            left: 100%;
-        }
-
-        .action-card:active {
-            transform: scale(0.95);
-        }
-
-        .action-icon {
-            font-size: 28px;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .action-name {
-            font-size: 11px;
-            color: #ccc;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* Bottom Navigation */
-        .bottom-nav {
-            display: flex;
-            background: rgba(0,0,0,0.9);
-            border-top: 1px solid rgba(255,255,255,0.1);
-            backdrop-filter: blur(20px);
-        }
-
-        .nav-item {
-            flex: 1;
-            padding: 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-        }
-
-        .nav-item.active {
-            background: rgba(255,255,255,0.1);
-        }
-
-        .nav-item.active:after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
-        }
-
-        .nav-icon {
-            font-size: 24px;
-            display: block;
-            margin-bottom: 4px;
-        }
-
-        .nav-label {
-            font-size: 10px;
-            color: #888;
-            text-transform: uppercase;
-        }
-
-        .nav-item.active .nav-label {
-            color: #fff;
-        }
-
-        /* Modal Overlay */
-        .modal {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.95);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            border-radius: 20px;
-            padding: 25px;
-            max-width: 90%;
-            max-height: 80%;
-            overflow-y: auto;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-        }
-
-        .modal-header {
-            font-size: 24px;
-            margin-bottom: 20px;
-            text-align: center;
-            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .shop-grid, .inventory-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .shop-item, .inventory-item {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-        }
-
-        .shop-item:hover, .inventory-item:hover {
-            background: rgba(255,255,255,0.1);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-        }
-
-        .item-emoji {
-            font-size: 32px;
-            display: block;
-            margin-bottom: 8px;
-        }
-
-        .item-name {
-            font-size: 11px;
-            color: #ccc;
-            margin-bottom: 4px;
-        }
-
-        .item-price {
-            font-size: 12px;
-            color: #ffd700;
-        }
-
-        .item-rarity {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-        }
-
-        .item-rarity.common { background: #888; }
-        .item-rarity.rare { background: #4ecdc4; }
-        .item-rarity.epic { background: #9d4edd; }
-        .item-rarity.legendary { background: #ffd700; }
-
-        /* Gambling Wheel */
-        .gambling-container {
-            text-align: center;
-            padding: 20px;
-        }
-
-        .wheel {
-            font-size: 100px;
-            margin: 20px 0;
-            animation: none;
-            cursor: pointer;
-            filter: drop-shadow(0 10px 30px rgba(0,0,0,0.5));
-        }
-
-        .wheel.spinning {
-            animation: spin 1s cubic-bezier(0.17, 0.67, 0.83, 0.67);
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(720deg); }
-        }
-
-        .gamble-btn {
-            background: linear-gradient(135deg, #ffd700, #ff6b6b);
-            border: none;
-            color: #000;
-            padding: 12px 30px;
-            border-radius: 25px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 20px;
-        }
-
-        .gamble-btn:active {
-            transform: scale(0.95);
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            color: #888;
-            font-size: 24px;
-            cursor: pointer;
-            transition: color 0.3s;
-        }
-
-        .close-modal:hover {
-            color: #fff;
-        }
-
-        /* Toast Notification */
-        .toast {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.9);
-            color: #fff;
-            padding: 15px 30px;
-            border-radius: 25px;
-            font-size: 14px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-            z-index: 2000;
-            border: 1px solid rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
-        }
-
-        .toast.show {
-            opacity: 1;
-        }
-
-        /* Player Stats Modal */
-        .stats-list {
-            display: grid;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .stat-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .stat-item-label {
-            color: #888;
-            font-size: 12px;
-            text-transform: uppercase;
-        }
-
-        .stat-item-value {
-            color: #fff;
-            font-weight: bold;
-        }
+        body { font-family: monospace; background-color: #111; color: #eee; }
+        .btn { border: 1px solid #555; padding: 0.5rem 1rem; border-radius: 4px; background-color: #222; transition: background-color 0.1s; }
+        .btn:active { background-color: #444; }
+        .btn:disabled { background-color: #1a1a1a; color: #555; cursor: not-allowed; }
+        .modal-backdrop { position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; background-color: rgba(0, 0, 0, 0.8); }
+        .modal-content { border: 1px solid #555; background-color: #222; padding: 1rem; width: 90%; max-width: 400px; }
+        .hidden { display: none; }
+        .progress-bar-container { border: 1px solid #555; height: 12px; background-color: #1a1a1a; }
+        .progress-bar-fill { height: 100%; transition: width 0.2s; }
+        .enemy-target-selected { border: 2px solid #fbbf24 !important; }
+        #toast-notification-area { position: fixed; top: 1rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; pointer-events: none; z-index: 100; }
+        .toast-message { background-color: rgba(40, 40, 40, 0.9); border: 1px solid #555; padding: 0.5rem 1rem; border-radius: 4px; margin-bottom: 0.5rem; text-align: center; animation: fade-in-out 3s ease-in-out forwards; }
+        @keyframes fade-in-out { 0%, 100% { opacity: 0; transform: translateY(10px); } 10%, 80% { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body>
-    <div class="game-container">
-        <!-- Header Stats -->
-        <div class="header-stats">
-            <div class="stat-box">
-                <div class="stat-label">Health</div>
-                <div class="stat-value" id="health">100</div>
+<body class="flex items-center justify-center min-h-screen">
+
+    <div id="game-container" class="w-full max-w-sm h-screen p-2 flex flex-col gap-2 text-sm relative">
+        <div id="toast-notification-area"></div>
+        
+        <!-- Stats Section -->
+        <div class="border border-gray-600 p-2 flex flex-col gap-2">
+            <div class="flex items-center justify-between text-lg">
+                <div id="player-main-stats" class="flex items-center gap-4">
+                    <span>❤️<span id="health-value">10</span></span>
+                    <span>🛡️<span id="armor-value">3</span></span>
+                </div>
+                <div id="player-currency" class="flex items-center gap-4">
+                    <span>💰<span id="gold-value">99</span></span>
+                    <span>🌒<span id="moonstone-value">3</span></span>
+                </div>
             </div>
-            <div class="stat-box">
-                <div class="stat-label">Gold</div>
-                <div class="stat-value gold" id="gold">250</div>
+            <div id="player-status-effects" class="text-xl h-7"></div>
+            <div class="flex flex-col w-full gap-1">
+                <div class="w-full progress-bar-container"><div id="magic-bar" class="progress-bar-fill bg-blue-500" style="width: 100%;"></div></div>
+                <div class="w-full progress-bar-container"><div id="kill-bar" class="progress-bar-fill bg-green-500" style="width: 0%;"></div></div>
             </div>
-            <div class="stat-box">
-                <div class="stat-label">Level</div>
-                <div class="stat-value xp" id="level">7</div>
-            </div>
+            <div id="wave-counter" class="text-xs text-right text-cyan-400"></div>
         </div>
 
         <!-- Main Game Area -->
-        <div class="game-area">
-            <div class="battle-arena">
-                <div class="enemy-container" id="enemyContainer">
-                    <div class="enemy" id="enemy">👹</div>
-                    <div class="enemy-hp">
-                        <div class="enemy-hp-fill" id="enemyHp"></div>
-                    </div>
-                </div>
+        <div class="flex-grow flex flex-col gap-2 border border-gray-600 p-2">
+            <div id="enemy-display-container" class="relative h-32 flex items-center justify-around gap-2 select-none border border-gray-700 bg-black/50 p-1">
+                <!-- Enemies will be generated here -->
             </div>
+            
+            <div class="flex-shrink-0 flex flex-col gap-2">
+                <!-- Action Rows -->
+                <div id="pre-battle-actions" class="grid grid-cols-3 gap-2">
+                    <button id="reshuffleBtn" class="btn relative col-span-1">🔃<span id="reshuffle-counter" class="absolute bottom-0 right-1 text-xs"></span></button>
+                    <button id="start-battle-btn" class="btn col-span-1">START</button>
+                    <button id="luckBtn" class="btn col-span-1">🍀<span id="luck-value">10</span>%</button>
+                </div>
+                <div id="in-battle-actions" class="hidden grid grid-cols-3 gap-2">
+                    <button id="luckActivateBtn" class="btn col-span-1">🍀</button>
+                    <button id="attackBtn" class="btn col-span-1" disabled>💥<span id="attack-value">10</span></button>
+                    <button id="itemsBtn" class="btn col-span-1">🎒</button>
+                </div>
 
-            <!-- Action Cards -->
-            <div class="action-cards">
-                <div class="action-card" onclick="attack()">
-                    <span class="action-icon">⚔️</span>
-                    <span class="action-name">Attack</span>
+                <div class="grid grid-cols-3 gap-2">
+                    <button id="flameheartBtn" class="btn">❤️‍🔥</button>
+                    <button id="frostbiteBtn" class="btn">❄️</button>
+                    <button id="armorheartBtn" class="btn">🩶</button>
                 </div>
-                <div class="action-card" onclick="castSpell()">
-                    <span class="action-icon">✨</span>
-                    <span class="action-name">Magic</span>
+                <div class="grid grid-cols-2 gap-2">
+                    <button class="equip-slot btn h-12 relative">?</button>
+                    <button class="equip-slot btn h-12 relative">?</button>
                 </div>
-                <div class="action-card" onclick="usePotion()">
-                    <span class="action-icon">🧪</span>
-                    <span class="action-name">Potion</span>
-                </div>
-                <div class="action-card" onclick="defend()">
-                    <span class="action-icon">🛡️</span>
-                    <span class="action-name">Defend</span>
+                
+                <div class="grid grid-cols-3 gap-2">
+                    <button id="fortunesBtn" class="btn">🔮</button>
+                    <button id="buildBtn" class="btn">🔨</button>
+                    <button id="shopBtn" class="btn">🪙</button>
                 </div>
             </div>
         </div>
 
-        <!-- Bottom Navigation -->
-        <div class="bottom-nav">
-            <div class="nav-item active" onclick="switchTab('battle', this)">
-                <span class="nav-icon">⚔️</span>
-                <span class="nav-label">Battle</span>
-            </div>
-            <div class="nav-item" onclick="openShop()">
-                <span class="nav-icon">🏪</span>
-                <span class="nav-label">Shop</span>
-            </div>
-            <div class="nav-item" onclick="openInventory()">
-                <span class="nav-icon">🎒</span>
-                <span class="nav-label">Items</span>
-            </div>
-            <div class="nav-item" onclick="openGambling()">
-                <span class="nav-icon">🎰</span>
-                <span class="nav-label">Gamble</span>
-            </div>
-            <div class="nav-item" onclick="openStats()">
-                <span class="nav-icon">📊</span>
-                <span class="nav-label">Stats</span>
-            </div>
-        </div>
+        <!-- Modals -->
+        <div id="fortunesModal" class="hidden modal-backdrop"><div class="modal-content"><div id="fortunes-content" class="space-y-2 text-center"></div></div></div>
+        <div id="buildModal" class="hidden modal-backdrop"><div class="modal-content"><div class="space-y-2"><div class="flex justify-between items-center"><span>WEAPON</span><button data-slot-type="weapon" class="w-20 h-14 bg-black btn"></button></div><div class="flex justify-between items-center"><span>ARMOR</span><button data-slot-type="armor" class="w-20 h-14 bg-black btn"></button></div><div class="flex justify-between items-center"><span>RING</span><button data-slot-type="ring" class="w-20 h-14 bg-black btn"></button></div></div></div></div>
+        <div id="shopModal" class="hidden modal-backdrop"><div class="modal-content"><h3 class="text-center mb-2">SHOP</h3><div id="shop-items-container" class="space-y-2"></div></div></div>
+        <div id="reelModal" class="hidden modal-backdrop"><div class="modal-content"><div id="reel-items" class="flex gap-2 text-2xl"><button class="reel-item p-2">☠️</button><button class="reel-item p-2">🕯️</button><button class="reel-item p-2">🐌</button><button class="reel-item p-2">❇️</button><button class="reel-item p-2">🌟</button><button class="reel-item p-2">⚡</button></div></div></div>
+        <div id="equipmentChoiceModal" class="hidden modal-backdrop"><div class="modal-content"><div id="equipmentChoiceContent" class="space-y-2"></div></div></div>
+        <div id="fortuneDetailModal" class="hidden modal-backdrop"><div class="modal-content"><div id="fortuneDetailContent" class="space-y-2 text-center"></div></div></div>
+        <div id="giftModal" class="hidden modal-backdrop"><div class="modal-content text-center"><h2 class="mb-4">A GIFT!</h2><div id="gift-rewards" class="space-y-2 mb-4"><div data-reward="armor" class="gift-reward-item p-2 border border-transparent flex items-center justify-center"><span>🛡️</span><span class="ml-2"></span></div><div data-reward="gold" class="gift-reward-item p-2 border border-transparent flex items-center justify-center"><span>💰</span><span class="ml-2"></span></div><div data-reward="luck" class="gift-reward-item p-2 border border-transparent flex items-center justify-center"><span>🍀</span><span class="ml-2"></span></div></div></div></div>
+        <div id="killMeterModal" class="hidden modal-backdrop"><div class="modal-content text-center"><h2 class="mb-4">UPGRADE!</h2><div id="kill-meter-rewards" class="space-y-2"><button data-upgrade="health" class="btn w-full">❤️ Full Heal/+1 Max</button><button data-upgrade="luck" class="btn w-full">🍀 +5% Luck</button></div></div></div>
+        <div id="luckModal" class="hidden modal-backdrop"><div class="modal-content text-center"><h2 class="mb-4">LUCK</h2><div id="luck-options" class="space-y-2"><button data-luck="attack" class="btn w-full">💥 Attack</button><button data-luck="magic" class="btn w-full">✨ Magic</button><button data-luck="choices" class="btn w-full">🎲 Choices</button></div></div></div>
+        <div id="startModal" class="hidden modal-backdrop"><div class="modal-content text-center"><h2 class="mb-4">Can't get to wave 13. 🤡</h2><div class="space-y-2"><button id="start-game-btn" class="btn w-full">START GAME</button><button id="how-to-play-btn" class="btn w-full">HOW TO PLAY</button></div></div></div>
+        <div id="tutorialModal" class="hidden modal-backdrop"><div class="modal-content"><h2 class="text-lg mb-2 text-center">HOW TO PLAY</h2><div class="text-xs space-y-1"><p><strong>🔃 Reroll:</strong> New enemies. Chance for 🎁 or Elite.</p><p><strong>🟩 XP Bar:</strong> Fills on kills. Full = Upgrade.</p><p><strong>🔮 Fortunes:</strong> Sacrifice for a powerful perk.</p><p><strong>🟦 Magic Bar:</strong> Fuels spells.</p><p><strong>? Moon Arts:</strong> Spend 🌒 on limited-use skills.</p><p><strong>🍀 Luck:</strong> Pre-battle choice. Activate in combat for a bonus.</p></div><button id="close-tutorial-btn" class="btn w-full mt-4">CLOSE</button></div></div>
+        <div id="deathModal" class="hidden modal-backdrop"><div class="modal-content text-center"><h2 class="text-4xl mb-2">🪦</h2><div id="death-message" class="mb-4"></div><button id="continue-btn" class="btn w-full">CONTINUE</button></div></div>
     </div>
-
-    <!-- Shop Modal -->
-    <div class="modal" id="shopModal">
-        <div class="modal-content">
-            <button class="close-modal" onclick="closeModal('shopModal')">✕</button>
-            <div class="modal-header">⚔️ Merchant's Shop</div>
-            <div class="shop-grid">
-                <div class="shop-item" onclick="buyItem('Flame Sword', 100)">
-                    <span class="item-rarity epic"></span>
-                    <span class="item-emoji">🗡️</span>
-                    <span class="item-name">Flame Sword</span>
-                    <span class="item-price">100 💰</span>
-                </div>
-                <div class="shop-item" onclick="buyItem('Health Elixir', 50)">
-                    <span class="item-rarity common"></span>
-                    <span class="item-emoji">💉</span>
-                    <span class="item-name">Health Elixir</span>
-                    <span class="item-price">50 💰</span>
-                </div>
-                <div class="shop-item" onclick="buyItem('Dragon Scale', 200)">
-                    <span class="item-rarity legendary"></span>
-                    <span class="item-emoji">🛡️</span>
-                    <span class="item-name">Dragon Scale</span>
-                    <span class="item-price">200 💰</span>
-                </div>
-                <div class="shop-item" onclick="buyItem('Mana Crystal', 75)">
-                    <span class="item-rarity rare"></span>
-                    <span class="item-emoji">💎</span>
-                    <span class="item-name">Mana Crystal</span>
-                    <span class="item-price">75 💰</span>
-                </div>
-                <div class="shop-item" onclick="buyItem('Thunder Spell', 150)">
-                    <span class="item-rarity epic"></span>
-                    <span class="item-emoji">⚡</span>
-                    <span class="item-name">Thunder Spell</span>
-                    <span class="item-price">150 💰</span>
-                </div>
-                <div class="shop-item" onclick="buyItem('Lucky Charm', 300)">
-                    <span class="item-rarity legendary"></span>
-                    <span class="item-emoji">🍀</span>
-                    <span class="item-name">Lucky Charm</span>
-                    <span class="item-price">300 💰</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Inventory Modal -->
-    <div class="modal" id="inventoryModal">
-        <div class="modal-content">
-            <button class="close-modal" onclick="closeModal('inventoryModal')">✕</button>
-            <div class="modal-header">🎒 Inventory</div>
-            <div class="inventory-grid">
-                <div class="inventory-item">
-                    <span class="item-rarity rare"></span>
-                    <span class="item-emoji">⚔️</span>
-                    <span class="item-name">Steel Blade</span>
-                </div>
-                <div class="inventory-item">
-                    <span class="item-rarity common"></span>
-                    <span class="item-emoji">🧪</span>
-                    <span class="item-name">Health Potion x3</span>
-                </div>
-                <div class="inventory-item">
-                    <span class="item-rarity epic"></span>
-                    <span class="item-emoji">📜</span>
-                    <span class="item-name">Fireball Scroll</span>
-                </div>
-                <div class="inventory-item">
-                    <span class="item-rarity common"></span>
-                    <span class="item-emoji">🍞</span>
-                    <span class="item-name">Bread x5</span>
-                </div>
-                <div class="inventory-item">
-                    <span class="item-rarity rare"></span>
-                    <span class="item-emoji">💍</span>
-                    <span class="item-name">Ring of Power</span>
-                </div>
-                <div class="inventory-item">
-                    <span class="item-rarity legendary"></span>
-                    <span class="item-emoji">🔮</span>
-                    <span class="item-name">Oracle Stone</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Gambling Modal -->
-    <div class="modal" id="gamblingModal">
-        <div class="modal-content">
-            <button class="close-modal" onclick="closeModal('gamblingModal')">✕</button>
-            <div class="modal-header">🎰 Fortune's Wheel</div>
-            <div class="gambling-container">
-                <div class="wheel" id="wheel">🎡</div>
-                <div style="font-size: 14px; color: #888; margin-bottom: 10px;">Cost: 50 Gold</div>
-                <div style="font-size: 18px; margin-bottom: 20px;" id="gambleResult"></div>
-                <button class="gamble-btn" onclick="spinWheel()">SPIN THE WHEEL</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Stats Modal -->
-    <div class="modal" id="statsModal">
-        <div class="modal-content">
-            <button class="close-modal" onclick="closeModal('statsModal')">✕</button>
-            <div class="modal-header">📊 Player Stats</div>
-            <div class="stats-list">
-                <div class="stat-item">
-                    <span class="stat-item-label">Attack Power</span>
-                    <span class="stat-item-value">45</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-item-label">Defense</span>
-                    <span class="stat-item-value">32</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-item-label">Magic Power</span>
-                    <span class="stat-item-value">28</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-item-label">Critical Rate</span>
-                    <span class="stat-item-value">15%</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-item-label">Dodge Rate</span>
-                    <span class="stat-item-value">10%</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-item-label">Experience</span>
-                    <span class="stat-item-value">2,450 / 3,000</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-item-label">Monsters Slain</span>
-                    <span class="stat-item-value">127</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-item-label">Dungeons Cleared</span>
-                    <span class="stat-item-value">8</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Toast Notification -->
-    <div class="toast" id="toast"></div>
 
     <script>
-        let gold = 250;
-        let health = 100;
-        let enemyHp = 100;
-        const enemies = ['👹', '🐉', '👺', '👻', '🦇', '🕷️', '👾', '🐺'];
-        let currentEnemy = 0;
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements ---
+            const goldValueEl = document.getElementById('gold-value');
+            const moonstoneValueEl = document.getElementById('moonstone-value');
+            const reshuffleCounter = document.getElementById('reshuffle-counter');
+            const shopItemsContainer = document.getElementById('shop-items-container');
+            const enemyDisplayContainer = document.getElementById('enemy-display-container');
+            const reshuffleBtn = document.getElementById('reshuffleBtn');
+            const reelModal = document.getElementById('reelModal');
+            const equipSlots = document.querySelectorAll('.equip-slot');
+            const reelItems = document.querySelectorAll('.reel-item');
+            const equipmentChoiceModal = document.getElementById('equipmentChoiceModal');
+            const equipmentChoiceContent = document.getElementById('equipmentChoiceContent');
+            const startBattleBtn = document.getElementById('start-battle-btn');
+            const waveCounterEl = document.getElementById('wave-counter');
+            const flameheartBtn = document.getElementById('flameheartBtn');
+            const frostbiteBtn = document.getElementById('frostbiteBtn');
+            const armorheartBtn = document.getElementById('armorheartBtn');
+            const fortunesContent = document.getElementById('fortunes-content');
+            const fortuneDetailModal = document.getElementById('fortuneDetailModal');
+            const fortuneDetailContent = document.getElementById('fortuneDetailContent');
+            const attackBtn = document.getElementById('attackBtn');
+            const attackValueEl = document.getElementById('attack-value');
+            const armorValueEl = document.getElementById('armor-value');
+            const healthValueEl = document.getElementById('health-value');
+            const killBarEl = document.getElementById('kill-bar');
+            const magicBarEl = document.getElementById('magic-bar');
+            const luckBtn = document.getElementById('luckBtn');
+            const luckValueEl = document.getElementById('luck-value');
+            const giftModal = document.getElementById('giftModal');
+            let giftRewardItems = document.querySelectorAll('.gift-reward-item');
+            const killMeterModal = document.getElementById('killMeterModal');
+            const killMeterRewards = document.getElementById('kill-meter-rewards');
+            const luckModal = document.getElementById('luckModal');
+            const deathModal = document.getElementById('deathModal');
+            const deathMessageEl = document.getElementById('death-message');
+            const continueBtn = document.getElementById('continue-btn');
+            const startModal = document.getElementById('startModal');
+            const tutorialModal = document.getElementById('tutorialModal');
+            const startGameBtn = document.getElementById('start-game-btn');
+            const howToPlayBtn = document.getElementById('how-to-play-btn');
+            const closeTutorialBtn = document.getElementById('close-tutorial-btn');
+            const playerStatusEffectsEl = document.getElementById('player-status-effects');
+            const toastNotificationArea = document.getElementById('toast-notification-area');
+            const preBattleActions = document.getElementById('pre-battle-actions');
+            const inBattleActions = document.getElementById('in-battle-actions');
+            const luckActivateBtn = document.getElementById('luckActivateBtn');
+            const itemsBtn = document.getElementById('itemsBtn');
+            const fortunesBtn = document.getElementById('fortunesBtn');
+            const buildBtn = document.getElementById('buildBtn');
+            const shopBtn = document.getElementById('shopBtn');
+            const shopModal = document.getElementById('shopModal');
+            const allModals = Array.from(document.querySelectorAll('.modal-backdrop'));
 
-        function attack() {
-            const damage = Math.floor(Math.random() * 30) + 20;
-            showDamage(damage);
-            enemyHp -= damage;
-            updateEnemyHp();
-            vibrate();
+            // --- Minimalist UI Helpers ---
+            const showToast = (htmlContent) => {
+                toastNotificationArea.innerHTML = '';
+                const toast = document.createElement('div');
+                toast.className = 'toast-message';
+                toast.innerHTML = htmlContent;
+                toastNotificationArea.appendChild(toast);
+                setTimeout(() => { if (toast.parentElement === toastNotificationArea) toast.remove(); }, 2900);
+            };
+
+            // --- Game Data (Identical to original) ---
+            const shopItems = [ { id: 'tonic', name: '🍶 TONIC', cost: 5, desc: 'Restores 6 HP.' }, { id: 'cross', name: '✝️ CROSS', cost: 15, desc: 'Cures curse, +1 max HP.' }, { id: 'gem', name: '💎 GEM', cost: 25, desc: 'Gain a buff, give a debuff.' }, { id: 'fairy', name: '🧚🏼 FAIRY', cost: 40, desc: 'Restores magic meter.' }, { id: 'moonstone', name: '🌒 MOONSTONE', cost: 50, desc: 'Unlocks the use of moon arts.' }, { id: 'infinityRing', name: '♾️ Infinity Ring', cost: 75, desc: 'Take damage to reroll.', oneTime: true }, ];
+            const enemyData = { '💀': { name: 'Skeleton', hp: 9, attack: 1 }, '🐺': { name: 'Wolf', hp: 10, attack: 1 }, '🐸': { name: 'Frog', hp: 9, attack: 1, special: '☠️' }, '🦄': { name: 'Unicorn', hp: 22, attack: 1, special: '❇️' }, '🐲': { name: 'Dragon', hp: 15, attack: 3 }, '🐍': { name: 'Serpent', hp: 9, attack: 1, special: '☠️' }, '🐀': { name: 'Rat', hp: 8, attack: 1 }, '🐦‍⬛': { name: 'Crow', hp: 8, attack: 1, special: '🕯️' }, '🕷️': { name: 'Spider', hp: 8, attack: 1, special: '☠️' }, '🦂': { name: 'Scorpion', hp: 12, attack: 2 }, '🦟': { name: 'Mosquito', hp: 3, attack: 3, special: '🐌' }, '🧟': { name: 'Zombie', hp: 10, attack: 1, special: '🐌' }, '🧞': { name: 'Genie', hp: 12, attack: 1, special: '❇️' }, '🧌': { name: 'Troll', hp: 14, attack: 2 }, '🥷': { name: 'Ninja', hp: 10, attack: 1, special: '🫳' }, '🧛': { name: 'Vampire', hp: 12, attack: 2, special: '🕯️' }, '🦹': { name: 'Supervillain', hp: 25, attack: 3 }, '🎁': { name: 'Gift', hp: 1, attack: 0 } };
+            const equipmentOptions = { weapon: [ { emoji: '🏹', name: 'Bow (+1 💥)', desc: 'Durable, useful item.', bonus: 1 }, { emoji: '🗡️', name: 'Dagger (+2 💥)', desc: 'Durable, useful item.', bonus: 2 }, { emoji: '🔨', name: 'Hammer (+5 💥)', desc: 'Durable, useful item.', bonus: 5 } ], armor: [ { emoji: '🧥', name: 'Leather Gear (+2 🛡️)', desc: 'Durable, useful item.', bonus: 2 }, { emoji: '🪨', name: 'Rock Bracer (+4 🛡️)', desc: 'Durable, useful item.', bonus: 4 }, { emoji: '🕸️', name: 'Cloak (+15% 🍀)', desc: 'Durable, useful item.', luckBonus: 15 } ], ring: [ { emoji: '💍', name: 'Eccentric Jewel', desc: 'Durable, useful item.' } ] };
+            const spellDescriptions = { flameheart: { title: "FLAMEHEART:", desc1: "Deal 5 and heal 5 HP.", desc2: "Depletes half magic bar." }, frostbite: { title: "FROSTBITE:", desc1: "Deal 5 damage & inflict 🐌.", desc2: "Depletes half magic bar." }, armorheart: { title: "ARMORHEART:", desc1: "Add current health to armor.", desc2: "Depletes half magic bar." } };
+            const symbolDescriptions = { '☠️': { title: "☠️ POISON", desc: "Deals 1 damage directly to HP per turn." }, '🕯️': { title: "🕯️ CURSE", desc: "Attacks deal half damage and inflict the other half on you." }, '🐌': { title: "🐌 SLUGGISH", desc: "50% chance your or an enemy's action has no effect." }, '❇️': { title: "❇️ REGEN", desc: "Heals 1 HP per turn." }, '🌟': { title: "🌟 BLESSING", desc: "Adds armor value to attack damage." }, '⚡': { title: "⚡ RUSH", desc: "Grants 2 actions per turn." } };
+            const sacrifices = [ { title: 'BLOOD PACT', desc: '-3 Max HP' }, { title: 'BROKEN ANKLE', desc: '-10% Luck' }, { title: 'HEARTBREAK', desc: '❤️‍🔥 or 🩶 per battle' }, { title: 'GAMBLING DEBT', desc: '-30 Gold' }, { title: 'CLUMSY', desc: 'Lose 1 🌘' }, { title: 'UNSTABLE MIND', desc: 'Share 🍶 with enemy' } ];
+            const fortunes = [ { text: 'Durable Stones', rarity: 'RARE', desc: '+1 Status stone use', color: '#60a5fa' }, { text: 'Efficient Magic', rarity: 'RARE', desc: '1/2 MP cost', color: '#60a5fa' }, { text: 'Bartering Edge', rarity: 'RARE', desc: '15% shop discount', color: '#60a5fa' }, { text: 'Archer\'s Edge', rarity: 'EPIC', desc: 'Attacks all with 🏹', color: '#fbbf24' }, { text: 'Enchantment', rarity: 'EPIC', desc: '🧚🏼also grants ❇️', color: '#fbbf24' }, { text: 'Battle Grace', rarity: 'EPIC', desc: 'Buffs restore 1 🛡️', color: '#fbbf24' }, { text: 'Prolonged Torment', rarity: 'LEGENDARY', desc: '2x 🕯️and 🐌 durations', color: '#f472b6' }, { text: 'Thief Strike', rarity: 'LEGENDARY', desc: 'Steal 2 gold with 🗡️', color: '#f472b6' }, { text: 'Toxic Decay', rarity: 'LEGENDARY', desc: '☠️ can stack', color: '#f472b6' } ];
             
-            if (enemyHp <= 0) {
-                setTimeout(() => nextEnemy(), 500);
-            }
-        }
-
-        function castSpell() {
-            const damage = Math.floor(Math.random() * 40) + 30;
-            showDamage(damage, '#4ecdc4');
-            enemyHp -= damage;
-            updateEnemyHp();
-            vibrate();
+            // --- State ---
+            let unlocks = { extraMoonstone: false, extraVigor: false };
+            const saveUnlocks = () => localStorage.setItem('minimalistRoguelikeUnlocks', JSON.stringify(unlocks));
+            const loadUnlocks = () => { const saved = localStorage.getItem('minimalistRoguelikeUnlocks'); if (saved) unlocks = JSON.parse(saved); };
+            const getInitialPlayerState = () => ({ gold: 99, moonstones: unlocks.extraMoonstone ? 4 : 3, rerolls: 5, killCount: 0, maxHealth: unlocks.extraVigor ? 11 : 10, health: unlocks.extraVigor ? 11 : 10, armor: unlocks.extraVigor ? 4 : 3, maxArmor: unlocks.extraVigor ? 4 : 3, magic: 100, maxMagic: 100, luck: 10, selectedLuck: null, equipment: { weapon: null, armor: null, ring: null }, inventory: { tonic: 0, gem: 0, cross: 0, fairy: 0, moonstone: unlocks.extraMoonstone ? 4 : 3, infinityRing: 0 }, statusEffects: { '☠️': 0, '🕯️': 0, '🐌': 0, '❇️': 0, '🌟': 0, '⚡': 0 }, activeSacrifices: [], poisonInflictions: 0 });
+            let playerState; let waveCount = 1; let battleStarted = false; let playerActionsTaken = 0; const enemyPool = Object.keys(enemyData).filter(e => e !== '🎁'); const giftEmoji = '🎁'; let isReshuffling = false; let activeEquipSlot = null; let activeBuildSlot = null; let currentBattleTargetIndex = 0; let currentPreBattleEnemies = []; let currentEnemiesInBattle = []; let fortunePhase = 'sacrifice'; let selectedFortunes = []; let currentSacrifice = null; let luckActivatedThisBattle = false;
+            const delay = ms => new Promise(res => setTimeout(res, ms));
             
-            if (enemyHp <= 0) {
-                setTimeout(() => nextEnemy(), 500);
-            }
-        }
-
-        function usePotion() {
-            health = Math.min(100, health + 30);
-            document.getElementById('health').textContent = health;
-            showToast('🧪 Restored 30 HP!');
-            vibrate();
-        }
-
-        function defend() {
-            showToast('🛡️ Defense increased!');
-            vibrate();
-        }
-
-        function showDamage(damage, color = '#ff4444') {
-            const damageEl = document.createElement('div');
-            damageEl.className = 'damage-number';
-            damageEl.textContent = '-' + damage;
-            damageEl.style.color = color;
-            damageEl.style.left = (Math.random() * 60 + 20) + '%';
-            damageEl.style.top = '50%';
-            
-            document.getElementById('enemyContainer').appendChild(damageEl);
-            setTimeout(() => damageEl.remove(), 1000);
-        }
-
-        function updateEnemyHp() {
-            const hpPercent = Math.max(0, enemyHp);
-            document.getElementById('enemyHp').style.width = hpPercent + '%';
-        }
-
-        function nextEnemy() {
-            currentEnemy = (currentEnemy + 1) % enemies.length;
-            document.getElementById('enemy').textContent = enemies[currentEnemy];
-            enemyHp = 100;
-            updateEnemyHp();
-            
-            const goldReward = Math.floor(Math.random() * 50) + 20;
-            gold += goldReward;
-            document.getElementById('gold').textContent = gold;
-            showToast(`⚔️ Victory! +${goldReward} gold`);
-        }
-
-        function openShop() {
-            document.getElementById('shopModal').classList.add('active');
-            vibrate();
-        }
-
-        function openInventory() {
-            document.getElementById('inventoryModal').classList.add('active');
-            vibrate();
-        }
-
-        function openGambling() {
-            document.getElementById('gamblingModal').classList.add('active');
-            vibrate();
-        }
-
-        function openStats() {
-            document.getElementById('statsModal').classList.add('active');
-            vibrate();
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('active');
-            vibrate();
-        }
-
-        function buyItem(itemName, price) {
-            if (gold >= price) {
-                gold -= price;
-                document.getElementById('gold').textContent = gold;
-                showToast(`✅ Purchased ${itemName}!`);
-            } else {
-                showToast('❌ Not enough gold!');
-            }
-            vibrate();
-        }
-
-        function spinWheel() {
-            if (gold >= 50) {
-                gold -= 50;
-                document.getElementById('gold').textContent = gold;
-                
-                const wheel = document.getElementById('wheel');
-                const results = ['🎁', '💰', '💎', '⭐', '🍀', '❌'];
-                const rewards = [100, 75, 150, 25, 200, 0];
-                
-                wheel.classList.add('spinning');
-                document.getElementById('gambleResult').textContent = '';
-                
-                setTimeout(() => {
-                    wheel.classList.remove('spinning');
-                    const index = Math.floor(Math.random() * results.length);
-                    wheel.textContent = results[index];
-                    
-                    if (rewards[index] > 0) {
-                        gold += rewards[index];
-                        document.getElementById('gold').textContent = gold;
-                        document.getElementById('gambleResult').textContent = `Won ${rewards[index]} gold!`;
-                        document.getElementById('gambleResult').style.color = '#ffd700';
-                    } else {
-                        document.getElementById('gambleResult').textContent = 'Better luck next time!';
-                        document.getElementById('gambleResult').style.color = '#ff4444';
-                    }
-                }, 1000);
-            } else {
-                showToast('❌ Not enough gold!');
-            }
-            vibrate();
-        }
-
-        function switchTab(tab, element) {
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            element.classList.add('active');
-            vibrate();
-        }
-
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2000);
-        }
-
-        function vibrate() {
-            if (navigator.vibrate) {
-                navigator.vibrate(10);
-            }
-        }
-
-        // Enemy auto-attack simulation
-        setInterval(() => {
-            if (enemyHp > 0) {
-                const enemyDamage = Math.floor(Math.random() * 10) + 5;
-                health = Math.max(0, health - enemyDamage);
-                document.getElementById('health').textContent = health;
-                
-                if (health <= 0) {
-                    showToast('💀 You have been defeated!');
-                    setTimeout(() => {
-                        health = 100;
-                        document.getElementById('health').textContent = health;
-                    }, 2000);
+            // --- Logic Functions ---
+            const setActionsDisabled = (isDisabled) => {
+                const buttons = [attackBtn, luckActivateBtn, itemsBtn, ...equipSlots, flameheartBtn, frostbiteBtn, armorheartBtn];
+                buttons.forEach(btn => btn.disabled = isDisabled);
+                if (!isDisabled && playerState.health > 0) {
+                    attackBtn.disabled = false;
+                    if (!flameheartBtn.hasAttribute('data-heartbroken-this-battle')) flameheartBtn.disabled = false;
+                    frostbiteBtn.disabled = false;
+                    if (!armorheartBtn.hasAttribute('data-heartbroken-this-battle')) armorheartBtn.disabled = false;
+                    luckActivateBtn.disabled = luckActivatedThisBattle;
+                    itemsBtn.disabled = false;
+                    equipSlots.forEach(s => s.disabled = false);
                 }
+            };
+            const hasFortune = (fortuneText) => selectedFortunes.some(sf => sf.fortune.text === fortuneText);
+            const isActionSluggish = () => { if (playerState.statusEffects['🐌'] > 0 && Math.random() < 0.5) { showToast(`SLUGGISH! No effect!`); return true; } return false; };
+            async function processEndOfPlayerAction() {
+                playerActionsTaken++; const maxActions = playerState.statusEffects['⚡'] > 0 ? 2 : 1;
+                if (playerActionsTaken >= maxActions) { if (!currentEnemiesInBattle.every(e => e.isDefeated)) await enemyAttackPhase(); } 
+                else { showToast(`RUSH! Another action!`); setActionsDisabled(false); }
             }
-        }, 3000);
+            const updateStatusEffectsUI = () => {
+                let html = '';
+                for (const [effect, stacks] of Object.entries(playerState.statusEffects)) {
+                    if (stacks > 0) {
+                        const hasCounter = ['🕯️', '🐌', '🌟', '⚡'].includes(effect);
+                        html += `<span>${effect}${hasCounter ? `<sub>${stacks}</sub>` : ''}</span> `;
+                    }
+                }
+                playerStatusEffectsEl.innerHTML = html;
+                updateAttackValueUI();
+            };
+            const updateAttackValueUI = () => { let attackPower = 10; if (playerState.equipment.weapon) attackPower += playerState.equipment.weapon.bonus || 0; if (playerState.statusEffects['🌟'] > 0) attackPower += playerState.armor; attackValueEl.textContent = attackPower; };
+            const updatePlayerUI = () => {
+                goldValueEl.textContent = playerState.gold;
+                moonstoneValueEl.textContent = playerState.moonstones;
+                reshuffleCounter.textContent = playerState.rerolls;
+                armorValueEl.textContent = playerState.armor;
+                healthValueEl.textContent = playerState.health;
+                luckValueEl.textContent = playerState.luck;
+                updateAttackValueUI();
+                magicBarEl.style.width = `${(playerState.magic / playerState.maxMagic) * 100}%`;
+                const isCharged = playerState.killCount >= 10;
+                killBarEl.style.width = isCharged ? '100%' : `${(playerState.killCount / 10) * 100}%`;
+                killBarEl.style.backgroundColor = isCharged ? '#fb923c' : '#34d399';
+                reshuffleBtn.disabled = playerState.rerolls <= 0 || battleStarted;
+            };
+            const updateSingleEnemyDisplay = (enemyIndex) => {
+                const enemy = currentEnemiesInBattle[enemyIndex]; if (!enemy || !enemy.ref) return;
+                const hpText = enemy.ref.querySelector('.enemy-hp-text');
+                const statsContainer = enemy.ref.querySelector('.enemy-stats-container');
+                if (hpText) hpText.textContent = `${enemy.hp}/${enemy.maxHp}`;
+                if (statsContainer) {
+                    const statusIcons = Object.entries(enemy.statusEffects).filter(([_, v]) => v > 0).map(([k, v]) => `${k}${['🐌','🕯️'].includes(k) || (k==='☠️' && hasFortune('Toxic Decay')) ? `<sub>${v}</sub>` : ''}`).join(' ');
+                    statsContainer.innerHTML = `💥${enemy.attack} ${enemyData[enemy.emoji].special || ''} ${statusIcons}`;
+                }
+                if (enemy.isDefeated) enemy.ref.classList.add('opacity-30');
+            };
+            const updateWaveCounterUI = () => waveCounterEl.textContent = `WAVE ${waveCount}`;
+            const displayInfoInSideWindow = (title, ...descriptions) => { if (battleStarted) return; showToast(`<strong>${title}</strong><br>${descriptions.join('<br>')}`); };
+            const displaySpellInfo = (spellKey) => { const spell = spellDescriptions[spellKey]; if (spell) displayInfoInSideWindow(spell.title, spell.desc1, spell.desc2); };
+            const updateLuckModalUI = () => luckModal.querySelectorAll('button[data-luck]').forEach(opt => { opt.style.backgroundColor = opt.dataset.luck === playerState.selectedLuck ? '#34d399' : '#222'; });
+            const showFortunes = () => { fortunePhase = 'fortune'; fortunesContent.innerHTML = `<h2 class="text-lg text-blue-400">FORTUNE</h2>`; const chosenFortuneTexts = selectedFortunes.map(sf => sf.fortune.text); const availableFortunes = fortunes.filter(f => !chosenFortuneTexts.includes(f.text)); const options = shuffle([...availableFortunes]).slice(0, 3); options.forEach(fortune => { const button = document.createElement('button'); button.className = `btn w-full text-left`; button.innerHTML = `<span style="color: ${fortune.color};">${fortune.text}</span><br><span class="text-xs text-gray-400">${fortune.desc}</span>`; button.onclick = () => { if (currentSacrifice && selectedFortunes.length < 4) { selectedFortunes.push({ sacrifice: currentSacrifice, fortune: fortune }); if (fortune.text === 'Durable Stones') equipSlots.forEach(slot => { if (slot.dataset.symbol) { let uses = parseInt(slot.dataset.uses, 10); uses++; slot.dataset.uses = uses; const counterSpan = slot.querySelector('.uses-counter'); if (counterSpan) counterSpan.textContent = uses; } }); } currentSacrifice = null; closeModal(fortunesModal); }; fortunesContent.appendChild(button); }); };
+            const showSacrifices = () => { fortunePhase = 'sacrifice'; fortunesContent.innerHTML = ''; if (selectedFortunes.length < 4) { fortunesContent.innerHTML = `<h2 class="text-lg text-blue-400">SACRIFICE</h2>`; const chosenSacrificeTitles = selectedFortunes.map(sf => sf.sacrifice); const availableSacrifices = sacrifices.filter(s => !chosenSacrificeTitles.includes(s.title)); const selectedSacrifices = shuffle([...availableSacrifices]).slice(0, 2); selectedSacrifices.forEach(sacrifice => { const button = document.createElement('button'); button.className = 'btn w-full text-left'; let canSelect = true; switch (sacrifice.title) { case 'BLOOD PACT': if (playerState.maxHealth <= 3) canSelect = false; break; case 'BROKEN ANKLE': if (playerState.luck < 10) canSelect = false; break; case 'GAMBLING DEBT': if (playerState.gold < 30) canSelect = false; break; case 'CLUMSY': if (playerState.moonstones < 1) canSelect = false; break; } if (!canSelect) button.disabled = true; button.innerHTML = `<span>${sacrifice.title}</span><br><span class="text-xs text-gray-400">${sacrifice.desc}</span>`; button.onclick = () => { if (!canSelect) return; switch (sacrifice.title) { case 'BLOOD PACT': playerState.maxHealth -= 3; playerState.health = Math.min(playerState.health, playerState.maxHealth); break; case 'BROKEN ANKLE': playerState.luck -= 10; break; case 'GAMBLING DEBT': playerState.gold -= 30; break; case 'CLUMSY': playerState.moonstones -= 1; playerState.inventory.moonstone--; break; } if(!playerState.activeSacrifices.includes(sacrifice.title)) playerState.activeSacrifices.push(sacrifice.title); updatePlayerUI(); currentSacrifice = sacrifice.title; showFortunes(); }; fortunesContent.appendChild(button); }); } else { fortunesContent.innerHTML = "<p>Your destiny is sealed.</p>"; } if (selectedFortunes.length > 0) { const fortuneList = document.createElement('div'); fortuneList.className = 'mt-4 pt-2 border-t border-gray-600 flex flex-wrap justify-center gap-1 text-xs'; selectedFortunes.forEach(sf => { const fortuneEntry = document.createElement('div'); fortuneEntry.className = 'p-1 bg-black rounded-sm w-2/5 cursor-pointer'; fortuneEntry.innerHTML = `<p>${sf.sacrifice}</p><p style="color: ${sf.fortune.color};">${sf.fortune.text}</p>`; fortuneEntry.onclick = () => { fortuneDetailContent.innerHTML = `<h3 style="color: ${sf.fortune.color};">${sf.fortune.text}</h3><p>${sf.fortune.desc}</p><p class="text-xs text-gray-400">Sacrifice: ${sf.sacrifice}</p>`; openModal(fortuneDetailModal); }; fortuneList.appendChild(fortuneEntry); }); fortunesContent.appendChild(fortuneList); } };
+            const renderShop = () => { shopItemsContainer.innerHTML = ''; shopItems.forEach(item => { const itemOwned = playerState.inventory[item.id] || 0; const itemDiv = document.createElement('div'); itemDiv.className = 'flex justify-between items-center'; let buttonHtml; let currentCost = item.cost; if (hasFortune('Bartering Edge')) currentCost = Math.round(item.cost * 0.85); if (item.oneTime && itemOwned > 0) buttonHtml = `<button class="btn" disabled>OWNED</button>`; else if (battleStarted) { if (item.id === 'moonstone') buttonHtml = `<button class="btn" disabled>PASSIVE</button>`; else { let canUse = itemOwned > 0; if (item.id === 'cross') canUse = canUse && playerState.statusEffects['🕯️'] > 0; buttonHtml = `<button data-item-id="${item.id}" class="btn" ${!canUse ? 'disabled' : ''}>USE</button>`; } } else { const canAfford = playerState.gold >= currentCost; buttonHtml = `<button data-item-id="${item.id}" class="btn" ${!canAfford ? 'disabled' : ''}>🪙${currentCost}</button>`; } itemDiv.innerHTML = `<div><span>${item.name} (${itemOwned})</span><p class="text-xs text-gray-400">${item.desc}</p></div><div>${buttonHtml}</div>`; shopItemsContainer.appendChild(itemDiv); }); };
+            const buyItem = (itemId) => { const item = shopItems.find(i => i.id === itemId); if (!item) return; let currentCost = item.cost; if (hasFortune('Bartering Edge')) currentCost = Math.round(item.cost * 0.85); if (playerState.gold < currentCost) return; playerState.gold -= currentCost; playerState.inventory[item.id]++; if (item.id === 'moonstone') playerState.moonstones++; updatePlayerUI(); renderShop(); };
+            const useItem = (itemId) => { if (playerState.inventory[itemId] <= 0) return; const item = shopItems.find(i => i.id === itemId); if (!item || item.id === 'moonstone' || (item.id === 'cross' && playerState.statusEffects['🕯️'] <= 0)) return; let isFreeUse = false; if (luckActivatedThisBattle && playerState.selectedLuck === 'choices' && (Math.random() * 100 < playerState.luck)) { isFreeUse = true; showToast(`FREE USE!`); } if (!isFreeUse) playerState.inventory[itemId]--; switch (itemId) { case 'tonic': playerState.health = Math.min(playerState.maxHealth, playerState.health + 6); if (battleStarted && playerState.activeSacrifices.includes('UNSTABLE MIND')) { const livingEnemies = currentEnemiesInBattle.filter(e => !e.isDefeated && !e.isGift); if (livingEnemies.length > 0) { const randomEnemy = livingEnemies[Math.floor(Math.random() * livingEnemies.length)]; randomEnemy.hp = Math.min(randomEnemy.maxHp, randomEnemy.hp + 6); updateSingleEnemyDisplay(currentEnemiesInBattle.indexOf(randomEnemy)); } } break; case 'cross': playerState.statusEffects['🕯️'] = 0; playerState.maxHealth++; playerState.health++; break; case 'gem': const playerBuffs = ['❇️', '🌟', '⚡']; const randomBuff = playerBuffs[Math.floor(Math.random() * playerBuffs.length)]; if (['🌟', '⚡'].includes(randomBuff)) playerState.statusEffects[randomBuff] = 3; else playerState.statusEffects[randomBuff] = 1; if(hasFortune('Battle Grace')) playerState.armor = Math.min(playerState.maxArmor, playerState.armor + 1); const enemyDebuffs = ['☠️', '🕯️', '🐌']; const randomDebuff = enemyDebuffs[Math.floor(Math.random() * enemyDebuffs.length)]; applyDebuffToEnemy(currentBattleTargetIndex, randomDebuff); break; case 'fairy': playerState.magic = playerState.maxMagic; if (hasFortune('Enchantment')) { playerState.statusEffects['❇️'] = 1; if(hasFortune('Battle Grace')) playerState.armor = Math.min(playerState.maxArmor, playerState.armor + 1); } break; } updateStatusEffectsUI(); updatePlayerUI(); renderShop(); };
+            const applyDebuffToEnemy = (enemyIndex, debuff) => { const enemy = currentEnemiesInBattle[enemyIndex]; if (!enemy || enemy.isDefeated || enemy.isGift) return; if (['🐌', '🕯️'].includes(debuff)) enemy.statusEffects[debuff] = hasFortune('Prolonged Torment') ? 6 : 3; else if (debuff === '☠️') { if (hasFortune('Toxic Decay')) { playerState.poisonInflictions++; enemy.statusEffects[debuff] = Math.min(9, playerState.poisonInflictions); } else enemy.statusEffects[debuff] = 1; } updateSingleEnemyDisplay(enemyIndex); };
+            const openEquipmentChoiceModal = (slotType) => { equipmentChoiceContent.innerHTML = ''; let currentOptions = equipmentOptions[slotType] ? [...equipmentOptions[slotType]] : []; if (slotType === 'ring' && playerState.inventory.infinityRing > 0) currentOptions.push({ emoji: '♾️', name: 'Infinity Ring', desc: 'Take damage to reroll.' }); currentOptions.forEach(item => { const itemButton = document.createElement('button'); itemButton.className = 'btn w-full text-left flex items-center'; itemButton.innerHTML = `<span class="text-2xl w-10">${item.emoji}</span><div><span>${item.name}</span><p class="text-xs text-gray-400">${item.desc}</p></div>`; itemButton.onclick = () => { if (activeBuildSlot) { const currentSlotType = activeBuildSlot.dataset.slotType; const oldItem = playerState.equipment[currentSlotType]; playerState.equipment[currentSlotType] = item; activeBuildSlot.innerHTML = item.emoji; if (currentSlotType === 'armor') { if (oldItem) { playerState.maxArmor -= oldItem.bonus || 0; playerState.armor -= oldItem.bonus || 0; playerState.luck -= oldItem.luckBonus || 0; } playerState.maxArmor += item.bonus || 0; playerState.armor += item.bonus || 0; playerState.luck += item.luckBonus || 0; playerState.armor = Math.max(0, Math.min(playerState.armor, playerState.maxArmor)); } updatePlayerUI(); } closeModal(equipmentChoiceModal); }; equipmentChoiceContent.appendChild(itemButton); }); openModal(equipmentChoiceModal); };
+            
+            const openModal = (modal) => { allModals.forEach(m => m.classList.add('hidden')); modal.classList.remove('hidden'); };
+            const closeModal = (modal) => modal.classList.add('hidden');
+
+            const shuffle = (array) => { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array; };
+            
+            const reshuffleEnemies = (isInitial = false) => {
+                if (isReshuffling || (!isInitial && playerState.rerolls <= 0)) return;
+                if (!isInitial) {
+                    playerState.rerolls--;
+                    updatePlayerUI();
+                }
+                isReshuffling = true;
+                startBattleBtn.disabled = true;
+
+                const wantsGift = Math.random() < 0.25;
+                const wantsRed = Math.random() < 0.25;
+                let drawnSet = [];
+                let availablePool = shuffle([...enemyPool]);
+                let giftIndex = wantsGift ? Math.floor(Math.random() * 3) : -1;
+                for (let i = 0; i < 3; i++) {
+                    if (i === giftIndex) {
+                        drawnSet.push({ emoji: giftEmoji, isRed: false });
+                    } else {
+                        drawnSet.push({ emoji: availablePool.pop() || enemyPool[0], isRed: false });
+                    }
+                }
+                if (wantsRed) {
+                    const nonGiftIndices = drawnSet.map((e, i) => e.emoji !== giftEmoji ? i : -1).filter(i => i !== -1);
+                    if (nonGiftIndices.length > 0) {
+                        drawnSet[nonGiftIndices[Math.floor(Math.random() * nonGiftIndices.length)]].isRed = true;
+                    }
+                }
+                currentPreBattleEnemies = shuffle(drawnSet);
+                enemyDisplayContainer.innerHTML = '';
+                currentPreBattleEnemies.forEach(preBattleEnemy => {
+                    const stats = getDisplayEnemyStats(preBattleEnemy);
+                    const enemyBlock = document.createElement('div');
+                    enemyBlock.className = 'h-full w-1/3 flex flex-col items-center justify-center p-1 border border-gray-700 text-center';
+                    if (stats.isGift) {
+                        enemyBlock.innerHTML = `<span class="text-4xl">${stats.emoji}</span>`;
+                    } else {
+                        const data = enemyData[stats.emoji];
+                        const specialIcon = data.special ? ` ${data.special}` : '';
+                        enemyBlock.innerHTML = `<span class="text-4xl">${stats.emoji}${preBattleEnemy.isRed ? '<sup class="text-xl">‼️</sup>' : ''}</span><div class="text-xs">❤️${stats.hp} 💥${stats.attack}${specialIcon}</div>`;
+                    }
+                    enemyDisplayContainer.appendChild(enemyBlock);
+                });
+
+                isReshuffling = false;
+                if (!battleStarted) {
+                    startBattleBtn.disabled = false;
+                    updatePlayerUI();
+                    currentBattleTargetIndex = currentPreBattleEnemies.findIndex(e => e.emoji !== giftEmoji);
+                    if (currentBattleTargetIndex === -1) currentBattleTargetIndex = 0;
+                    updateTargetSelectionUI();
+                }
+            };
+
+            const updateTargetSelectionUI = () => {
+                const enemyBlocks = Array.from(enemyDisplayContainer.children);
+                enemyBlocks.forEach((block, index) => {
+                    block.classList.toggle('enemy-target-selected', index === currentBattleTargetIndex);
+                });
+            };
+
+            const executeSpell = (spellKey) => { let currentMagicCost = hasFortune('Efficient Magic') ? 25 : 50; if (luckActivatedThisBattle && playerState.selectedLuck === 'magic' && (Math.random() * 100 < playerState.luck)) { currentMagicCost = 0; showToast(`FREE CAST!`); } if (!battleStarted || playerState.magic < currentMagicCost) return; setActionsDisabled(true); playerState.magic -= currentMagicCost; updatePlayerUI(); if (isActionSluggish()) { processEndOfPlayerAction(); return; } const targetEnemy = currentEnemiesInBattle[currentBattleTargetIndex]; let upgradeTriggered = false; switch (spellKey) { case 'flameheart': if (targetEnemy && !targetEnemy.isDefeated && !targetEnemy.isGift) { const damage = 5; showToast(`-${damage} ❤️ to ${targetEnemy.emoji}`); targetEnemy.hp = Math.max(0, targetEnemy.hp - damage); updateSingleEnemyDisplay(currentBattleTargetIndex); if (targetEnemy.hp <= 0) upgradeTriggered = handleEnemyDefeat(currentBattleTargetIndex); } playerState.health = Math.min(playerState.maxHealth, playerState.health + 5); updatePlayerUI(); break; case 'frostbite': if (targetEnemy && !targetEnemy.isDefeated && !targetEnemy.isGift) { const damage = 5; showToast(`-${damage} ❤️ to ${targetEnemy.emoji}`); targetEnemy.hp = Math.max(0, targetEnemy.hp - damage); applyDebuffToEnemy(currentBattleTargetIndex, '🐌'); if (targetEnemy.hp <= 0) upgradeTriggered = handleEnemyDefeat(currentBattleTargetIndex); } break; case 'armorheart': playerState.armor += playerState.health; updatePlayerUI(); break; } if (!upgradeTriggered) processEndOfPlayerAction(); };
+            const getDisplayEnemyStats = (preBattleEnemy) => { if (!preBattleEnemy) return null; const data = enemyData[preBattleEnemy.emoji]; if (!data) return null; const isGift = preBattleEnemy.emoji === giftEmoji; const isStamped = preBattleEnemy.isRed; const hpBonus = Math.max(0, waveCount - 1); const attackBonus = Math.max(0, Math.floor((waveCount - 1) / 2)); const baseHp = isGift ? data.hp : (data.hp + hpBonus); const baseAttack = isGift ? data.attack : (data.attack + attackBonus); const finalHp = isGift ? baseHp : (isStamped ? baseHp * 2 : baseHp); const finalAttack = isGift ? baseAttack : (isStamped ? baseAttack * 2 : baseAttack); return { emoji: preBattleEnemy.emoji, hp: finalHp, attack: finalAttack, isGift: isGift, statusEffects: {} }; };
+            const playerTakesDamage = (damage) => { const damageAbsorbed = Math.min(playerState.armor, damage); if (damageAbsorbed > 0) playerState.armor -= damageAbsorbed; const remainingDamage = damage - damageAbsorbed; if (remainingDamage > 0) playerState.health = Math.max(0, playerState.health - remainingDamage); updatePlayerUI(); if (playerState.health <= 0) { attackBtn.disabled = true; handlePlayerDeath(); } };
+            const tickdownPlayerStatusEffects = () => { if (playerState.health <= 0) return; if (playerState.statusEffects['☠️'] > 0) { playerState.health = Math.max(0, playerState.health - 1); showToast(`Poison damage!`); if (playerState.health <= 0) { handlePlayerDeath(); return; } } if (playerState.statusEffects['❇️'] > 0) playerState.health = Math.min(playerState.maxHealth, playerState.health + 1); if (playerState.statusEffects['🕯️'] > 0) playerState.statusEffects['🕯️']--; if (playerState.statusEffects['🐌'] > 0) playerState.statusEffects['🐌']--; if (playerState.statusEffects['🌟'] > 0) playerState.statusEffects['🌟']--; if (playerState.statusEffects['⚡'] > 0) playerState.statusEffects['⚡']--; updatePlayerUI(); updateStatusEffectsUI(); };
+            const enemyAttackPhase = async () => { if (playerState.health <= 0) return; await delay(400); for (const enemy of currentEnemiesInBattle.filter(e => !e.isDefeated && !e.isGift)) { if (playerState.health <= 0) break; if (enemy.statusEffects['🐌'] > 0 && Math.random() < 0.5) {} else { showToast(`${enemy.emoji} attacks for ${enemy.attack} damage!`); await delay(300); playerTakesDamage(enemy.attack); await delay(300); const enemyInfo = enemyData[enemy.emoji]; if (enemyInfo.special) { if (enemyInfo.special === '🫳') playerState.gold = Math.max(0, playerState.gold - 5); else if (['🕯️', '🐌'].includes(enemyInfo.special)) playerState.statusEffects[enemyInfo.special] = 3; else if (enemyInfo.special === '☠️') playerState.statusEffects[enemyInfo.special] = 1; updateStatusEffectsUI(); } } if (enemy.statusEffects['🕯️'] > 0) enemy.statusEffects['🕯️']--; if (enemy.statusEffects['🐌'] > 0) enemy.statusEffects['🐌']--; const enemyIndex = currentEnemiesInBattle.findIndex(e => e === enemy); if (enemyIndex !== -1) updateSingleEnemyDisplay(enemyIndex); await delay(400); } if (playerState.health > 0) { tickdownPlayerStatusEffects(); playerActionsTaken = 0; setActionsDisabled(false); } };
+            const endBattle = () => { battleStarted = false; currentEnemiesInBattle = []; playerState.armor = playerState.maxArmor; attackBtn.disabled = true; luckActivatedThisBattle = false; luckActivateBtn.disabled = true; [flameheartBtn, frostbiteBtn, armorheartBtn].forEach(btn => { btn.disabled = false; btn.removeAttribute('data-heartbroken-this-battle'); }); equipSlots.forEach(s => s.disabled = false); playerState.statusEffects = Object.keys(playerState.statusEffects).reduce((acc, key) => { acc[key] = 0; return acc; }, {}); updateStatusEffectsUI(); waveCount++; updateWaveCounterUI(); preBattleActions.classList.remove('hidden'); inBattleActions.classList.add('hidden'); updatePlayerUI(); reshuffleEnemies(true); };
+            const checkBattleEnd = () => { if (currentEnemiesInBattle.every(enemy => enemy.isDefeated)) setTimeout(endBattle, 1000); };
+            const findNextTarget = (startIndex) => { const numEnemies = currentEnemiesInBattle.length; if (currentEnemiesInBattle.every(e => e.isDefeated)) return -1; let nextIndex = startIndex; do { nextIndex = (nextIndex + 1) % numEnemies; } while (currentEnemiesInBattle[nextIndex].isDefeated); return nextIndex; };
+            const handleEnemyDefeat = (defeatedIndex) => { const enemy = currentEnemiesInBattle[defeatedIndex]; if (!enemy || enemy.isDefeated) return false; enemy.isDefeated = true; let upgradeTriggered = false; if (!enemy.isGift) { playerState.killCount += enemy.isStamped ? 5 : 2; if (playerState.killCount >= 10) { playerState.killCount = 10; openModal(killMeterModal); upgradeTriggered = true; } } updatePlayerUI(); const nextTargetIndex = findNextTarget(defeatedIndex); updateSingleEnemyDisplay(defeatedIndex); if (nextTargetIndex !== -1) { currentBattleTargetIndex = nextTargetIndex; updateTargetSelectionUI(); } checkBattleEnd(); return upgradeTriggered; };
+            const showGiftPopup = (giftIndex) => { attackBtn.disabled = true; openModal(giftModal); giftRewardItems = document.querySelectorAll('.gift-reward-item'); const rewardTiers = { armor: getTieredReward(1), gold: getTieredReward(15), luck: getTieredReward(1) }; giftRewardItems.forEach(item => { const rewardType = item.dataset.reward; const rewardData = rewardTiers[rewardType]; item.dataset.value = rewardData.value; const textSpan = item.querySelector('span:last-child'); if (textSpan) { textSpan.style.color = rewardData.color; if (rewardType === 'armor') textSpan.textContent = `+${rewardData.value} Max Armor`; else if (rewardType === 'gold') textSpan.textContent = `+${rewardData.value} Gold`; else if (rewardType === 'luck') textSpan.textContent = `+${rewardData.value}% Luck`; } }); const winningIndex = Math.floor(Math.random() * 3); const winningElement = giftRewardItems[winningIndex]; const winningRewardType = winningElement.dataset.reward; const winningValue = parseInt(winningElement.dataset.value, 10); showToast(`You got: ${winningElement.textContent}`); awardGiftBuff(winningRewardType, winningValue); setTimeout(async () => { closeModal(giftModal); handleEnemyDefeat(giftIndex); await processEndOfPlayerAction(); }, 1500); };
+            const awardGiftBuff = (rewardType, amount) => { switch (rewardType) { case 'armor': playerState.maxArmor += amount; playerState.armor += amount; break; case 'gold': playerState.gold += amount; break; case 'luck': playerState.luck += amount; break; } updatePlayerUI(); };
+            const getTieredReward = (base) => ({ value: base + waveCount, color: '#fbbf24' }); // Simplified
+            const handlePreBattleTargeting = (e) => { if (battleStarted) return; const clickedBlock = e.target.closest('.h-full.w-1\\/3'); if (!clickedBlock) return; const enemyBlocks = Array.from(enemyDisplayContainer.children); const newIndex = enemyBlocks.indexOf(clickedBlock); if (newIndex !== -1 && currentPreBattleEnemies[newIndex].emoji !== giftEmoji) { currentBattleTargetIndex = newIndex; updateTargetSelectionUI(); } };
+            const handlePlayerDeath = () => { let message = "<p>You died.</p>"; let newUnlock = false; if (waveCount >= 6 && !unlocks.extraVigor) { unlocks.extraVigor = true; message += "<p class='text-green-400'>New Perk: Vigor.</p>"; newUnlock = true; } if (waveCount >= 4 && !unlocks.extraMoonstone) { unlocks.extraMoonstone = true; message += "<p class='text-yellow-400'>New Perk: Moonstone.</p>"; newUnlock = true; } if (newUnlock) saveUnlocks(); deathMessageEl.innerHTML = message; openModal(deathModal); };
+            
+            const startBattle = () => {
+                if (battleStarted || isReshuffling) return;
+                playerActionsTaken = 0; attackBtn.disabled = false;
+                battleStarted = true; preBattleActions.classList.add('hidden'); inBattleActions.classList.remove('hidden'); luckActivateBtn.disabled = false;
+                if (playerState.activeSacrifices.includes('HEARTBREAK')) { if (Math.random() < 0.5) flameheartBtn.disabled = true; else armorheartBtn.disabled = true; }
+                const hpBonus = Math.max(0, waveCount - 1); const attackBonus = Math.max(0, Math.floor((waveCount - 1) / 2));
+                currentEnemiesInBattle = currentPreBattleEnemies.map(preBattleEnemy => { const data = enemyData[preBattleEnemy.emoji]; const isStamped = preBattleEnemy.isRed; const isGift = preBattleEnemy.emoji === giftEmoji; const baseHp = isGift ? data.hp : (data.hp + hpBonus); const baseAttack = isGift ? data.attack : (data.attack + attackBonus); const hp = isGift ? baseHp : (isStamped ? baseHp * 2 : baseHp); const attack = isGift ? baseAttack : (isStamped ? baseAttack * 2 : baseAttack); return { emoji: preBattleEnemy.emoji, isStamped, isGift, hp, maxHp: hp, attack, isDefeated: false, ref: null, statusEffects: {'☠️': 0, '🕯️': 0, '🐌': 0} }; });
+                enemyDisplayContainer.innerHTML = '';
+                currentEnemiesInBattle.forEach((enemy, index) => {
+                    const enemyBlock = document.createElement('div');
+                    enemyBlock.className = 'h-full w-1/3 flex flex-col items-center justify-center p-1 border border-gray-700 cursor-pointer text-center';
+                    enemyBlock.innerHTML = `<span class="text-3xl">${enemy.emoji}${enemy.isStamped ? '<sup class="text-xl">‼️</sup>' : ''}</span><div class="enemy-hp-text text-xs"></div><div class="enemy-stats-container text-xs h-4"></div>`;
+                    enemy.ref = enemyBlock;
+                    enemyBlock.onclick = () => { if (enemy.isDefeated) return; currentBattleTargetIndex = index; updateTargetSelectionUI(); };
+                    enemyDisplayContainer.appendChild(enemyBlock);
+                    updateSingleEnemyDisplay(index);
+                });
+                const firstLivingEnemyIndex = currentEnemiesInBattle.findIndex(e => !e.isDefeated && !e.isGift);
+                if (firstLivingEnemyIndex !== -1) { currentBattleTargetIndex = firstLivingEnemyIndex; updateTargetSelectionUI(); }
+            };
+            const resetGame = () => { closeModal(deathModal); loadUnlocks(); playerState = getInitialPlayerState(); waveCount = 1; battleStarted = false; playerActionsTaken = 0; currentPreBattleEnemies = []; currentEnemiesInBattle = []; selectedFortunes = []; currentSacrifice = null; luckActivatedThisBattle = false; allModals.forEach(m => m.classList.add('hidden')); updatePlayerUI(); updateWaveCounterUI(); updateStatusEffectsUI(); attackBtn.disabled = true; luckActivateBtn.disabled = true; document.querySelectorAll('[data-slot-type]').forEach(btn => btn.innerHTML = ''); equipSlots.forEach(slot => { slot.innerHTML = `?`; delete slot.dataset.symbol; delete slot.dataset.uses; }); preBattleActions.classList.remove('hidden'); inBattleActions.classList.add('hidden'); reshuffleEnemies(true); };
+            
+            // --- Init and Event Listeners ---
+            const initGame = () => {
+                loadUnlocks(); playerState = getInitialPlayerState();
+                startBattleBtn.addEventListener('click', startBattle);
+                reshuffleBtn.addEventListener('click', () => { if (!battleStarted && !isReshuffling) reshuffleEnemies(); });
+                continueBtn.addEventListener('click', resetGame);
+                enemyDisplayContainer.addEventListener('click', handlePreBattleTargeting);
+                startGameBtn.addEventListener('click', () => { closeModal(startModal); reshuffleEnemies(true); updatePlayerUI(); updateWaveCounterUI(); });
+                howToPlayBtn.addEventListener('click', () => openModal(tutorialModal));
+                closeTutorialBtn.addEventListener('click', () => { closeModal(tutorialModal); openModal(startModal); });
+                allModals.forEach(m => m.addEventListener('click', (e) => { if (e.target === m) closeModal(m); }));
+                
+                [{ btn: flameheartBtn, key: 'flameheart' }, { btn: frostbiteBtn, key: 'frostbite' }, { btn: armorheartBtn, key: 'armorheart' }].forEach(({ btn, key }) => {
+                    btn.addEventListener('click', () => battleStarted ? executeSpell(key) : displaySpellInfo(key));
+                });
+
+                equipSlots.forEach(slot => { slot.addEventListener('click', async () => { if (battleStarted) { const symbol = slot.dataset.symbol; let uses = parseInt(slot.dataset.uses || '0', 10); if (!symbol || uses <= 0) return; setActionsDisabled(true); let isFreeUse = false; if (luckActivatedThisBattle && playerState.selectedLuck === 'choices' && (Math.random() * 100 < playerState.luck)) { isFreeUse = true; showToast(`FREE USE!`); } if (isActionSluggish()) { if (!isFreeUse) uses--; } else { const playerBuffs = ['❇️', '🌟', '⚡']; const enemyDebuffs = ['☠️', '🕯️', '🐌']; let turnConsumed = false; if (playerBuffs.includes(symbol)) { if (!isFreeUse) uses--; if (['🌟', '⚡'].includes(symbol)) playerState.statusEffects[symbol] = 3; else playerState.statusEffects[symbol] = 1; if (hasFortune('Battle Grace')) { playerState.armor = Math.min(playerState.maxArmor, playerState.armor + 1); updatePlayerUI(); } turnConsumed = true; } else if (enemyDebuffs.includes(symbol)) { const targetEnemy = currentEnemiesInBattle[currentBattleTargetIndex]; if (targetEnemy && !targetEnemy.isDefeated && !targetEnemy.isGift) { if (!isFreeUse) uses--; applyDebuffToEnemy(currentBattleTargetIndex, symbol); turnConsumed = true; } } if (!turnConsumed) { setActionsDisabled(false); return; } } slot.dataset.uses = uses; const counterSpan = slot.querySelector('.uses-counter'); if (counterSpan) counterSpan.textContent = uses; if (uses <= 0) { slot.innerHTML = `?`; delete slot.dataset.symbol; delete slot.dataset.uses; } updateStatusEffectsUI(); await processEndOfPlayerAction(); } else { const symbol = slot.dataset.symbol; if (symbol) displayInfoInSideWindow(symbolDescriptions[symbol].title, symbolDescriptions[symbol].desc); else { activeEquipSlot = slot; reelItems.forEach(item => item.disabled = playerState.moonstones <= 0); openModal(reelModal); } } }); });
+                
+                reelItems.forEach(item => { item.addEventListener('click', () => { if (activeEquipSlot) { playerState.moonstones--; playerState.inventory.moonstone--; updatePlayerUI(); const symbol = item.textContent; activeEquipSlot.innerHTML = ''; activeEquipSlot.dataset.symbol = symbol; const stoneUses = hasFortune('Durable Stones') ? 4 : 3; activeEquipSlot.dataset.uses = stoneUses; activeEquipSlot.innerHTML = `${symbol}<span class="uses-counter absolute bottom-0 right-1 text-xs">${stoneUses}</span>`; closeModal(reelModal); activeEquipSlot = null; } }); });
+                
+                attackBtn.addEventListener('click', async () => { if (!battleStarted || playerState.health <= 0 || attackBtn.disabled) return; setActionsDisabled(true); if (isActionSluggish()) { await processEndOfPlayerAction(); return; } let giftOpened = false; let upgradeTriggered = false; const isArcher = hasFortune("Archer's Edge") && playerState.equipment.weapon?.emoji === '🏹'; const isThief = hasFortune('Thief Strike') && playerState.equipment.weapon?.emoji === '🗡️'; const performAttack = (enemy, index) => { if (!enemy || enemy.isDefeated) return false; if (enemy.isGift) { if (giftOpened) return false; giftOpened = true; showGiftPopup(index); return false; } let attackPower = parseInt(attackValueEl.textContent, 10); if (luckActivatedThisBattle && playerState.selectedLuck === 'attack' && (Math.random() * 100 < playerState.luck)) { attackPower *= 3; showToast(`CRITICAL HIT!`); } if (playerState.statusEffects['🕯️'] > 0) { const selfDamage = Math.floor(attackPower / 2); attackPower -= selfDamage; playerTakesDamage(selfDamage); if(playerState.health <= 0) return false; } showToast(`-${attackPower} ❤️ to ${enemy.emoji}`); enemy.hp = Math.max(0, enemy.hp - attackPower); if (isThief) { playerState.gold += 2; updatePlayerUI(); } updateSingleEnemyDisplay(index); return enemy.hp <= 0 ? handleEnemyDefeat(index) : false; }; if (isArcher) { for (const {enemy, index} of currentEnemiesInBattle.map((e, i) => ({enemy: e, index: i})).filter(item => !item.enemy.isDefeated)) { if (playerState.health <= 0 || giftOpened || upgradeTriggered) break; upgradeTriggered = performAttack(enemy, index) || upgradeTriggered; await delay(150); } } else { upgradeTriggered = performAttack(currentEnemiesInBattle[currentBattleTargetIndex], currentBattleTargetIndex); } if (!giftOpened && !upgradeTriggered && playerState.health > 0) await processEndOfPlayerAction(); });
+                
+                luckBtn.addEventListener('click', () => { updateLuckModalUI(); openModal(luckModal); });
+                luckActivateBtn.addEventListener('click', async () => { if (playerState.selectedLuck && !luckActivatedThisBattle) { setActionsDisabled(true); luckActivatedThisBattle = true; luckActivateBtn.disabled = true; await processEndOfPlayerAction(); } });
+                luckModal.addEventListener('click', (e) => { const button = e.target.closest('button[data-luck]'); if (button) { playerState.selectedLuck = button.dataset.luck; updateLuckModalUI(); setTimeout(() => closeModal(luckModal), 200); } });
+                killMeterRewards.addEventListener('click', (e) => { const button = e.target.closest('button'); if (!button) return; if (button.dataset.upgrade === 'health') { playerState.maxHealth++; playerState.health = playerState.maxHealth; } else playerState.luck += 5; playerState.killCount = 0; updatePlayerUI(); closeModal(killMeterModal); processEndOfPlayerAction(); });
+
+                fortunesBtn.addEventListener('click', () => { showSacrifices(); openModal(fortunesModal); });
+                buildBtn.addEventListener('click', () => openModal(buildModal));
+                shopBtn.addEventListener('click', () => { renderShop(); openModal(shopModal); });
+                itemsBtn.addEventListener('click', () => { renderShop(); openModal(shopModal); });
+                shopItemsContainer.addEventListener('click', (e) => { const button = e.target.closest('button'); if (!button || !button.dataset.itemId) return; const itemId = button.dataset.itemId; if (battleStarted) { useItem(itemId); closeModal(shopModal); } else { buyItem(itemId); } });
+                document.querySelectorAll('[data-slot-type]').forEach(btn => btn.onclick = () => { activeBuildSlot = btn; openEquipmentChoiceModal(btn.dataset.slotType); });
+                
+                openModal(startModal);
+            };
+            initGame();
+        });
     </script>
 </body>
 </html>
+
+
+
+
+
