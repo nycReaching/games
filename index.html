@@ -17,20 +17,32 @@
             --font-main: 'Silkscreen', sans-serif;
         }
         body { font-family: var(--font-main); background-color: var(--bg-main); color: var(--text-primary); touch-action: manipulation; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-size: 12px; }
-        #game-container { background-color: var(--bg-main); border-radius: 12px; box-shadow: 0 0 25px rgba(0,0,0,0.5), inset 0 0 15px rgba(56, 189, 248, 0.1); border: 1px solid var(--border-color); overflow: hidden; }
-        .panel { border: none; background-color: var(--bg-panel); border-radius: 8px; box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.05); }
-        .panel-inset { border: none; background-color: var(--bg-inset); border-radius: 6px; padding: 0.5rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); }
-        .btn { border-radius: 6px !important; background-color: #293548 !important; border: 1px solid var(--border-color) !important; box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.05) !important; transition: all 0.15s ease-out !important; color: var(--text-primary); line-height: 1; font-weight: 400; text-shadow: none; image-rendering: auto; -webkit-tap-highlight-color: transparent; }
-        .btn:active { transform: scale(0.97) translateY(1px) !important; filter: brightness(0.9); }
-        .btn-reroll:active, .btn-attack:active, .btn-luck:active, .btn-stone:active, .btn-magic:active, .btn-fortune:active, .btn-build:active, .btn-shop:active, .btn-danger:active, .btn-success:active, .btn-action:active { color: #000 !important; text-shadow: none; }
-        .btn-reroll:active { background-color: var(--accent-blue) !important; }
-        .btn-attack:active, .btn-danger:active { background-color: var(--accent-red) !important; }
-        .btn-luck:active, .btn-success:active { background-color: var(--accent-green) !important; }
-        .btn-stone:active { background-color: var(--accent-yellow) !important; }
-        .btn-magic:active { background-color: var(--accent-magenta) !important; }
-        .btn-fortune:active, .btn-action:active { background-color: var(--accent-indigo) !important; }
-        .btn-build:active { background-color: var(--text-secondary) !important; }
-        .btn-shop:active { background-color: var(--accent-orange) !important; }
+        #game-container {
+            background-color: #020617;
+            position: relative; /* Needed for pseudo-element positioning */
+            border-radius: 12px;
+            box-shadow: 0 0 25px rgba(0,0,0,0.5), inset 0 0 15px rgba(56, 189, 248, 0.1);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            z-index: 0;
+        }
+        #game-container::before {
+            content: '';
+            position: absolute;
+            top: -5px; left: -5px; right: -5px; bottom: -5px; /* Cover edges after blur */
+            background-image: repeating-linear-gradient(45deg, #020617 0px, #020617 25px, #0c4a6e 25px, #0c4a6e 50px );
+            filter: blur(2px);
+            z-index: -1;
+        }
+        .panel { border: none; background-color: transparent; border-radius: 8px; }
+        .panel-inset { border: none; background-color: rgba(0,0,0,0.3); border-radius: 6px; padding: 0.5rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); }
+        .btn { border-radius: 6px !important; background-color: transparent !important; border: 1px solid var(--border-color) !important; box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.05) !important; transition: all 0.15s ease-out !important; color: var(--text-primary); line-height: 1; font-weight: 400; text-shadow: none; image-rendering: auto; -webkit-tap-highlight-color: transparent; }
+        .btn:active { transform: scale(0.97) translateY(1px) !important; filter: brightness(1.5); }
+        .btn-reroll:active, .btn-attack:active, .btn-luck:active, .btn-stone:active, .btn-magic:active, .btn-fortune:active, .btn-build:active, .btn-shop:active, .btn-danger:active, .btn-success:active, .btn-action:active { 
+            color: var(--text-primary) !important; 
+            text-shadow: none;
+            background-color: transparent !important;
+        }
         .btn:disabled { background-color: #1a2332 !important; border-color: #2a3647 !important; color: #64748b !important; cursor: not-allowed; opacity: 0.7; box-shadow: none !important; text-shadow: none !important; }
         .btn-reroll { border-color: var(--accent-blue) !important; box-shadow: 0 0 8px -2px var(--accent-blue), 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.05) !important; }
         .btn-attack { border-color: var(--accent-red) !important; box-shadow: 0 0 8px -2px var(--accent-red), 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.05) !important; }
@@ -91,15 +103,15 @@
         <!-- =================================================================== -->
         <!-- Top Section: Player Stats & Info -->
         <!-- =================================================================== -->
-        <div class="flex-shrink-0 panel p-3 flex flex-col gap-3">
+        <div class="flex-shrink-0 flex flex-col gap-3">
             <div class="flex items-center justify-between text-xl">
                 <div class="flex items-center gap-4">
                     <div class="flex items-center gap-2"><span id="health-icon" class="text-3xl transition-transform duration-200">❤️</span><span id="health-value" class="text-left font-semibold">10</span></div>
                     <div class="flex items-center gap-2"><span id="armor-icon" class="text-3xl text-gray-400">🛡️</span><span id="armor-value" class="text-left font-semibold">3</span></div>
                 </div>
                 <div class="flex items-center gap-4">
-                    <div class="flex items-center gap-2"><span class="text-3xl" style="text-shadow: 0 0 8px var(--accent-yellow);">💰</span><span id="gold-value" class="text-left font-semibold">99</span></div>
-                    <div class="flex items-center gap-2"><span class="text-3xl" style="text-shadow: 0 0 8px var(--accent-blue);">🌒</span><span id="moonstone-value" class="text-left font-semibold">3</span></div>
+                    <div class="flex items-center gap-2"><span class="text-3xl">💰</span><span id="gold-value" class="text-left font-semibold">99</span></div>
+                    <div class="flex items-center gap-2"><span class="text-3xl">🌒</span><span id="moonstone-value" class="text-left font-semibold">3</span></div>
                 </div>
             </div>
             <div id="player-status-effects" class="hidden flex items-center justify-start text-xl gap-1 h-7">
@@ -110,7 +122,6 @@
                 <div class="relative status-effect-icon hidden" data-effect="🕯️"><span>🕯️</span><span class="stack-counter absolute -bottom-1 -right-1 text-xs font-bold bg-black/70 text-white rounded-full w-4 h-4 flex items-center justify-center leading-none"></span></div>
                 <div class="relative status-effect-icon hidden" data-effect="☠️"><span>☠️</span><span class="stack-counter absolute -bottom-1 -right-1 text-xs font-bold bg-black/70 text-white rounded-full w-4 h-4 flex items-center justify-center leading-none"></span></div>
             </div>
-             <!-- MODIFIED: Removed flex wrapper and magic bar -->
             <div class="w-full progress-bar-container">
                 <div id="kill-bar" class="progress-bar-fill" style="width: 0%; --color: var(--accent-green);"></div>
             </div>
@@ -120,15 +131,13 @@
         <!-- =================================================================== -->
         <!-- Main Game Area (REFINED) -->
         <!-- =================================================================== -->
-        <div class="flex-grow flex flex-col gap-3 panel p-3">
-            <!-- MODIFIED: from h-44 to flex-1 to allow shrinking -->
+        <div class="flex-grow flex flex-col gap-3">
             <div class="flex-1 panel-inset flex flex-col p-1.5">
                 <div id="enemy-display-container" class="relative flex-1 flex items-center justify-around gap-2 select-none">
                     <div id="battle-selector" class="hidden"></div>
                 </div>
             </div>
 
-            <!-- NEW Information Window -->
             <div id="info-window" class="hidden flex-shrink-0 h-20 panel-inset p-2 text-center flex flex-col justify-center items-center gap-1">
                 <h4 id="info-title" class="text-base" style="color: var(--accent-cyan);"></h4>
                 <p id="info-desc1" class="text-sm leading-tight"></p>
@@ -136,42 +145,36 @@
             </div>
             
             <div class="flex-shrink-0 flex flex-col gap-2 text-sm">
-                <!-- DYNAMIC PRIMARY ACTION ROW -->
                 <div class="h-16 flex items-center gap-2">
-                    <button id="reshuffleBtn" class="flex-1 h-full btn btn-reroll text-2xl relative">🔃<span id="reshuffle-counter" class="absolute bottom-1 right-2 text-sm bg-black/75 rounded-sm px-1 py-0.5"></span></button>
+                    <button id="reshuffleBtn" class="flex-1 h-full btn btn-reroll text-3xl relative">🔃<span id="reshuffle-counter" class="absolute bottom-1 right-2 text-sm bg-black/75 rounded-sm px-1 py-0.5"></span></button>
                     
                     <div class="flex-[2.5_2.5_0%] h-full relative">
                         <button id="start-battle-btn" class="absolute inset-0 w-full h-full btn btn-danger start-battle-btn-pulse text-lg">START BATTLE</button>
-                        <button id="attackBtn" class="absolute inset-0 w-full h-full btn btn-attack text-xl gap-2 hidden" disabled><span id="attack-icon">💥</span><span id="attack-value">10</span></button>
+                        <button id="attackBtn" class="absolute inset-0 w-full h-full btn btn-attack text-3xl gap-2 hidden" disabled><span id="attack-icon">💥</span><span id="attack-value">10</span></button>
                     </div>
 
                     <div class="flex-1 h-full relative">
-                        <button id="luckBtn" class="absolute inset-0 w-full h-full btn btn-luck text-base gap-1"><span class="text-xl">🍀</span><span id="luck-value">10</span>%</button>
-                        <button id="luckActivateBtn" class="absolute inset-0 w-full h-full btn btn-luck text-xl hidden">🍀</button>
+                        <button id="luckBtn" class="absolute inset-0 w-full h-full btn btn-luck text-base gap-1"><span class="text-2xl">🍀</span><span id="luck-value">10</span>%</button>
+                        <button id="luckActivateBtn" class="absolute inset-0 w-full h-full btn btn-luck text-3xl hidden">🍀</button>
                     </div>
                 </div>
 
-                <!-- STATIC SKILL ROWS -->
                 <div class="flex-1 flex gap-2">
-                     <!-- MODIFIED: py-2.5 to py-4 -->
-                    <button class="equip-slot h-full py-4 relative btn btn-stone focus:outline-none text-2xl flex items-center justify-center flex-1"><span class="opacity-50">🌒</span></button>
-                    <button class="equip-slot h-full py-4 relative btn btn-stone focus:outline-none text-2xl flex items-center justify-center flex-1"><span class="opacity-50">🌒</span></button>
+                    <button class="equip-slot h-full py-4 relative btn btn-stone focus:outline-none text-3xl flex items-center justify-center flex-1"><span class="opacity-50">🌒</span></button>
+                    <button class="equip-slot h-full py-4 relative btn btn-stone focus:outline-none text-3xl flex items-center justify-center flex-1"><span class="opacity-50">🌒</span></button>
                 </div>
                 
-                <!-- STATIC SYSTEM MENU ROW -->
                 <div class="flex-1 flex gap-2">
-                    <!-- MODIFIED: py-2.5 to py-4 -->
-                    <button id="fortunesBtn" class="flex-1 h-full py-4 btn btn-fortune text-2xl focus:outline-none flex items-center justify-center">🔮</button>
-                    <button id="buildBtn" class="flex-1 h-full py-4 btn btn-build text-2xl focus:outline-none flex items-center justify-center">🔨</button>
-                    <button id="shopBtn" class="flex-1 h-full py-4 btn btn-shop text-2xl focus:outline-none flex items-center justify-center">🪙</button>
+                    <button id="fortunesBtn" class="flex-1 h-full py-4 btn btn-fortune text-3xl focus:outline-none flex items-center justify-center">🔮</button>
+                    <button id="buildBtn" class="flex-1 h-full py-4 btn btn-build text-3xl focus:outline-none flex items-center justify-center">🔨</button>
+                    <button id="shopBtn" class="flex-1 h-full py-4 btn btn-shop text-3xl focus:outline-none flex items-center justify-center">🪙</button>
                 </div>
                 
-                <!-- NEW MAGIC SECTION -->
                 <div class="mt-2 pt-2 border-t border-slate-700/50 flex flex-col gap-2">
                     <div class="flex-1 flex gap-2">
-                        <button id="flameheartBtn" class="flex-1 h-full py-4 btn btn-magic focus:outline-none text-2xl flex items-center justify-center">❤️‍🔥</button>
-                        <button id="frostbiteBtn" class="flex-1 h-full py-4 btn btn-magic focus:outline-none text-2xl flex items-center justify-center">❄️</button>
-                        <button id="armorheartBtn" class="flex-1 h-full py-4 btn btn-magic focus:outline-none text-2xl flex items-center justify-center">🩶</button>
+                        <button id="flameheartBtn" class="flex-1 h-full py-4 btn btn-magic focus:outline-none text-3xl flex items-center justify-center">❤️‍🔥</button>
+                        <button id="frostbiteBtn" class="flex-1 h-full py-4 btn btn-magic focus:outline-none text-3xl flex items-center justify-center">❄️</button>
+                        <button id="armorheartBtn" class="flex-1 h-full py-4 btn btn-magic focus:outline-none text-3xl flex items-center justify-center">🩶</button>
                     </div>
                     <div class="w-full progress-bar-container">
                         <div id="magic-bar" class="progress-bar-fill" style="width: 100%; --color: var(--accent-blue);"></div>
@@ -432,7 +435,7 @@
             allModals.forEach(modal => { modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(modal); }); });
             fortunesBtn.addEventListener('click', (e) => { e.stopPropagation(); showSacrifices(); openModal(fortunesModal); });
             buildBtn.addEventListener('click', (e) => { e.stopPropagation(); openModal(buildModal); });
-            shopBtn.addEventListener('click', (e) => { e.stopPropagation(); renderShop(); shopModal.classList.remove('bottom-sheet'); openModal(shopModal); });
+            shopBtn.addEventListener('click', (e) => { e.stopPropagation(); renderShop(); shopModal.classList.add('bottom-sheet'); openModal(shopModal); });
             shopItemsContainer.addEventListener('click', (e) => { const button = e.target.closest('button'); if (!button || !button.dataset.itemId) return; e.stopPropagation(); const itemId = button.dataset.itemId; if (battleStarted) { useItem(itemId); closeModal(shopModal); } else { buyItem(itemId); } });
             document.querySelectorAll('[data-slot-type]').forEach(btn => { btn.addEventListener('click', () => { activeBuildSlot = btn; openEquipmentChoiceModal(btn.dataset.slotType); }); });
             
@@ -830,4 +833,5 @@
     </script>
 </body>
 </html>
+
 
