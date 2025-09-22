@@ -2,379 +2,301 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Moonstone Rogue UI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Emoji Game - Item Shop</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        /* Disables pull-to-refresh and other disruptive browser gestures on mobile */
-        body {
-            overscroll-behavior-y: contain;
-            font-family: 'Chakra Petch', sans-serif;
-            -webkit-tap-highlight-color: transparent; /* Disable tap highlight on mobile */
-        }
-
-        /* General UI styling for a sharper look */
-        .ui-panel {
-            background-color: #111827; /* Darker than gray-800 */
-            border: 1px solid #374151;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-        }
-
-        .action-button {
-            transition: transform 0.1s ease, background-color 0.1s ease;
-            border: 1px solid #374151;
-        }
-
-        .action-button:active {
-            transform: scale(0.95);
-        }
-
-        /* Jitter animation from gogo.html */
-        .enemy-card.spinning .text-5xl {
-            animation: spinReel 0.1s linear infinite;
+        :root {
+            --pixel-size: 4px;
         }
         
-        @keyframes spinReel {
-            0% { transform: translateY(-20%); }
-            100% { transform: translateY(20%); }
+        /* Using a pixelated font for a retro game feel */
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+            overflow: hidden;
+            touch-action: none; /* Prevents browser gestures on mobile */
         }
 
-        /* Hit/shake animation */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-4px); }
-            75% { transform: translateX(4px); }
-        }
-        .shake-animation {
-            animation: shake 0.2s linear;
+        /* Pixelated box shadow effect */
+        .pixel-shadow {
+            box-shadow: 
+                var(--pixel-size) var(--pixel-size) 0px #0f0f1b,
+                calc(var(--pixel-size) * 2) calc(var(--pixel-size) * 2) 0px #0f0f1b,
+                calc(var(--pixel-size) * 3) calc(var(--pixel-size) * 3) 0px #0f0f1b;
         }
 
-        .text-glow { text-shadow: 0 0 4px rgba(59, 130, 246, 0.5), 0 0 8px rgba(59, 130, 246, 0.3); }
-        .text-glow-pink { text-shadow: 0 0 4px rgba(236, 72, 153, 0.6), 0 0 8px rgba(236, 72, 153, 0.4); }
-        .text-glow-green { text-shadow: 0 0 5px rgba(34, 197, 94, 0.7); }
-
-        /* Custom scrollbar for log */
-        #combat-log::-webkit-scrollbar { width: 4px; }
-        #combat-log::-webkit-scrollbar-thumb { background-color: #3b82f6; border-radius: 2px; }
-        #combat-log::-webkit-scrollbar-track { background-color: #1f2937; }
-
-        /* Style for selected enemy */
-        .selected-enemy {
-            border-color: #22d3ee;
-            box-shadow: 0 0 15px rgba(34, 211, 238, 0.6);
+        .pixel-border {
+             border: var(--pixel-size) solid #0f0f1b;
         }
 
-        /* Modal styles */
-        .modal-overlay {
-            background-color: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(4px);
+        /* The main container for the carousel */
+        #item-carousel-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            perspective: 1000px; /* This creates the 3D space */
         }
+
+        #item-carousel {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+            transition: transform 0.1s linear; /* Smooths out manual rotation */
+        }
+
+        .carousel-item {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 80px;
+            height: 80px;
+            margin-left: -40px;
+            margin-top: -40px;
+            font-size: 64px;
+            text-align: center;
+            line-height: 80px;
+            cursor: grab;
+            user-select: none;
+            transition: transform 0.5s ease, opacity 0.5s ease;
+            transform-origin: center center;
+            backface-visibility: hidden; /* Hides items when they face away */
+        }
+        
+        .carousel-item.is-front {
+            transform: scale(1.5) !important; /* Make the front item bigger */
+            opacity: 1 !important;
+        }
+        
+        .shop-button {
+            transition: all 0.2s ease;
+        }
+        
+        .shop-button:active {
+            transform: translateY(2px);
+            box-shadow: var(--pixel-size) var(--pixel-size) 0px #0f0f1b;
+        }
+
+        /* Glassmorphism effect for the item info card */
+        .info-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
     </style>
 </head>
-<body class="bg-gray-900 text-gray-200 flex flex-col h-screen select-none antialiased">
+<body class="flex items-center justify-center min-h-screen">
 
-    <!-- Top Section: Player Stats & Resources -->
-    <header class="p-3 ui-panel border-b-2 border-blue-500 space-y-2">
-        <!-- Top Row: Wave and Currencies -->
-        <div class="flex justify-between items-center text-lg">
-            <span id="wave-counter" class="font-bold text-glow">WAVE: 1</span>
-            <div class="flex items-center space-x-4">
-                <span id="player-gold" class="font-semibold text-glow">💰 30</span>
-                <span id="player-moonstones" class="font-semibold text-glow">🌒 1</span>
-            </div>
-        </div>
-        <!-- Health Bar -->
-        <div class="relative w-full bg-gray-700 h-5 border border-gray-600">
-            <div id="health-bar" class="absolute top-0 left-0 bg-gradient-to-r from-red-500 to-red-700 h-full transition-all duration-300" style="width: 100%;"></div>
-            <div class="absolute inset-0 flex items-center justify-center text-xs font-bold leading-5">❤️ HP: 15/15</div>
-        </div>
-        <!-- Armor Bar -->
-        <div class="relative w-full bg-gray-700 h-5 border border-gray-600">
-            <div id="armor-bar" class="absolute top-0 left-0 bg-gradient-to-r from-gray-400 to-gray-500 h-full transition-all duration-300" style="width: 100%;"></div>
-            <div class="absolute inset-0 flex items-center justify-center text-xs font-bold leading-5">🛡️ Armor: 2/2</div>
-        </div>
-        <!-- Magic Bar -->
-        <div class="relative w-full bg-gray-700 h-5 border border-gray-600">
-            <div id="magic-bar" class="absolute top-0 left-0 bg-gradient-to-r from-purple-500 to-indigo-500 h-full transition-all duration-300" style="width: 80%;"></div>
-            <div class="absolute inset-0 flex items-center justify-center text-xs font-bold leading-5">Magic: 80/100</div>
-        </div>
-        <!-- Kill Meter (XP Bar) -->
-        <div class="relative w-full bg-gray-700 h-4 border border-gray-600">
-            <div id="kill-meter" class="absolute top-0 left-0 bg-gradient-to-r from-cyan-400 to-blue-500 h-full transition-all duration-300" style="width: 20%;"></div>
-            <div class="absolute inset-0 flex items-center justify-center text-xs font-bold leading-4">Kill Meter: 2/10</div>
-        </div>
-    </header>
-
-    <!-- Middle Section: Enemies and Combat Log -->
-    <main class="flex-grow flex flex-col justify-center items-center p-4 overflow-hidden gap-4">
-        <!-- Enemy Wave Display -->
-        <div id="enemy-wave" class="w-full max-w-lg ui-panel p-2 flex justify-around items-start gap-2 h-48">
-             <!-- Enemies will be dynamically generated here -->
-        </div>
-
-        <!-- Combat Log -->
-        <div id="combat-log-container" class="w-full max-w-lg h-28 ui-panel p-2">
-             <div id="combat-log" class="h-full overflow-y-auto text-sm p-1">
-                <p class="text-gray-400">> Battle Start! Choose your action.</p>
-                <p>> Pre-battle Luck set to: Attack 🍀</p>
-             </div>
-        </div>
-    </main>
-
-    <!-- Bottom Section: Actions -->
-    <footer class="p-3 ui-panel border-t-2 border-blue-500 flex flex-col gap-3">
-        <!-- Primary Combat Actions -->
-        <div class="grid grid-cols-4 gap-2">
-            <button data-name="Attack" class="action-button bg-red-800 hover:bg-red-700 p-2 text-lg font-bold flex flex-col items-center justify-center h-24"><span>🗡️</span><span class="text-sm">Attack</span></button>
-            <button data-name="Spells" class="action-button bg-indigo-800 hover:bg-indigo-700 p-2 text-lg font-bold flex flex-col items-center justify-center h-24"><span>✨</span><span class="text-sm">Spells</span></button>
-            <button data-name="Moon Arts" class="action-button bg-teal-800 hover:bg-teal-700 p-2 text-lg font-bold flex flex-col items-center justify-center h-24"><span>🌒</span><span class="text-sm">Moon Arts</span></button>
-            <button data-name="Items" class="action-button bg-green-800 hover:bg-green-700 p-2 text-lg font-bold flex flex-col items-center justify-center h-24"><span>🍶</span><span class="text-sm">Items</span></button>
-        </div>
-        <!-- Secondary & Pre-Battle Actions -->
-        <div class="grid grid-cols-5 gap-2">
-            <button data-name="Shop" class="action-button bg-gray-800 hover:bg-gray-700 p-2 text-base flex flex-col items-center justify-center"><span>🪙</span><span class="text-xs">Shop</span></button>
-            <button data-name="Build" class="action-button bg-gray-800 hover:bg-gray-700 p-2 text-base flex flex-col items-center justify-center"><span>🔨</span><span class="text-xs">Build</span></button>
-            <button data-name="Fortunes" class="action-button bg-gray-800 hover:bg-gray-700 p-2 text-base flex flex-col items-center justify-center"><span>🔮</span><span class="text-xs">Fortunes</span></button>
-            <button data-name="Luck" class="action-button bg-gray-800 hover:bg-gray-700 p-2 text-base flex flex-col items-center justify-center"><span>🍀</span><span class="text-xs">Luck Type</span></button>
-            <button id="reroll-button" data-name="Reroll" class="action-button bg-gray-600 hover:bg-gray-500 p-2 text-base flex flex-col items-center justify-center"><span>🔃</span><span class="text-xs">Reroll (1)</span></button>
-        </div>
-    </footer>
+    <!-- Button to open the shop -->
+    <button id="open-shop-btn" class="shop-button pixel-border pixel-shadow bg-blue-500 text-white px-8 py-4 rounded-lg text-2xl uppercase tracking-widest">Shop</button>
     
-    <!-- Generic Modal for Popups (e.g., Spells, Items, Upgrades, Gifts) -->
-    <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="modal-overlay fixed inset-0"></div>
-        <div id="modal-content" class="ui-panel border-2 border-cyan-400 p-6 text-center z-50 w-full max-w-sm">
-            <!-- Modal content will be injected here by JavaScript -->
+    <!-- Shop Modal -->
+    <div id="shop-modal" class="hidden absolute inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center p-4">
+        <div class="w-full max-w-lg mx-auto">
+            
+            <!-- Item Carousel -->
+            <div id="item-carousel-container" class="mb-8">
+                <div id="item-carousel">
+                    <!-- Items will be injected here by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Item Information Display -->
+            <div class="info-card p-6 text-center h-56 flex flex-col justify-between">
+                <div>
+                    <h2 id="item-name" class="text-3xl mb-2 text-yellow-300 transition-opacity duration-300"></h2>
+                    <p id="item-description" class="text-sm h-12 transition-opacity duration-300"></p>
+                </div>
+                <div>
+                    <p id="item-price" class="text-2xl text-green-400 font-bold transition-opacity duration-300"></p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-center mt-8 space-x-4">
+                <button id="close-shop-btn" class="shop-button pixel-border pixel-shadow bg-red-600 text-white px-6 py-3 rounded-lg text-lg">Close</button>
+                 <button class="shop-button pixel-border pixel-shadow bg-green-600 text-white px-6 py-3 rounded-lg text-lg">Buy</button>
+            </div>
         </div>
     </div>
 
-
     <script>
-        // --- GAME DATA ---
-        const enemyData = {
-            'skeleton': { emoji: '💀', name: 'Skeleton', hp: 12, special: null, type: 'enemy' },
-            'wolf': { emoji: '🐺', name: 'Wolf', hp: 15, special: null, type: 'enemy' },
-            'frog': { emoji: '🐸', name: 'Frog', hp: 8, special: '☠️ Poison', type: 'enemy' },
-            'crow': { emoji: '🐦‍⬛', name: 'Crow', hp: 10, special: '🕯️ Curse', type: 'enemy' },
-            'spider': { emoji: '🕷️', name: 'Spider', hp: 9, special: '☠️ Poison', type: 'enemy' },
-            'zombie': { emoji: '🧟', name: 'Zombie', hp: 18, special: '🐌 Sluggish', type: 'enemy' },
-            'ninja': { emoji: '🥷', name: 'Ninja', hp: 14, special: '🫳 Steals Gold', type: 'enemy' },
-            'gift': { emoji: '🎁', name: 'Gift', hp: 10, special: 'Reward', type: 'gift' },
-        };
-        const enemyKeys = Object.keys(enemyData);
-        let currentEnemies = [];
-        let selectedEnemyIndex = null;
-        let isSpinning = false;
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DATA ---
+            const items = [
+                { emoji: '🍶', name: 'Tonic', description: 'Restores 6 HP.', price: '50G' },
+                { emoji: '✝️', name: 'Cross', description: 'Cures curse, +1 max HP.', price: '120G' },
+                { emoji: '💎', name: 'Gem', description: 'Gain a buff, give a debuff.', price: '200G' },
+                { emoji: '🧚', name: 'Fairy', description: 'Restores magic meter.', price: '80G' },
+                { emoji: '🌒', name: 'Moonstone', description: 'Unlocks the use of moon arts.', price: '500G' },
+                { emoji: '♾️', name: 'Infinity Ring', description: 'Take damage to reroll (one-time).', price: '350G' },
+            ];
 
+            // --- DOM ELEMENTS ---
+            const openShopBtn = document.getElementById('open-shop-btn');
+            const closeShopBtn = document.getElementById('close-shop-btn');
+            const shopModal = document.getElementById('shop-modal');
+            const carousel = document.getElementById('item-carousel');
+            const itemNameEl = document.getElementById('item-name');
+            const itemDescEl = document.getElementById('item-description');
+            const itemPriceEl = document.getElementById('item-price');
 
-        // --- UI ELEMENTS ---
-        const modal = document.getElementById('modal');
-        const modalContent = document.getElementById('modal-content');
-        const modalOverlay = document.querySelector('.modal-overlay');
-        const enemyWaveContainer = document.getElementById('enemy-wave');
-        const combatLog = document.getElementById('combat-log');
-        const rerollButton = document.getElementById('reroll-button');
+            // --- STATE ---
+            let isDragging = false;
+            let startX = 0;
+            let currentRotation = 0;
+            let rotationVelocity = 0;
+            const friction = 0.95; // How quickly the spin slows down
+            const rotationSensitivity = 0.5; // How sensitive dragging is
+            let animationFrameId = null;
 
+            // --- FUNCTIONS ---
 
-        // --- HELPER FUNCTIONS ---
-        function logMessage(message, colorClass = 'text-gray-400') {
-            combatLog.innerHTML += `<p class="${colorClass}">> ${message}</p>`;
-            combatLog.scrollTop = combatLog.scrollHeight;
-        }
-
-        function getRandomEnemy() {
-             // 25% chance for a gift, otherwise a random enemy
-             if (Math.random() < 0.25) return { ...enemyData['gift'], key: 'gift' };
-
-             const randomKey = enemyKeys[Math.floor(Math.random() * (enemyKeys.length -1))]; // Exclude gift
-             // 25% chance for elite
-             const isElite = Math.random() < 0.25;
-             const enemy = { ...enemyData[randomKey], key: randomKey, isElite };
-
-             if (isElite) {
-                 enemy.hp *= 2;
-             }
-             return enemy;
-        }
-        
-        // --- MODAL LOGIC ---
-        function openModal(title, contentHtml) {
-            modalContent.innerHTML = `
-                <h3 class="text-2xl font-bold text-glow mb-4">${title}</h3>
-                <div>${contentHtml}</div>
-                <button id="close-modal-btn" class="action-button bg-gray-700 hover:bg-gray-600 px-4 py-2 mt-6">Close</button>
-            `;
-            modal.classList.remove('hidden');
-            document.getElementById('close-modal-btn').addEventListener('click', closeModal);
-        }
-
-        function closeModal() {
-            modal.classList.add('hidden');
-        }
-        modalOverlay.addEventListener('click', closeModal);
-
-
-        // --- ENEMY & COMBAT LOGIC ---
-        // NEW helper function to apply state to an existing card element
-        function updateCardFromState(card, enemy, index) {
-            if (!card || !enemy) return;
-
-            // Update content
-            card.querySelector('.text-5xl').textContent = enemy.emoji;
-            card.querySelector('.font-bold').textContent = enemy.name;
-            card.querySelector('.text-sm').textContent = `HP: ${enemy.hp}/${enemy.hp}`;
-            const specialElement = card.querySelector('.text-xs.h-4');
-            if(specialElement) specialElement.textContent = enemy.special || '';
-
-            // Update styling
-            card.className = `enemy-card text-center p-2 bg-gray-900 rounded-lg flex-1 cursor-pointer transition-all`; // Reset classes
-            card.style.boxShadow = 'none';
-            let eliteMarker = card.querySelector('.absolute');
-            if (eliteMarker) eliteMarker.remove();
-
-            let borderClass = 'border-gray-700';
-            if (enemy.isElite) {
-                borderClass = 'border-2 border-red-500';
-                card.style.boxShadow = '0 0 10px rgba(239, 68, 68, 0.5)';
-                card.insertAdjacentHTML('afterbegin', `<div class="absolute top-1 right-1 text-xs text-red-400 font-bold">ELITE</div>`);
-            } else if (enemy.type === 'gift') {
-                borderClass = 'border border-yellow-400';
-                card.style.boxShadow = '0 0 10px rgba(250, 204, 21, 0.4)';
+            // Generate item elements and add them to the carousel
+            function initializeCarousel() {
+                items.forEach((item, index) => {
+                    const itemEl = document.createElement('div');
+                    itemEl.classList.add('carousel-item');
+                    itemEl.textContent = item.emoji;
+                    itemEl.dataset.index = index;
+                    carousel.appendChild(itemEl);
+                });
+                positionItems();
+                updateItemInfo();
             }
-            
-            borderClass.split(' ').forEach(cls => card.classList.add(cls));
-            
-            if (index === selectedEnemyIndex) {
-                 card.classList.add('selected-enemy');
-            }
-        }
 
-        function renderEnemies() {
-            enemyWaveContainer.innerHTML = '';
-            currentEnemies.forEach((enemy, index) => {
-                if (!enemy) return;
+            // Position items in a 3D circle
+            function positionItems() {
+                const itemElements = document.querySelectorAll('.carousel-item');
+                const radius = 200; // The radius of the invisible sphere/circle
+                const angleStep = 360 / items.length;
+
+                itemElements.forEach((itemEl, index) => {
+                    const itemAngle = currentRotation + (index * angleStep);
+                    const angleRad = itemAngle * Math.PI / 180;
+
+                    const x = Math.sin(angleRad) * radius;
+                    const z = Math.cos(angleRad) * radius;
+                    const scale = (z + radius) / (2 * radius) * 0.7 + 0.3; // Scale based on Z position for depth
+                    const opacity = scale;
+
+                    itemEl.style.transform = `translateX(${x}px) translateZ(${z}px) scale(${scale})`;
+                    itemEl.style.opacity = opacity;
+                });
                 
-                const card = document.createElement('div');
-                card.dataset.index = index;
-                // The initial innerHTML is just the structure
-                card.innerHTML = `
-                    <div class="text-5xl"></div>
-                    <div class="font-bold text-glow-pink"></div>
-                    <div class="text-sm"></div>
-                    <div class="text-xs h-4"></div>
-                `;
-                enemyWaveContainer.appendChild(card);
-                // Then apply state
-                updateCardFromState(card, enemy, index);
-            });
-        }
-        
-        function selectEnemy(index) {
-            if (isSpinning) return;
-            const previousSelected = selectedEnemyIndex;
-            selectedEnemyIndex = index;
-            logMessage(`Targeted ${currentEnemies[index].name}.`, 'text-cyan-400');
-
-            // Efficiently update borders instead of full re-render
-            if (previousSelected !== null) {
-                const oldCard = enemyWaveContainer.querySelector(`[data-index='${previousSelected}']`);
-                if(oldCard) oldCard.classList.remove('selected-enemy');
+                updateFrontItem();
             }
-            const newCard = enemyWaveContainer.querySelector(`[data-index='${index}']`);
-            if(newCard) newCard.classList.add('selected-enemy');
-        }
-
-        function generateInitialWave() {
-            currentEnemies = [getRandomEnemy(), getRandomEnemy(), getRandomEnemy()];
-            renderEnemies();
-        }
-
-        // --- REROLL (SPIN) LOGIC ---
-        rerollButton.addEventListener('click', () => {
-            if (isSpinning) return;
-            isSpinning = true;
-            logMessage('Rerolling enemies...', 'text-yellow-400');
             
-            const enemyCards = Array.from(enemyWaveContainer.querySelectorAll('.enemy-card'));
-            selectedEnemyIndex = null; // Deselect enemy on reroll
+            // Find which item is at the front and give it a special class
+            function updateFrontItem() {
+                const itemElements = document.querySelectorAll('.carousel-item');
+                let frontIndex = 0;
+                let maxZ = -Infinity;
 
-            enemyCards.forEach((card, index) => {
-                 // Remove selection and clear text fields before spin
-                card.classList.remove('selected-enemy');
-                card.querySelector('.font-bold').innerHTML = '&nbsp;';
-                card.querySelector('.text-sm').innerHTML = '&nbsp;';
-                card.querySelector('.text-xs').innerHTML = '&nbsp;';
+                itemElements.forEach((itemEl, index) => {
+                    // Get the z-translation from the transform matrix
+                    const transform = window.getComputedStyle(itemEl).getPropertyValue('transform');
+                    const matrix = new DOMMatrixReadOnly(transform);
+                    const z = matrix.m43;
 
-                card.classList.add('spinning');
-                const emojiElement = card.querySelector('.text-5xl');
+                    if (z > maxZ) {
+                        maxZ = z;
+                        frontIndex = index;
+                    }
+                    itemEl.classList.remove('is-front');
+                });
+                
+                itemElements[frontIndex].classList.add('is-front');
+            }
 
-                const spinInterval = setInterval(() => {
-                    const randomKey = enemyKeys[Math.floor(Math.random() * enemyKeys.length)];
-                    emojiElement.textContent = enemyData[randomKey].emoji;
-                }, 100);
+            // Update the text fields with the front item's data
+            function updateItemInfo() {
+                let angle = (currentRotation % 360 + 360) % 360; // Normalize angle to 0-360
+                let frontIndex = Math.round(angle / (360 / items.length));
+                frontIndex = (items.length - frontIndex) % items.length; // Adjust for rotation direction
+
+                const item = items[frontIndex];
+                
+                // Fade out, update, fade in
+                [itemNameEl, itemDescEl, itemPriceEl].forEach(el => el.style.opacity = 0);
 
                 setTimeout(() => {
-                    clearInterval(spinInterval);
-                    card.classList.remove('spinning');
-                    
-                    const finalEnemy = getRandomEnemy();
-                    
-                    // Update data model and then update card visuals from that model
-                    currentEnemies[index] = finalEnemy;
-                    updateCardFromState(card, finalEnemy, index);
-                    
-                    if (index === enemyCards.length - 1) {
-                         isSpinning = false;
-                         logMessage('New wave appeared!');
+                    itemNameEl.textContent = item.name;
+                    itemDescEl.textContent = item.description;
+                    itemPriceEl.textContent = item.price;
+                    [itemNameEl, itemDescEl, itemPriceEl].forEach(el => el.style.opacity = 1);
+                }, 150);
+            }
+            
+            // --- EVENT HANDLERS ---
+            
+            function onDragStart(e) {
+                isDragging = true;
+                carousel.style.transition = 'none';
+                startX = (e.touches ? e.touches[0].clientX : e.clientX);
+                rotationVelocity = 0;
+                cancelAnimationFrame(animationFrameId);
+                e.preventDefault();
+            }
+
+            function onDragMove(e) {
+                if (!isDragging) return;
+                const currentX = (e.touches ? e.touches[0].clientX : e.clientX);
+                const deltaX = currentX - startX;
+                
+                rotationVelocity = deltaX * rotationSensitivity;
+                currentRotation += rotationVelocity;
+                
+                positionItems();
+                
+                startX = currentX;
+                e.preventDefault();
+            }
+
+            function onDragEnd() {
+                if (!isDragging) return;
+                isDragging = false;
+                carousel.style.transition = 'transform 0.1s linear';
+                startInertia();
+            }
+            
+            function startInertia() {
+                cancelAnimationFrame(animationFrameId);
+                function animate() {
+                    if (Math.abs(rotationVelocity) < 0.1) {
+                         updateItemInfo();
+                         return;
                     }
-                }, 1000 + index * 300); // Staggered stop
-            });
-        });
-
-
-        // --- DEMO MODAL CONTENT & EVENT LISTENERS ---
-        const spellsContent = `<div class="space-y-2 text-left"><button class="w-full text-left action-button bg-gray-800 p-2">❤️‍🔥 Flameheart</button><button class="w-full text-left action-button bg-gray-800 p-2">❄️ Frostbite</button><button class="w-full text-left action-button bg-gray-800 p-2">🩶 Armorheart</button></div>`;
-        const giftRewardContent = `<p class="mb-4">The Gift opens! Choose a reward:</p><div class="space-y-2"><button class="w-full action-button bg-blue-800 p-2">Rare: +1 Max Armor</button><button class="w-full action-button bg-purple-800 p-2">Epic: +20 Gold</button><button class="w-full action-button bg-yellow-700 p-2">Legendary: +5% Luck</button></div>`;
-        const killMeterUpgradeContent = `<p class="mb-4">Kill Meter is full! Choose an upgrade:</p><div class="space-y-2"><button class="w-full action-button bg-red-800 p-2">Full Heal & +1 Max HP</button><button class="w-full action-button bg-green-800 p-2">+5% Luck</button></div>`;
-
-        document.querySelectorAll('.action-button').forEach(button => {
-            if (button.id === 'reroll-button') return;
-            button.addEventListener('click', () => {
-                if (isSpinning) return;
-                const buttonName = button.dataset.name;
-                switch(buttonName) {
-                    case 'Spells': openModal('Choose a Spell', spellsContent); break;
-                    case 'Attack':
-                        if (selectedEnemyIndex !== null) {
-                            const target = currentEnemies[selectedEnemyIndex];
-                            logMessage(`You attack the ${target.name} for 5 damage!`);
-                            const enemyCard = enemyWaveContainer.querySelector(`[data-index='${selectedEnemyIndex}']`);
-                            enemyCard.classList.add('shake-animation');
-                            setTimeout(() => enemyCard.classList.remove('shake-animation'), 200);
-                        } else {
-                            logMessage('You must select an enemy to attack!', 'text-red-500');
-                        }
-                        break;
-                    default:
-                        openModal(buttonName, `<p>${buttonName} screen not yet implemented.</p>`);
-                        break;
+                    currentRotation += rotationVelocity;
+                    rotationVelocity *= friction;
+                    positionItems();
+                    animationFrameId = requestAnimationFrame(animate);
                 }
-            });
+                animate();
+            }
+
+            // --- SETUP ---
+            openShopBtn.addEventListener('click', () => shopModal.classList.remove('hidden'));
+            closeShopBtn.addEventListener('click', () => shopModal.classList.add('hidden'));
+
+            // Mouse events
+            carousel.addEventListener('mousedown', onDragStart);
+            window.addEventListener('mousemove', onDragMove);
+            window.addEventListener('mouseup', onDragEnd);
+            window.addEventListener('mouseleave', onDragEnd); // Stop if mouse leaves window
+
+            // Touch events
+            carousel.addEventListener('touchstart', onDragStart, { passive: false });
+            window.addEventListener('touchmove', onDragMove, { passive: false });
+            window.addEventListener('touchend', onDragEnd);
+
+            initializeCarousel();
         });
-        
-        // --- INITIALIZATION ---
-        window.onload = () => {
-            // Add event listener to the parent container for delegation
-            enemyWaveContainer.addEventListener('click', (event) => {
-                const card = event.target.closest('.enemy-card');
-                if (card && card.dataset.index !== null) {
-                    selectEnemy(parseInt(card.dataset.index));
-                }
-            });
-            generateInitialWave();
-        };
     </script>
 </body>
 </html>
-
