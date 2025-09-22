@@ -3,540 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Emoji Game - UI Prototype</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
+    <title>Mobile Game UI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         :root {
-            --pixel-size: 4px;
-        }
-        
-        /* Using a strong, readable font for a modern retro game feel */
-        body {
-            font-family: 'Russo One', sans-serif;
-            background-color: #0f0f1b; /* Darker bg to frame the game */
-            color: #e0e0e0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 1rem;
+            --button-height: 10vh;
+            --depth: 0.8vh; /* Adjusted depth for a better 3D block effect */
+            --font-size: clamp(12px, 3vw, 18px); /* Responsive font size */
+
+            /* Button Colors */
+            --color-shop: #4ade80; /* Green */
+            --color-equipment: #38bdf8; /* Blue */
+            --color-fortunes: #facc15; /* Yellow */
+            --color-moons: #c084fc; /* Purple */
+            --color-stats: #fb923c; /* Orange */
+            --color-save: #f87171; /* Red */
         }
 
-        #game-container {
+        html, body {
+            margin: 0;
+            padding: 0;
             width: 100%;
-            max-width: 420px;
             height: 100%;
-            max-height: 850px;
-            background-color: #1a1a2e; /* Original background */
-            border: calc(var(--pixel-size) * 2) solid #000;
-            border-radius: 2rem;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.5), 0 10px 30px rgba(0,0,0,0.5);
             overflow: hidden;
-            position: relative;
-            touch-action: pan-y;
-            box-sizing: border-box;
+            font-family: 'Press Start 2P', cursive;
+            background: #1f2937; /* Dark gray background */
         }
 
-        /* Pixelated box shadow effect */
-        .pixel-shadow {
-            box-shadow: 
-                var(--pixel-size) var(--pixel-size) 0px #0f0f1b,
-                calc(var(--pixel-size) * 2) calc(var(--pixel-size) * 2) 0px #0f0f1b,
-                calc(var(--pixel-size) * 3) calc(var(--pixel-size) * 3) 0px #0f0f1b;
-        }
-
-        .pixel-border {
-             border: var(--pixel-size) solid #0f0f1b;
-        }
-
-        /* The main container for the new 2D carousel */
-        .carousel-container {
-            position: relative;
-            width: 100%;
-            height: 150px;
+        /* Main container for the game screen */
+        .game-screen {
             display: flex;
-            align-items: center;
-        }
-        
-        /* The scrollable area */
-        .item-carousel {
-            width: 100%;
+            flex-direction: column;
+            justify-content: flex-end; /* Aligns UI to the bottom */
             height: 100%;
-            display: flex;
-            align-items: center;
-            gap: 24px; /* Space between items */
-            overflow-x: auto;
-            scroll-snap-type: x mandatory; /* Enables snapping */
-            scroll-behavior: smooth;
-            
-            /* Hide the scrollbar across browsers */
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
-        }
-        .item-carousel::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
+            width: 100%;
+            background: linear-gradient(180deg, #374151 0%, #111827 100%);
         }
 
-        .carousel-item {
-            /* 2D item styling */
-            flex: 0 0 80px; /* Don't grow, don't shrink, base width 80px */
-            width: 80px;
-            height: 80px;
-            font-size: 64px;
-            text-align: center;
-            line-height: 80px;
+        /* Grid container for the buttons */
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 15px;
+            padding: 20px;
+            width: 100%;
+            box-sizing: border-box;
+            height: 33.33vh; /* Occupies bottom third */
+        }
+
+        /* Base button styling */
+        .btn-3d {
+            position: relative;
+            border: none;
+            color: white;
+            padding: 10px;
+            font-family: inherit;
+            font-size: var(--font-size);
+            text-transform: uppercase;
             cursor: pointer;
-            user-select: none;
-            transition: transform 0.1s ease, opacity 0.1s ease; /* Even faster transition */
-            scroll-snap-align: center; /* Each item is a snap target */
-            opacity: 0.5;
-        }
-        
-        /* The active (centered) item is larger and fully visible */
-        .carousel-item.is-active {
-            transform: scale(1.5);
-            opacity: 1;
-        }
-        
-        .shop-button {
-            transition: all 0.2s ease;
-        }
-        
-        .shop-button:active {
-            transform: translateY(2px);
-            box-shadow: var(--pixel-size) var(--pixel-size) 0px #0f0f1b;
+            border-radius: 8px; /* Sharper corners for a block feel */
+            height: var(--button-height);
+            transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+            will-change: transform;
+            -webkit-tap-highlight-color: transparent; /* Removes blue tap highlight on mobile */
+            /* This shadow creates the 3D "side" of the button */
+            box-shadow: 0 var(--depth) 0 #080808; 
         }
 
-        /* Glassmorphism effect for the item info card */
-        .info-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        /* Pushdown effect on tap/click */
+        .btn-3d:active {
+            transform: translateY(var(--depth));
+            box-shadow: none;
         }
 
-        .fortune-choice-button, .equipment-choice-button {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: background 0.2s ease, transform 0.2s ease;
-        }
-        .fortune-choice-button:hover, .equipment-choice-button:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: scale(1.02);
-        }
-
+        /* Individual button colors */
+        .btn-3d.shop { background-color: var(--color-shop); }
+        .btn-3d.equipment { background-color: var(--color-equipment); }
+        .btn-3d.fortunes { background-color: var(--color-fortunes); }
+        .btn-3d.moons { background-color: var(--color-moons); }
+        .btn-3d.stats { background-color: var(--color-stats); }
+        .btn-3d.save { background-color: var(--color-save); }
     </style>
 </head>
 <body>
 
-    <main id="game-container" class="flex flex-col h-full p-2 sm:p-4">
-        <!-- Top Half of the screen (for game content, etc.) -->
-        <div class="flex-1 flex items-center justify-center">
-            <h1 class="text-4xl text-white opacity-25 select-none">GAME AREA</h1>
-        </div>
+    <div class="game-screen">
+        <!-- The main game content would go here, above the UI -->
 
-        <!-- Bottom Half - Main Menu Grid -->
-        <div class="py-4 flex-shrink-0">
-            <div class="grid grid-cols-2 gap-2 sm:gap-4 w-full max-w-md mx-auto">
-                <!-- Row 1 -->
-                <button id="open-shop-btn" class="shop-button w-full pixel-border pixel-shadow bg-blue-500 hover:bg-blue-600 text-white py-3 sm:py-4 rounded-lg text-base sm:text-lg md:text-xl uppercase tracking-widest">Shop</button>
-                <button class="shop-button w-full pixel-border pixel-shadow bg-green-500 hover:bg-green-600 text-white py-3 sm:py-4 rounded-lg text-base sm:text-lg md:text-xl uppercase tracking-widest">Quests</button>
-                
-                <!-- Row 2 -->
-                <button id="open-equipment-btn" class="shop-button w-full pixel-border pixel-shadow bg-yellow-500 hover:bg-yellow-600 text-white py-3 sm:py-4 rounded-lg text-base sm:text-lg md:text-xl uppercase tracking-widest">Equipment</button>
-                <button id="open-fortunes-btn" class="shop-button w-full pixel-border pixel-shadow bg-purple-500 hover:bg-purple-600 text-white py-3 sm:py-4 rounded-lg text-base sm:text-lg md:text-xl uppercase tracking-widest">Fortunes</button>
-                
-                <!-- Row 3 -->
-                <button class="shop-button w-full pixel-border pixel-shadow bg-orange-500 hover:bg-orange-600 text-white py-3 sm:py-4 rounded-lg text-base sm:text-lg md:text-xl uppercase tracking-widest">Map</button>
-                <button class="shop-button w-full pixel-border pixel-shadow bg-gray-500 hover:bg-gray-600 text-white py-3 sm:py-4 rounded-lg text-base sm:text-lg md:text-xl uppercase tracking-widest">Save</button>
-            </div>
-        </div>
-    </main>
-    
-    <!-- Shop Modal -->
-    <div id="shop-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-end sm:justify-center p-0">
-        <div class="w-full max-w-lg mx-auto bg-[#1a1a2e] p-4 sm:p-6 rounded-t-2xl sm:rounded-lg pixel-border">
-            <div id="item-carousel-container" class="carousel-container mb-6 sm:mb-8">
-                <div id="item-carousel" class="item-carousel"></div>
-            </div>
-            <div class="info-card p-4 sm:p-6 text-center h-44 sm:h-48 flex flex-col justify-between">
-                <div>
-                    <h2 id="item-name" class="text-2xl sm:text-3xl mb-2 text-yellow-300 transition-opacity duration-200"></h2>
-                    <p id="item-description" class="text-xs sm:text-sm h-10 sm:h-12 transition-opacity duration-200"></p>
-                </div>
-                <div>
-                    <p id="item-price" class="text-xl sm:text-2xl text-green-400 font-bold transition-opacity duration-200"></p>
-                </div>
-            </div>
-            <div class="flex justify-center mt-6 sm:mt-8 space-x-4">
-                <button id="close-shop-btn" class="shop-button pixel-border pixel-shadow bg-red-600 text-white px-6 py-3 rounded-lg text-lg">Close</button>
-                 <button class="shop-button pixel-border pixel-shadow bg-green-600 text-white px-6 py-3 rounded-lg text-lg">Buy</button>
-            </div>
+        <div class="button-grid" id="buttonGrid">
+            <button class="btn-3d shop">Shop</button>
+            <button class="btn-3d equipment">Equip</button>
+            <button class="btn-3d fortunes">Fortune</button>
+            <button class="btn-3d moons">Moons</button>
+            <button class="btn-3d stats">Stats</button>
+            <button class="btn-3d save">Save</button>
         </div>
     </div>
-
-    <!-- Fortunes Modal -->
-    <div id="fortunes-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-end sm:justify-center p-0">
-        <div class="w-full max-w-lg mx-auto bg-[#1a1a2e] p-4 sm:p-6 rounded-t-2xl sm:rounded-lg pixel-border">
-            <div id="sacrifice-selection-view">
-                <div id="fortunes-carousel-container" class="carousel-container mb-6 sm:mb-8">
-                    <div id="fortunes-carousel" class="item-carousel"></div>
-                </div>
-                <div class="info-card p-4 sm:p-6 text-center h-44 sm:h-48 flex flex-col justify-center">
-                    <h2 id="fortune-name" class="text-2xl sm:text-3xl mb-2 text-yellow-300 transition-opacity duration-200"></h2>
-                    <p id="fortune-description" class="text-xs sm:text-sm h-10 sm:h-12 transition-opacity duration-200"></p>
-                </div>
-                <div class="flex justify-center mt-6 sm:mt-8 space-x-4">
-                    <button id="close-fortunes-btn" class="shop-button pixel-border pixel-shadow bg-red-600 text-white px-6 py-3 rounded-lg text-lg">Decline</button>
-                     <button id="accept-sacrifice-btn" class="shop-button pixel-border pixel-shadow bg-green-600 text-white px-6 py-3 rounded-lg text-lg">Accept</button>
-                </div>
-            </div>
-            <div id="fortune-selection-view" class="hidden">
-                 <h2 class="text-xl sm:text-2xl text-center mb-4 sm:mb-6 text-yellow-300">Choose Your Fate</h2>
-                 <div id="fortune-choices-container" class="space-y-3 sm:space-y-4"></div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Equipment Modal -->
-    <div id="equipment-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-end sm:justify-center p-0">
-        <div class="w-full max-w-lg mx-auto bg-[#1a1a2e] p-4 sm:p-6 rounded-t-2xl sm:rounded-lg pixel-border">
-            <h2 class="text-xl sm:text-2xl text-center mb-0 text-yellow-300">Equipment</h2>
-            
-            <!-- Equipment Type Carousel -->
-            <div class="carousel-container h-24">
-                <div id="equipment-type-carousel" class="item-carousel">
-                    <!-- Equipment types will be injected here -->
-                </div>
-            </div>
-
-            <!-- Available Items List -->
-            <div class="info-card p-3 h-60 overflow-y-auto">
-                <div id="equipment-choices-container" class="space-y-2">
-                    <!-- Equipment items appear here -->
-                </div>
-            </div>
-
-            <div class="flex justify-center mt-6 sm:mt-8">
-                <button id="close-equipment-btn" class="shop-button pixel-border pixel-shadow bg-red-600 text-white px-6 py-3 rounded-lg text-lg">Close</button>
-            </div>
-        </div>
-    </div>
-
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- DATA ---
-            const items = [
-                { emoji: '🍶', name: 'Tonic', description: 'Restores 6 HP.', price: '50G' },
-                { emoji: '✝️', name: 'Cross', description: 'Cures curse, +1 max HP.', price: '120G' },
-                { emoji: '💎', name: 'Gem', description: 'Gain a buff, give a debuff.', price: '200G' },
-                { emoji: '🧚', name: 'Fairy', description: 'Restores magic meter.', price: '80G' },
-                { emoji: '🌒', name: 'Moonstone', description: 'Unlocks the use of moon arts.', price: '500G' },
-                { emoji: '♾️', name: 'Infinity Ring', description: 'Take damage to reroll (one-time).', price: '350G' },
-            ];
-
-            const sacrifices = [
-                { emoji: '🩸', name: 'Blood Pact', description: '-3 Max HP.' },
-                { emoji: '🦶', name: 'Broken Ankle', description: '-10% Luck.' },
-                { emoji: '💔', name: 'Heartbreak', description: 'One spell (❤️‍🔥 or 🩶) disabled per battle.' },
-                { emoji: '💰', name: 'Gambling Debt', description: '-30 Gold.' },
-                { emoji: '🫳', name: 'Clumsy', description: 'Lose 1 🌘 Moonstone.' },
-                { emoji: '🎭', name: 'Unstable Mind', description: 'Share 🍶 Tonic with enemy.' },
-            ];
-
-            const possibleFortunes = [
-                { name: 'Durable Stones', description: '+1 Status stone use.' },
-                { name: 'Efficient Magic', description: '1/2 MP cost for spells.' },
-                { name: 'Bartering Edge', description: '15% shop discount.' },
-                { name: 'Archer\'s Edge', description: 'Attacks all with 🏹 Bow.' },
-                { name: 'Enchantment', description: '🧚 Fairy also grants ❇️ Regen.' },
-                { name: 'Battle Grace', description: 'Buffs restore 1 🛡️ Armor.' },
-                { name: 'Prolonged Torment', description: '2x 🕯️ Curse and 🐌 Sluggish durations.' },
-                { name: 'Thief Strike', description: 'Steal 2 gold with 🗡️ Dagger.' },
-                { name: 'Toxic Decay', description: '☠️ Poison can stack.' },
-            ];
-
-            const equipmentCategories = [
-                { emoji: '⚔️', type: 'weapon' },
-                { emoji: '🛡️', type: 'armor' },
-                { emoji: '💍', type: 'ring' },
-            ];
-
-            const equipmentData = {
-                weapon: [
-                    { name: '🏹 Bow', stat: '+1 💥' },
-                    { name: '🗡️ Dagger', stat: '+2 💥' },
-                    { name: '🔨 Hammer', stat: '+5 💥' },
-                ],
-                armor: [
-                    { name: '🧥 Leather Gear', stat: '+2 🛡️' },
-                    { name: '🪨 Rock Bracer', stat: '+4 🛡️' },
-                    { name: '🕸️ Cloak', stat: '+15% 🍀' },
-                ],
-                ring: [
-                    { name: '💍 Eccentric Jewel', stat: 'A mysterious gem.' },
-                    { name: '♾️ Infinity Ring', stat: 'Take damage to reroll.' },
-                ]
-            };
-            
-            // --- GENERAL DOM ELEMENTS ---
-            const openShopBtn = document.getElementById('open-shop-btn');
-            const openFortunesBtn = document.getElementById('open-fortunes-btn');
-            const openEquipmentBtn = document.getElementById('open-equipment-btn');
-
-            // --- SHOP-SPECIFIC ELEMENTS & STATE ---
-            const closeShopBtn = document.getElementById('close-shop-btn');
-            const shopModal = document.getElementById('shop-modal');
-            const shopCarousel = document.getElementById('item-carousel');
-            const itemNameEl = document.getElementById('item-name');
-            const itemDescEl = document.getElementById('item-description');
-            const itemPriceEl = document.getElementById('item-price');
-            let activeShopIndex = 0;
-            let isShopInitialized = false;
-
-            // --- FORTUNES-SPECIFIC ELEMENTS & STATE ---
-            const closeFortunesBtn = document.getElementById('close-fortunes-btn');
-            const acceptSacrificeBtn = document.getElementById('accept-sacrifice-btn');
-            const fortunesModal = document.getElementById('fortunes-modal');
-            const fortunesCarousel = document.getElementById('fortunes-carousel');
-            const fortuneNameEl = document.getElementById('fortune-name');
-            const fortuneDescEl = document.getElementById('fortune-description');
-            const sacrificeSelectionView = document.getElementById('sacrifice-selection-view');
-            const fortuneSelectionView = document.getElementById('fortune-selection-view');
-            const fortuneChoicesContainer = document.getElementById('fortune-choices-container');
-            let activeFortuneIndex = 0;
-            let isFortunesInitialized = false;
-
-            // --- EQUIPMENT-SPECIFIC ELEMENTS ---
-            const equipmentModal = document.getElementById('equipment-modal');
-            const closeEquipmentBtn = document.getElementById('close-equipment-btn');
-            const equipmentTypeCarousel = document.getElementById('equipment-type-carousel');
-            const equipmentChoicesContainer = document.getElementById('equipment-choices-container');
-            let activeEquipmentIndex = 0;
-            let isEquipmentInitialized = false;
-
-
-            // --- FUNCTIONS ---
-            
-            function setupCarousel(container, itemsArray, isInitializedFlag, useEmoji = true) {
-                if (isInitializedFlag) return false;
-                container.innerHTML = '';
-                itemsArray.forEach((item, index) => {
-                    const itemEl = document.createElement('div');
-                    itemEl.classList.add('carousel-item');
-                    itemEl.textContent = useEmoji ? item.emoji : item.name;
-                    itemEl.dataset.index = index;
-                    container.appendChild(itemEl);
-                });
-
-                container.querySelectorAll('.carousel-item').forEach(item => {
-                    item.addEventListener('click', () => {
-                        item.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-                    });
-                });
-                return true;
+        // Simple script to log which button is pressed
+        const grid = document.getElementById('buttonGrid');
+        grid.addEventListener('click', function(event) {
+            if (event.target.matches('.btn-3d')) {
+                const buttonType = event.target.textContent;
+                console.log(`${buttonType} button was tapped!`);
+                // You can add your game logic here, e.g., openShop(), openStats(), etc.
             }
-
-            function updateCarouselLayout(container, activeIndex) {
-                const containerWidth = container.offsetWidth;
-                const itemWidth = 80;
-                const padding = (containerWidth / 2) - (itemWidth / 2);
-                container.style.padding = `0 ${padding}px`;
-                const initialItem = container.querySelector(`.carousel-item[data-index='${activeIndex}']`);
-                if(initialItem) {
-                    initialItem.scrollIntoView({ behavior: 'auto', inline: 'center', block: 'nearest' });
-                }
-            }
-            
-            function updateActiveShopItem() {
-                const carouselCenter = shopCarousel.getBoundingClientRect().left + shopCarousel.getBoundingClientRect().width / 2;
-                let minDistance = Infinity;
-                let centerIndex = 0;
-
-                shopCarousel.querySelectorAll('.carousel-item').forEach((item) => {
-                    const itemCenter = item.getBoundingClientRect().left + item.getBoundingClientRect().width / 2;
-                    const distance = Math.abs(carouselCenter - itemCenter);
-                    const index = parseInt(item.dataset.index);
-                    if (distance < minDistance) {
-                        minDistance = distance;
-                        centerIndex = index;
-                    }
-                    item.classList.remove('is-active');
-                });
-
-                const activeItem = shopCarousel.querySelector(`.carousel-item[data-index='${centerIndex}']`);
-                if (activeItem) activeItem.classList.add('is-active');
-                
-                if (activeShopIndex !== centerIndex) {
-                    activeShopIndex = centerIndex;
-                    updateShopInfo(activeShopIndex);
-                }
-            }
-
-            function updateShopInfo(index) {
-                const item = items[index];
-                if (!item) return;
-                [itemNameEl, itemDescEl, itemPriceEl].forEach(el => el.style.opacity = 0);
-                setTimeout(() => {
-                    itemNameEl.textContent = item.name;
-                    itemDescEl.textContent = item.description;
-                    itemPriceEl.textContent = item.price;
-                    [itemNameEl, itemDescEl, itemPriceEl].forEach(el => el.style.opacity = 1);
-                }, 50);
-            }
-
-            function updateActiveSacrificeItem() {
-                const carouselCenter = fortunesCarousel.getBoundingClientRect().left + fortunesCarousel.getBoundingClientRect().width / 2;
-                let minDistance = Infinity;
-                let centerIndex = 0;
-
-                fortunesCarousel.querySelectorAll('.carousel-item').forEach((item) => {
-                    const itemCenter = item.getBoundingClientRect().left + item.getBoundingClientRect().width / 2;
-                    const distance = Math.abs(carouselCenter - itemCenter);
-                    const index = parseInt(item.dataset.index);
-                    if (distance < minDistance) {
-                        minDistance = distance;
-                        centerIndex = index;
-                    }
-                    item.classList.remove('is-active');
-                });
-
-                const activeItem = fortunesCarousel.querySelector(`.carousel-item[data-index='${centerIndex}']`);
-                if (activeItem) activeItem.classList.add('is-active');
-                
-                if (activeFortuneIndex !== centerIndex) {
-                    activeFortuneIndex = centerIndex;
-                    updateSacrificeInfo(activeFortuneIndex);
-                }
-            }
-
-            function updateSacrificeInfo(index) {
-                const fortune = sacrifices[index];
-                if (!fortune) return;
-                [fortuneNameEl, fortuneDescEl].forEach(el => el.style.opacity = 0);
-                setTimeout(() => {
-                    fortuneNameEl.textContent = fortune.name;
-                    fortuneDescEl.textContent = fortune.description;
-                    [fortuneNameEl, fortuneDescEl].forEach(el => el.style.opacity = 1);
-                }, 50);
-            }
-
-            function generateFortuneChoices() {
-                fortuneChoicesContainer.innerHTML = '';
-                const randomFortunes = [...possibleFortunes].sort(() => 0.5 - Math.random()).slice(0, 3);
-                randomFortunes.forEach(fortune => {
-                    const button = document.createElement('button');
-                    button.className = 'fortune-choice-button w-full p-4 rounded-lg text-left';
-                    button.innerHTML = `<p class="text-base sm:text-lg text-yellow-300">${fortune.name}</p><p class="text-xs sm:text-sm opacity-80 mt-1">${fortune.description}</p>`;
-                    button.addEventListener('click', () => {
-                        console.log('Fortune selected:', fortune.name);
-                        fortunesModal.classList.add('hidden');
-                    });
-                    fortuneChoicesContainer.appendChild(button);
-                });
-            }
-
-            // --- EQUIPMENT LOGIC ---
-            function showAvailableEquipment(type) {
-                equipmentChoicesContainer.innerHTML = '';
-                const itemsToShow = equipmentData[type] || [];
-
-                itemsToShow.forEach(item => {
-                    const button = document.createElement('button');
-                    button.className = 'fortune-choice-button w-full p-4 rounded-lg text-left';
-                    button.innerHTML = `<p class="text-base sm:text-lg text-yellow-300">${item.name}</p><p class="text-xs sm:text-sm opacity-80 mt-1">${item.stat}</p>`;
-                    button.addEventListener('click', () => {
-                        console.log(`Equipped: ${item.name}`);
-                        // Logic to actually equip the item would go here
-                    });
-                    equipmentChoicesContainer.appendChild(button);
-                });
-            }
-            
-            function updateActiveEquipmentCategory() {
-                const carouselCenter = equipmentTypeCarousel.getBoundingClientRect().left + equipmentTypeCarousel.getBoundingClientRect().width / 2;
-                let minDistance = Infinity;
-                let centerIndex = 0;
-
-                equipmentTypeCarousel.querySelectorAll('.carousel-item').forEach((item) => {
-                    const itemCenter = item.getBoundingClientRect().left + item.getBoundingClientRect().width / 2;
-                    const distance = Math.abs(carouselCenter - itemCenter);
-                    const index = parseInt(item.dataset.index);
-                    if (distance < minDistance) {
-                        minDistance = distance;
-                        centerIndex = index;
-                    }
-                    item.classList.remove('is-active');
-                });
-
-                const activeItem = equipmentTypeCarousel.querySelector(`.carousel-item[data-index='${centerIndex}']`);
-                if (activeItem) activeItem.classList.add('is-active');
-                
-                if (activeEquipmentIndex !== centerIndex) {
-                    activeEquipmentIndex = centerIndex;
-                    const activeCategory = equipmentCategories[activeEquipmentIndex];
-                    if (activeCategory) {
-                        showAvailableEquipment(activeCategory.type);
-                    }
-                }
-            }
-
-
-            // --- EVENT HANDLERS ---
-            openShopBtn.addEventListener('click', () => {
-                shopModal.classList.remove('hidden');
-                isShopInitialized = !setupCarousel(shopCarousel, items, isShopInitialized);
-                updateCarouselLayout(shopCarousel, activeShopIndex);
-                updateActiveShopItem();
-            });
-            closeShopBtn.addEventListener('click', () => shopModal.classList.add('hidden'));
-            shopCarousel.addEventListener('scroll', updateActiveShopItem, { passive: true });
-            shopCarousel.addEventListener('scrollend', updateActiveShopItem, { passive: true });
-
-            openFortunesBtn.addEventListener('click', () => {
-                sacrificeSelectionView.classList.remove('hidden');
-                fortuneSelectionView.classList.add('hidden');
-                fortunesModal.classList.remove('hidden');
-                isFortunesInitialized = !setupCarousel(fortunesCarousel, sacrifices, isFortunesInitialized);
-                updateCarouselLayout(fortunesCarousel, activeFortuneIndex);
-                updateActiveSacrificeItem();
-            });
-            closeFortunesBtn.addEventListener('click', () => fortunesModal.classList.add('hidden'));
-            fortunesCarousel.addEventListener('scroll', updateActiveSacrificeItem, { passive: true });
-            fortunesCarousel.addEventListener('scrollend', updateActiveSacrificeItem, { passive: true });
-
-            acceptSacrificeBtn.addEventListener('click', () => {
-                sacrificeSelectionView.classList.add('hidden');
-                fortuneSelectionView.classList.remove('hidden');
-                generateFortuneChoices();
-            });
-
-            // Equipment Modal Handlers
-            openEquipmentBtn.addEventListener('click', () => {
-                equipmentModal.classList.remove('hidden');
-                isEquipmentInitialized = !setupCarousel(equipmentTypeCarousel, equipmentCategories, isEquipmentInitialized);
-                updateCarouselLayout(equipmentTypeCarousel, activeEquipmentIndex);
-                
-                const initialCategory = equipmentCategories[activeEquipmentIndex];
-                if(initialCategory) {
-                    showAvailableEquipment(initialCategory.type);
-                }
-                updateActiveEquipmentCategory();
-            });
-
-
-            closeEquipmentBtn.addEventListener('click', () => {
-                equipmentModal.classList.add('hidden');
-            });
-            
-            equipmentTypeCarousel.addEventListener('scroll', updateActiveEquipmentCategory, { passive: true });
-            equipmentTypeCarousel.addEventListener('scrollend', updateActiveEquipmentCategory, { passive: true });
-
         });
     </script>
+
 </body>
 </html>
-
 
