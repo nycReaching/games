@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Emoji Rogue Slots</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&display=swap" rel="stylesheet">
@@ -11,9 +11,10 @@
         body {
             overscroll-behavior-y: contain;
             font-family: 'Chakra Petch', sans-serif;
+            -webkit-tap-highlight-color: transparent; /* Disable tap highlight on mobile */
         }
 
-        /* Custom styling for the slot machine reel animation */
+        /* Original "jitter" slot machine reel animation */
         .reel.spinning {
             animation: spinReel 0.1s linear infinite;
         }
@@ -23,94 +24,114 @@
             100% { transform: translateY(20%); }
         }
 
-        /* Custom styling for UI feedback */
+        /* General UI styling for a sharper look */
+        .ui-panel {
+            background-color: #111827; /* Darker than gray-800 */
+            border: 1px solid #374151;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+
         .action-button {
-            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            transition: transform 0.1s ease, background-color 0.1s ease;
+            border: 1px solid #374151;
         }
 
         .action-button:active {
             transform: scale(0.95);
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .text-glow {
+            text-shadow: 0 0 4px rgba(59, 130, 246, 0.5), 0 0 8px rgba(59, 130, 246, 0.3);
         }
         
-        /* Custom scrollbar for enemy info */
+        .text-glow-pink {
+             text-shadow: 0 0 4px rgba(236, 72, 153, 0.6), 0 0 8px rgba(236, 72, 153, 0.4);
+        }
+
+        /* Custom scrollbar for a more integrated look */
         #enemy-info::-webkit-scrollbar {
             width: 4px;
         }
 
         #enemy-info::-webkit-scrollbar-thumb {
-            background-color: #4f46e5;
+            background-color: #3b82f6;
             border-radius: 2px;
         }
         
         #enemy-info::-webkit-scrollbar-track {
             background-color: #1f2937;
         }
-
-        /* Sharp corners as requested */
-        .sharp {
-            border-radius: 0 !important;
-        }
-        
-        .border-gradient {
-            border: 2px solid;
-            border-image-slice: 1;
-            border-image-source: linear-gradient(to right, #4f46e5, #ec4899);
-        }
-        
-        .text-shadow {
-            text-shadow: 0 0 5px rgba(236, 72, 153, 0.7), 0 0 10px rgba(79, 70, 229, 0.7);
-        }
     </style>
 </head>
-<body class="bg-gray-900 text-white flex flex-col h-screen select-none">
+<body class="bg-gray-900 text-gray-200 flex flex-col h-screen select-none antialiased">
 
-    <!-- Top Section: Player Stats -->
-    <header class="p-4 bg-gray-800 border-b-2 border-pink-500 shadow-lg">
-        <div class="flex justify-between items-center mb-2">
-            <span class="font-bold text-lg text-shadow">LVL: 1</span>
-            <span class="font-bold text-lg text-shadow">💰 125 G</span>
+    <!-- Top Section: Player Stats & Resources -->
+    <header class="p-3 ui-panel border-b-2 border-blue-500 space-y-2">
+        <!-- Top Row: Level and Resources -->
+        <div class="flex justify-between items-center text-lg">
+            <span id="player-level" class="font-bold text-glow">LVL: 1</span>
+            <div class="flex items-center space-x-4">
+                <span id="player-armor" class="font-semibold text-glow">🛡️ 5</span>
+                <span id="player-gold" class="font-semibold text-glow">💰 125</span>
+                <span id="player-gems" class="font-semibold text-glow">💎 10</span>
+            </div>
         </div>
+
         <!-- Health Bar -->
-        <div class="w-full bg-gray-700 h-6 border-2 border-gray-600">
-            <div id="health-bar" class="bg-gradient-to-r from-red-500 to-red-700 h-full text-center text-xs font-bold leading-6 transition-all duration-300" style="width: 85%;">HP: 85/100</div>
+        <div class="w-full bg-gray-700 h-5 border border-gray-600">
+            <div id="health-bar" class="bg-gradient-to-r from-red-500 to-red-700 h-full text-center text-xs font-bold leading-5 transition-all duration-300" style="width: 85%;">HP: 85/100</div>
         </div>
-        <!-- Energy Bar -->
-        <div class="w-full bg-gray-700 h-6 mt-2 border-2 border-gray-600">
-            <div id="energy-bar" class="bg-gradient-to-r from-blue-500 to-indigo-700 h-full text-center text-xs font-bold leading-6 transition-all duration-300" style="width: 60%;">⚡: 60/100</div>
+
+        <!-- MP Bar -->
+        <div class="w-full bg-gray-700 h-5 border border-gray-600">
+            <div id="mp-bar" class="bg-gradient-to-r from-purple-500 to-indigo-500 h-full text-center text-xs font-bold leading-5 transition-all duration-300" style="width: 70%;">MP: 70/100</div>
+        </div>
+
+        <!-- XP Bar -->
+        <div class="w-full bg-gray-700 h-4 border border-gray-600">
+            <div id="xp-bar" class="bg-gradient-to-r from-yellow-400 to-orange-500 h-full text-center text-xs font-bold leading-4 transition-all duration-300" style="width: 40%;">XP: 40/100</div>
         </div>
     </header>
 
     <!-- Middle Section: Slot Machine and Enemy Info -->
     <main class="flex-grow flex flex-col justify-center items-center p-4 overflow-hidden">
         <!-- Enemy Info Display -->
-        <div id="enemy-info" class="w-full max-w-md h-24 bg-gray-800 border-2 border-indigo-500 p-2 mb-4 overflow-y-auto shadow-inner">
+        <div id="enemy-info" class="w-full max-w-md h-24 ui-panel p-2 mb-4 overflow-y-auto">
              <p id="enemy-info-text" class="text-center text-gray-400">Spin to encounter enemies!</p>
         </div>
 
         <!-- Slot Machine -->
-        <div class="w-full max-w-md bg-gray-800 p-4 border-gradient shadow-2xl">
+        <div class="w-full max-w-md ui-panel p-4 border-2 border-blue-500">
             <div id="slot-machine" class="flex justify-around items-center h-32 text-6xl">
-                <div class="reel w-1/3 text-center bg-gray-900 p-2 mx-1 border-2 border-gray-700">⚔️</div>
-                <div class="reel w-1/3 text-center bg-gray-900 p-2 mx-1 border-2 border-gray-700">👹</div>
-                <div class="reel w-1/3 text-center bg-gray-900 p-2 mx-1 border-2 border-gray-700">💰</div>
+                <div class="reel w-1/3 text-center bg-gray-900 p-2 mx-1 border border-gray-700 flex justify-center items-center">⚔️</div>
+                <div class="reel w-1/3 text-center bg-gray-900 p-2 mx-1 border border-gray-700 flex justify-center items-center">👹</div>
+                <div class="reel w-1/3 text-center bg-gray-900 p-2 mx-1 border border-gray-700 flex justify-center items-center">💰</div>
             </div>
         </div>
     </main>
 
     <!-- Bottom Section: Actions -->
-    <footer class="p-4 bg-gray-800 border-t-2 border-pink-500 grid grid-cols-3 gap-2">
-        <button class="action-button col-span-3 text-2xl font-bold bg-gradient-to-r from-pink-500 to-indigo-600 p-4 shadow-lg active:from-pink-600 active:to-indigo-700" id="spin-button">
-            SPIN
-        </button>
-        <button class="action-button bg-indigo-700 p-3 shadow-md active:bg-indigo-800">SHOP 🛍️</button>
-        <button class="action-button bg-indigo-700 p-3 shadow-md active:bg-indigo-800">GEAR 🛡️</button>
-        <button class="action-button bg-indigo-700 p-3 shadow-md active:bg-indigo-800">SKILLS ✨</button>
+    <footer class="p-3 ui-panel border-t-2 border-blue-500 flex flex-col gap-3">
+        <!-- Primary Actions -->
+        <div class="grid grid-cols-3 gap-3">
+            <button data-name="Attack" class="action-button bg-gray-700 hover:bg-gray-600 p-3 text-lg font-bold flex flex-col items-center justify-center h-20"><span>⚔️</span><span class="text-sm">Attack</span></button>
+            <button class="action-button text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 p-4 h-20" id="spin-button">
+                SPIN<br>(10 MP)
+            </button>
+            <button data-name="Spells" class="action-button bg-gray-700 hover:bg-gray-600 p-3 text-lg font-bold flex flex-col items-center justify-center h-20"><span>✨</span><span class="text-sm">Spells</span></button>
+        </div>
+        <!-- Secondary Actions -->
+        <div class="grid grid-cols-4 gap-2">
+            <button data-name="Equip Slots" class="action-button bg-gray-800 hover:bg-gray-700 p-2 text-base flex flex-col items-center justify-center"><span>🛡️</span><span class="text-xs">Equip</span></button>
+            <button data-name="Shop" class="action-button bg-gray-800 hover:bg-gray-700 p-2 text-base flex flex-col items-center justify-center"><span>🛍️</span><span class="text-xs">Shop</span></button>
+            <button data-name="Fortunes" class="action-button bg-gray-800 hover:bg-gray-700 p-2 text-base flex flex-col items-center justify-center"><span>🔮</span><span class="text-xs">Fortunes</span></button>
+            <button data-name="Luck" class="action-button bg-gray-800 hover:bg-gray-700 p-2 text-base flex flex-col items-center justify-center"><span>🍀</span><span class="text-xs">Luck</span></button>
+        </div>
     </footer>
 
     <!-- Message Display -->
-    <div id="message-box" class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black bg-opacity-80 border-2 border-pink-500 p-6 text-center shadow-2xl z-50">
-        <p id="message-text" class="text-lg"></p>
+    <div id="message-box" class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ui-panel border-2 border-cyan-400 p-6 text-center z-50">
+        <p id="message-text" class="text-lg text-glow"></p>
     </div>
 
     <script>
@@ -120,85 +141,166 @@
         const messageBox = document.getElementById('message-box');
         const messageText = document.getElementById('message-text');
 
-        // Possible outcomes for the slots
+        // Game State
+        let playerState = {
+            level: 1,
+            hp: 85,
+            maxHp: 100,
+            armor: 5,
+            mp: 70,
+            maxMp: 100,
+            gold: 125,
+            gems: 10,
+            xp: 40,
+            xpToNextLevel: 100,
+        };
+
         const outcomes = {
             'attack': { emoji: '⚔️', name: 'Attack', description: 'Player attacks!' },
-            'gold': { emoji: '💰', name: 'Gold', description: 'You found some gold!'},
-            'potion': { emoji: '🧪', name: 'Potion', description: 'A healing potion!'},
-            'enemy1': { emoji: '👹', name: 'Goblin', description: 'A wild Goblin appears!', hp: 20 },
-            'enemy2': { emoji: '👻', name: 'Ghost', description: 'A spooky Ghost haunts you!', hp: 15 },
-            'enemy3': { emoji: '🐍', name: 'Snake', description: 'A venomous Snake strikes!', hp: 10 },
-            'boss': { emoji: '🐉', name: 'Dragon', description: 'A mighty Dragon appears!', hp: 100 },
+            'shield': { emoji: '🛡️', name: 'Shield', description: 'You gain 5 block!' },
+            'gold': { emoji: '💰', name: 'Gold', description: 'You found 10 gold!'},
+            'potion': { emoji: '🧪', name: 'Potion', description: 'Recover 15 HP!'},
+            'key': { emoji: '🔑', name: 'Key', description: 'You found a key!'},
+            'chest': { emoji: '📦', name: 'Chest', description: 'A treasure chest!'},
+            'curse': { emoji: '💀', name: 'Curse', description: 'You lose 5 HP!'},
+            'enemy1': { emoji: '👹', name: 'Goblin', description: 'A wild Goblin appears!', hp: 20, damage: 5 },
+            'enemy2': { emoji: '👻', name: 'Ghost', description: 'A spooky Ghost haunts you!', hp: 15, damage: 8 },
+            'enemy3': { emoji: '🐍', name: 'Snake', description: 'A venomous Snake strikes!', hp: 10, damage: 12 },
+            'boss': { emoji: '🐉', name: 'Dragon', description: 'A mighty Dragon appears!', hp: 100, damage: 25 },
         };
         
         const outcomeKeys = Object.keys(outcomes);
-
         let isSpinning = false;
 
-        spinButton.addEventListener('click', () => {
-            if (isSpinning) return;
-            isSpinning = true;
+        function updateUI() {
+            document.getElementById('player-level').textContent = `LVL: ${playerState.level}`;
+            document.getElementById('player-armor').textContent = `🛡️ ${playerState.armor}`;
+            document.getElementById('player-gold').textContent = `💰 ${playerState.gold}`;
+            document.getElementById('player-gems').textContent = `💎 ${playerState.gems}`;
+
+            const healthBar = document.getElementById('health-bar');
+            healthBar.style.width = `${(playerState.hp / playerState.maxHp) * 100}%`;
+            healthBar.textContent = `HP: ${playerState.hp}/${playerState.maxHp}`;
+
+            const mpBar = document.getElementById('mp-bar');
+            mpBar.style.width = `${(playerState.mp / playerState.maxMp) * 100}%`;
+            mpBar.textContent = `MP: ${playerState.mp}/${playerState.maxMp}`;
             
-            // Clear previous enemy info
+            const xpBar = document.getElementById('xp-bar');
+            xpBar.style.width = `${(playerState.xp / playerState.xpToNextLevel) * 100}%`;
+            xpBar.textContent = `XP: ${playerState.xp}/${playerState.xpToNextLevel}`;
+        }
+
+        spinButton.addEventListener('click', () => {
+            if (isSpinning || playerState.mp < 10) {
+                 if (playerState.mp < 10) showMessage('Not enough MP!', 1500);
+                return;
+            }
+            isSpinning = true;
+            playerState.mp -= 10;
+            updateUI();
+            
             enemyInfoText.innerHTML = "";
             
-            // Add spinning class and randomize content during spin
-            reels.forEach(reel => {
+            let finalResults = [];
+            
+            reels.forEach((reel, index) => {
                 reel.classList.add('spinning');
                 const spinInterval = setInterval(() => {
                     const randomKey = outcomeKeys[Math.floor(Math.random() * outcomeKeys.length)];
                     reel.textContent = outcomes[randomKey].emoji;
                 }, 100);
 
-                // Stop spinning after a random delay for each reel
                 setTimeout(() => {
                     clearInterval(spinInterval);
                     reel.classList.remove('spinning');
                     
-                    // Set final outcome
                     const finalKey = outcomeKeys[Math.floor(Math.random() * outcomeKeys.length)];
                     const finalOutcome = outcomes[finalKey];
                     reel.textContent = finalOutcome.emoji;
+                    finalResults.push(finalOutcome);
                     
-                    // Display info for enemies
                     if(finalOutcome.hp){
                         const enemyDisplay = document.createElement('div');
                         enemyDisplay.className = "text-center p-1";
-                        enemyDisplay.innerHTML = `<span class="font-bold text-pink-400">${finalOutcome.name}</span> - HP: ${finalOutcome.hp}`;
+                        enemyDisplay.innerHTML = `<span class="font-bold text-glow-pink">${finalOutcome.name}</span> - HP: ${finalOutcome.hp} / ATK: ${finalOutcome.damage}`;
                         enemyInfoText.appendChild(enemyDisplay);
-                    } else {
-                         showMessage(finalOutcome.description, 1500);
+                    }
+                    
+                    // When the last reel stops, process results
+                    if(index === reels.length - 1) {
+                         processSpinResults(finalResults);
                     }
 
-                }, 1000 + Math.random() * 500);
+                }, 1000 + index * 300); // Staggered stop
             });
             
-            // Reset spinning state
             setTimeout(() => {
                 isSpinning = false;
-            }, 1500);
+            }, 1000 + (reels.length - 1) * 300);
         });
+
+        function processSpinResults(results) {
+             let damageToPlayer = 0;
+             let goldGained = 0;
+             let hpGained = 0;
+             let nonEnemyDescriptions = [];
+
+             results.forEach(res => {
+                if (res.damage) {
+                    damageToPlayer += res.damage;
+                }
+                if (res.name === 'Gold') {
+                    goldGained += 10;
+                }
+                if (res.name === 'Potion') {
+                    hpGained += 15;
+                }
+                if (res.name === 'Curse') {
+                    damageToPlayer += 5;
+                }
+                if(!res.hp) {
+                    nonEnemyDescriptions.push(res.description);
+                }
+             });
+
+             if (damageToPlayer > 0) {
+                playerState.hp = Math.max(0, playerState.hp - damageToPlayer);
+                showMessage(`You took ${damageToPlayer} damage!`, 1500);
+             } else if (nonEnemyDescriptions.length > 0) {
+                 // Show messages for positive outcomes if no damage was taken
+                 showMessage(nonEnemyDescriptions[0], 1500);
+             }
+             
+             if(goldGained > 0) playerState.gold += goldGained;
+             if(hpGained > 0) playerState.hp = Math.min(playerState.maxHp, playerState.hp + hpGained);
+
+             updateUI();
+        }
         
-        // Show a message to the player
         function showMessage(msg, duration = 2000) {
             messageText.textContent = msg;
             messageBox.classList.remove('hidden');
-            setTimeout(() => {
+            clearTimeout(messageBox.timeoutId);
+            messageBox.timeoutId = setTimeout(() => {
                 messageBox.classList.add('hidden');
             }, duration);
         }
         
-        // Event listeners for other action buttons
         document.querySelectorAll('.action-button').forEach(button => {
             if (button.id !== 'spin-button') {
                 button.addEventListener('click', () => {
                     if(!isSpinning) {
-                        showMessage(`The ${button.textContent.trim().split(" ")[0]} is not yet implemented.`, 1500);
+                        const buttonName = button.dataset.name || button.textContent.trim().replace(/[\d⚡()]/g, '');
+                        showMessage(`${buttonName} screen is not yet implemented.`, 1500);
                     }
                 });
             }
         });
 
+        // Initial UI setup
+        updateUI();
     </script>
 </body>
 </html>
+
