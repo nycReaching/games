@@ -16,8 +16,9 @@
             font-family: 'Press 'Start' 2P', cursive;
             background-color: #1a1a2e;
             color: #e0e0e0;
-            overflow: hidden;
-            touch-action: none; /* Prevents browser gestures on mobile */
+            overflow-x: hidden; /* Keep horizontal overflow locked */
+            overflow-y: auto;   /* Allow vertical scroll if content is too tall */
+            touch-action: pan-y; /* Allows vertical swipe gestures on mobile */
         }
 
         /* Pixelated box shadow effect */
@@ -100,27 +101,27 @@
 
     </style>
 </head>
-<body class="flex flex-col h-screen p-4">
+<body class="flex flex-col min-h-screen p-2 sm:p-4">
 
     <!-- Top Half of the screen (for game content, etc.) -->
-    <div class="flex-1 flex items-center justify-center">
+    <div class="flex-1 flex items-center justify-center min-h-[100px]">
         <h1 class="text-4xl text-white opacity-25 select-none">GAME AREA</h1>
     </div>
 
     <!-- Bottom Half - Main Menu Grid -->
-    <div class="pb-4">
-        <div class="grid grid-cols-2 gap-4 md:gap-6 w-full max-w-md mx-auto">
+    <div class="py-2">
+        <div class="grid grid-cols-2 gap-2 sm:gap-4 w-full max-w-md mx-auto">
             <!-- Row 1 -->
-            <button id="open-shop-btn" class="shop-button w-full pixel-border pixel-shadow bg-blue-500 hover:bg-blue-600 text-white py-4 rounded-lg text-lg md:text-xl uppercase tracking-widest">Shop</button>
-            <button class="shop-button w-full pixel-border pixel-shadow bg-green-500 hover:bg-green-600 text-white py-4 rounded-lg text-lg md:text-xl uppercase tracking-widest">Quests</button>
+            <button id="open-shop-btn" class="shop-button w-full pixel-border pixel-shadow bg-blue-500 hover:bg-blue-600 text-white py-3 sm:py-4 rounded-lg text-base sm:text-lg md:text-xl uppercase tracking-widest">Shop</button>
+            <button class="shop-button w-full pixel-border pixel-shadow bg-green-500 hover:bg-green-600 text-white py-3 sm:py-4 rounded-lg text-base sm:text-lg md:text-xl uppercase tracking-widest">Quests</button>
             
             <!-- Row 2 -->
-            <button class="shop-button w-full pixel-border pixel-shadow bg-yellow-500 hover:bg-yellow-600 text-white py-4 rounded-lg text-lg md:text-xl uppercase tracking-widest">Party</button>
-            <button class="shop-button w-full pixel-border pixel-shadow bg-purple-500 hover:bg-purple-600 text-white py-4 rounded-lg text-lg md:text-xl uppercase tracking-widest">Items</button>
+            <button class="shop-button w-full pixel-border pixel-shadow bg-yellow-500 hover:bg-yellow-600 text-white py-3 sm:py-4 rounded-lg text-base sm:text-lg md:text-xl uppercase tracking-widest">Party</button>
+            <button class="shop-button w-full pixel-border pixel-shadow bg-purple-500 hover:bg-purple-600 text-white py-3 sm:py-4 rounded-lg text-base sm:text-lg md:text-xl uppercase tracking-widest">Items</button>
             
             <!-- Row 3 -->
-            <button class="shop-button w-full pixel-border pixel-shadow bg-orange-500 hover:bg-orange-600 text-white py-4 rounded-lg text-lg md:text-xl uppercase tracking-widest">Map</button>
-            <button class="shop-button w-full pixel-border pixel-shadow bg-gray-500 hover:bg-gray-600 text-white py-4 rounded-lg text-lg md:text-xl uppercase tracking-widest">Save</button>
+            <button class="shop-button w-full pixel-border pixel-shadow bg-orange-500 hover:bg-orange-600 text-white py-3 sm:py-4 rounded-lg text-base sm:text-lg md:text-xl uppercase tracking-widest">Map</button>
+            <button class="shop-button w-full pixel-border pixel-shadow bg-gray-500 hover:bg-gray-600 text-white py-3 sm:py-4 rounded-lg text-base sm:text-lg md:text-xl uppercase tracking-widest">Save</button>
         </div>
     </div>
     
@@ -281,6 +282,7 @@
     </script>
 </body>
 </html>
+
 
 
 
