@@ -30,7 +30,17 @@
             transform: scale(0.95);
         }
 
-        /* Reusable hit/shake animation inspired by the original spin */
+        /* Jitter animation from gogo.html */
+        .enemy-card.spinning .text-5xl {
+            animation: spinReel 0.1s linear infinite;
+        }
+        
+        @keyframes spinReel {
+            0% { transform: translateY(-20%); }
+            100% { transform: translateY(20%); }
+        }
+
+        /* Hit/shake animation */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-4px); }
@@ -49,6 +59,12 @@
         #combat-log::-webkit-scrollbar-thumb { background-color: #3b82f6; border-radius: 2px; }
         #combat-log::-webkit-scrollbar-track { background-color: #1f2937; }
 
+        /* Style for selected enemy */
+        .selected-enemy {
+            border-color: #22d3ee;
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.6);
+        }
+
         /* Modal styles */
         .modal-overlay {
             background-color: rgba(0, 0, 0, 0.7);
@@ -58,7 +74,9 @@
 </head>
 <body class="bg-gray-900 text-gray-200 flex flex-col h-screen select-none antialiased">
 
+    <!-- Top Section: Player Stats & Resources -->
     <header class="p-3 ui-panel border-b-2 border-blue-500 space-y-2">
+        <!-- Top Row: Wave and Currencies -->
         <div class="flex justify-between items-center text-lg">
             <span id="wave-counter" class="font-bold text-glow">WAVE: 1</span>
             <div class="flex items-center space-x-4">
@@ -66,47 +84,36 @@
                 <span id="player-moonstones" class="font-semibold text-glow">🌒 1</span>
             </div>
         </div>
-
-        <div class="w-full bg-gray-700 h-5 border border-gray-600">
-            <div id="health-bar" class="bg-gradient-to-r from-red-500 to-red-700 h-full text-center text-xs font-bold leading-5 transition-all duration-300" style="width: 100%;">❤️ HP: 15/15</div>
+        <!-- Health Bar -->
+        <div class="relative w-full bg-gray-700 h-5 border border-gray-600">
+            <div id="health-bar" class="absolute top-0 left-0 bg-gradient-to-r from-red-500 to-red-700 h-full transition-all duration-300" style="width: 100%;"></div>
+            <div class="absolute inset-0 flex items-center justify-center text-xs font-bold leading-5">❤️ HP: 15/15</div>
         </div>
-        
-        <div class="w-full bg-gray-700 h-5 border border-gray-600">
-            <div id="armor-bar" class="bg-gradient-to-r from-gray-400 to-gray-500 h-full text-center text-xs font-bold leading-5 transition-all duration-300" style="width: 100%;">🛡️ Armor: 2/2</div>
+        <!-- Armor Bar -->
+        <div class="relative w-full bg-gray-700 h-5 border border-gray-600">
+            <div id="armor-bar" class="absolute top-0 left-0 bg-gradient-to-r from-gray-400 to-gray-500 h-full transition-all duration-300" style="width: 100%;"></div>
+            <div class="absolute inset-0 flex items-center justify-center text-xs font-bold leading-5">🛡️ Armor: 2/2</div>
         </div>
-
-        <div class="w-full bg-gray-700 h-5 border border-gray-600">
-            <div id="magic-bar" class="bg-gradient-to-r from-purple-500 to-indigo-500 h-full text-center text-xs font-bold leading-5 transition-all duration-300" style="width: 80%;">Magic: 80/100</div>
+        <!-- Magic Bar -->
+        <div class="relative w-full bg-gray-700 h-5 border border-gray-600">
+            <div id="magic-bar" class="absolute top-0 left-0 bg-gradient-to-r from-purple-500 to-indigo-500 h-full transition-all duration-300" style="width: 80%;"></div>
+            <div class="absolute inset-0 flex items-center justify-center text-xs font-bold leading-5">Magic: 80/100</div>
         </div>
-
-        <div class="w-full bg-gray-700 h-4 border border-gray-600">
-            <div id="kill-meter" class="bg-gradient-to-r from-cyan-400 to-blue-500 h-full text-center text-xs font-bold leading-4 transition-all duration-300" style="width: 20%;">Kill Meter: 2/10</div>
+        <!-- Kill Meter (XP Bar) -->
+        <div class="relative w-full bg-gray-700 h-4 border border-gray-600">
+            <div id="kill-meter" class="absolute top-0 left-0 bg-gradient-to-r from-cyan-400 to-blue-500 h-full transition-all duration-300" style="width: 20%;"></div>
+            <div class="absolute inset-0 flex items-center justify-center text-xs font-bold leading-4">Kill Meter: 2/10</div>
         </div>
     </header>
 
+    <!-- Middle Section: Enemies and Combat Log -->
     <main class="flex-grow flex flex-col justify-center items-center p-4 overflow-hidden gap-4">
-        <div id="enemy-wave" class="w-full max-w-lg ui-panel p-2 flex justify-around items-center gap-2">
-            <div class="enemy-card text-center p-2 bg-gray-900 border border-gray-700 rounded-lg flex-1">
-                <div class="text-5xl">💀</div>
-                <div class="font-bold text-glow-pink">Skeleton</div>
-                <div class="text-sm">HP: 12/12</div>
-                <div class="text-xs h-4"></div>
-            </div>
-            <div class="enemy-card text-center p-2 bg-gray-900 border-2 border-red-500 rounded-lg flex-1 relative" style="box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);">
-                <div class="absolute top-1 right-1 text-xs text-red-400 font-bold">ELITE</div>
-                <div class="text-5xl">🐺</div>
-                <div class="font-bold text-glow-pink">Wolf</div>
-                <div class="text-sm">HP: 24/24</div>
-                <div class="text-xs h-4 text-yellow-400">🐌 Sluggish</div>
-            </div>
-            <div class="enemy-card text-center p-2 bg-gray-900 border border-yellow-400 rounded-lg flex-1" style="box-shadow: 0 0 10px rgba(250, 204, 21, 0.4);">
-                <div class="text-5xl">🎁</div>
-                <div class="font-bold text-glow-green">Gift</div>
-                <div class="text-sm">HP: 10/10</div>
-                <div class="text-xs h-4"></div>
-            </div>
+        <!-- Enemy Wave Display -->
+        <div id="enemy-wave" class="w-full max-w-lg ui-panel p-2 flex justify-around items-start gap-2 h-48">
+             <!-- Enemies will be dynamically generated here -->
         </div>
 
+        <!-- Combat Log -->
         <div id="combat-log-container" class="w-full max-w-lg h-28 ui-panel p-2">
              <div id="combat-log" class="h-full overflow-y-auto text-sm p-1">
                 <p class="text-gray-400">> Battle Start! Choose your action.</p>
@@ -115,36 +122,83 @@
         </div>
     </main>
 
+    <!-- Bottom Section: Actions -->
     <footer class="p-3 ui-panel border-t-2 border-blue-500 flex flex-col gap-3">
+        <!-- Primary Combat Actions -->
         <div class="grid grid-cols-4 gap-2">
             <button data-name="Attack" class="action-button bg-red-800 hover:bg-red-700 p-2 text-lg font-bold flex flex-col items-center justify-center h-24"><span>🗡️</span><span class="text-sm">Attack</span></button>
             <button data-name="Spells" class="action-button bg-indigo-800 hover:bg-indigo-700 p-2 text-lg font-bold flex flex-col items-center justify-center h-24"><span>✨</span><span class="text-sm">Spells</span></button>
             <button data-name="Moon Arts" class="action-button bg-teal-800 hover:bg-teal-700 p-2 text-lg font-bold flex flex-col items-center justify-center h-24"><span>🌒</span><span class="text-sm">Moon Arts</span></button>
             <button data-name="Items" class="action-button bg-green-800 hover:bg-green-700 p-2 text-lg font-bold flex flex-col items-center justify-center h-24"><span>🍶</span><span class="text-sm">Items</span></button>
         </div>
+        <!-- Secondary & Pre-Battle Actions -->
         <div class="grid grid-cols-5 gap-2">
             <button data-name="Shop" class="action-button bg-gray-800 hover:bg-gray-700 p-2 text-base flex flex-col items-center justify-center"><span>🪙</span><span class="text-xs">Shop</span></button>
             <button data-name="Build" class="action-button bg-gray-800 hover:bg-gray-700 p-2 text-base flex flex-col items-center justify-center"><span>🔨</span><span class="text-xs">Build</span></button>
             <button data-name="Fortunes" class="action-button bg-gray-800 hover:bg-gray-700 p-2 text-base flex flex-col items-center justify-center"><span>🔮</span><span class="text-xs">Fortunes</span></button>
             <button data-name="Luck" class="action-button bg-gray-800 hover:bg-gray-700 p-2 text-base flex flex-col items-center justify-center"><span>🍀</span><span class="text-xs">Luck Type</span></button>
-            <button data-name="Reroll" class="action-button bg-gray-600 hover:bg-gray-500 p-2 text-base flex flex-col items-center justify-center"><span>🔃</span><span class="text-xs">Reroll (1)</span></button>
+            <button id="reroll-button" data-name="Reroll" class="action-button bg-gray-600 hover:bg-gray-500 p-2 text-base flex flex-col items-center justify-center"><span>🔃</span><span class="text-xs">Reroll (1)</span></button>
         </div>
     </footer>
     
+    <!-- Generic Modal for Popups (e.g., Spells, Items, Upgrades, Gifts) -->
     <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
         <div class="modal-overlay fixed inset-0"></div>
         <div id="modal-content" class="ui-panel border-2 border-cyan-400 p-6 text-center z-50 w-full max-w-sm">
-            </div>
+            <!-- Modal content will be injected here by JavaScript -->
+        </div>
     </div>
 
 
     <script>
-        // --- MODAL & UI INTERACTIVITY SCRIPT (FOR DEMONSTRATION) ---
+        // --- GAME DATA ---
+        const enemyData = {
+            'skeleton': { emoji: '💀', name: 'Skeleton', hp: 12, special: null, type: 'enemy' },
+            'wolf': { emoji: '🐺', name: 'Wolf', hp: 15, special: null, type: 'enemy' },
+            'frog': { emoji: '🐸', name: 'Frog', hp: 8, special: '☠️ Poison', type: 'enemy' },
+            'crow': { emoji: '🐦‍⬛', name: 'Crow', hp: 10, special: '🕯️ Curse', type: 'enemy' },
+            'spider': { emoji: '🕷️', name: 'Spider', hp: 9, special: '☠️ Poison', type: 'enemy' },
+            'zombie': { emoji: '🧟', name: 'Zombie', hp: 18, special: '🐌 Sluggish', type: 'enemy' },
+            'ninja': { emoji: '🥷', name: 'Ninja', hp: 14, special: '🫳 Steals Gold', type: 'enemy' },
+            'gift': { emoji: '🎁', name: 'Gift', hp: 10, special: 'Reward', type: 'gift' },
+        };
+        const enemyKeys = Object.keys(enemyData);
+        let currentEnemies = [];
+        let selectedEnemyIndex = null;
+        let isSpinning = false;
+
+
+        // --- UI ELEMENTS ---
         const modal = document.getElementById('modal');
         const modalContent = document.getElementById('modal-content');
         const modalOverlay = document.querySelector('.modal-overlay');
+        const enemyWaveContainer = document.getElementById('enemy-wave');
+        const combatLog = document.getElementById('combat-log');
+        const rerollButton = document.getElementById('reroll-button');
 
-        // Function to open the modal with specific content
+
+        // --- HELPER FUNCTIONS ---
+        function logMessage(message, colorClass = 'text-gray-400') {
+            combatLog.innerHTML += `<p class="${colorClass}">> ${message}</p>`;
+            combatLog.scrollTop = combatLog.scrollHeight;
+        }
+
+        function getRandomEnemy() {
+             // 25% chance for a gift, otherwise a random enemy
+             if (Math.random() < 0.25) return { ...enemyData['gift'], key: 'gift' };
+
+             const randomKey = enemyKeys[Math.floor(Math.random() * (enemyKeys.length -1))]; // Exclude gift
+             // 25% chance for elite
+             const isElite = Math.random() < 0.25;
+             const enemy = { ...enemyData[randomKey], key: randomKey, isElite };
+
+             if (isElite) {
+                 enemy.hp *= 2;
+             }
+             return enemy;
+        }
+        
+        // --- MODAL LOGIC ---
         function openModal(title, contentHtml) {
             modalContent.innerHTML = `
                 <h3 class="text-2xl font-bold text-glow mb-4">${title}</h3>
@@ -155,95 +209,172 @@
             document.getElementById('close-modal-btn').addEventListener('click', closeModal);
         }
 
-        // Function to close the modal
         function closeModal() {
             modal.classList.add('hidden');
         }
         modalOverlay.addEventListener('click', closeModal);
 
 
-        // --- DEMO CONTENT FOR MODALS ---
-        const spellsContent = `
-            <div class="space-y-2 text-left">
-                <button class="w-full text-left action-button bg-gray-800 p-2">❤️‍🔥 Flameheart</button>
-                <button class="w-full text-left action-button bg-gray-800 p-2">❄️ Frostbite</button>
-                <button class="w-full text-left action-button bg-gray-800 p-2">🩶 Armorheart</button>
-            </div>
-        `;
+        // --- ENEMY & COMBAT LOGIC ---
+        // NEW helper function to apply state to an existing card element
+        function updateCardFromState(card, enemy, index) {
+            if (!card || !enemy) return;
 
-        const giftRewardContent = `
-             <p class="mb-4">The Gift opens! Choose a reward:</p>
-             <div class="space-y-2">
-                <button class="w-full action-button bg-blue-800 p-2">Rare: +1 Max Armor</button>
-                <button class="w-full action-button bg-purple-800 p-2">Epic: +20 Gold</button>
-                <button class="w-full action-button bg-yellow-700 p-2">Legendary: +5% Luck</button>
-             </div>
-        `;
+            // Update content
+            card.querySelector('.text-5xl').textContent = enemy.emoji;
+            card.querySelector('.font-bold').textContent = enemy.name;
+            card.querySelector('.text-sm').textContent = `HP: ${enemy.hp}/${enemy.hp}`;
+            const specialElement = card.querySelector('.text-xs.h-4');
+            if(specialElement) specialElement.textContent = enemy.special || '';
+
+            // Update styling
+            card.className = `enemy-card text-center p-2 bg-gray-900 rounded-lg flex-1 cursor-pointer transition-all`; // Reset classes
+            card.style.boxShadow = 'none';
+            let eliteMarker = card.querySelector('.absolute');
+            if (eliteMarker) eliteMarker.remove();
+
+            let borderClass = 'border-gray-700';
+            if (enemy.isElite) {
+                borderClass = 'border-2 border-red-500';
+                card.style.boxShadow = '0 0 10px rgba(239, 68, 68, 0.5)';
+                card.insertAdjacentHTML('afterbegin', `<div class="absolute top-1 right-1 text-xs text-red-400 font-bold">ELITE</div>`);
+            } else if (enemy.type === 'gift') {
+                borderClass = 'border border-yellow-400';
+                card.style.boxShadow = '0 0 10px rgba(250, 204, 21, 0.4)';
+            }
+            
+            borderClass.split(' ').forEach(cls => card.classList.add(cls));
+            
+            if (index === selectedEnemyIndex) {
+                 card.classList.add('selected-enemy');
+            }
+        }
+
+        function renderEnemies() {
+            enemyWaveContainer.innerHTML = '';
+            currentEnemies.forEach((enemy, index) => {
+                if (!enemy) return;
+                
+                const card = document.createElement('div');
+                card.dataset.index = index;
+                // The initial innerHTML is just the structure
+                card.innerHTML = `
+                    <div class="text-5xl"></div>
+                    <div class="font-bold text-glow-pink"></div>
+                    <div class="text-sm"></div>
+                    <div class="text-xs h-4"></div>
+                `;
+                enemyWaveContainer.appendChild(card);
+                // Then apply state
+                updateCardFromState(card, enemy, index);
+            });
+        }
         
-        const killMeterUpgradeContent = `
-             <p class="mb-4">Kill Meter is full! Choose an upgrade:</p>
-             <div class="space-y-2">
-                <button class="w-full action-button bg-red-800 p-2">Full Heal & +1 Max HP</button>
-                <button class="w-full action-button bg-green-800 p-2">+5% Luck</button>
-             </div>
-        `;
+        function selectEnemy(index) {
+            if (isSpinning) return;
+            const previousSelected = selectedEnemyIndex;
+            selectedEnemyIndex = index;
+            logMessage(`Targeted ${currentEnemies[index].name}.`, 'text-cyan-400');
 
+            // Efficiently update borders instead of full re-render
+            if (previousSelected !== null) {
+                const oldCard = enemyWaveContainer.querySelector(`[data-index='${previousSelected}']`);
+                if(oldCard) oldCard.classList.remove('selected-enemy');
+            }
+            const newCard = enemyWaveContainer.querySelector(`[data-index='${index}']`);
+            if(newCard) newCard.classList.add('selected-enemy');
+        }
 
-        // --- BUTTON EVENT LISTENERS ---
-        document.querySelectorAll('.action-button').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const buttonName = button.dataset.name;
-                // Simple logic to show different modals based on button clicked
-                switch(buttonName) {
-                    case 'Spells':
-                        openModal('Choose a Spell', spellsContent);
-                        break;
-                    case 'Moon Arts':
-                        openModal('Choose a Moon Art', '<p>Moon Art system not yet implemented.</p>');
-                        break;
-                    case 'Items':
-                        openModal('Use an Item', '<p>Item system not yet implemented.</p>');
-                        break;
-                    case 'Shop':
-                        openModal('Shop', '<p>Shop screen not yet implemented.</p>');
-                        break;
-                    case 'Build':
-                        openModal('Build', '<p>Equipment screen not yet implemented.</p>');
-                        break;
-                    case 'Fortunes':
-                        openModal('Fortunes', '<p>Fortunes/Sacrifices screen not yet implemented.</p>');
-                        break;
-                    case 'Luck':
-                         openModal('Select Luck Type', '<p>Luck selection screen not yet implemented.</p>');
-                        break;
-                    case 'Reroll':
-                         // Example of adding to log
-                         document.getElementById('combat-log').innerHTML += '<p class="text-yellow-400">> Rerolling enemies...</p>';
-                        break;
-                    case 'Attack':
-                        // Example of an animation and log message
-                        const enemy = document.querySelector('.enemy-card');
-                        enemy.classList.add('shake-animation');
-                        setTimeout(() => enemy.classList.remove('shake-animation'), 200);
-                        document.getElementById('combat-log').innerHTML += '<p>> You attack the Skeleton for 5 damage!</p>';
-                        break;
-                }
-                // Scroll log to bottom
-                const combatLog = document.getElementById('combat-log');
-                combatLog.scrollTop = combatLog.scrollHeight;
+        function generateInitialWave() {
+            currentEnemies = [getRandomEnemy(), getRandomEnemy(), getRandomEnemy()];
+            renderEnemies();
+        }
+
+        // --- REROLL (SPIN) LOGIC ---
+        rerollButton.addEventListener('click', () => {
+            if (isSpinning) return;
+            isSpinning = true;
+            logMessage('Rerolling enemies...', 'text-yellow-400');
+            
+            const enemyCards = Array.from(enemyWaveContainer.querySelectorAll('.enemy-card'));
+            selectedEnemyIndex = null; // Deselect enemy on reroll
+
+            enemyCards.forEach((card, index) => {
+                 // Remove selection and clear text fields before spin
+                card.classList.remove('selected-enemy');
+                card.querySelector('.font-bold').innerHTML = '&nbsp;';
+                card.querySelector('.text-sm').innerHTML = '&nbsp;';
+                card.querySelector('.text-xs').innerHTML = '&nbsp;';
+
+                card.classList.add('spinning');
+                const emojiElement = card.querySelector('.text-5xl');
+
+                const spinInterval = setInterval(() => {
+                    const randomKey = enemyKeys[Math.floor(Math.random() * enemyKeys.length)];
+                    emojiElement.textContent = enemyData[randomKey].emoji;
+                }, 100);
+
+                setTimeout(() => {
+                    clearInterval(spinInterval);
+                    card.classList.remove('spinning');
+                    
+                    const finalEnemy = getRandomEnemy();
+                    
+                    // Update data model and then update card visuals from that model
+                    currentEnemies[index] = finalEnemy;
+                    updateCardFromState(card, finalEnemy, index);
+                    
+                    if (index === enemyCards.length - 1) {
+                         isSpinning = false;
+                         logMessage('New wave appeared!');
+                    }
+                }, 1000 + index * 300); // Staggered stop
             });
         });
 
-        // --- FOR DEMO: Simulate defeating a gift ---
-        document.querySelector('.enemy-card:nth-child(3)').addEventListener('click', () => {
-             openModal('🎁 Gift Reward!', giftRewardContent);
+
+        // --- DEMO MODAL CONTENT & EVENT LISTENERS ---
+        const spellsContent = `<div class="space-y-2 text-left"><button class="w-full text-left action-button bg-gray-800 p-2">❤️‍🔥 Flameheart</button><button class="w-full text-left action-button bg-gray-800 p-2">❄️ Frostbite</button><button class="w-full text-left action-button bg-gray-800 p-2">🩶 Armorheart</button></div>`;
+        const giftRewardContent = `<p class="mb-4">The Gift opens! Choose a reward:</p><div class="space-y-2"><button class="w-full action-button bg-blue-800 p-2">Rare: +1 Max Armor</button><button class="w-full action-button bg-purple-800 p-2">Epic: +20 Gold</button><button class="w-full action-button bg-yellow-700 p-2">Legendary: +5% Luck</button></div>`;
+        const killMeterUpgradeContent = `<p class="mb-4">Kill Meter is full! Choose an upgrade:</p><div class="space-y-2"><button class="w-full action-button bg-red-800 p-2">Full Heal & +1 Max HP</button><button class="w-full action-button bg-green-800 p-2">+5% Luck</button></div>`;
+
+        document.querySelectorAll('.action-button').forEach(button => {
+            if (button.id === 'reroll-button') return;
+            button.addEventListener('click', () => {
+                if (isSpinning) return;
+                const buttonName = button.dataset.name;
+                switch(buttonName) {
+                    case 'Spells': openModal('Choose a Spell', spellsContent); break;
+                    case 'Attack':
+                        if (selectedEnemyIndex !== null) {
+                            const target = currentEnemies[selectedEnemyIndex];
+                            logMessage(`You attack the ${target.name} for 5 damage!`);
+                            const enemyCard = enemyWaveContainer.querySelector(`[data-index='${selectedEnemyIndex}']`);
+                            enemyCard.classList.add('shake-animation');
+                            setTimeout(() => enemyCard.classList.remove('shake-animation'), 200);
+                        } else {
+                            logMessage('You must select an enemy to attack!', 'text-red-500');
+                        }
+                        break;
+                    default:
+                        openModal(buttonName, `<p>${buttonName} screen not yet implemented.</p>`);
+                        break;
+                }
+            });
         });
         
-        // --- FOR DEMO: Simulate filling kill meter ---
-        document.getElementById('kill-meter').addEventListener('click', () => {
-             openModal('Kill Meter Full!', killMeterUpgradeContent);
-        });
-
+        // --- INITIALIZATION ---
+        window.onload = () => {
+            // Add event listener to the parent container for delegation
+            enemyWaveContainer.addEventListener('click', (event) => {
+                const card = event.target.closest('.enemy-card');
+                if (card && card.dataset.index !== null) {
+                    selectEnemy(parseInt(card.dataset.index));
+                }
+            });
+            generateInitialWave();
+        };
     </script>
 </body>
 </html>
+
