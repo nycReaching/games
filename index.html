@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Emoji Rogue Slots</title>
+    <title>Moonstone Rogue UI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -12,16 +12,6 @@
             overscroll-behavior-y: contain;
             font-family: 'Chakra Petch', sans-serif;
             -webkit-tap-highlight-color: transparent; /* Disable tap highlight on mobile */
-        }
-
-        /* Original "jitter" slot machine reel animation */
-        .reel.spinning {
-            animation: spinReel 0.1s linear infinite;
-        }
-        
-        @keyframes spinReel {
-            0% { transform: translateY(-20%); }
-            100% { transform: translateY(20%); }
         }
 
         /* General UI styling for a sharper look */
@@ -40,288 +30,220 @@
             transform: scale(0.95);
         }
 
-        .text-glow {
-            text-shadow: 0 0 4px rgba(59, 130, 246, 0.5), 0 0 8px rgba(59, 130, 246, 0.3);
+        /* Reusable hit/shake animation inspired by the original spin */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
         }
-        
-        .text-glow-pink {
-             text-shadow: 0 0 4px rgba(236, 72, 153, 0.6), 0 0 8px rgba(236, 72, 153, 0.4);
-        }
-
-        /* Custom scrollbar for a more integrated look */
-        #enemy-info::-webkit-scrollbar {
-            width: 4px;
+        .shake-animation {
+            animation: shake 0.2s linear;
         }
 
-        #enemy-info::-webkit-scrollbar-thumb {
-            background-color: #3b82f6;
-            border-radius: 2px;
-        }
-        
-        #enemy-info::-webkit-scrollbar-track {
-            background-color: #1f2937;
+        .text-glow { text-shadow: 0 0 4px rgba(59, 130, 246, 0.5), 0 0 8px rgba(59, 130, 246, 0.3); }
+        .text-glow-pink { text-shadow: 0 0 4px rgba(236, 72, 153, 0.6), 0 0 8px rgba(236, 72, 153, 0.4); }
+        .text-glow-green { text-shadow: 0 0 5px rgba(34, 197, 94, 0.7); }
+
+        /* Custom scrollbar for log */
+        #combat-log::-webkit-scrollbar { width: 4px; }
+        #combat-log::-webkit-scrollbar-thumb { background-color: #3b82f6; border-radius: 2px; }
+        #combat-log::-webkit-scrollbar-track { background-color: #1f2937; }
+
+        /* Modal styles */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
         }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200 flex flex-col h-screen select-none antialiased">
 
-    <!-- Top Section: Player Stats & Resources -->
     <header class="p-3 ui-panel border-b-2 border-blue-500 space-y-2">
-        <!-- Top Row: Level and Resources -->
         <div class="flex justify-between items-center text-lg">
-            <span id="player-level" class="font-bold text-glow">LVL: 1</span>
+            <span id="wave-counter" class="font-bold text-glow">WAVE: 1</span>
             <div class="flex items-center space-x-4">
-                <span id="player-armor" class="font-semibold text-glow">🛡️ 5</span>
-                <span id="player-gold" class="font-semibold text-glow">💰 125</span>
-                <span id="player-gems" class="font-semibold text-glow">💎 10</span>
+                <span id="player-gold" class="font-semibold text-glow">💰 30</span>
+                <span id="player-moonstones" class="font-semibold text-glow">🌒 1</span>
             </div>
         </div>
 
-        <!-- Health Bar -->
         <div class="w-full bg-gray-700 h-5 border border-gray-600">
-            <div id="health-bar" class="bg-gradient-to-r from-red-500 to-red-700 h-full text-center text-xs font-bold leading-5 transition-all duration-300" style="width: 85%;">HP: 85/100</div>
+            <div id="health-bar" class="bg-gradient-to-r from-red-500 to-red-700 h-full text-center text-xs font-bold leading-5 transition-all duration-300" style="width: 100%;">❤️ HP: 15/15</div>
+        </div>
+        
+        <div class="w-full bg-gray-700 h-5 border border-gray-600">
+            <div id="armor-bar" class="bg-gradient-to-r from-gray-400 to-gray-500 h-full text-center text-xs font-bold leading-5 transition-all duration-300" style="width: 100%;">🛡️ Armor: 2/2</div>
         </div>
 
-        <!-- MP Bar -->
         <div class="w-full bg-gray-700 h-5 border border-gray-600">
-            <div id="mp-bar" class="bg-gradient-to-r from-purple-500 to-indigo-500 h-full text-center text-xs font-bold leading-5 transition-all duration-300" style="width: 70%;">MP: 70/100</div>
+            <div id="magic-bar" class="bg-gradient-to-r from-purple-500 to-indigo-500 h-full text-center text-xs font-bold leading-5 transition-all duration-300" style="width: 80%;">Magic: 80/100</div>
         </div>
 
-        <!-- XP Bar -->
         <div class="w-full bg-gray-700 h-4 border border-gray-600">
-            <div id="xp-bar" class="bg-gradient-to-r from-yellow-400 to-orange-500 h-full text-center text-xs font-bold leading-4 transition-all duration-300" style="width: 40%;">XP: 40/100</div>
+            <div id="kill-meter" class="bg-gradient-to-r from-cyan-400 to-blue-500 h-full text-center text-xs font-bold leading-4 transition-all duration-300" style="width: 20%;">Kill Meter: 2/10</div>
         </div>
     </header>
 
-    <!-- Middle Section: Slot Machine and Enemy Info -->
-    <main class="flex-grow flex flex-col justify-center items-center p-4 overflow-hidden">
-        <!-- Enemy Info Display -->
-        <div id="enemy-info" class="w-full max-w-md h-24 ui-panel p-2 mb-4 overflow-y-auto">
-             <p id="enemy-info-text" class="text-center text-gray-400">Spin to encounter enemies!</p>
+    <main class="flex-grow flex flex-col justify-center items-center p-4 overflow-hidden gap-4">
+        <div id="enemy-wave" class="w-full max-w-lg ui-panel p-2 flex justify-around items-center gap-2">
+            <div class="enemy-card text-center p-2 bg-gray-900 border border-gray-700 rounded-lg flex-1">
+                <div class="text-5xl">💀</div>
+                <div class="font-bold text-glow-pink">Skeleton</div>
+                <div class="text-sm">HP: 12/12</div>
+                <div class="text-xs h-4"></div>
+            </div>
+            <div class="enemy-card text-center p-2 bg-gray-900 border-2 border-red-500 rounded-lg flex-1 relative" style="box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);">
+                <div class="absolute top-1 right-1 text-xs text-red-400 font-bold">ELITE</div>
+                <div class="text-5xl">🐺</div>
+                <div class="font-bold text-glow-pink">Wolf</div>
+                <div class="text-sm">HP: 24/24</div>
+                <div class="text-xs h-4 text-yellow-400">🐌 Sluggish</div>
+            </div>
+            <div class="enemy-card text-center p-2 bg-gray-900 border border-yellow-400 rounded-lg flex-1" style="box-shadow: 0 0 10px rgba(250, 204, 21, 0.4);">
+                <div class="text-5xl">🎁</div>
+                <div class="font-bold text-glow-green">Gift</div>
+                <div class="text-sm">HP: 10/10</div>
+                <div class="text-xs h-4"></div>
+            </div>
         </div>
 
-        <!-- Slot Machine -->
-        <div class="w-full max-w-md ui-panel p-4 border-2 border-blue-500">
-            <div id="slot-machine" class="flex justify-around items-center h-32 text-6xl">
-                <div class="reel w-1/3 text-center bg-gray-900 p-2 mx-1 border border-gray-700 flex justify-center items-center">⚔️</div>
-                <div class="reel w-1/3 text-center bg-gray-900 p-2 mx-1 border border-gray-700 flex justify-center items-center">👹</div>
-                <div class="reel w-1/3 text-center bg-gray-900 p-2 mx-1 border border-gray-700 flex justify-center items-center">💰</div>
-            </div>
+        <div id="combat-log-container" class="w-full max-w-lg h-28 ui-panel p-2">
+             <div id="combat-log" class="h-full overflow-y-auto text-sm p-1">
+                <p class="text-gray-400">> Battle Start! Choose your action.</p>
+                <p>> Pre-battle Luck set to: Attack 🍀</p>
+             </div>
         </div>
     </main>
 
-    <!-- Bottom Section: Actions -->
     <footer class="p-3 ui-panel border-t-2 border-blue-500 flex flex-col gap-3">
-        <!-- Primary Actions -->
-        <div class="grid grid-cols-3 gap-3">
-            <button data-name="Attack" class="action-button bg-gray-700 hover:bg-gray-600 p-3 text-lg font-bold flex flex-col items-center justify-center h-20"><span>⚔️</span><span class="text-sm">Attack</span></button>
-            <button class="action-button text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 p-4 h-20" id="spin-button">
-                SPIN<br>(10 MP)
-            </button>
-            <button data-name="Spells" class="action-button bg-gray-700 hover:bg-gray-600 p-3 text-lg font-bold flex flex-col items-center justify-center h-20"><span>✨</span><span class="text-sm">Spells</span></button>
-        </div>
-        <!-- Secondary Actions -->
         <div class="grid grid-cols-4 gap-2">
-            <button data-name="Equip Slots" class="action-button bg-gray-800 hover:bg-gray-700 p-2 text-base flex flex-col items-center justify-center"><span>🛡️</span><span class="text-xs">Equip</span></button>
-            <button data-name="Shop" class="action-button bg-gray-800 hover:bg-gray-700 p-2 text-base flex flex-col items-center justify-center"><span>🛍️</span><span class="text-xs">Shop</span></button>
+            <button data-name="Attack" class="action-button bg-red-800 hover:bg-red-700 p-2 text-lg font-bold flex flex-col items-center justify-center h-24"><span>🗡️</span><span class="text-sm">Attack</span></button>
+            <button data-name="Spells" class="action-button bg-indigo-800 hover:bg-indigo-700 p-2 text-lg font-bold flex flex-col items-center justify-center h-24"><span>✨</span><span class="text-sm">Spells</span></button>
+            <button data-name="Moon Arts" class="action-button bg-teal-800 hover:bg-teal-700 p-2 text-lg font-bold flex flex-col items-center justify-center h-24"><span>🌒</span><span class="text-sm">Moon Arts</span></button>
+            <button data-name="Items" class="action-button bg-green-800 hover:bg-green-700 p-2 text-lg font-bold flex flex-col items-center justify-center h-24"><span>🍶</span><span class="text-sm">Items</span></button>
+        </div>
+        <div class="grid grid-cols-5 gap-2">
+            <button data-name="Shop" class="action-button bg-gray-800 hover:bg-gray-700 p-2 text-base flex flex-col items-center justify-center"><span>🪙</span><span class="text-xs">Shop</span></button>
+            <button data-name="Build" class="action-button bg-gray-800 hover:bg-gray-700 p-2 text-base flex flex-col items-center justify-center"><span>🔨</span><span class="text-xs">Build</span></button>
             <button data-name="Fortunes" class="action-button bg-gray-800 hover:bg-gray-700 p-2 text-base flex flex-col items-center justify-center"><span>🔮</span><span class="text-xs">Fortunes</span></button>
-            <button data-name="Luck" class="action-button bg-gray-800 hover:bg-gray-700 p-2 text-base flex flex-col items-center justify-center"><span>🍀</span><span class="text-xs">Luck</span></button>
+            <button data-name="Luck" class="action-button bg-gray-800 hover:bg-gray-700 p-2 text-base flex flex-col items-center justify-center"><span>🍀</span><span class="text-xs">Luck Type</span></button>
+            <button data-name="Reroll" class="action-button bg-gray-600 hover:bg-gray-500 p-2 text-base flex flex-col items-center justify-center"><span>🔃</span><span class="text-xs">Reroll (1)</span></button>
         </div>
     </footer>
-
-    <!-- Message Display -->
-    <div id="message-box" class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ui-panel border-2 border-cyan-400 p-6 text-center z-50">
-        <p id="message-text" class="text-lg text-glow"></p>
+    
+    <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="modal-overlay fixed inset-0"></div>
+        <div id="modal-content" class="ui-panel border-2 border-cyan-400 p-6 text-center z-50 w-full max-w-sm">
+            </div>
     </div>
 
+
     <script>
-        const spinButton = document.getElementById('spin-button');
-        const reels = document.querySelectorAll('.reel');
-        const enemyInfoText = document.getElementById('enemy-info-text');
-        const messageBox = document.getElementById('message-box');
-        const messageText = document.getElementById('message-text');
+        // --- MODAL & UI INTERACTIVITY SCRIPT (FOR DEMONSTRATION) ---
+        const modal = document.getElementById('modal');
+        const modalContent = document.getElementById('modal-content');
+        const modalOverlay = document.querySelector('.modal-overlay');
 
-        // Game State
-        let playerState = {
-            level: 1,
-            hp: 85,
-            maxHp: 100,
-            armor: 5,
-            mp: 70,
-            maxMp: 100,
-            gold: 125,
-            gems: 10,
-            xp: 40,
-            xpToNextLevel: 100,
-        };
-
-        const outcomes = {
-            // Non-enemy outcomes for variety
-            'gold': { emoji: '💰', name: 'Gold', description: 'You found 10 gold!', type: 'reward', value: 10 },
-            'potion': { emoji: '🧪', name: 'Potion', description: 'Recover 15 HP!', type: 'heal', value: 15 },
-            'gift': { emoji: '🎁', name: 'Gift', description: 'A surprise reward!', type: 'reward', value: 25 },
-            
-            // Enemies from the new list
-            'skeleton': { emoji: '💀', name: 'Skeleton', hp: 20, damage: 8 },
-            'wolf': { emoji: '🐺', name: 'Wolf', hp: 25, damage: 10 },
-            'frog': { emoji: '🐸', name: 'Frog', hp: 15, damage: 5, special: '☠️ Poison' },
-            'unicorn': { emoji: '🦄', name: 'Unicorn', hp: 30, damage: 0, special: '❇️ Regen', description: 'A Unicorn blesses you!' },
-            'dragon': { emoji: '🐲', name: 'Dragon', hp: 120, damage: 30 },
-            'serpent': { emoji: '🐍', name: 'Serpent', hp: 22, damage: 12, special: '☠️ Poison' },
-            'rat': { emoji: '🐀', name: 'Rat', hp: 10, damage: 4 },
-            'crow': { emoji: '🐦‍⬛', name: 'Crow', hp: 18, damage: 6, special: '🕯️ Curse' },
-            'spider': { emoji: '🕷️', name: 'Spider', hp: 16, damage: 7, special: '☠️ Poison' },
-            'scorpion': { emoji: '🦂', name: 'Scorpion', hp: 28, damage: 15 },
-            'mosquito': { emoji: '🦟', name: 'Mosquito', hp: 12, damage: 5, special: '🐌 Sluggish' },
-            'zombie': { emoji: '🧟', name: 'Zombie', hp: 35, damage: 10, special: '🐌 Sluggish' },
-            'genie': { emoji: '🧞', name: 'Genie', hp: 40, damage: 0, special: '❇️ Regen', description: 'The Genie grants you a wish!' },
-            'troll': { emoji: '🧌', name: 'Troll', hp: 50, damage: 18 },
-            'ninja': { emoji: '🥷', name: 'Ninja', hp: 25, damage: 10, special: '🫳 Steals 5 gold' },
-            'vampire': { emoji: '🧛', name: 'Vampire', hp: 45, damage: 15, special: '🕯️ Curse' },
-            'supervillain': { emoji: '🦹', name: 'Supervillain', hp: 80, damage: 25 },
-        };
-        
-        const outcomeKeys = Object.keys(outcomes);
-        let isSpinning = false;
-
-        function updateUI() {
-            document.getElementById('player-level').textContent = `LVL: ${playerState.level}`;
-            document.getElementById('player-armor').textContent = `🛡️ ${playerState.armor}`;
-            document.getElementById('player-gold').textContent = `💰 ${playerState.gold}`;
-            document.getElementById('player-gems').textContent = `💎 ${playerState.gems}`;
-
-            const healthBar = document.getElementById('health-bar');
-            healthBar.style.width = `${(playerState.hp / playerState.maxHp) * 100}%`;
-            healthBar.textContent = `HP: ${playerState.hp}/${playerState.maxHp}`;
-
-            const mpBar = document.getElementById('mp-bar');
-            mpBar.style.width = `${(playerState.mp / playerState.maxMp) * 100}%`;
-            mpBar.textContent = `MP: ${playerState.mp}/${playerState.maxMp}`;
-            
-            const xpBar = document.getElementById('xp-bar');
-            xpBar.style.width = `${(playerState.xp / playerState.xpToNextLevel) * 100}%`;
-            xpBar.textContent = `XP: ${playerState.xp}/${playerState.xpToNextLevel}`;
+        // Function to open the modal with specific content
+        function openModal(title, contentHtml) {
+            modalContent.innerHTML = `
+                <h3 class="text-2xl font-bold text-glow mb-4">${title}</h3>
+                <div>${contentHtml}</div>
+                <button id="close-modal-btn" class="action-button bg-gray-700 hover:bg-gray-600 px-4 py-2 mt-6">Close</button>
+            `;
+            modal.classList.remove('hidden');
+            document.getElementById('close-modal-btn').addEventListener('click', closeModal);
         }
 
-        spinButton.addEventListener('click', () => {
-            if (isSpinning || playerState.mp < 10) {
-                 if (playerState.mp < 10) showMessage('Not enough MP!', 1500);
-                return;
-            }
-            isSpinning = true;
-            playerState.mp -= 10;
-            updateUI();
-            
-            enemyInfoText.innerHTML = "";
-            
-            let finalResults = [];
-            
-            reels.forEach((reel, index) => {
-                reel.classList.add('spinning');
-                const spinInterval = setInterval(() => {
-                    const randomKey = outcomeKeys[Math.floor(Math.random() * outcomeKeys.length)];
-                    reel.textContent = outcomes[randomKey].emoji;
-                }, 100);
-
-                setTimeout(() => {
-                    clearInterval(spinInterval);
-                    reel.classList.remove('spinning');
-                    
-                    const finalKey = outcomeKeys[Math.floor(Math.random() * outcomeKeys.length)];
-                    const finalOutcome = outcomes[finalKey];
-                    reel.textContent = finalOutcome.emoji;
-                    finalResults.push(finalOutcome);
-                    
-                    if(finalOutcome.hp){
-                        const enemyDisplay = document.createElement('div');
-                        enemyDisplay.className = "text-center p-1";
-                        let specialText = finalOutcome.special ? ` / ${finalOutcome.special}` : '';
-                        enemyDisplay.innerHTML = `<span class="font-bold text-glow-pink">${finalOutcome.name}</span> - HP: ${finalOutcome.hp} / ATK: ${finalOutcome.damage}${specialText}`;
-                        enemyInfoText.appendChild(enemyDisplay);
-                    }
-                    
-                    // When the last reel stops, process results
-                    if(index === reels.length - 1) {
-                         processSpinResults(finalResults);
-                    }
-
-                }, 1000 + index * 300); // Staggered stop
-            });
-            
-            setTimeout(() => {
-                isSpinning = false;
-            }, 1000 + (reels.length - 1) * 300);
-        });
-
-        function processSpinResults(results) {
-             let damageToPlayer = 0;
-             let goldGained = 0;
-             let hpGained = 0;
-             let nonEnemyDescriptions = [];
-
-             results.forEach(res => {
-                if (res.damage) {
-                    damageToPlayer += res.damage;
-                }
-                if (res.name === 'Gold' || res.name === 'Gift') {
-                    goldGained += res.value;
-                }
-                if (res.name === 'Potion') {
-                    hpGained += res.value;
-                }
-                if (res.special === '🫳 Steals 5 gold') {
-                    playerState.gold = Math.max(0, playerState.gold - 5);
-                    showMessage('The Ninja stole 5 gold!', 1500);
-                }
-                
-                // Friendly specials
-                if (res.special === '❇️ Regen') {
-                     hpGained += 20; // Example regen value
-                }
-
-                if(!res.hp || res.damage === 0) { // It's a reward or a non-damaging creature
-                    nonEnemyDescriptions.push(res.description);
-                }
-             });
-
-             if (damageToPlayer > 0) {
-                playerState.hp = Math.max(0, playerState.hp - damageToPlayer);
-                showMessage(`You took ${damageToPlayer} damage!`, 1500);
-             } else if (nonEnemyDescriptions.length > 0) {
-                 // Show messages for positive outcomes if no damage was taken
-                 showMessage(nonEnemyDescriptions[0], 1500);
-             }
-             
-             if(goldGained > 0) playerState.gold += goldGained;
-             if(hpGained > 0) playerState.hp = Math.min(playerState.maxHp, playerState.hp + hpGained);
-
-             updateUI();
+        // Function to close the modal
+        function closeModal() {
+            modal.classList.add('hidden');
         }
+        modalOverlay.addEventListener('click', closeModal);
+
+
+        // --- DEMO CONTENT FOR MODALS ---
+        const spellsContent = `
+            <div class="space-y-2 text-left">
+                <button class="w-full text-left action-button bg-gray-800 p-2">❤️‍🔥 Flameheart</button>
+                <button class="w-full text-left action-button bg-gray-800 p-2">❄️ Frostbite</button>
+                <button class="w-full text-left action-button bg-gray-800 p-2">🩶 Armorheart</button>
+            </div>
+        `;
+
+        const giftRewardContent = `
+             <p class="mb-4">The Gift opens! Choose a reward:</p>
+             <div class="space-y-2">
+                <button class="w-full action-button bg-blue-800 p-2">Rare: +1 Max Armor</button>
+                <button class="w-full action-button bg-purple-800 p-2">Epic: +20 Gold</button>
+                <button class="w-full action-button bg-yellow-700 p-2">Legendary: +5% Luck</button>
+             </div>
+        `;
         
-        function showMessage(msg, duration = 2000) {
-            messageText.textContent = msg;
-            messageBox.classList.remove('hidden');
-            clearTimeout(messageBox.timeoutId);
-            messageBox.timeoutId = setTimeout(() => {
-                messageBox.classList.add('hidden');
-            }, duration);
-        }
-        
+        const killMeterUpgradeContent = `
+             <p class="mb-4">Kill Meter is full! Choose an upgrade:</p>
+             <div class="space-y-2">
+                <button class="w-full action-button bg-red-800 p-2">Full Heal & +1 Max HP</button>
+                <button class="w-full action-button bg-green-800 p-2">+5% Luck</button>
+             </div>
+        `;
+
+
+        // --- BUTTON EVENT LISTENERS ---
         document.querySelectorAll('.action-button').forEach(button => {
-            if (button.id !== 'spin-button') {
-                button.addEventListener('click', () => {
-                    if(!isSpinning) {
-                        const buttonName = button.dataset.name || button.textContent.trim().replace(/[\d⚡()]/g, '');
-                        showMessage(`${buttonName} screen is not yet implemented.`, 1500);
-                    }
-                });
-            }
+            button.addEventListener('click', (e) => {
+                const buttonName = button.dataset.name;
+                // Simple logic to show different modals based on button clicked
+                switch(buttonName) {
+                    case 'Spells':
+                        openModal('Choose a Spell', spellsContent);
+                        break;
+                    case 'Moon Arts':
+                        openModal('Choose a Moon Art', '<p>Moon Art system not yet implemented.</p>');
+                        break;
+                    case 'Items':
+                        openModal('Use an Item', '<p>Item system not yet implemented.</p>');
+                        break;
+                    case 'Shop':
+                        openModal('Shop', '<p>Shop screen not yet implemented.</p>');
+                        break;
+                    case 'Build':
+                        openModal('Build', '<p>Equipment screen not yet implemented.</p>');
+                        break;
+                    case 'Fortunes':
+                        openModal('Fortunes', '<p>Fortunes/Sacrifices screen not yet implemented.</p>');
+                        break;
+                    case 'Luck':
+                         openModal('Select Luck Type', '<p>Luck selection screen not yet implemented.</p>');
+                        break;
+                    case 'Reroll':
+                         // Example of adding to log
+                         document.getElementById('combat-log').innerHTML += '<p class="text-yellow-400">> Rerolling enemies...</p>';
+                        break;
+                    case 'Attack':
+                        // Example of an animation and log message
+                        const enemy = document.querySelector('.enemy-card');
+                        enemy.classList.add('shake-animation');
+                        setTimeout(() => enemy.classList.remove('shake-animation'), 200);
+                        document.getElementById('combat-log').innerHTML += '<p>> You attack the Skeleton for 5 damage!</p>';
+                        break;
+                }
+                // Scroll log to bottom
+                const combatLog = document.getElementById('combat-log');
+                combatLog.scrollTop = combatLog.scrollHeight;
+            });
         });
 
-        // Initial UI setup
-        updateUI();
+        // --- FOR DEMO: Simulate defeating a gift ---
+        document.querySelector('.enemy-card:nth-child(3)').addEventListener('click', () => {
+             openModal('🎁 Gift Reward!', giftRewardContent);
+        });
+        
+        // --- FOR DEMO: Simulate filling kill meter ---
+        document.getElementById('kill-meter').addEventListener('click', () => {
+             openModal('Kill Meter Full!', killMeterUpgradeContent);
+        });
+
     </script>
 </body>
 </html>
-
-
