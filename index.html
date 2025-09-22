@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Emoji Rogue Slots</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
     <style>
         /* Disables pull-to-refresh and other disruptive browser gestures on mobile */
         body {
             overscroll-behavior-y: contain;
-            font-family: 'Chakra Petch', sans-serif;
+            font-family: 'Anton', sans-serif;
             -webkit-tap-highlight-color: transparent; /* Disable tap highlight on mobile */
+            background-color: #111111;
         }
 
         /* Original "jitter" slot machine reel animation */
@@ -24,16 +27,16 @@
             100% { transform: translateY(20%); }
         }
 
-        /* General UI styling for a sharper look */
+        /* General UI styling for a sharper, gothic look */
         .ui-panel {
-            background-color: #111827; /* Darker than gray-800 */
-            border: 1px solid #374151;
+            background-color: #1f2937; /* A very dark, muted blue-gray */
+            border: 1px solid #4b5563;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
         }
 
         .action-button {
             transition: transform 0.1s ease, background-color 0.1s ease;
-            border: 1px solid #374151;
+            border: 1px solid #4b5563;
         }
 
         .action-button:active {
@@ -41,11 +44,11 @@
         }
 
         .text-glow {
-            text-shadow: 0 0 4px rgba(59, 130, 246, 0.5), 0 0 8px rgba(59, 130, 246, 0.3);
+            text-shadow: 0 0 5px rgba(209, 196, 233, 0.4), 0 0 8px rgba(167, 139, 250, 0.3);
         }
         
-        .text-glow-pink {
-             text-shadow: 0 0 4px rgba(236, 72, 153, 0.6), 0 0 8px rgba(236, 72, 153, 0.4);
+        .text-glow-red {
+             text-shadow: 0 0 4px rgba(239, 68, 68, 0.6), 0 0 8px rgba(220, 38, 38, 0.4);
         }
 
         /* Custom scrollbar for a more integrated look */
@@ -54,7 +57,7 @@
         }
 
         #enemy-info::-webkit-scrollbar-thumb {
-            background-color: #3b82f6;
+            background-color: #991b1b; /* red-800 */
             border-radius: 2px;
         }
         
@@ -63,10 +66,10 @@
         }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-200 flex flex-col h-screen select-none antialiased">
+<body class="text-gray-300 flex flex-col h-screen select-none antialiased">
 
     <!-- Top Section: Player Stats & Resources -->
-    <header class="p-3 ui-panel border-b-2 border-blue-500 space-y-2">
+    <header class="p-3 ui-panel border-b-2 border-red-800 space-y-2">
         <!-- Top Row: Level and Resources -->
         <div class="flex justify-between items-center text-lg">
             <span id="player-level" class="font-bold text-glow">LVL: 1</span>
@@ -78,18 +81,18 @@
         </div>
 
         <!-- Health Bar -->
-        <div class="w-full bg-gray-700 h-5 border border-gray-600">
-            <div id="health-bar" class="bg-gradient-to-r from-red-500 to-red-700 h-full text-center text-xs font-bold leading-5 transition-all duration-300" style="width: 85%;">HP: 85/100</div>
+        <div class="w-full bg-gray-900 h-5 border border-gray-700">
+            <div id="health-bar" class="bg-gradient-to-r from-red-800 to-red-900 h-full text-center text-xs font-bold leading-5 transition-all duration-300" style="width: 85%;">HP: 85/100</div>
         </div>
 
         <!-- MP Bar -->
-        <div class="w-full bg-gray-700 h-5 border border-gray-600">
-            <div id="mp-bar" class="bg-gradient-to-r from-purple-500 to-indigo-500 h-full text-center text-xs font-bold leading-5 transition-all duration-300" style="width: 70%;">MP: 70/100</div>
+        <div class="w-full bg-gray-900 h-5 border border-gray-700">
+            <div id="mp-bar" class="bg-gradient-to-r from-purple-800 to-indigo-900 h-full text-center text-xs font-bold leading-5 transition-all duration-300" style="width: 70%;">MP: 70/100</div>
         </div>
 
         <!-- XP Bar -->
-        <div class="w-full bg-gray-700 h-4 border border-gray-600">
-            <div id="xp-bar" class="bg-gradient-to-r from-yellow-400 to-orange-500 h-full text-center text-xs font-bold leading-4 transition-all duration-300" style="width: 40%;">XP: 40/100</div>
+        <div class="w-full bg-gray-900 h-4 border border-gray-700">
+            <div id="xp-bar" class="bg-gradient-to-r from-amber-700 to-amber-800 h-full text-center text-xs font-bold leading-4 transition-all duration-300" style="width: 40%;">XP: 40/100</div>
         </div>
     </header>
 
@@ -101,37 +104,37 @@
         </div>
 
         <!-- Slot Machine -->
-        <div class="w-full max-w-md ui-panel p-4 border-2 border-blue-500">
+        <div class="w-full max-w-md ui-panel p-4 border-2 border-red-800">
             <div id="slot-machine" class="flex justify-around items-center h-32 text-6xl">
-                <div class="reel w-1/3 text-center bg-gray-900 p-2 mx-1 border border-gray-700 flex justify-center items-center">⚔️</div>
-                <div class="reel w-1/3 text-center bg-gray-900 p-2 mx-1 border border-gray-700 flex justify-center items-center">👹</div>
-                <div class="reel w-1/3 text-center bg-gray-900 p-2 mx-1 border border-gray-700 flex justify-center items-center">💰</div>
+                <div class="reel w-1/3 text-center bg-black p-2 mx-1 border border-gray-700 flex justify-center items-center">💀</div>
+                <div class="reel w-1/3 text-center bg-black p-2 mx-1 border border-gray-700 flex justify-center items-center">🐺</div>
+                <div class="reel w-1/3 text-center bg-black p-2 mx-1 border border-gray-700 flex justify-center items-center">🐸</div>
             </div>
         </div>
     </main>
 
     <!-- Bottom Section: Actions -->
-    <footer class="p-3 ui-panel border-t-2 border-blue-500 flex flex-col gap-3">
+    <footer class="p-3 ui-panel border-t-2 border-red-800 flex flex-col gap-3">
         <!-- Primary Actions -->
         <div class="grid grid-cols-3 gap-3">
             <button data-name="Attack" class="action-button bg-gray-700 hover:bg-gray-600 p-3 text-lg font-bold flex flex-col items-center justify-center h-20"><span>⚔️</span><span class="text-sm">Attack</span></button>
-            <button class="action-button text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 p-4 h-20" id="spin-button">
-                SPIN<br>(10 MP)
+            <button class="action-button text-2xl font-bold bg-gradient-to-r from-red-800 to-red-900 hover:from-red-700 hover:to-red-800 p-4 h-20" id="spin-button">
+                SPIN
             </button>
             <button data-name="Spells" class="action-button bg-gray-700 hover:bg-gray-600 p-3 text-lg font-bold flex flex-col items-center justify-center h-20"><span>✨</span><span class="text-sm">Spells</span></button>
         </div>
         <!-- Secondary Actions -->
         <div class="grid grid-cols-4 gap-2">
-            <button data-name="Equip Slots" class="action-button bg-gray-800 hover:bg-gray-700 p-2 text-base flex flex-col items-center justify-center"><span>🛡️</span><span class="text-xs">Equip</span></button>
-            <button data-name="Shop" class="action-button bg-gray-800 hover:bg-gray-700 p-2 text-base flex flex-col items-center justify-center"><span>🛍️</span><span class="text-xs">Shop</span></button>
-            <button data-name="Fortunes" class="action-button bg-gray-800 hover:bg-gray-700 p-2 text-base flex flex-col items-center justify-center"><span>🔮</span><span class="text-xs">Fortunes</span></button>
-            <button data-name="Luck" class="action-button bg-gray-800 hover:bg-gray-700 p-2 text-base flex flex-col items-center justify-center"><span>🍀</span><span class="text-xs">Luck</span></button>
+            <button data-name="Equip Slots" class="action-button bg-gray-900 hover:bg-gray-800 p-2 text-base flex flex-col items-center justify-center"><span>🛡️</span><span class="text-xs">Equip</span></button>
+            <button data-name="Shop" class="action-button bg-gray-900 hover:bg-gray-800 p-2 text-base flex flex-col items-center justify-center"><span>🛍️</span><span class="text-xs">Shop</span></button>
+            <button data-name="Fortunes" class="action-button bg-gray-900 hover:bg-gray-800 p-2 text-base flex flex-col items-center justify-center"><span>🔮</span><span class="text-xs">Fortunes</span></button>
+            <button data-name="Luck" class="action-button bg-gray-900 hover:bg-gray-800 p-2 text-base flex flex-col items-center justify-center"><span>🍀</span><span class="text-xs">Luck</span></button>
         </div>
     </footer>
 
     <!-- Message Display -->
-    <div id="message-box" class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ui-panel border-2 border-cyan-400 p-6 text-center z-50">
-        <p id="message-text" class="text-lg text-glow"></p>
+    <div id="message-box" class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ui-panel border-2 border-red-700 p-6 text-center z-50">
+        <p id="message-text" class="text-lg text-glow-red"></p>
     </div>
 
     <script>
@@ -156,17 +159,24 @@
         };
 
         const outcomes = {
-            'attack': { emoji: '⚔️', name: 'Attack', description: 'Player attacks!' },
-            'shield': { emoji: '🛡️', name: 'Shield', description: 'You gain 5 block!' },
-            'gold': { emoji: '💰', name: 'Gold', description: 'You found 10 gold!'},
-            'potion': { emoji: '🧪', name: 'Potion', description: 'Recover 15 HP!'},
-            'key': { emoji: '🔑', name: 'Key', description: 'You found a key!'},
-            'chest': { emoji: '📦', name: 'Chest', description: 'A treasure chest!'},
-            'curse': { emoji: '💀', name: 'Curse', description: 'You lose 5 HP!'},
-            'enemy1': { emoji: '👹', name: 'Goblin', description: 'A wild Goblin appears!', hp: 20, damage: 5 },
-            'enemy2': { emoji: '👻', name: 'Ghost', description: 'A spooky Ghost haunts you!', hp: 15, damage: 8 },
-            'enemy3': { emoji: '🐍', name: 'Snake', description: 'A venomous Snake strikes!', hp: 10, damage: 12 },
-            'boss': { emoji: '🐉', name: 'Dragon', description: 'A mighty Dragon appears!', hp: 100, damage: 25 },
+            'gift': { emoji: '🎁', name: 'Gift', description: 'A surprise reward!', type: 'reward', value: 25 },
+            'skeleton': { emoji: '💀', name: 'Skeleton', hp: 20, damage: 8 },
+            'wolf': { emoji: '🐺', name: 'Wolf', hp: 25, damage: 10 },
+            'frog': { emoji: '🐸', name: 'Frog', hp: 15, damage: 5, special: '☠️ Poison' },
+            'unicorn': { emoji: '🦄', name: 'Unicorn', hp: 30, damage: 0, special: '❇️ Regen', description: 'A Unicorn blesses you!' },
+            'dragon': { emoji: '🐲', name: 'Dragon', hp: 120, damage: 30 },
+            'serpent': { emoji: '🐍', name: 'Serpent', hp: 22, damage: 12, special: '☠️ Poison' },
+            'rat': { emoji: '🐀', name: 'Rat', hp: 10, damage: 4 },
+            'crow': { emoji: '🐦‍⬛', name: 'Crow', hp: 18, damage: 6, special: '🕯️ Curse' },
+            'spider': { emoji: '🕷️', name: 'Spider', hp: 16, damage: 7, special: '☠️ Poison' },
+            'scorpion': { emoji: '🦂', name: 'Scorpion', hp: 28, damage: 15 },
+            'mosquito': { emoji: '🦟', name: 'Mosquito', hp: 12, damage: 5, special: '🐌 Sluggish' },
+            'zombie': { emoji: '🧟', name: 'Zombie', hp: 35, damage: 10, special: '🐌 Sluggish' },
+            'genie': { emoji: '🧞', name: 'Genie', hp: 40, damage: 0, special: '❇️ Regen', description: 'The Genie grants you a wish!' },
+            'troll': { emoji: '🧌', name: 'Troll', hp: 50, damage: 18 },
+            'ninja': { emoji: '🥷', name: 'Ninja', hp: 25, damage: 10, special: '🫳 Steals 5 gold' },
+            'vampire': { emoji: '🧛', name: 'Vampire', hp: 45, damage: 15, special: '🕯️ Curse' },
+            'supervillain': { emoji: '🦹', name: 'Supervillain', hp: 80, damage: 25 },
         };
         
         const outcomeKeys = Object.keys(outcomes);
@@ -192,12 +202,10 @@
         }
 
         spinButton.addEventListener('click', () => {
-            if (isSpinning || playerState.mp < 10) {
-                 if (playerState.mp < 10) showMessage('Not enough MP!', 1500);
+            if (isSpinning) {
                 return;
             }
             isSpinning = true;
-            playerState.mp -= 10;
             updateUI();
             
             enemyInfoText.innerHTML = "";
@@ -223,7 +231,8 @@
                     if(finalOutcome.hp){
                         const enemyDisplay = document.createElement('div');
                         enemyDisplay.className = "text-center p-1";
-                        enemyDisplay.innerHTML = `<span class="font-bold text-glow-pink">${finalOutcome.name}</span> - HP: ${finalOutcome.hp} / ATK: ${finalOutcome.damage}`;
+                        let specialText = finalOutcome.special ? ` / ${finalOutcome.special}` : '';
+                        enemyDisplay.innerHTML = `<span class="font-bold text-glow-red">${finalOutcome.name}</span> - HP: ${finalOutcome.hp} / ATK: ${finalOutcome.damage}${specialText}`;
                         enemyInfoText.appendChild(enemyDisplay);
                     }
                     
@@ -250,16 +259,20 @@
                 if (res.damage) {
                     damageToPlayer += res.damage;
                 }
-                if (res.name === 'Gold') {
-                    goldGained += 10;
+                if (res.name === 'Gift') {
+                    goldGained += res.value;
                 }
-                if (res.name === 'Potion') {
-                    hpGained += 15;
+                if (res.special === '🫳 Steals 5 gold') {
+                    playerState.gold = Math.max(0, playerState.gold - 5);
+                    showMessage('The Ninja stole 5 gold!', 1500);
                 }
-                if (res.name === 'Curse') {
-                    damageToPlayer += 5;
+                
+                // Friendly specials
+                if (res.special === '❇️ Regen') {
+                     hpGained += 20; // Example regen value
                 }
-                if(!res.hp) {
+
+                if(!res.hp || res.damage === 0) { // It's a reward or a non-damaging creature
                     nonEnemyDescriptions.push(res.description);
                 }
              });
@@ -303,4 +316,5 @@
     </script>
 </body>
 </html>
+
 
