@@ -13,7 +13,7 @@
         
         /* Using a pixelated font for a retro game feel */
         body {
-            font-family: 'Press Start 2P', cursive;
+            font-family: 'Press 'Start' 2P', cursive;
             background-color: #1a1a2e;
             color: #e0e0e0;
             overflow: hidden;
@@ -32,43 +32,53 @@
              border: var(--pixel-size) solid #0f0f1b;
         }
 
-        /* The main container for the carousel */
+        /* The main container for the new 2D carousel */
         #item-carousel-container {
             position: relative;
             width: 100%;
-            height: 200px;
-            perspective: 1000px; /* This creates the 3D space */
+            height: 150px;
+            display: flex;
+            align-items: center;
         }
-
+        
+        /* The scrollable area */
         #item-carousel {
             width: 100%;
             height: 100%;
-            position: absolute;
-            transform-style: preserve-3d;
-            transition: transform 0.1s linear; /* Smooths out manual rotation */
+            display: flex;
+            align-items: center;
+            gap: 24px; /* Space between items */
+            overflow-x: auto;
+            scroll-snap-type: x mandatory; /* Enables snapping */
+            scroll-behavior: smooth;
+            
+            /* Hide the scrollbar across browsers */
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        #item-carousel::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
         }
 
         .carousel-item {
-            position: absolute;
-            left: 50%;
-            top: 50%;
+            /* 2D item styling */
+            flex: 0 0 80px; /* Don't grow, don't shrink, base width 80px */
             width: 80px;
             height: 80px;
-            margin-left: -40px;
-            margin-top: -40px;
             font-size: 64px;
             text-align: center;
             line-height: 80px;
-            cursor: grab;
+            cursor: pointer;
             user-select: none;
-            transition: transform 0.5s ease, opacity 0.5s ease;
-            transform-origin: center center;
-            backface-visibility: hidden; /* Hides items when they face away */
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            scroll-snap-align: center; /* Each item is a snap target */
+            opacity: 0.5;
         }
         
-        .carousel-item.is-front {
-            transform: scale(1.5) !important; /* Make the front item bigger */
-            opacity: 1 !important;
+        /* The active (centered) item is larger and fully visible */
+        .carousel-item.is-active {
+            transform: scale(1.5);
+            opacity: 1;
         }
         
         .shop-button {
@@ -107,7 +117,7 @@
             </div>
 
             <!-- Item Information Display -->
-            <div class="info-card p-6 text-center h-56 flex flex-col justify-between">
+            <div class="info-card p-6 text-center h-48 flex flex-col justify-between">
                 <div>
                     <h2 id="item-name" class="text-3xl mb-2 text-yellow-300 transition-opacity duration-300"></h2>
                     <p id="item-description" class="text-sm h-12 transition-opacity duration-300"></p>
@@ -147,18 +157,15 @@
             const itemPriceEl = document.getElementById('item-price');
 
             // --- STATE ---
-            let isDragging = false;
-            let startX = 0;
-            let currentRotation = 0;
-            let rotationVelocity = 0;
-            const friction = 0.95; // How quickly the spin slows down
-            const rotationSensitivity = 0.5; // How sensitive dragging is
-            let animationFrameId = null;
+            let activeIndex = 0;
+            let isInitialized = false;
 
             // --- FUNCTIONS ---
+            
+            // Sets up the carousel items, runs only once.
+            function setupCarousel() {
+                if (isInitialized) return;
 
-            // Generate item elements and add them to the carousel
-            function initializeCarousel() {
                 items.forEach((item, index) => {
                     const itemEl = document.createElement('div');
                     itemEl.classList.add('carousel-item');
@@ -166,63 +173,68 @@
                     itemEl.dataset.index = index;
                     carousel.appendChild(itemEl);
                 });
-                positionItems();
-                updateItemInfo();
-            }
 
-            // Position items in a 3D circle
-            function positionItems() {
-                const itemElements = document.querySelectorAll('.carousel-item');
-                const radius = 200; // The radius of the invisible sphere/circle
-                const angleStep = 360 / items.length;
-
-                itemElements.forEach((itemEl, index) => {
-                    const itemAngle = currentRotation + (index * angleStep);
-                    const angleRad = itemAngle * Math.PI / 180;
-
-                    const x = Math.sin(angleRad) * radius;
-                    const z = Math.cos(angleRad) * radius;
-                    const scale = (z + radius) / (2 * radius) * 0.7 + 0.3; // Scale based on Z position for depth
-                    const opacity = scale;
-
-                    itemEl.style.transform = `translateX(${x}px) translateZ(${z}px) scale(${scale})`;
-                    itemEl.style.opacity = opacity;
+                // Add click listener to items to scroll them into center view
+                carousel.querySelectorAll('.carousel-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        item.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                    });
                 });
-                
-                updateFrontItem();
+                isInitialized = true;
             }
-            
-            // Find which item is at the front and give it a special class
-            function updateFrontItem() {
-                const itemElements = document.querySelectorAll('.carousel-item');
-                let frontIndex = 0;
-                let maxZ = -Infinity;
 
-                itemElements.forEach((itemEl, index) => {
-                    // Get the z-translation from the transform matrix
-                    const transform = window.getComputedStyle(itemEl).getPropertyValue('transform');
-                    const matrix = new DOMMatrixReadOnly(transform);
-                    const z = matrix.m43;
+            // Calculates padding to allow first/last items to center. Runs each time modal opens.
+            function updateCarouselLayout() {
+                const containerWidth = carousel.offsetWidth;
+                const itemWidth = 80; // from CSS: flex-basis
+                // The padding makes sure the first and last items can be centered in the viewport
+                const padding = (containerWidth / 2) - (itemWidth / 2);
+                carousel.style.padding = `0 ${padding}px`;
 
-                    if (z > maxZ) {
-                        maxZ = z;
-                        frontIndex = index;
+                // Snap to the initial item without animation when first opening
+                const initialItem = carousel.querySelector(`.carousel-item[data-index='${activeIndex}']`);
+                if(initialItem) {
+                    initialItem.scrollIntoView({ behavior: 'auto', inline: 'center', block: 'nearest' });
+                }
+                updateActiveItem();
+            }
+
+            // Finds the item closest to the center and updates its class + the info panel.
+            function updateActiveItem() {
+                const carouselCenter = carousel.getBoundingClientRect().left + carousel.getBoundingClientRect().width / 2;
+                let minDistance = Infinity;
+                let centerIndex = 0;
+
+                carousel.querySelectorAll('.carousel-item').forEach((item) => {
+                    const itemCenter = item.getBoundingClientRect().left + item.getBoundingClientRect().width / 2;
+                    const distance = Math.abs(carouselCenter - itemCenter);
+                    const index = parseInt(item.dataset.index);
+
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        centerIndex = index;
                     }
-                    itemEl.classList.remove('is-front');
+                    item.classList.remove('is-active');
                 });
-                
-                itemElements[frontIndex].classList.add('is-front');
+
+                const activeItem = carousel.querySelector(`.carousel-item[data-index='${centerIndex}']`);
+                if (activeItem) {
+                    activeItem.classList.add('is-active');
+                }
+
+                // Only update info text if the active item has changed
+                if (activeIndex !== centerIndex) {
+                    activeIndex = centerIndex;
+                    updateItemInfo(activeIndex);
+                }
             }
 
-            // Update the text fields with the front item's data
-            function updateItemInfo() {
-                let angle = (currentRotation % 360 + 360) % 360; // Normalize angle to 0-360
-                let frontIndex = Math.round(angle / (360 / items.length));
-                frontIndex = (items.length - frontIndex) % items.length; // Adjust for rotation direction
+            // Update the text fields with the active item's data
+            function updateItemInfo(index) {
+                const item = items[index];
+                if (!item) return;
 
-                const item = items[frontIndex];
-                
-                // Fade out, update, fade in
+                // Fade out, update, fade in for a smooth transition
                 [itemNameEl, itemDescEl, itemPriceEl].forEach(el => el.style.opacity = 0);
 
                 setTimeout(() => {
@@ -234,69 +246,20 @@
             }
             
             // --- EVENT HANDLERS ---
-            
-            function onDragStart(e) {
-                isDragging = true;
-                carousel.style.transition = 'none';
-                startX = (e.touches ? e.touches[0].clientX : e.clientX);
-                rotationVelocity = 0;
-                cancelAnimationFrame(animationFrameId);
-                e.preventDefault();
-            }
-
-            function onDragMove(e) {
-                if (!isDragging) return;
-                const currentX = (e.touches ? e.touches[0].clientX : e.clientX);
-                const deltaX = currentX - startX;
-                
-                rotationVelocity = deltaX * rotationSensitivity;
-                currentRotation += rotationVelocity;
-                
-                positionItems();
-                
-                startX = currentX;
-                e.preventDefault();
-            }
-
-            function onDragEnd() {
-                if (!isDragging) return;
-                isDragging = false;
-                carousel.style.transition = 'transform 0.1s linear';
-                startInertia();
-            }
-            
-            function startInertia() {
-                cancelAnimationFrame(animationFrameId);
-                function animate() {
-                    if (Math.abs(rotationVelocity) < 0.1) {
-                         updateItemInfo();
-                         return;
-                    }
-                    currentRotation += rotationVelocity;
-                    rotationVelocity *= friction;
-                    positionItems();
-                    animationFrameId = requestAnimationFrame(animate);
-                }
-                animate();
-            }
-
-            // --- SETUP ---
-            openShopBtn.addEventListener('click', () => shopModal.classList.remove('hidden'));
+            openShopBtn.addEventListener('click', () => {
+                shopModal.classList.remove('hidden');
+                setupCarousel(); // Sets up items on first open
+                updateCarouselLayout(); // Recalculates padding and position every time
+            });
             closeShopBtn.addEventListener('click', () => shopModal.classList.add('hidden'));
 
-            // Mouse events
-            carousel.addEventListener('mousedown', onDragStart);
-            window.addEventListener('mousemove', onDragMove);
-            window.addEventListener('mouseup', onDragEnd);
-            window.addEventListener('mouseleave', onDragEnd); // Stop if mouse leaves window
+            // Event listener for scrolling. 'scroll' provides live updates while dragging.
+            carousel.addEventListener('scroll', updateActiveItem, { passive: true });
+            // 'scrollend' ensures a final, accurate update after a swipe/fling finishes.
+            carousel.addEventListener('scrollend', updateActiveItem, { passive: true });
 
-            // Touch events
-            carousel.addEventListener('touchstart', onDragStart, { passive: false });
-            window.addEventListener('touchmove', onDragMove, { passive: false });
-            window.addEventListener('touchend', onDragEnd);
-
-            initializeCarousel();
         });
     </script>
 </body>
 </html>
+
