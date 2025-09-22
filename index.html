@@ -5,19 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Emoji Game - UI Prototype</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
     <style>
         :root {
             --pixel-size: 4px;
         }
         
-        /* Using a pixelated font for a retro game feel */
+        /* Using a strong, readable font for a modern retro game feel */
         body {
-            font-family: 'Press Start 2P', cursive;
+            font-family: 'Russo One', sans-serif;
             background-color: #1a1a2e;
             color: #e0e0e0;
-            overflow-x: hidden; /* Keep horizontal overflow locked */
-            overflow-y: auto;   /* Allow vertical scroll if content is too tall */
+            overflow: hidden; /* Lock scrolling on the main body */
+            height: 100vh; /* Ensure body takes full viewport height */
             touch-action: pan-y; /* Allows vertical swipe gestures on mobile */
             border: calc(var(--pixel-size) * 2) solid #0f0f1b; /* Game border */
             box-sizing: border-box; /* Include border in total size */
@@ -59,7 +59,7 @@
             -ms-overflow-style: none;  /* IE and Edge */
             scrollbar-width: none;  /* Firefox */
         }
-        #item-carousel::-webkit-scrollbar {
+        .item-carousel::-webkit-scrollbar {
             display: none; /* Chrome, Safari, Opera */
         }
 
@@ -101,12 +101,12 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .fortune-choice-button {
+        .fortune-choice-button, .equipment-choice-button {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
             transition: background 0.2s ease, transform 0.2s ease;
         }
-        .fortune-choice-button:hover {
+        .fortune-choice-button:hover, .equipment-choice-button:hover {
             background: rgba(255, 255, 255, 0.15);
             transform: scale(1.02);
         }
@@ -138,18 +138,11 @@
     </div>
     
     <!-- Shop Modal -->
-    <!-- Adjusted for better mobile view: anchors to bottom on small screens -->
-    <div id="shop-modal" class="hidden absolute inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-end sm:justify-center p-0">
+    <div id="shop-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-end sm:justify-center p-0">
         <div class="w-full max-w-lg mx-auto bg-[#1a1a2e] p-4 sm:p-6 rounded-t-2xl sm:rounded-lg pixel-border">
-            
-            <!-- Item Carousel -->
             <div id="item-carousel-container" class="carousel-container mb-6 sm:mb-8">
-                <div id="item-carousel" class="item-carousel">
-                    <!-- Items will be injected here by JavaScript -->
-                </div>
+                <div id="item-carousel" class="item-carousel"></div>
             </div>
-
-            <!-- Item Information Display -->
             <div class="info-card p-4 sm:p-6 text-center h-44 sm:h-48 flex flex-col justify-between">
                 <div>
                     <h2 id="item-name" class="text-2xl sm:text-3xl mb-2 text-yellow-300 transition-opacity duration-200"></h2>
@@ -159,8 +152,6 @@
                     <p id="item-price" class="text-xl sm:text-2xl text-green-400 font-bold transition-opacity duration-200"></p>
                 </div>
             </div>
-
-            <!-- Action Buttons -->
             <div class="flex justify-center mt-6 sm:mt-8 space-x-4">
                 <button id="close-shop-btn" class="shop-button pixel-border pixel-shadow bg-red-600 text-white px-6 py-3 rounded-lg text-lg">Close</button>
                  <button class="shop-button pixel-border pixel-shadow bg-green-600 text-white px-6 py-3 rounded-lg text-lg">Buy</button>
@@ -169,50 +160,47 @@
     </div>
 
     <!-- Fortunes Modal -->
-    <div id="fortunes-modal" class="hidden absolute inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-end sm:justify-center p-0">
+    <div id="fortunes-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-end sm:justify-center p-0">
         <div class="w-full max-w-lg mx-auto bg-[#1a1a2e] p-4 sm:p-6 rounded-t-2xl sm:rounded-lg pixel-border">
-
-            <!-- View for selecting a sacrifice -->
             <div id="sacrifice-selection-view">
-                <!-- Fortunes Carousel -->
                 <div id="fortunes-carousel-container" class="carousel-container mb-6 sm:mb-8">
-                    <div id="fortunes-carousel" class="item-carousel">
-                        <!-- Fortunes will be injected here by JavaScript -->
-                    </div>
+                    <div id="fortunes-carousel" class="item-carousel"></div>
                 </div>
-
-                <!-- Fortune Information Display -->
                 <div class="info-card p-4 sm:p-6 text-center h-44 sm:h-48 flex flex-col justify-center">
                     <h2 id="fortune-name" class="text-2xl sm:text-3xl mb-2 text-yellow-300 transition-opacity duration-200"></h2>
                     <p id="fortune-description" class="text-xs sm:text-sm h-10 sm:h-12 transition-opacity duration-200"></p>
                 </div>
-
-                <!-- Action Buttons -->
                 <div class="flex justify-center mt-6 sm:mt-8 space-x-4">
                     <button id="close-fortunes-btn" class="shop-button pixel-border pixel-shadow bg-red-600 text-white px-6 py-3 rounded-lg text-lg">Decline</button>
                      <button id="accept-sacrifice-btn" class="shop-button pixel-border pixel-shadow bg-green-600 text-white px-6 py-3 rounded-lg text-lg">Accept</button>
                 </div>
             </div>
-
-            <!-- View for selecting a resulting fortune (initially hidden) -->
             <div id="fortune-selection-view" class="hidden">
                  <h2 class="text-xl sm:text-2xl text-center mb-4 sm:mb-6 text-yellow-300">Choose Your Fate</h2>
-                 <div id="fortune-choices-container" class="space-y-3 sm:space-y-4">
-                     <!-- 3 random fortunes will be injected here -->
-                 </div>
+                 <div id="fortune-choices-container" class="space-y-3 sm:space-y-4"></div>
             </div>
         </div>
     </div>
     
     <!-- Equipment Modal -->
-    <div id="equipment-modal" class="hidden absolute inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-end sm:justify-center p-0">
+    <div id="equipment-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-end sm:justify-center p-0">
         <div class="w-full max-w-lg mx-auto bg-[#1a1a2e] p-4 sm:p-6 rounded-t-2xl sm:rounded-lg pixel-border">
-            <h2 class="text-xl sm:text-2xl text-center mb-4 sm:mb-6 text-yellow-300">Equipment</h2>
-            <div class="space-y-3 sm:space-y-4">
-                <button class="fortune-choice-button w-full p-4 rounded-lg text-center text-lg text-white">⚔️ Weapon</button>
-                <button class="fortune-choice-button w-full p-4 rounded-lg text-center text-lg text-white">🛡️ Armor</button>
-                <button class="fortune-choice-button w-full p-4 rounded-lg text-center text-lg text-white">💍 Ring</button>
+            <h2 class="text-xl sm:text-2xl text-center mb-0 text-yellow-300">Equipment</h2>
+            
+            <!-- Equipment Type Carousel -->
+            <div class="carousel-container h-24 mb-4">
+                <div id="equipment-type-carousel" class="item-carousel">
+                    <!-- Equipment types will be injected here -->
+                </div>
             </div>
+
+            <!-- Available Items List -->
+            <div class="info-card p-3">
+                <div id="equipment-choices-container" class="space-y-2">
+                    <!-- Equipment items appear here -->
+                </div>
+            </div>
+
             <div class="flex justify-center mt-6 sm:mt-8">
                 <button id="close-equipment-btn" class="shop-button pixel-border pixel-shadow bg-red-600 text-white px-6 py-3 rounded-lg text-lg">Close</button>
             </div>
@@ -253,6 +241,29 @@
                 { name: 'Toxic Decay', description: '☠️ Poison can stack.' },
             ];
 
+            const equipmentCategories = [
+                { emoji: '⚔️', type: 'weapon' },
+                { emoji: '🛡️', type: 'armor' },
+                { emoji: '💍', type: 'ring' },
+            ];
+
+            const equipmentData = {
+                weapon: [
+                    { name: '🏹 Bow', stat: '+1 💥' },
+                    { name: '🗡️ Dagger', stat: '+2 💥' },
+                    { name: '🔨 Hammer', stat: '+5 💥' },
+                ],
+                armor: [
+                    { name: '🧥 Leather Gear', stat: '+2 🛡️' },
+                    { name: '🪨 Rock Bracer', stat: '+4 🛡️' },
+                    { name: '🕸️ Cloak', stat: '+15% 🍀' },
+                ],
+                ring: [
+                    { name: '💍 Eccentric Jewel', stat: 'A mysterious gem.' },
+                    { name: '♾️ Infinity Ring', stat: 'Take damage to reroll.' },
+                ]
+            };
+            
             // --- GENERAL DOM ELEMENTS ---
             const openShopBtn = document.getElementById('open-shop-btn');
             const openFortunesBtn = document.getElementById('open-fortunes-btn');
@@ -284,18 +295,21 @@
             // --- EQUIPMENT-SPECIFIC ELEMENTS ---
             const equipmentModal = document.getElementById('equipment-modal');
             const closeEquipmentBtn = document.getElementById('close-equipment-btn');
+            const equipmentTypeCarousel = document.getElementById('equipment-type-carousel');
+            const equipmentChoicesContainer = document.getElementById('equipment-choices-container');
+            let activeEquipmentIndex = 0;
+            let isEquipmentInitialized = false;
 
 
             // --- FUNCTIONS ---
             
-            // Generic function to set up a carousel
-            function setupCarousel(container, itemsArray, isInitializedFlag) {
+            function setupCarousel(container, itemsArray, isInitializedFlag, useEmoji = true) {
                 if (isInitializedFlag) return false;
-                container.innerHTML = ''; // Clear previous items
+                container.innerHTML = '';
                 itemsArray.forEach((item, index) => {
                     const itemEl = document.createElement('div');
                     itemEl.classList.add('carousel-item');
-                    itemEl.textContent = item.emoji;
+                    itemEl.textContent = useEmoji ? item.emoji : item.name;
                     itemEl.dataset.index = index;
                     container.appendChild(itemEl);
                 });
@@ -308,20 +322,17 @@
                 return true;
             }
 
-            // Generic function to update layout
             function updateCarouselLayout(container, activeIndex) {
                 const containerWidth = container.offsetWidth;
-                const itemWidth = 80; // from CSS: flex-basis
+                const itemWidth = 80;
                 const padding = (containerWidth / 2) - (itemWidth / 2);
                 container.style.padding = `0 ${padding}px`;
-
                 const initialItem = container.querySelector(`.carousel-item[data-index='${activeIndex}']`);
                 if(initialItem) {
                     initialItem.scrollIntoView({ behavior: 'auto', inline: 'center', block: 'nearest' });
                 }
             }
             
-            // --- SHOP LOGIC ---
             function updateActiveShopItem() {
                 const carouselCenter = shopCarousel.getBoundingClientRect().left + shopCarousel.getBoundingClientRect().width / 2;
                 let minDistance = Infinity;
@@ -331,7 +342,6 @@
                     const itemCenter = item.getBoundingClientRect().left + item.getBoundingClientRect().width / 2;
                     const distance = Math.abs(carouselCenter - itemCenter);
                     const index = parseInt(item.dataset.index);
-
                     if (distance < minDistance) {
                         minDistance = distance;
                         centerIndex = index;
@@ -360,8 +370,7 @@
                 }, 50);
             }
 
-            // --- FORTUNES LOGIC ---
-             function updateActiveSacrificeItem() {
+            function updateActiveSacrificeItem() {
                 const carouselCenter = fortunesCarousel.getBoundingClientRect().left + fortunesCarousel.getBoundingClientRect().width / 2;
                 let minDistance = Infinity;
                 let centerIndex = 0;
@@ -370,7 +379,6 @@
                     const itemCenter = item.getBoundingClientRect().left + item.getBoundingClientRect().width / 2;
                     const distance = Math.abs(carouselCenter - itemCenter);
                     const index = parseInt(item.dataset.index);
-
                     if (distance < minDistance) {
                         minDistance = distance;
                         centerIndex = index;
@@ -399,18 +407,12 @@
             }
 
             function generateFortuneChoices() {
-                fortuneChoicesContainer.innerHTML = ''; // Clear old choices
-                
-                // Shuffle the array and pick the first 3 for unique random choices
+                fortuneChoicesContainer.innerHTML = '';
                 const randomFortunes = [...possibleFortunes].sort(() => 0.5 - Math.random()).slice(0, 3);
-
                 randomFortunes.forEach(fortune => {
                     const button = document.createElement('button');
                     button.className = 'fortune-choice-button w-full p-4 rounded-lg text-left';
-                    button.innerHTML = `
-                        <p class="text-base sm:text-lg text-yellow-300">${fortune.name}</p>
-                        <p class="text-xs sm:text-sm opacity-80 mt-1">${fortune.description}</p>
-                    `;
+                    button.innerHTML = `<p class="text-base sm:text-lg text-yellow-300">${fortune.name}</p><p class="text-xs sm:text-sm opacity-80 mt-1">${fortune.description}</p>`;
                     button.addEventListener('click', () => {
                         console.log('Fortune selected:', fortune.name);
                         fortunesModal.classList.add('hidden');
@@ -418,7 +420,51 @@
                     fortuneChoicesContainer.appendChild(button);
                 });
             }
+
+            // --- EQUIPMENT LOGIC ---
+            function showAvailableEquipment(type) {
+                equipmentChoicesContainer.innerHTML = '';
+                const itemsToShow = equipmentData[type] || [];
+
+                itemsToShow.forEach(item => {
+                    const button = document.createElement('button');
+                    button.className = 'equipment-choice-button w-full p-3 rounded-lg text-left flex justify-between items-center';
+                    button.innerHTML = `<span class="text-sm text-white">${item.name}</span><span class="text-xs text-yellow-300 opacity-90">${item.stat}</span>`;
+                    button.addEventListener('click', () => {
+                        console.log(`Selected: ${item.name}`);
+                        // Logic to actually equip the item would go here
+                    });
+                    equipmentChoicesContainer.appendChild(button);
+                });
+            }
             
+            function updateActiveEquipmentCategory() {
+                const carouselCenter = equipmentTypeCarousel.getBoundingClientRect().left + equipmentTypeCarousel.getBoundingClientRect().width / 2;
+                let minDistance = Infinity;
+                let centerIndex = 0;
+
+                equipmentTypeCarousel.querySelectorAll('.carousel-item').forEach((item) => {
+                    const itemCenter = item.getBoundingClientRect().left + item.getBoundingClientRect().width / 2;
+                    const distance = Math.abs(carouselCenter - itemCenter);
+                    const index = parseInt(item.dataset.index);
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        centerIndex = index;
+                    }
+                    item.classList.remove('is-active');
+                });
+
+                const activeItem = equipmentTypeCarousel.querySelector(`.carousel-item[data-index='${centerIndex}']`);
+                if (activeItem) activeItem.classList.add('is-active');
+                
+                if (activeEquipmentIndex !== centerIndex) {
+                    activeEquipmentIndex = centerIndex;
+                    const activeCategory = equipmentCategories[activeEquipmentIndex];
+                    showAvailableEquipment(activeCategory.type);
+                }
+            }
+
+
             // --- EVENT HANDLERS ---
             openShopBtn.addEventListener('click', () => {
                 shopModal.classList.remove('hidden');
@@ -431,10 +477,8 @@
             shopCarousel.addEventListener('scrollend', updateActiveShopItem, { passive: true });
 
             openFortunesBtn.addEventListener('click', () => {
-                // Reset to sacrifice view every time
                 sacrificeSelectionView.classList.remove('hidden');
                 fortuneSelectionView.classList.add('hidden');
-
                 fortunesModal.classList.remove('hidden');
                 isFortunesInitialized = !setupCarousel(fortunesCarousel, sacrifices, isFortunesInitialized);
                 updateCarouselLayout(fortunesCarousel, activeFortuneIndex);
@@ -453,12 +497,20 @@
             // Equipment Modal Handlers
             openEquipmentBtn.addEventListener('click', () => {
                 equipmentModal.classList.remove('hidden');
+                isEquipmentInitialized = !setupCarousel(equipmentTypeCarousel, equipmentCategories, isEquipmentInitialized);
+                updateCarouselLayout(equipmentTypeCarousel, activeEquipmentIndex);
+                updateActiveEquipmentCategory(); // Initial population
             });
+
             closeEquipmentBtn.addEventListener('click', () => {
                 equipmentModal.classList.add('hidden');
             });
+            
+            equipmentTypeCarousel.addEventListener('scroll', updateActiveEquipmentCategory, { passive: true });
+            equipmentTypeCarousel.addEventListener('scrollend', updateActiveEquipmentCategory, { passive: true });
 
         });
     </script>
 </body>
 </html>
+
