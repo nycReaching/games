@@ -113,15 +113,15 @@
 
     </style>
 </head>
-<body class="flex flex-col min-h-screen p-2 sm:p-4">
+<body class="flex flex-col h-screen p-2 sm:p-4">
 
     <!-- Top Half of the screen (for game content, etc.) -->
-    <div class="flex-1 flex items-center justify-center min-h-[100px]">
+    <div class="flex-1 flex items-center justify-center">
         <h1 class="text-4xl text-white opacity-25 select-none">GAME AREA</h1>
     </div>
 
     <!-- Bottom Half - Main Menu Grid -->
-    <div class="py-2">
+    <div class="py-4 flex-shrink-0">
         <div class="grid grid-cols-2 gap-2 sm:gap-4 w-full max-w-md mx-auto">
             <!-- Row 1 -->
             <button id="open-shop-btn" class="shop-button w-full pixel-border pixel-shadow bg-blue-500 hover:bg-blue-600 text-white py-3 sm:py-4 rounded-lg text-base sm:text-lg md:text-xl uppercase tracking-widest">Shop</button>
@@ -188,21 +188,29 @@
             <h2 class="text-xl sm:text-2xl text-center mb-0 text-yellow-300">Equipment</h2>
             
             <!-- Equipment Type Carousel -->
-            <div class="carousel-container h-24 mb-4">
+            <div class="carousel-container h-24">
                 <div id="equipment-type-carousel" class="item-carousel">
                     <!-- Equipment types will be injected here -->
                 </div>
             </div>
 
-            <!-- Available Items List -->
-            <div class="info-card p-3">
-                <div id="equipment-choices-container" class="space-y-2">
-                    <!-- Equipment items appear here -->
+            <!-- Equipment Item Carousel -->
+            <div id="equipment-item-carousel-container" class="carousel-container mb-6 sm:mb-8">
+                <div id="equipment-item-carousel" class="item-carousel">
+                    <!-- Equipment items for the selected type appear here -->
                 </div>
             </div>
 
-            <div class="flex justify-center mt-6 sm:mt-8">
+            <!-- Info Card for selected item -->
+            <div class="info-card p-4 sm:p-6 text-center h-44 sm:h-48 flex flex-col justify-center">
+                <h2 id="equipment-item-name" class="text-2xl sm:text-3xl mb-2 text-yellow-300 transition-opacity duration-200"></h2>
+                <p id="equipment-item-stat" class="text-xl sm:text-2xl text-green-400 font-bold transition-opacity duration-200"></p>
+            </div>
+
+
+            <div class="flex justify-center mt-6 sm:mt-8 space-x-4">
                 <button id="close-equipment-btn" class="shop-button pixel-border pixel-shadow bg-red-600 text-white px-6 py-3 rounded-lg text-lg">Close</button>
+                <button class="shop-button pixel-border pixel-shadow bg-green-600 text-white px-6 py-3 rounded-lg text-lg">Equip</button>
             </div>
         </div>
     </div>
@@ -296,8 +304,11 @@
             const equipmentModal = document.getElementById('equipment-modal');
             const closeEquipmentBtn = document.getElementById('close-equipment-btn');
             const equipmentTypeCarousel = document.getElementById('equipment-type-carousel');
-            const equipmentChoicesContainer = document.getElementById('equipment-choices-container');
+            const equipmentItemCarousel = document.getElementById('equipment-item-carousel');
+            const equipmentItemNameEl = document.getElementById('equipment-item-name');
+            const equipmentItemStatEl = document.getElementById('equipment-item-stat');
             let activeEquipmentIndex = 0;
+            let activeEquipmentItemIndex = 0;
             let isEquipmentInitialized = false;
 
 
@@ -422,20 +433,74 @@
             }
 
             // --- EQUIPMENT LOGIC ---
-            function showAvailableEquipment(type) {
-                equipmentChoicesContainer.innerHTML = '';
+            function setupEquipmentItemCarousel(type) {
                 const itemsToShow = equipmentData[type] || [];
-
-                itemsToShow.forEach(item => {
-                    const button = document.createElement('button');
-                    button.className = 'equipment-choice-button w-full p-3 rounded-lg text-left flex justify-between items-center';
-                    button.innerHTML = `<span class="text-sm text-white">${item.name}</span><span class="text-xs text-yellow-300 opacity-90">${item.stat}</span>`;
-                    button.addEventListener('click', () => {
-                        console.log(`Selected: ${item.name}`);
-                        // Logic to actually equip the item would go here
-                    });
-                    equipmentChoicesContainer.appendChild(button);
+                equipmentItemCarousel.innerHTML = '';
+                itemsToShow.forEach((item, index) => {
+                    const itemEl = document.createElement('div');
+                    itemEl.classList.add('carousel-item');
+                    const firstChar = item.name.match(/(\p{Emoji})/u);
+                    itemEl.textContent = firstChar ? firstChar[0] : '❔';
+                    itemEl.dataset.index = index;
+                    equipmentItemCarousel.appendChild(itemEl);
                 });
+
+                equipmentItemCarousel.querySelectorAll('.carousel-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        item.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                    });
+                });
+                
+                updateCarouselLayout(equipmentItemCarousel, 0);
+                
+                const activeCategoryType = equipmentCategories[activeEquipmentIndex].type;
+                updateEquipmentItemInfo(0, activeCategoryType);
+                
+                equipmentItemCarousel.querySelectorAll('.carousel-item').forEach(item => item.classList.remove('is-active'));
+                const firstItem = equipmentItemCarousel.querySelector(`.carousel-item[data-index='0']`);
+                if (firstItem) firstItem.classList.add('is-active');
+                activeEquipmentItemIndex = 0;
+            }
+
+            function updateEquipmentItemInfo(itemIndex, categoryType) {
+                const item = equipmentData[categoryType]?.[itemIndex];
+                if (!item) {
+                    equipmentItemNameEl.textContent = '';
+                    equipmentItemStatEl.textContent = '';
+                    return;
+                }
+                [equipmentItemNameEl, equipmentItemStatEl].forEach(el => el.style.opacity = 0);
+                setTimeout(() => {
+                    equipmentItemNameEl.textContent = item.name;
+                    equipmentItemStatEl.textContent = item.stat;
+                    [equipmentItemNameEl, equipmentItemStatEl].forEach(el => el.style.opacity = 1);
+                }, 50);
+            }
+            
+            function updateActiveEquipmentItem() {
+                const carouselCenter = equipmentItemCarousel.getBoundingClientRect().left + equipmentItemCarousel.getBoundingClientRect().width / 2;
+                let minDistance = Infinity;
+                let centerIndex = 0;
+
+                equipmentItemCarousel.querySelectorAll('.carousel-item').forEach((item) => {
+                    const itemCenter = item.getBoundingClientRect().left + item.getBoundingClientRect().width / 2;
+                    const distance = Math.abs(carouselCenter - itemCenter);
+                    const index = parseInt(item.dataset.index);
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        centerIndex = index;
+                    }
+                    item.classList.remove('is-active');
+                });
+
+                const activeItem = equipmentItemCarousel.querySelector(`.carousel-item[data-index='${centerIndex}']`);
+                if (activeItem) activeItem.classList.add('is-active');
+                
+                if (activeEquipmentItemIndex !== centerIndex) {
+                    activeEquipmentItemIndex = centerIndex;
+                    const activeCategoryType = equipmentCategories[activeEquipmentIndex].type;
+                    updateEquipmentItemInfo(activeEquipmentItemIndex, activeCategoryType);
+                }
             }
             
             function updateActiveEquipmentCategory() {
@@ -460,7 +525,9 @@
                 if (activeEquipmentIndex !== centerIndex) {
                     activeEquipmentIndex = centerIndex;
                     const activeCategory = equipmentCategories[activeEquipmentIndex];
-                    showAvailableEquipment(activeCategory.type);
+                    if (activeCategory) {
+                        setupEquipmentItemCarousel(activeCategory.type);
+                    }
                 }
             }
 
@@ -499,8 +566,14 @@
                 equipmentModal.classList.remove('hidden');
                 isEquipmentInitialized = !setupCarousel(equipmentTypeCarousel, equipmentCategories, isEquipmentInitialized);
                 updateCarouselLayout(equipmentTypeCarousel, activeEquipmentIndex);
-                updateActiveEquipmentCategory(); // Initial population
+                
+                const initialCategory = equipmentCategories[activeEquipmentIndex];
+                if(initialCategory) {
+                    setupEquipmentItemCarousel(initialCategory.type);
+                }
+                updateActiveEquipmentCategory();
             });
+
 
             closeEquipmentBtn.addEventListener('click', () => {
                 equipmentModal.classList.add('hidden');
@@ -508,6 +581,9 @@
             
             equipmentTypeCarousel.addEventListener('scroll', updateActiveEquipmentCategory, { passive: true });
             equipmentTypeCarousel.addEventListener('scrollend', updateActiveEquipmentCategory, { passive: true });
+
+            equipmentItemCarousel.addEventListener('scroll', updateActiveEquipmentItem, { passive: true });
+            equipmentItemCarousel.addEventListener('scrollend', updateActiveEquipmentItem, { passive: true });
 
         });
     </script>
