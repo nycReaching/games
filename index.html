@@ -101,6 +101,16 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
+        .fortune-choice-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+        .fortune-choice-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.02);
+        }
+
     </style>
 </head>
 <body class="flex flex-col min-h-screen p-2 sm:p-4">
@@ -161,23 +171,35 @@
     <!-- Fortunes Modal -->
     <div id="fortunes-modal" class="hidden absolute inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-end sm:justify-center p-0">
         <div class="w-full max-w-lg mx-auto bg-[#1a1a2e] p-4 sm:p-6 rounded-t-2xl sm:rounded-lg pixel-border">
-            <!-- Fortunes Carousel -->
-            <div id="fortunes-carousel-container" class="carousel-container mb-6 sm:mb-8">
-                <div id="fortunes-carousel" class="item-carousel">
-                    <!-- Fortunes will be injected here by JavaScript -->
+
+            <!-- View for selecting a sacrifice -->
+            <div id="sacrifice-selection-view">
+                <!-- Fortunes Carousel -->
+                <div id="fortunes-carousel-container" class="carousel-container mb-6 sm:mb-8">
+                    <div id="fortunes-carousel" class="item-carousel">
+                        <!-- Fortunes will be injected here by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Fortune Information Display -->
+                <div class="info-card p-4 sm:p-6 text-center h-44 sm:h-48 flex flex-col justify-center">
+                    <h2 id="fortune-name" class="text-2xl sm:text-3xl mb-2 text-yellow-300 transition-opacity duration-200"></h2>
+                    <p id="fortune-description" class="text-xs sm:text-sm h-10 sm:h-12 transition-opacity duration-200"></p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-center mt-6 sm:mt-8 space-x-4">
+                    <button id="close-fortunes-btn" class="shop-button pixel-border pixel-shadow bg-red-600 text-white px-6 py-3 rounded-lg text-lg">Decline</button>
+                     <button id="accept-sacrifice-btn" class="shop-button pixel-border pixel-shadow bg-green-600 text-white px-6 py-3 rounded-lg text-lg">Accept</button>
                 </div>
             </div>
 
-            <!-- Fortune Information Display -->
-            <div class="info-card p-4 sm:p-6 text-center h-44 sm:h-48 flex flex-col justify-center">
-                <h2 id="fortune-name" class="text-2xl sm:text-3xl mb-2 text-yellow-300 transition-opacity duration-200"></h2>
-                <p id="fortune-description" class="text-xs sm:text-sm h-10 sm:h-12 transition-opacity duration-200"></p>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex justify-center mt-6 sm:mt-8 space-x-4">
-                <button id="close-fortunes-btn" class="shop-button pixel-border pixel-shadow bg-red-600 text-white px-6 py-3 rounded-lg text-lg">Decline</button>
-                 <button class="shop-button pixel-border pixel-shadow bg-green-600 text-white px-6 py-3 rounded-lg text-lg">Accept</button>
+            <!-- View for selecting a resulting fortune (initially hidden) -->
+            <div id="fortune-selection-view" class="hidden">
+                 <h2 class="text-xl sm:text-2xl text-center mb-4 sm:mb-6 text-yellow-300">Choose Your Fate</h2>
+                 <div id="fortune-choices-container" class="space-y-3 sm:space-y-4">
+                     <!-- 3 random fortunes will be injected here -->
+                 </div>
             </div>
         </div>
     </div>
@@ -194,13 +216,25 @@
                 { emoji: '♾️', name: 'Infinity Ring', description: 'Take damage to reroll (one-time).', price: '350G' },
             ];
 
-            const fortunes = [
+            const sacrifices = [
                 { emoji: '🩸', name: 'Blood Pact', description: '-3 Max HP.' },
                 { emoji: '🦶', name: 'Broken Ankle', description: '-10% Luck.' },
                 { emoji: '💔', name: 'Heartbreak', description: 'One spell (❤️‍🔥 or 🩶) disabled per battle.' },
                 { emoji: '💰', name: 'Gambling Debt', description: '-30 Gold.' },
                 { emoji: '🫳', name: 'Clumsy', description: 'Lose 1 🌘 Moonstone.' },
                 { emoji: '🎭', name: 'Unstable Mind', description: 'Share 🍶 Tonic with enemy.' },
+            ];
+
+            const possibleFortunes = [
+                { name: 'Durable Stones', description: '+1 Status stone use.' },
+                { name: 'Efficient Magic', description: '1/2 MP cost for spells.' },
+                { name: 'Bartering Edge', description: '15% shop discount.' },
+                { name: 'Archer\'s Edge', description: 'Attacks all with 🏹 Bow.' },
+                { name: 'Enchantment', description: '🧚 Fairy also grants ❇️ Regen.' },
+                { name: 'Battle Grace', description: 'Buffs restore 1 🛡️ Armor.' },
+                { name: 'Prolonged Torment', description: '2x 🕯️ Curse and 🐌 Sluggish durations.' },
+                { name: 'Thief Strike', description: 'Steal 2 gold with 🗡️ Dagger.' },
+                { name: 'Toxic Decay', description: '☠️ Poison can stack.' },
             ];
 
             // --- GENERAL DOM ELEMENTS ---
@@ -219,10 +253,14 @@
 
             // --- FORTUNES-SPECIFIC ELEMENTS & STATE ---
             const closeFortunesBtn = document.getElementById('close-fortunes-btn');
+            const acceptSacrificeBtn = document.getElementById('accept-sacrifice-btn');
             const fortunesModal = document.getElementById('fortunes-modal');
             const fortunesCarousel = document.getElementById('fortunes-carousel');
             const fortuneNameEl = document.getElementById('fortune-name');
             const fortuneDescEl = document.getElementById('fortune-description');
+            const sacrificeSelectionView = document.getElementById('sacrifice-selection-view');
+            const fortuneSelectionView = document.getElementById('fortune-selection-view');
+            const fortuneChoicesContainer = document.getElementById('fortune-choices-container');
             let activeFortuneIndex = 0;
             let isFortunesInitialized = false;
 
@@ -232,7 +270,7 @@
             // Generic function to set up a carousel
             function setupCarousel(container, itemsArray, isInitializedFlag) {
                 if (isInitializedFlag) return false;
-
+                container.innerHTML = ''; // Clear previous items
                 itemsArray.forEach((item, index) => {
                     const itemEl = document.createElement('div');
                     itemEl.classList.add('carousel-item');
@@ -302,7 +340,7 @@
             }
 
             // --- FORTUNES LOGIC ---
-             function updateActiveFortuneItem() {
+             function updateActiveSacrificeItem() {
                 const carouselCenter = fortunesCarousel.getBoundingClientRect().left + fortunesCarousel.getBoundingClientRect().width / 2;
                 let minDistance = Infinity;
                 let centerIndex = 0;
@@ -324,12 +362,12 @@
                 
                 if (activeFortuneIndex !== centerIndex) {
                     activeFortuneIndex = centerIndex;
-                    updateFortuneInfo(activeFortuneIndex);
+                    updateSacrificeInfo(activeFortuneIndex);
                 }
             }
 
-            function updateFortuneInfo(index) {
-                const fortune = fortunes[index];
+            function updateSacrificeInfo(index) {
+                const fortune = sacrifices[index];
                 if (!fortune) return;
                 [fortuneNameEl, fortuneDescEl].forEach(el => el.style.opacity = 0);
                 setTimeout(() => {
@@ -337,6 +375,27 @@
                     fortuneDescEl.textContent = fortune.description;
                     [fortuneNameEl, fortuneDescEl].forEach(el => el.style.opacity = 1);
                 }, 50);
+            }
+
+            function generateFortuneChoices() {
+                fortuneChoicesContainer.innerHTML = ''; // Clear old choices
+                
+                // Shuffle the array and pick the first 3 for unique random choices
+                const randomFortunes = [...possibleFortunes].sort(() => 0.5 - Math.random()).slice(0, 3);
+
+                randomFortunes.forEach(fortune => {
+                    const button = document.createElement('button');
+                    button.className = 'fortune-choice-button w-full p-4 rounded-lg text-left';
+                    button.innerHTML = `
+                        <p class="text-base sm:text-lg text-yellow-300">${fortune.name}</p>
+                        <p class="text-xs sm:text-sm opacity-80 mt-1">${fortune.description}</p>
+                    `;
+                    button.addEventListener('click', () => {
+                        console.log('Fortune selected:', fortune.name);
+                        fortunesModal.classList.add('hidden');
+                    });
+                    fortuneChoicesContainer.appendChild(button);
+                });
             }
             
             // --- EVENT HANDLERS ---
@@ -351,19 +410,27 @@
             shopCarousel.addEventListener('scrollend', updateActiveShopItem, { passive: true });
 
             openFortunesBtn.addEventListener('click', () => {
+                // Reset to sacrifice view every time
+                sacrificeSelectionView.classList.remove('hidden');
+                fortuneSelectionView.classList.add('hidden');
+
                 fortunesModal.classList.remove('hidden');
-                isFortunesInitialized = !setupCarousel(fortunesCarousel, fortunes, isFortunesInitialized);
+                isFortunesInitialized = !setupCarousel(fortunesCarousel, sacrifices, isFortunesInitialized);
                 updateCarouselLayout(fortunesCarousel, activeFortuneIndex);
-                updateActiveFortuneItem();
+                updateActiveSacrificeItem();
             });
             closeFortunesBtn.addEventListener('click', () => fortunesModal.classList.add('hidden'));
-            fortunesCarousel.addEventListener('scroll', updateActiveFortuneItem, { passive: true });
-            fortunesCarousel.addEventListener('scrollend', updateActiveFortuneItem, { passive: true });
+            fortunesCarousel.addEventListener('scroll', updateActiveSacrificeItem, { passive: true });
+            fortunesCarousel.addEventListener('scrollend', updateActiveSacrificeItem, { passive: true });
+
+            acceptSacrificeBtn.addEventListener('click', () => {
+                sacrificeSelectionView.classList.add('hidden');
+                fortuneSelectionView.classList.remove('hidden');
+                generateFortuneChoices();
+            });
 
         });
     </script>
 </body>
 </html>
-
-
 
