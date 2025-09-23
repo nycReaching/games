@@ -20,10 +20,10 @@
     <!-- Mobile Phone Silhouette -->
     <div class="w-full max-w-sm h-[90vh] max-h-[800px] bg-black border-4 border-gray-700 rounded-3xl shadow-2xl flex flex-col overflow-hidden">
         
-        <!-- Top Status Bar (approx 1/5) -->
-        <!-- Replaced margin with flexbox gap for better alignment -->
-        <div class="h-[20%] bg-gray-800 p-4 border-b-4 border-gray-700 flex flex-col justify-center gap-3 text-white">
-            <!-- Counters moved above the meters -->
+        <!-- Top Status Bar -->
+        <!-- Removed fixed height, using padding and gap for spacing. It will now size to its content. -->
+        <div class="bg-gray-800 p-4 border-b-4 border-gray-700 flex flex-col justify-center gap-3 text-white">
+            <!-- Counters -->
             <div class="grid grid-cols-4 gap-x-2 text-center">
                 <div class="text-sm">
                     <span class="font-bold text-gray-400 block">LEVEL</span>
@@ -42,8 +42,7 @@
                     <span class="font-bold text-lg">500</span>
                 </div>
             </div>
-            <!-- HP and MP Meters -->
-            <!-- Removed mt-4, parent gap now handles spacing -->
+            <!-- Meters -->
             <div class="space-y-2">
                 <!-- HP Bar -->
                 <div class="flex items-center">
@@ -63,11 +62,13 @@
         </div>
 
         <!-- Game Screen Area (Central Area) -->
-        <div class="h-[40%] bg-gray-900">
+        <!-- Replaced fixed height with flex-grow to fill available space -->
+        <div class="flex-grow bg-gray-900">
             <!-- Game content would go here -->
         </div>
 
         <!-- Controls Area (Bottom 2/5) -->
+        <!-- Kept height on this section -->
         <div class="h-[40%] bg-gray-800 p-8 border-t-4 border-gray-700">
             <div class="grid grid-cols-3 grid-rows-2 gap-6 h-full">
                 <!-- Row 1 -->
