@@ -69,13 +69,14 @@
 
         <!-- Controls Area (Bottom 2/5) -->
         <!-- Added relative and overflow-hidden for modal positioning -->
-        <div id="controls-area" class="h-[40%] bg-gray-800 border-t-4 border-gray-700 relative overflow-hidden">
+        <div id="controls-area" class="h-[35%] bg-gray-800 border-t-4 border-gray-700 relative overflow-hidden">
             <!-- Button Grid Container -->
             <div id="button-grid" class="p-8 h-full">
-                <div class="grid grid-cols-3 grid-rows-2 gap-6 h-full">
+                <div class="grid grid-cols-3 grid-rows-2 gap-6 h-full items-center">
                     <!-- Buttons updated with gradients and data attributes -->
                     <button data-modal-target="items-modal" class="bg-gradient-to-b from-blue-400 to-blue-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-blue-500 hover:to-blue-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75">Items</button>
-                    <button data-modal-target="skills-modal" class="bg-gradient-to-b from-green-400 to-green-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-green-500 hover:to-green-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75">Skills</button>
+                    <!-- Made skills button round and removed modal functionality -->
+                    <button class="bg-gradient-to-b from-green-400 to-green-600 text-white font-bold rounded-full aspect-square border-2 border-black shadow-[10px_10px_0px_#000] hover:from-green-500 hover:to-green-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 flex items-center justify-center">Skills</button>
                     <button data-modal-target="map-modal" class="bg-gradient-to-b from-yellow-400 to-yellow-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-yellow-500 hover:to-yellow-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75">Map</button>
                     <button data-modal-target="equip-modal" class="bg-gradient-to-b from-purple-400 to-purple-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-purple-500 hover:to-purple-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75">Equip</button>
                     <button data-modal-target="quests-modal" class="bg-gradient-to-b from-red-400 to-red-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-red-500 hover:to-red-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75">Quests</button>
@@ -89,12 +90,6 @@
                 <button class="close-modal absolute top-4 right-4 text-white font-bold text-3xl leading-none hover:text-gray-300">&times;</button>
                 <h2 class="text-3xl font-bold mb-4">Items</h2>
                 <p>Your inventory will be displayed here.</p>
-            </div>
-            <!-- Skills Modal -->
-            <div id="skills-modal" class="modal-content hidden absolute inset-0 h-full w-full p-8 bg-gradient-to-b from-green-400 to-green-600 text-white flex flex-col items-center justify-center text-center">
-                <button class="close-modal absolute top-4 right-4 text-white font-bold text-3xl leading-none hover:text-gray-300">&times;</button>
-                <h2 class="text-3xl font-bold mb-4">Skills</h2>
-                <p>Your character's skills will be displayed here.</p>
             </div>
             <!-- Map Modal -->
             <div id="map-modal" class="modal-content hidden absolute inset-0 h-full w-full p-8 bg-gradient-to-b from-yellow-400 to-yellow-600 text-white flex flex-col items-center justify-center text-center">
@@ -165,3 +160,4 @@
     </script>
 </body>
 </html>
+
