@@ -21,7 +21,6 @@
     <div class="w-full max-w-sm h-[90vh] max-h-[800px] bg-black border-4 border-gray-700 rounded-3xl shadow-2xl flex flex-col overflow-hidden">
         
         <!-- Top Status Bar -->
-        <!-- Removed fixed height, using padding and gap for spacing. It will now size to its content. -->
         <div class="bg-gray-800 p-4 border-b-4 border-gray-700 flex flex-col justify-center gap-3 text-white">
             <!-- Counters -->
             <div class="grid grid-cols-4 gap-x-2 text-center">
@@ -48,42 +47,121 @@
                 <div class="flex items-center">
                     <span class="text-2xl w-10 text-center">❤️</span>
                     <div class="w-full bg-black rounded-full h-5 border-2 border-gray-900">
-                        <div class="bg-red-500 h-full rounded-full" style="width: 85%"></div>
+                        <!-- Changed to pink-to-red gradient -->
+                        <div class="bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full" style="width: 85%"></div>
                     </div>
                 </div>
                 <!-- Skull Bar -->
                 <div class="flex items-center">
                     <span class="text-2xl w-10 text-center">💀</span>
                     <div class="w-full bg-black rounded-full h-5 border-2 border-gray-900">
-                        <div class="bg-gray-500 h-full rounded-full" style="width: 60%"></div>
+                        <!-- Changed to dark-gray-to-light-gray gradient -->
+                        <div class="bg-gradient-to-r from-gray-700 to-gray-400 h-full rounded-full" style="width: 60%"></div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Game Screen Area (Central Area) -->
-        <!-- Replaced fixed height with flex-grow to fill available space -->
         <div class="flex-grow bg-gray-900">
             <!-- Game content would go here -->
         </div>
 
         <!-- Controls Area (Bottom 2/5) -->
-        <!-- Kept height on this section -->
-        <div class="h-[40%] bg-gray-800 p-8 border-t-4 border-gray-700">
-            <div class="grid grid-cols-3 grid-rows-2 gap-6 h-full">
-                <!-- Row 1 -->
-                <button class="bg-blue-500 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:bg-blue-600 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75">Items</button>
-                <button class="bg-green-500 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:bg-green-600 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75">Skills</button>
-                <button class="bg-yellow-500 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:bg-yellow-600 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75">Map</button>
-                
-                <!-- Row 2 -->
-                <button class="bg-purple-500 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:bg-purple-600 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75">Equip</button>
-                <button class="bg-red-500 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:bg-red-600 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75">Quests</button>
-                <button class="bg-indigo-500 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:bg-indigo-600 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75">System</button>
+        <!-- Added relative and overflow-hidden for modal positioning -->
+        <div id="controls-area" class="h-[40%] bg-gray-800 border-t-4 border-gray-700 relative overflow-hidden">
+            <!-- Button Grid Container -->
+            <div id="button-grid" class="p-8 h-full">
+                <div class="grid grid-cols-3 grid-rows-2 gap-6 h-full">
+                    <!-- Buttons updated with gradients and data attributes -->
+                    <button data-modal-target="items-modal" class="bg-gradient-to-b from-blue-400 to-blue-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-blue-500 hover:to-blue-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75">Items</button>
+                    <button data-modal-target="skills-modal" class="bg-gradient-to-b from-green-400 to-green-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-green-500 hover:to-green-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75">Skills</button>
+                    <button data-modal-target="map-modal" class="bg-gradient-to-b from-yellow-400 to-yellow-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-yellow-500 hover:to-yellow-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75">Map</button>
+                    <button data-modal-target="equip-modal" class="bg-gradient-to-b from-purple-400 to-purple-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-purple-500 hover:to-purple-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75">Equip</button>
+                    <button data-modal-target="quests-modal" class="bg-gradient-to-b from-red-400 to-red-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-red-500 hover:to-red-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75">Quests</button>
+                    <button data-modal-target="system-modal" class="bg-gradient-to-b from-indigo-400 to-indigo-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-indigo-500 hover:to-indigo-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75">System</button>
+                </div>
+            </div>
+            
+            <!-- Modals -->
+            <!-- Items Modal -->
+            <div id="items-modal" class="modal-content hidden absolute inset-0 h-full w-full p-8 bg-gradient-to-b from-blue-400 to-blue-600 text-white flex flex-col items-center justify-center text-center">
+                <button class="close-modal absolute top-4 right-4 text-white font-bold text-3xl leading-none hover:text-gray-300">&times;</button>
+                <h2 class="text-3xl font-bold mb-4">Items</h2>
+                <p>Your inventory will be displayed here.</p>
+            </div>
+            <!-- Skills Modal -->
+            <div id="skills-modal" class="modal-content hidden absolute inset-0 h-full w-full p-8 bg-gradient-to-b from-green-400 to-green-600 text-white flex flex-col items-center justify-center text-center">
+                <button class="close-modal absolute top-4 right-4 text-white font-bold text-3xl leading-none hover:text-gray-300">&times;</button>
+                <h2 class="text-3xl font-bold mb-4">Skills</h2>
+                <p>Your character's skills will be displayed here.</p>
+            </div>
+            <!-- Map Modal -->
+            <div id="map-modal" class="modal-content hidden absolute inset-0 h-full w-full p-8 bg-gradient-to-b from-yellow-400 to-yellow-600 text-white flex flex-col items-center justify-center text-center">
+                <button class="close-modal absolute top-4 right-4 text-white font-bold text-3xl leading-none hover:text-gray-300">&times;</button>
+                <h2 class="text-3xl font-bold mb-4">Map</h2>
+                <p>The world map will be displayed here.</p>
+            </div>
+            <!-- Equip Modal -->
+            <div id="equip-modal" class="modal-content hidden absolute inset-0 h-full w-full p-8 bg-gradient-to-b from-purple-400 to-purple-600 text-white flex flex-col items-center justify-center text-center">
+                <button class="close-modal absolute top-4 right-4 text-white font-bold text-3xl leading-none hover:text-gray-300">&times;</button>
+                <h2 class="text-3xl font-bold mb-4">Equipment</h2>
+                <p>Your character's equipment will be displayed here.</p>
+            </div>
+            <!-- Quests Modal -->
+            <div id="quests-modal" class="modal-content hidden absolute inset-0 h-full w-full p-8 bg-gradient-to-b from-red-400 to-red-600 text-white flex flex-col items-center justify-center text-center">
+                <button class="close-modal absolute top-4 right-4 text-white font-bold text-3xl leading-none hover:text-gray-300">&times;</button>
+                <h2 class="text-3xl font-bold mb-4">Quests</h2>
+                <p>Your active quests will be displayed here.</p>
+            </div>
+            <!-- System Modal -->
+            <div id="system-modal" class="modal-content hidden absolute inset-0 h-full w-full p-8 bg-gradient-to-b from-indigo-400 to-indigo-600 text-white flex flex-col items-center justify-center text-center">
+                <button class="close-modal absolute top-4 right-4 text-white font-bold text-3xl leading-none hover:text-gray-300">&times;</button>
+                <h2 class="text-3xl font-bold mb-4">System</h2>
+                <p>Game options and settings will be displayed here.</p>
             </div>
         </div>
     </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const modalButtons = document.querySelectorAll('[data-modal-target]');
+            const closeButtons = document.querySelectorAll('.close-modal');
+            const buttonGrid = document.getElementById('button-grid');
+            const allModals = document.querySelectorAll('.modal-content');
+
+            // Function to open a modal
+            const openModal = (modal) => {
+                if (modal == null) return;
+                buttonGrid.classList.add('hidden');
+                modal.classList.remove('hidden');
+            }
+
+            // Function to close all modals
+            const closeModal = () => {
+                allModals.forEach(modal => {
+                    if (!modal.classList.contains('hidden')) {
+                        modal.classList.add('hidden');
+                    }
+                });
+                buttonGrid.classList.remove('hidden');
+            }
+
+            // Add event listeners to modal trigger buttons
+            modalButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const modal = document.querySelector(button.dataset.modalTarget) || document.getElementById(button.dataset.modalTarget);
+                    openModal(modal);
+                });
+            });
+
+            // Add event listeners to close buttons
+            closeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    closeModal();
+                });
+            });
+        });
+    </script>
 </body>
 </html>
-
