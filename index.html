@@ -17,6 +17,16 @@
         .reel:not(:disabled) {
             cursor: pointer;
         }
+        /* ADDED: Shake animation for when an enemy is hit */
+        @keyframes shake {
+            10%, 90% { transform: translateX(-1px); }
+            20%, 80% { transform: translateX(2px); }
+            30%, 50%, 70% { transform: translateX(-4px); }
+            40%, 60% { transform: translateX(4px); }
+        }
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
     </style>
 </head>
 <body class="bg-gray-900 flex items-center justify-center min-h-screen">
@@ -32,9 +42,10 @@
                     <span class="text-3xl">🛡️</span>
                     <span class="font-bold text-lg ml-1">10</span>
                 </div>
+                <!-- UPDATED: Changed attack power display to 5 -->
                 <div class="flex items-center justify-center">
-                    <span class="text-3xl">🟢</span>
-                    <span class="font-bold text-lg ml-1">12</span>
+                    <span class="text-3xl">🗡️</span>
+                    <span id="attack-power" class="font-bold text-lg ml-1">5</span>
                 </div>
                 <div class="flex items-center justify-center">
                     <span class="text-3xl">💰</span>
@@ -57,9 +68,10 @@
                         </div>
                     </div>
                 </div>
-                <!-- Skull Bar -->
+                <!-- Enemy Bar -->
                 <div class="flex items-center">
-                    <span class="text-2xl w-10 text-center">💀</span>
+                    <!-- UPDATED: Changed skull icon to ghost -->
+                    <span class="text-2xl w-10 text-center">👻</span>
                     <div class="relative w-full bg-black rounded-full h-5 border-2 border-gray-900">
                         <div class="bg-gradient-to-r from-gray-700 to-gray-400 h-full rounded-full" style="width: 60%"></div>
                         <div class="absolute inset-0 flex items-center justify-center">
@@ -114,9 +126,10 @@
                     <!-- Enemy 1 Info -->
                     <div id="enemy-info-1" class="text-center w-24">
                         <div class="relative w-full bg-black rounded-full h-4 border-2 border-gray-600 mb-1">
-                            <div class="health-bar bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full" style="width: 100%"></div>
+                            <div class="health-bar bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <span class="text-white font-bold" style="font-size: 0.6rem; line-height: 1;">10/10</span>
+                                <!-- ADDED: ID for health text -->
+                                <span id="health-text-1" class="text-white font-bold" style="font-size: 0.6rem; line-height: 1;">10/10</span>
                             </div>
                         </div>
                         <p id="enemy-name-1" class="text-xs font-bold truncate">-</p>
@@ -125,9 +138,10 @@
                     <!-- Enemy 2 Info -->
                     <div id="enemy-info-2" class="text-center w-24">
                         <div class="relative w-full bg-black rounded-full h-4 border-2 border-gray-600 mb-1">
-                            <div class="health-bar bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full" style="width: 100%"></div>
+                            <div class="health-bar bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <span class="text-white font-bold" style="font-size: 0.6rem; line-height: 1;">10/10</span>
+                                <!-- ADDED: ID for health text -->
+                                <span id="health-text-2" class="text-white font-bold" style="font-size: 0.6rem; line-height: 1;">10/10</span>
                             </div>
                         </div>
                         <p id="enemy-name-2" class="text-xs font-bold truncate">-</p>
@@ -136,9 +150,10 @@
                     <!-- Enemy 3 Info -->
                     <div id="enemy-info-3" class="text-center w-24">
                         <div class="relative w-full bg-black rounded-full h-4 border-2 border-gray-600 mb-1">
-                            <div class="health-bar bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full" style="width: 100%"></div>
+                            <div class="health-bar bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <span class="text-white font-bold" style="font-size: 0.6rem; line-height: 1;">10/10</span>
+                                <!-- ADDED: ID for health text -->
+                                <span id="health-text-3" class="text-white font-bold" style="font-size: 0.6rem; line-height: 1;">10/10</span>
                             </div>
                         </div>
                         <p id="enemy-name-3" class="text-xs font-bold truncate">-</p>
@@ -239,7 +254,7 @@
                 });
             });
 
-            // Slot Machine Logic
+            // Game Logic
             const spinButton = document.getElementById('spin-button');
             const reels = [
                 document.getElementById('reel1'),
@@ -247,9 +262,12 @@
                 document.getElementById('reel3')
             ];
             const enemyInfoArea = document.getElementById('enemy-info-area');
+            // UPDATED: Changed player attack to 5
+            const playerAttack = 5;
             
             const enemies = [
-                { name: 'Skeleton', emoji: '💀', special: null },
+                // UPDATED: Changed Skeleton to Ghost
+                { name: 'Ghost', emoji: '👻', special: null },
                 { name: 'Wolf', emoji: '🐺', special: null },
                 { name: 'Frog', emoji: '🐸', special: '☠️' },
                 { name: 'Unicorn', emoji: '🦄', special: '❇️' },
@@ -271,20 +289,36 @@
             
             let currentEnemies = [];
 
+            // UPDATED: Function to manage enemy state and display info
             const displayEnemyInfo = (finalEnemies) => {
                 finalEnemies.forEach((enemy, i) => {
+                    // Add properties to the enemy object for tracking state
+                    enemy.maxHealth = 10;
+                    enemy.currentHealth = 10;
+                    enemy.isDefeated = false;
+
+                    const enemyInfo = document.getElementById(`enemy-info-${i + 1}`);
+                    enemyInfo.style.visibility = 'visible'; // Make info visible for new enemies
+
                     document.getElementById(`enemy-name-${i + 1}`).textContent = enemy.name;
                     document.getElementById(`enemy-special-${i + 1}`).textContent = enemy.special || ' ';
-                    // Reset health bar for new enemies
-                    const healthBar = document.querySelector(`#enemy-info-${i + 1} .health-bar`);
+                    
+                    // Reset health bar and text for new enemies
+                    const healthBar = enemyInfo.querySelector('.health-bar');
                     healthBar.style.width = '100%';
+                    const healthText = document.getElementById(`health-text-${i + 1}`);
+                    healthText.textContent = `${enemy.currentHealth}/${enemy.maxHealth}`;
                 });
                 enemyInfoArea.classList.remove('hidden');
             };
 
             const spinReels = () => {
                 spinButton.disabled = true;
-                reels.forEach(reel => reel.disabled = true);
+                reels.forEach(reel => {
+                    reel.disabled = true;
+                    // Reset visual state from any previous defeated enemies
+                    reel.classList.remove('opacity-50', 'cursor-not-allowed');
+                });
                 enemyInfoArea.classList.add('hidden');
 
                 let spinIntervals = [];
@@ -314,10 +348,51 @@
 
             spinButton.addEventListener('click', spinReels);
             
-            reels.forEach(reel => {
+            // UPDATED: Implemented tap-to-attack system with polish
+            reels.forEach((reel, index) => {
                 reel.addEventListener('click', () => {
-                    if (reel.disabled) return;
-                    console.log(`You tapped on the ${reel.textContent} reel!`);
+                    const enemy = currentEnemies[index];
+                    // Can only attack if the spin is over and the enemy isn't already defeated
+                    if (reel.disabled || !enemy || enemy.isDefeated) {
+                        return;
+                    }
+                    
+                    // Add shake animation
+                    reel.classList.add('shake');
+                    reel.addEventListener('animationend', () => {
+                        reel.classList.remove('shake');
+                    }, { once: true });
+
+                    // Deal damage
+                    enemy.currentHealth -= playerAttack;
+
+                    const enemyInfo = document.getElementById(`enemy-info-${index + 1}`);
+                    const healthBar = enemyInfo.querySelector('.health-bar');
+                    const healthText = document.getElementById(`health-text-${index + 1}`);
+
+                    if (enemy.currentHealth <= 0) {
+                        enemy.currentHealth = 0;
+                        enemy.isDefeated = true;
+
+                        // Update health bar one last time before hiding
+                        healthBar.style.width = '0%';
+                        healthText.textContent = `0/${enemy.maxHealth}`;
+
+                        // Delay hiding info and showing skull to let health bar animation finish
+                        setTimeout(() => {
+                            // Update UI for defeated enemy
+                            reel.textContent = '💀';
+                            // Visually indicate it's defeated and prevent further attacks
+                            reel.classList.add('opacity-50', 'cursor-not-allowed'); 
+                            // Hide enemy info
+                            enemyInfo.style.visibility = 'hidden';
+                        }, 300); // Match this delay to the transition duration of the health bar
+                    } else {
+                         // Update health bar and text
+                        const healthPercent = (enemy.currentHealth / enemy.maxHealth) * 100;
+                        healthBar.style.width = `${healthPercent}%`;
+                        healthText.textContent = `${enemy.currentHealth}/${enemy.maxHealth}`;
+                    }
                 });
             });
 
@@ -325,6 +400,4 @@
     </script>
 </body>
 </html>
-
-
 
