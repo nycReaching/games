@@ -17,23 +17,6 @@
         .reel:not(:disabled) {
             cursor: pointer;
         }
-        /* Hide scrollbar for the item carousel */
-        #item-carousel {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
-        }
-        #item-carousel::-webkit-scrollbar {
-            display: none; /* Chrome, Safari and Opera */
-        }
-        .carousel-item {
-            scroll-snap-align: center;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            opacity: 0.6;
-        }
-        .carousel-item.is-center {
-            transform: scale(1.5);
-            opacity: 1;
-        }
     </style>
 </head>
 <body class="bg-gray-900 flex items-center justify-center min-h-screen">
@@ -44,22 +27,22 @@
         <!-- Top Status Bar -->
         <div class="bg-gray-800 p-4 border-b-4 border-gray-700 flex flex-col justify-center gap-3 text-white">
             <!-- Counters -->
-            <div class="grid grid-cols-4 gap-x-2 text-center">
-                <div class="text-sm">
-                    <span class="font-bold text-gray-400 block">Wave</span>
-                    <span class="font-bold text-lg">99</span>
+            <div class="grid grid-cols-4 gap-x-2 text-center items-center">
+                <div class="flex items-center justify-center">
+                    <span class="text-3xl">🛡️</span>
+                    <span class="font-bold text-lg ml-1">10</span>
                 </div>
-                <div class="text-sm">
-                    <span class="font-bold text-gray-400 block">Spins</span>
-                    <span class="font-bold text-lg">12</span>
+                <div class="flex items-center justify-center">
+                    <span class="text-3xl">🟢</span>
+                    <span class="font-bold text-lg ml-1">12</span>
                 </div>
-                <div class="text-sm">
-                    <span class="font-bold text-gray-400 block">💰</span>
-                    <span class="font-bold text-lg">9999</span>
+                <div class="flex items-center justify-center">
+                    <span class="text-3xl">💰</span>
+                    <span class="font-bold text-lg ml-1">99</span>
                 </div>
-                <div class="text-sm">
-                    <span class="font-bold text-gray-400 block">🌙</span>
-                    <span class="font-bold text-lg">500</span>
+                <div class="flex items-center justify-center">
+                    <span class="text-3xl">🌙</span>
+                    <span class="font-bold text-lg ml-1">4</span>
                 </div>
             </div>
             <!-- Meters -->
@@ -67,22 +50,28 @@
                 <!-- HP Bar -->
                 <div class="flex items-center">
                     <span class="text-2xl w-10 text-center">❤️</span>
-                    <div class="w-full bg-black rounded-full h-5 border-2 border-gray-900">
-                        <div class="bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full" style="width: 85%"></div>
+                    <div class="relative w-full bg-black rounded-full h-5 border-2 border-gray-900">
+                        <div class="bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full" style="width: 100%"></div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-xs font-bold text-white">10/10</span>
+                        </div>
                     </div>
                 </div>
                 <!-- Skull Bar -->
                 <div class="flex items-center">
                     <span class="text-2xl w-10 text-center">💀</span>
-                    <div class="w-full bg-black rounded-full h-5 border-2 border-gray-900">
+                    <div class="relative w-full bg-black rounded-full h-5 border-2 border-gray-900">
                         <div class="bg-gradient-to-r from-gray-700 to-gray-400 h-full rounded-full" style="width: 60%"></div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-xs font-bold text-white">6/10</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Game Screen Area (Central Area) -->
-        <div class="flex-grow bg-gray-900 flex flex-col p-4">
+        <div class="flex-grow bg-gray-900 flex flex-col p-4 relative">
             <!-- Top half for slot machine -->
             <div class="h-1/2 flex items-center justify-center">
                 <!-- Slot Machine -->
@@ -124,6 +113,7 @@
                     </div>
                 </div>
             </div>
+            <div class="absolute bottom-2 left-4 text-teal-400 text-sm font-bold">Wave 1</div>
         </div>
 
         <!-- Controls Area -->
@@ -135,48 +125,38 @@
                     <button id="spin-button" class="bg-gradient-to-b from-green-400 to-green-600 text-white font-bold rounded-full aspect-square border-2 border-black shadow-[10px_10px_0px_#000] hover:from-green-500 hover:to-green-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 flex items-center justify-center">Spin</button>
                     <!-- Changed "Map" button to a moon emoji -->
                     <button data-modal-target="map-modal" class="h-16 bg-gradient-to-b from-indigo-700 to-indigo-900 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-indigo-800 hover:to-indigo-900 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">🌙</button>
-                    <button data-modal-target="equip-modal" class="h-16 bg-gradient-to-b from-purple-400 to-purple-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-purple-500 hover:to-purple-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75">Equip</button>
-                    <button data-modal-target="quests-modal" class="h-16 bg-gradient-to-b from-red-400 to-red-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-red-500 hover:to-red-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75">Quests</button>
-                    <button data-modal-target="system-modal" class="h-16 bg-gradient-to-b from-indigo-400 to-indigo-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-indigo-500 hover:to-indigo-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75">System</button>
+                    <button data-modal-target="equip-modal" class="h-16 bg-gradient-to-b from-purple-700 to-purple-900 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-purple-800 hover:to-purple-900 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">🔮</button>
+                    <button data-modal-target="quests-modal" class="h-16 bg-gradient-to-b from-pink-400 to-pink-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-pink-500 hover:to-pink-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">✨</button>
+                    <button data-modal-target="system-modal" class="h-16 bg-gradient-to-b from-blue-400 to-blue-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-blue-500 hover:to-blue-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">⚔️</button>
                 </div>
             </div>
             
             <!-- Modals -->
-            <!-- Updated Items Modal with Carousel -->
             <div id="items-modal" class="modal-content hidden absolute inset-0 h-full w-full p-8 bg-gradient-to-b from-amber-600 to-amber-800 text-white flex flex-col items-center justify-center text-center">
                 <button class="close-modal absolute top-4 right-4 text-white font-bold text-3xl leading-none hover:text-gray-300">&times;</button>
-                <h2 class="text-3xl font-bold mb-4">Items</h2>
-                <div class="relative w-full flex items-center justify-center py-4">
-                     <button id="prev-item" class="absolute left-4 text-4xl z-10 text-shadow-lg opacity-80 hover:opacity-100 transition-opacity">&lt;</button>
-                    <div id="item-carousel" class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth w-full space-x-8 px-[calc(50%-2rem)]">
-                        <!-- Items will be populated by JS -->
-                    </div>
-                    <button id="next-item" class="absolute right-4 text-4xl z-10 text-shadow-lg opacity-80 hover:opacity-100 transition-opacity">&gt;</button>
-                </div>
-                <div class="h-24 flex items-start justify-center">
-                    <p id="item-description" class="mt-4 text-lg px-4 min-h-[3.5rem]"></p>
-                </div>
+                <h2 class="text-3xl font-bold mb-4">Shop</h2>
+                <p>The shop will be displayed here.</p>
             </div>
 
             <div id="map-modal" class="modal-content hidden absolute inset-0 h-full w-full p-8 bg-gradient-to-b from-indigo-700 to-indigo-900 text-white flex flex-col items-center justify-center text-center">
                 <button class="close-modal absolute top-4 right-4 text-white font-bold text-3xl leading-none hover:text-gray-300">&times;</button>
-                <h2 class="text-3xl font-bold mb-4">Map</h2>
-                <p>The world map will be displayed here.</p>
+                <h2 class="text-3xl font-bold mb-4">Moon Arts</h2>
+                <p>Your Moon Arts will be displayed here.</p>
             </div>
-            <div id="equip-modal" class="modal-content hidden absolute inset-0 h-full w-full p-8 bg-gradient-to-b from-purple-400 to-purple-600 text-white flex flex-col items-center justify-center text-center">
+            <div id="equip-modal" class="modal-content hidden absolute inset-0 h-full w-full p-8 bg-gradient-to-b from-purple-700 to-purple-900 text-white flex flex-col items-center justify-center text-center">
+                <button class="close-modal absolute top-4 right-4 text-white font-bold text-3xl leading-none hover:text-gray-300">&times;</button>
+                <h2 class="text-3xl font-bold mb-4">Fortunes</h2>
+                <p>Your fortunes will be displayed here.</p>
+            </div>
+            <div id="quests-modal" class="modal-content hidden absolute inset-0 h-full w-full p-8 bg-gradient-to-b from-pink-400 to-pink-600 text-white flex flex-col items-center justify-center text-center">
+                <button class="close-modal absolute top-4 right-4 text-white font-bold text-3xl leading-none hover:text-gray-300">&times;</button>
+                <h2 class="text-3xl font-bold mb-4">Magic</h2>
+                <p>Your magic will be displayed here.</p>
+            </div>
+            <div id="system-modal" class="modal-content hidden absolute inset-0 h-full w-full p-8 bg-gradient-to-b from-blue-400 to-blue-600 text-white flex flex-col items-center justify-center text-center">
                 <button class="close-modal absolute top-4 right-4 text-white font-bold text-3xl leading-none hover:text-gray-300">&times;</button>
                 <h2 class="text-3xl font-bold mb-4">Equipment</h2>
                 <p>Your character's equipment will be displayed here.</p>
-            </div>
-            <div id="quests-modal" class="modal-content hidden absolute inset-0 h-full w-full p-8 bg-gradient-to-b from-red-400 to-red-600 text-white flex flex-col items-center justify-center text-center">
-                <button class="close-modal absolute top-4 right-4 text-white font-bold text-3xl leading-none hover:text-gray-300">&times;</button>
-                <h2 class="text-3xl font-bold mb-4">Quests</h2>
-                <p>Your active quests will be displayed here.</p>
-            </div>
-            <div id="system-modal" class="modal-content hidden absolute inset-0 h-full w-full p-8 bg-gradient-to-b from-indigo-400 to-indigo-600 text-white flex flex-col items-center justify-center text-center">
-                <button class="close-modal absolute top-4 right-4 text-white font-bold text-3xl leading-none hover:text-gray-300">&times;</button>
-                <h2 class="text-3xl font-bold mb-4">System</h2>
-                <p>Game options and settings will be displayed here.</p>
             </div>
         </div>
     </div>
@@ -299,86 +279,11 @@
                 });
             });
 
-            // --- Item Carousel Logic ---
-            const items = [
-                { emoji: '🍶', name: 'Tonic', description: 'Restores 6 HP.' },
-                { emoji: '✝️', name: 'Cross', description: 'Cures curse, +1 max HP.' },
-                { emoji: '💎', name: 'Gem', description: 'Gain a buff, give a debuff.' },
-                { emoji: '🧚🏼', name: 'Fairy', description: 'Restores magic meter.' },
-                { emoji: '🌙', name: 'Moon', description: 'Unlocks the use of Moon Arts.' },
-                { emoji: '♾️', name: 'Infinity Ring', description: 'Take damage to reroll.' }
-            ];
-            let currentItemIndex = 0;
-
-            const itemCarousel = document.getElementById('item-carousel');
-            const itemDescription = document.getElementById('item-description');
-            const prevItemButton = document.getElementById('prev-item');
-            const nextItemButton = document.getElementById('next-item');
-
-            function populateCarousel() {
-                itemCarousel.innerHTML = ''; // Clear existing items
-                items.forEach(item => {
-                    const itemEl = document.createElement('div');
-                    itemEl.classList.add('carousel-item', 'text-4xl', 'flex-shrink-0', 'w-16', 'h-16', 'flex', 'items-center', 'justify-center');
-                    itemEl.textContent = item.emoji;
-                    itemCarousel.appendChild(itemEl);
-                });
-            }
-
-            function updateCarouselUI() {
-                const carouselItems = document.querySelectorAll('.carousel-item');
-                carouselItems.forEach((item, index) => {
-                    if (index === currentItemIndex) {
-                        item.classList.add('is-center');
-                        itemDescription.innerHTML = `<span class="font-bold">${items[index].name}:</span> ${items[index].description}`;
-                    } else {
-                        item.classList.remove('is-center');
-                    }
-                });
-            }
-            
-            function scrollToCurrentItem() {
-                const itemWidth = 64; // w-16
-                const spacing = 32; // space-x-8
-                itemCarousel.scrollLeft = currentItemIndex * (itemWidth + spacing);
-            }
-
-            prevItemButton.addEventListener('click', () => {
-                currentItemIndex = (currentItemIndex - 1 + items.length) % items.length;
-                scrollToCurrentItem();
-            });
-
-            nextItemButton.addEventListener('click', () => {
-                currentItemIndex = (currentItemIndex + 1) % items.length;
-                scrollToCurrentItem();
-            });
-
-            // Update UI based on scroll position (for swipe gestures)
-            let scrollTimeout;
-            itemCarousel.addEventListener('scroll', () => {
-                clearTimeout(scrollTimeout);
-                scrollTimeout = setTimeout(() => {
-                    const itemWidth = 64; // w-16
-                    const spacing = 32; // space-x-8
-                    const scrollLeft = itemCarousel.scrollLeft;
-                    const newIndex = Math.round(scrollLeft / (itemWidth + spacing));
-                    
-                    if(newIndex >= 0 && newIndex < items.length && newIndex !== currentItemIndex){
-                         currentItemIndex = newIndex;
-                    }
-                    // Snap to the final position
-                    scrollToCurrentItem();
-                    updateCarouselUI();
-
-                }, 100); 
-            });
-
-            // Initialize carousel
-            populateCarousel();
-            updateCarouselUI();
         });
     </script>
 </body>
 </html>
+
+
 
 
