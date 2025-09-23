@@ -75,38 +75,71 @@
             <!-- Top half for slot machine -->
             <div class="h-1/2 flex items-center justify-center">
                 <!-- Slot Machine -->
-                <div id="slot-machine" class="flex space-x-4">
-                    <!-- Changed reels to buttons -->
-                    <button id="reel1" class="reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95 disabled:opacity-50" disabled>?</button>
-                    <button id="reel2" class="reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95 disabled:opacity-50" disabled>?</button>
-                    <button id="reel3" class="reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95 disabled:opacity-50" disabled>?</button>
+                <div id="slot-machine" class="flex space-x-4 items-end">
+                    <!-- Reel 1 Column -->
+                    <div class="flex flex-col items-center gap-1">
+                        <div class="h-4 flex items-center justify-center gap-0.5">
+                            <span class="text-xs">☠️</span>
+                            <span class="text-xs">🕯️</span>
+                            <span class="text-xs">🐌</span>
+                            <span class="text-xs">❇️</span>
+                        </div>
+                        <button id="reel1" class="reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95 disabled:opacity-50" disabled>?</button>
+                    </div>
+                    <!-- Reel 2 Column -->
+                    <div class="flex flex-col items-center gap-1">
+                         <div class="h-4 flex items-center justify-center gap-0.5">
+                            <span class="text-xs">☠️</span>
+                            <span class="text-xs">🕯️</span>
+                            <span class="text-xs">🐌</span>
+                            <span class="text-xs">❇️</span>
+                        </div>
+                        <button id="reel2" class="reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95 disabled:opacity-50" disabled>?</button>
+                    </div>
+                    <!-- Reel 3 Column -->
+                    <div class="flex flex-col items-center gap-1">
+                         <div class="h-4 flex items-center justify-center gap-0.5">
+                            <span class="text-xs">☠️</span>
+                            <span class="text-xs">🕯️</span>
+                            <span class="text-xs">🐌</span>
+                            <span class="text-xs">❇️</span>
+                        </div>
+                        <button id="reel3" class="reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95 disabled:opacity-50" disabled>?</button>
+                    </div>
                 </div>
             </div>
-            <!-- Thin light gray horizontal line -->
-            <div class="w-full h-px bg-gray-700"></div>
             <!-- Bottom half for enemy info -->
             <div class="h-1/2 pt-4">
                 <div id="enemy-info-area" class="flex w-full justify-around text-white hidden">
                     <!-- Enemy 1 Info -->
                     <div id="enemy-info-1" class="text-center w-24">
-                        <div class="w-full bg-black rounded-full h-4 border-2 border-gray-600 mb-1">
+                        <div class="relative w-full bg-black rounded-full h-4 border-2 border-gray-600 mb-1">
                             <div class="health-bar bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full" style="width: 100%"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="text-white font-bold" style="font-size: 0.6rem; line-height: 1;">10/10</span>
+                            </div>
                         </div>
                         <p id="enemy-name-1" class="text-xs font-bold truncate">-</p>
                         <p id="enemy-special-1" class="text-lg h-6">-</p>
                     </div>
                     <!-- Enemy 2 Info -->
                     <div id="enemy-info-2" class="text-center w-24">
-                        <div class="w-full bg-black rounded-full h-4 border-2 border-gray-600 mb-1">
+                        <div class="relative w-full bg-black rounded-full h-4 border-2 border-gray-600 mb-1">
                             <div class="health-bar bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full" style="width: 100%"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="text-white font-bold" style="font-size: 0.6rem; line-height: 1;">10/10</span>
+                            </div>
                         </div>
                         <p id="enemy-name-2" class="text-xs font-bold truncate">-</p>
                         <p id="enemy-special-2" class="text-lg h-6">-</p>
                     </div>
                     <!-- Enemy 3 Info -->
                     <div id="enemy-info-3" class="text-center w-24">
-                        <div class="w-full bg-black rounded-full h-4 border-2 border-gray-600 mb-1">
+                        <div class="relative w-full bg-black rounded-full h-4 border-2 border-gray-600 mb-1">
                             <div class="health-bar bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full" style="width: 100%"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="text-white font-bold" style="font-size: 0.6rem; line-height: 1;">10/10</span>
+                            </div>
                         </div>
                         <p id="enemy-name-3" class="text-xs font-bold truncate">-</p>
                         <p id="enemy-special-3" class="text-lg h-6">-</p>
@@ -114,6 +147,15 @@
                 </div>
             </div>
             <div class="absolute bottom-2 left-4 text-teal-400 text-sm font-bold">Wave 1</div>
+            <!-- Player Status Effects -->
+            <div id="player-status-effects" class="absolute bottom-2 right-4 flex flex-nowrap justify-end gap-0.5 text-lg">
+                <span>☠️</span>
+                <span>🕯️</span>
+                <span>🐌</span>
+                <span>❇️</span>
+                <span>🌟</span>
+                <span>⚡</span>
+            </div>
         </div>
 
         <!-- Controls Area -->
@@ -283,7 +325,5 @@
     </script>
 </body>
 </html>
-
-
 
 
