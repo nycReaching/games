@@ -13,6 +13,10 @@
         body {
             font-family: 'Poppins', sans-serif;
         }
+        /* Style for tappable reels */
+        .reel:not(:disabled) {
+            cursor: pointer;
+        }
     </style>
 </head>
 <body class="bg-gray-900 flex items-center justify-center min-h-screen">
@@ -25,19 +29,19 @@
             <!-- Counters -->
             <div class="grid grid-cols-4 gap-x-2 text-center">
                 <div class="text-sm">
-                    <span class="font-bold text-gray-400 block">LEVEL</span>
+                    <span class="font-bold text-gray-400 block">Wave</span>
                     <span class="font-bold text-lg">99</span>
                 </div>
                 <div class="text-sm">
-                    <span class="font-bold text-gray-400 block">EXP</span>
-                    <span class="font-bold text-lg">12345</span>
+                    <span class="font-bold text-gray-400 block">Spins</span>
+                    <span class="font-bold text-lg">12</span>
                 </div>
                 <div class="text-sm">
-                    <span class="font-bold text-gray-400 block">GOLD</span>
+                    <span class="font-bold text-gray-400 block">💰</span>
                     <span class="font-bold text-lg">9999</span>
                 </div>
                 <div class="text-sm">
-                    <span class="font-bold text-gray-400 block">GEMS</span>
+                    <span class="font-bold text-gray-400 block">🌙</span>
                     <span class="font-bold text-lg">500</span>
                 </div>
             </div>
@@ -66,9 +70,10 @@
             <div class="flex-1 flex items-center justify-center">
                 <!-- Slot Machine -->
                 <div id="slot-machine" class="flex space-x-4">
-                    <div id="reel1" class="reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center">?</div>
-                    <div id="reel2" class="reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center">?</div>
-                    <div id="reel3" class="reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center">?</div>
+                    <!-- Changed reels to buttons -->
+                    <button id="reel1" class="reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95 disabled:opacity-50" disabled>?</button>
+                    <button id="reel2" class="reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95 disabled:opacity-50" disabled>?</button>
+                    <button id="reel3" class="reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95 disabled:opacity-50" disabled>?</button>
                 </div>
             </div>
             <!-- Thin light gray horizontal line -->
@@ -83,7 +88,6 @@
             <div id="button-grid" class="p-8 h-full">
                 <div class="grid grid-cols-3 grid-rows-2 gap-6 h-full items-center">
                     <button data-modal-target="items-modal" class="h-16 bg-gradient-to-b from-blue-400 to-blue-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-blue-500 hover:to-blue-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75">Items</button>
-                    <!-- Changed button text to Spin -->
                     <button id="spin-button" class="bg-gradient-to-b from-green-400 to-green-600 text-white font-bold rounded-full aspect-square border-2 border-black shadow-[10px_10px_0px_#000] hover:from-green-500 hover:to-green-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 flex items-center justify-center">Spin</button>
                     <button data-modal-target="map-modal" class="h-16 bg-gradient-to-b from-yellow-400 to-yellow-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-yellow-500 hover:to-yellow-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75">Map</button>
                     <button data-modal-target="equip-modal" class="h-16 bg-gradient-to-b from-purple-400 to-purple-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-purple-500 hover:to-purple-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75">Equip</button>
@@ -168,6 +172,8 @@
             
             const spinReels = () => {
                 spinButton.disabled = true;
+                // Disable reels at the start of the spin
+                reels.forEach(reel => reel.disabled = true);
 
                 let spinIntervals = [];
 
@@ -181,7 +187,9 @@
                         clearInterval(spinIntervals[i]);
                         const finalIndex = Math.floor(Math.random() * emojis.length);
                         reel.textContent = emojis[finalIndex];
-                        // Re-enable button after the last reel stops
+                        // Enable the reel after it stops
+                        reel.disabled = false; 
+                        // Re-enable spin button after the last reel stops
                         if (i === reels.length - 1) {
                             spinButton.disabled = false;
                         }
@@ -190,9 +198,17 @@
             };
 
             spinButton.addEventListener('click', spinReels);
+            
+            // Add click listeners for each reel
+            reels.forEach(reel => {
+                reel.addEventListener('click', () => {
+                    if (reel.disabled) return;
+                    console.log(`You tapped on the ${reel.textContent} reel!`);
+                    // Add your game logic here for what happens when a reel is tapped
+                });
+            });
         });
     </script>
 </body>
 </html>
-
 
