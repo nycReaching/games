@@ -84,7 +84,7 @@
         <!-- Game Screen Area (Central Area) -->
         <div class="flex-grow bg-gray-900 flex flex-col p-4">
             <!-- Top half for slot machine -->
-            <div class="flex-1 flex items-center justify-center">
+            <div class="h-1/2 flex items-center justify-center">
                 <!-- Slot Machine -->
                 <div id="slot-machine" class="flex space-x-4">
                     <!-- Changed reels to buttons -->
@@ -95,8 +95,35 @@
             </div>
             <!-- Thin light gray horizontal line -->
             <div class="w-full h-px bg-gray-700"></div>
-            <!-- Bottom half (empty) -->
-            <div class="flex-1"></div>
+            <!-- Bottom half for enemy info -->
+            <div class="h-1/2 pt-4">
+                <div id="enemy-info-area" class="flex w-full justify-around text-white hidden">
+                    <!-- Enemy 1 Info -->
+                    <div id="enemy-info-1" class="text-center w-24">
+                        <div class="w-full bg-black rounded-full h-4 border-2 border-gray-600 mb-1">
+                            <div class="health-bar bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full" style="width: 100%"></div>
+                        </div>
+                        <p id="enemy-name-1" class="text-xs font-bold truncate">-</p>
+                        <p id="enemy-special-1" class="text-lg h-6">-</p>
+                    </div>
+                    <!-- Enemy 2 Info -->
+                    <div id="enemy-info-2" class="text-center w-24">
+                        <div class="w-full bg-black rounded-full h-4 border-2 border-gray-600 mb-1">
+                            <div class="health-bar bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full" style="width: 100%"></div>
+                        </div>
+                        <p id="enemy-name-2" class="text-xs font-bold truncate">-</p>
+                        <p id="enemy-special-2" class="text-lg h-6">-</p>
+                    </div>
+                    <!-- Enemy 3 Info -->
+                    <div id="enemy-info-3" class="text-center w-24">
+                        <div class="w-full bg-black rounded-full h-4 border-2 border-gray-600 mb-1">
+                            <div class="health-bar bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full" style="width: 100%"></div>
+                        </div>
+                        <p id="enemy-name-3" class="text-xs font-bold truncate">-</p>
+                        <p id="enemy-special-3" class="text-lg h-6">-</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Controls Area -->
@@ -197,27 +224,67 @@
                 document.getElementById('reel2'),
                 document.getElementById('reel3')
             ];
-            const emojis = ['🧌', '🧛', '🐸', '🦟', '🐺', '🥷'];
+            const enemyInfoArea = document.getElementById('enemy-info-area');
             
+            const enemies = [
+                { name: 'Skeleton', emoji: '💀', special: null },
+                { name: 'Wolf', emoji: '🐺', special: null },
+                { name: 'Frog', emoji: '🐸', special: '☠️' },
+                { name: 'Unicorn', emoji: '🦄', special: '❇️' },
+                { name: 'Dragon', emoji: '🐲', special: null },
+                { name: 'Serpent', emoji: '🐍', special: '☠️' },
+                { name: 'Rat', emoji: '🐀', special: null },
+                { name: 'Crow', emoji: '🐦‍⬛', special: '🕯️' },
+                { name: 'Spider', emoji: '🕷️', special: '☠️' },
+                { name: 'Scorpion', emoji: '🦂', special: null },
+                { name: 'Mosquito', emoji: '🦟', special: '🐌' },
+                { name: 'Zombie', emoji: '🧟', special: '🐌' },
+                { name: 'Genie', emoji: '🧞', special: '❇️' },
+                { name: 'Troll', emoji: '🧌', special: null },
+                { name: 'Ninja', emoji: '🥷', special: '🫳' },
+                { name: 'Vampire', emoji: '🧛', special: '🕯️' },
+                { name: 'Supervillain', emoji: '🦹', special: null },
+                { name: 'Gift', emoji: '🎁', special: '🎉' }
+            ];
+            
+            let currentEnemies = [];
+
+            const displayEnemyInfo = (finalEnemies) => {
+                finalEnemies.forEach((enemy, i) => {
+                    document.getElementById(`enemy-name-${i + 1}`).textContent = enemy.name;
+                    document.getElementById(`enemy-special-${i + 1}`).textContent = enemy.special || ' ';
+                    // Reset health bar for new enemies
+                    const healthBar = document.querySelector(`#enemy-info-${i + 1} .health-bar`);
+                    healthBar.style.width = '100%';
+                });
+                enemyInfoArea.classList.remove('hidden');
+            };
+
             const spinReels = () => {
                 spinButton.disabled = true;
                 reels.forEach(reel => reel.disabled = true);
+                enemyInfoArea.classList.add('hidden');
 
                 let spinIntervals = [];
+                currentEnemies = [];
 
                 reels.forEach((reel, i) => {
                     spinIntervals[i] = setInterval(() => {
-                        const randomIndex = Math.floor(Math.random() * emojis.length);
-                        reel.textContent = emojis[randomIndex];
+                        const randomIndex = Math.floor(Math.random() * enemies.length);
+                        reel.textContent = enemies[randomIndex].emoji;
                     }, 100);
 
                     setTimeout(() => {
                         clearInterval(spinIntervals[i]);
-                        const finalIndex = Math.floor(Math.random() * emojis.length);
-                        reel.textContent = emojis[finalIndex];
+                        const finalIndex = Math.floor(Math.random() * enemies.length);
+                        const finalEnemy = enemies[finalIndex];
+                        currentEnemies[i] = finalEnemy;
+                        reel.textContent = finalEnemy.emoji;
                         reel.disabled = false; 
+                        
                         if (i === reels.length - 1) {
                             spinButton.disabled = false;
+                            displayEnemyInfo(currentEnemies);
                         }
                     }, 1000 + (i * 500)); 
                 });
@@ -313,5 +380,4 @@
     </script>
 </body>
 </html>
-
 
