@@ -261,7 +261,10 @@
                     </div>
                     <!-- Item Info Area -->
                     <div class="h-1/2 w-full flex flex-col items-center justify-center text-center text-white p-4 relative">
-                        <h3 id="map-item-title" class="text-xl font-bold mb-2 text-shadow-lg"></h3>
+                        <div class="flex items-center justify-center gap-2 mb-2">
+                            <h3 id="map-item-title" class="text-xl font-bold text-shadow-lg"></h3>
+                            <span id="map-item-owned" class="bg-blue-900 text-white text-xs font-bold px-2 py-1 rounded-md">x0</span>
+                        </div>
                         <p id="map-item-description" class="text-sm"></p>
                         <button id="buy-map-item-btn" class="absolute bottom-4 right-4 bg-gray-800 text-white font-bold w-12 h-12 flex items-center justify-center rounded-md border border-black shadow-[4px_4px_0px_#000] hover:bg-gray-900 active:shadow-none active:translate-x-1 active:translate-y-1 transition-all text-lg">
                             1🌙
@@ -418,17 +421,18 @@
 
             // MAP CAROUSEL LOGIC
             const moonArts = [
-                { title: 'Poison', description: '1 Damage per turn.' },
-                { title: 'Curse', description: 'Share damage.' },
-                { title: 'Sluggish', description: '50% Chance no action.' },
-                { title: 'Regen', description: 'Heal 1 per turn.' },
-                { title: 'Blessing', description: 'Add HP to armor.' },
-                { title: 'Rush', description: '2 Actions per turn.' }
+                { title: 'Poison', description: '1 Damage per turn.', owned: 0 },
+                { title: 'Curse', description: 'Share damage.', owned: 0 },
+                { title: 'Sluggish', description: '50% Chance no action.', owned: 0 },
+                { title: 'Regen', description: 'Heal 1 per turn.', owned: 0 },
+                { title: 'Blessing', description: 'Add HP to armor.', owned: 0 },
+                { title: 'Rush', description: '2 Actions per turn.', owned: 0 }
             ];
             const mapCarousel = document.getElementById('map-carousel');
             const mapCarouselItems = mapCarousel.querySelectorAll('.map-item');
             const mapItemTitle = document.getElementById('map-item-title');
             const mapItemDescription = document.getElementById('map-item-description');
+            const mapItemOwned = document.getElementById('map-item-owned');
 
             let isMapDown = false;
             let mapStartX;
@@ -490,6 +494,7 @@
                         const selectedItemData = moonArts[itemIndex];
                         mapItemTitle.textContent = selectedItemData.title;
                         mapItemDescription.textContent = selectedItemData.description;
+                        mapItemOwned.textContent = `x${selectedItemData.owned}`;
                     }
                 }, 50);
             };
