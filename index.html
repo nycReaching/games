@@ -221,20 +221,27 @@
                 <div class="h-full w-full bg-gradient-to-b from-amber-600 to-amber-800 flex flex-col">
                     <!-- Carousel Area -->
                     <div id="shop-carousel" class="shop-carousel h-1/2 w-full flex items-center overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing">
-                        <div class="flex space-x-4 px-[calc(50%-4rem)]"> <!-- Padding to center items -->
-                            <div class="shop-item flex-shrink-0 w-32 h-32 rounded-lg flex items-center justify-center text-6xl select-none transition-transform duration-200" data-index="0">🍶</div>
-                            <div class="shop-item flex-shrink-0 w-32 h-32 rounded-lg flex items-center justify-center text-6xl select-none transition-transform duration-200" data-index="1">✝️</div>
-                            <div class="shop-item flex-shrink-0 w-32 h-32 rounded-lg flex items-center justify-center text-6xl select-none transition-transform duration-200" data-index="2">💎</div>
-                            <div class="shop-item flex-shrink-0 w-32 h-32 rounded-lg flex items-center justify-center text-6xl select-none transition-transform duration-200" data-index="3">🧚🏼</div>
-                            <div class="shop-item flex-shrink-0 w-32 h-32 rounded-lg flex items-center justify-center text-6xl select-none transition-transform duration-200" data-index="4">🌒</div>
-                            <div class="shop-item flex-shrink-0 w-32 h-32 rounded-lg flex items-center justify-center text-6xl select-none transition-transform duration-200" data-index="5">♾️</div>
+                        <!-- UPDATED: Padding changed for smaller items -->
+                        <div class="flex space-x-4 px-[calc(50%-3.5rem)]"> <!-- Padding to center items -->
+                            <!-- UPDATED: Scaled down items -->
+                            <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="0">🍶</div>
+                            <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="1">✝️</div>
+                            <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="2">💎</div>
+                            <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="3">🧚🏼</div>
+                            <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="4">🌒</div>
+                            <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="5">♾️</div>
                         </div>
                     </div>
                     <!-- Item Info Area -->
                     <div class="h-1/2 w-full flex flex-col items-center justify-center text-center text-white p-4 relative">
-                        <h3 id="item-title" class="text-2xl font-bold mb-2 text-shadow-lg"></h3>
-                        <p id="item-description" class="text-base"></p>
-                        <button id="buy-item-btn" class="absolute bottom-4 right-5 bg-green-500 text-white font-bold w-14 h-14 flex items-center justify-center rounded-md border border-black shadow-[4px_4px_0px_#000] hover:bg-green-600 active:shadow-none active:translate-x-1 active:translate-y-1 transition-all text-xl">
+                        <!-- UPDATED: Added container for title and owned count -->
+                        <div class="flex items-center justify-center gap-2 mb-2">
+                            <h3 id="item-title" class="text-xl font-bold text-shadow-lg"></h3>
+                            <span id="item-owned" class="bg-blue-900 text-white text-xs font-bold px-2 py-1 rounded-md">x0</span>
+                        </div>
+                        <p id="item-description" class="text-sm"></p>
+                        <!-- UPDATED: Scaled down button and changed position -->
+                        <button id="buy-item-btn" class="absolute bottom-4 right-4 bg-green-500 text-white font-bold w-12 h-12 flex items-center justify-center rounded-md border border-black shadow-[4px_4px_0px_#000] hover:bg-green-600 active:shadow-none active:translate-x-1 active:translate-y-1 transition-all text-lg">
                             5🪙
                         </button>
                     </div>
@@ -311,17 +318,18 @@
 
             // SHOP CAROUSEL LOGIC
             const shopItems = [
-                { title: 'Tonic', description: 'Restores 6 HP.' },
-                { title: 'Cross', description: 'Cures curse, +1 max HP.' },
-                { title: 'Gem', description: 'Gain a buff, give a debuff.' },
-                { title: 'Fairy', description: 'Restores magic meter.' },
-                { title: 'Moonstone', description: 'Unlocks the use of moon arts.' },
-                { title: 'Infinity Ring', description: 'Take damage to reroll.' },
+                { title: 'Tonic', description: 'Restores 6 HP.', owned: 0 },
+                { title: 'Cross', description: 'Cures curse, +1 max HP.', owned: 0 },
+                { title: 'Gem', description: 'Gain a buff, give a debuff.', owned: 0 },
+                { title: 'Fairy', description: 'Restores magic meter.', owned: 0 },
+                { title: 'Moonstone', description: 'Unlocks the use of moon arts.', owned: 0 },
+                { title: 'Infinity Ring', description: 'Take damage to reroll.', owned: 0 },
             ];
             const carousel = document.getElementById('shop-carousel');
             const carouselItems = carousel.querySelectorAll('.shop-item');
             const itemTitle = document.getElementById('item-title');
             const itemDescription = document.getElementById('item-description');
+            const itemOwned = document.getElementById('item-owned');
 
             let isDown = false;
             let startX;
@@ -389,6 +397,7 @@
                         const selectedItemData = shopItems[itemIndex];
                         itemTitle.textContent = selectedItemData.title;
                         itemDescription.textContent = selectedItemData.description;
+                        itemOwned.textContent = `x${selectedItemData.owned}`;
                     }
                 }, 50); // A 50ms debounce is usually sufficient
             };
@@ -542,8 +551,4 @@
     </script>
 </body>
 </html>
-
-
-
-
 
