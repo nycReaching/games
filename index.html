@@ -116,7 +116,7 @@
                             <span class="text-xs">❇️</span>
                         </div>
                         <button id="reel1" class="relative reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95 disabled:opacity-50" disabled>
-                            <span class="reel-content">?</span>
+                            <span class="reel-content">❔</span>
                             <div class="attack-value absolute top-1 left-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-br-md rounded-tl-md hidden" style="text-shadow: 1px 1px 0 #000;">💥1</div>
                         </button>
                     </div>
@@ -129,7 +129,7 @@
                             <span class="text-xs">❇️</span>
                         </div>
                         <button id="reel2" class="relative reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95 disabled:opacity-50" disabled>
-                            <span class="reel-content">?</span>
+                            <span class="reel-content">❔</span>
                             <div class="attack-value absolute top-1 left-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-br-md rounded-tl-md hidden" style="text-shadow: 1px 1px 0 #000;">💥1</div>
                         </button>
                     </div>
@@ -142,7 +142,7 @@
                             <span class="text-xs">❇️</span>
                         </div>
                         <button id="reel3" class="relative reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95 disabled:opacity-50" disabled>
-                            <span class="reel-content">?</span>
+                            <span class="reel-content">❔</span>
                             <div class="attack-value absolute top-1 left-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-br-md rounded-tl-md hidden" style="text-shadow: 1px 1px 0 #000;">💥1</div>
                         </button>
                     </div>
@@ -226,7 +226,7 @@
                             <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="1">✝️</div>
                             <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="2">💎</div>
                             <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="3">🧚🏼</div>
-                            <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="4">🌒</div>
+                            <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="4">🌙</div>
                             <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="5">♾️</div>
                         </div>
                     </div>
@@ -286,9 +286,45 @@
                 <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center hover:bg-gray-700 active:bg-gray-800 transition-colors">&times;</button>
             </div>
 
-            <!-- System Modal -->
+            <!-- System Modal (Now Equipment) -->
             <div id="system-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
-                <div class="h-full w-full bg-gradient-to-b from-blue-400 to-blue-600"></div>
+                <div class="h-full w-full bg-gradient-to-b from-blue-400 to-blue-600 p-4 text-white flex flex-col gap-4 text-center">
+                    <!-- Equipment Slots -->
+                    <div class="grid grid-cols-3 gap-4">
+                        <button data-target="weapon-choices" class="equip-slot-btn bg-gray-900/50 p-4 rounded-lg border-2 border-transparent focus:border-yellow-400 focus:outline-none transition-all">
+                            <div class="text-3xl">⚔️</div>
+                            <div class="font-bold">Weapon</div>
+                        </button>
+                        <button data-target="armor-choices" class="equip-slot-btn bg-gray-900/50 p-4 rounded-lg border-2 border-transparent focus:border-yellow-400 focus:outline-none transition-all">
+                            <div class="text-3xl">🛡️</div>
+                            <div class="font-bold">Armor</div>
+                        </button>
+                        <button data-target="ring-choices" class="equip-slot-btn bg-gray-900/50 p-4 rounded-lg border-2 border-transparent focus:border-yellow-400 focus:outline-none transition-all">
+                            <div class="text-3xl">💍</div>
+                            <div class="font-bold">Ring</div>
+                        </button>
+                    </div>
+
+                    <!-- Equipment Choices -->
+                    <div class="flex-grow bg-black/30 rounded-lg p-4 overflow-y-auto">
+                        <!-- Weapon Choices -->
+                        <div id="weapon-choices" class="equip-choices space-y-3 hidden">
+                            <button class="w-full text-left p-3 bg-gray-700/50 rounded-lg hover:bg-gray-600/50 transition-colors">🏹 Bow (+1 💥)</button>
+                            <button class="w-full text-left p-3 bg-gray-700/50 rounded-lg hover:bg-gray-600/50 transition-colors">🗡️ Dagger (+2 💥)</button>
+                            <button class="w-full text-left p-3 bg-gray-700/50 rounded-lg hover:bg-gray-600/50 transition-colors">🔨 Hammer (+5 💥)</button>
+                        </div>
+                        <!-- Armor Choices -->
+                        <div id="armor-choices" class="equip-choices space-y-3 hidden">
+                            <button class="w-full text-left p-3 bg-gray-700/50 rounded-lg hover:bg-gray-600/50 transition-colors">🧥 Leather Gear (+2 🛡️)</button>
+                            <button class="w-full text-left p-3 bg-gray-700/50 rounded-lg hover:bg-gray-600/50 transition-colors">🪨 Rock Bracer (+4 🛡️)</button>
+                            <button class="w-full text-left p-3 bg-gray-700/50 rounded-lg hover:bg-gray-600/50 transition-colors">🕸️ Cloak (+15% 🍀)</button>
+                        </div>
+                        <!-- Ring Choices -->
+                        <div id="ring-choices" class="equip-choices space-y-3 hidden">
+                             <button class="w-full text-left p-3 bg-gray-700/50 rounded-lg hover:bg-gray-600/50 transition-colors">💍 Eccentric Jewel</button>
+                        </div>
+                    </div>
+                </div>
                 <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center hover:bg-gray-700 active:bg-gray-800 transition-colors">&times;</button>
             </div>
         </div>
@@ -617,7 +653,7 @@
                         skullMeterBar.style.width = `${skullPercent}%`;
                         skullMeterText.textContent = `${skullCount}/10`;
 
-                        reelContent.textContent = '?';
+                        reelContent.textContent = '❔';
                         reel.disabled = true;
                         reel.classList.add('opacity-50', 'cursor-not-allowed');
                         currentEnemies[index] = null; // Slot is now empty
@@ -664,8 +700,32 @@
                 });
             });
 
+            // EQUIPMENT MODAL LOGIC
+            const equipSlotButtons = document.querySelectorAll('.equip-slot-btn');
+            const equipChoices = document.querySelectorAll('.equip-choices');
+
+            equipSlotButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Handle active state for slot buttons
+                    equipSlotButtons.forEach(btn => btn.classList.remove('border-yellow-400', 'bg-gray-900/80'));
+                    button.classList.add('border-yellow-400', 'bg-gray-900/80');
+
+                    const targetId = button.dataset.target;
+                    const targetChoices = document.getElementById(targetId);
+
+                    // Hide all choices
+                    equipChoices.forEach(choiceDiv => {
+                        choiceDiv.classList.add('hidden');
+                    });
+
+                    // Show the target choices
+                    if (targetChoices) {
+                        targetChoices.classList.remove('hidden');
+                    }
+                });
+            });
+
         });
     </script>
 </body>
 </html>
-
