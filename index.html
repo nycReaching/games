@@ -70,8 +70,8 @@
                 </div>
                 <!-- Enemy Bar -->
                 <div class="flex items-center">
-                    <!-- UPDATED: Changed skull icon to ghost -->
-                    <span class="text-2xl w-10 text-center">👻</span>
+                    <!-- UPDATED: Changed ghost icon to skull -->
+                    <span class="text-2xl w-10 text-center">💀</span>
                     <div class="relative w-full bg-black rounded-full h-5 border-2 border-gray-900">
                         <div class="bg-gradient-to-r from-gray-700 to-gray-400 h-full rounded-full" style="width: 60%"></div>
                         <div class="absolute inset-0 flex items-center justify-center">
@@ -96,7 +96,10 @@
                             <span class="text-xs">🐌</span>
                             <span class="text-xs">❇️</span>
                         </div>
-                        <button id="reel1" class="reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95 disabled:opacity-50" disabled>?</button>
+                        <button id="reel1" class="relative reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95 disabled:opacity-50" disabled>
+                            <span class="reel-content">?</span>
+                            <div class="attack-value absolute top-1 left-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-br-md rounded-tl-md hidden" style="text-shadow: 1px 1px 0 #000;">💥1</div>
+                        </button>
                     </div>
                     <!-- Reel 2 Column -->
                     <div class="flex flex-col items-center gap-1">
@@ -106,7 +109,10 @@
                             <span class="text-xs">🐌</span>
                             <span class="text-xs">❇️</span>
                         </div>
-                        <button id="reel2" class="reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95 disabled:opacity-50" disabled>?</button>
+                        <button id="reel2" class="relative reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95 disabled:opacity-50" disabled>
+                            <span class="reel-content">?</span>
+                            <div class="attack-value absolute top-1 left-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-br-md rounded-tl-md hidden" style="text-shadow: 1px 1px 0 #000;">💥1</div>
+                        </button>
                     </div>
                     <!-- Reel 3 Column -->
                     <div class="flex flex-col items-center gap-1">
@@ -116,7 +122,10 @@
                             <span class="text-xs">🐌</span>
                             <span class="text-xs">❇️</span>
                         </div>
-                        <button id="reel3" class="reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95 disabled:opacity-50" disabled>?</button>
+                        <button id="reel3" class="relative reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95 disabled:opacity-50" disabled>
+                            <span class="reel-content">?</span>
+                            <div class="attack-value absolute top-1 left-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-br-md rounded-tl-md hidden" style="text-shadow: 1px 1px 0 #000;">💥1</div>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -265,26 +274,26 @@
             // UPDATED: Changed player attack to 5
             const playerAttack = 5;
             
+            // UPDATED: Added attack power to enemies
             const enemies = [
-                // UPDATED: Changed Skeleton to Ghost
-                { name: 'Ghost', emoji: '👻', special: null },
-                { name: 'Wolf', emoji: '🐺', special: null },
-                { name: 'Frog', emoji: '🐸', special: '☠️' },
-                { name: 'Unicorn', emoji: '🦄', special: '❇️' },
-                { name: 'Dragon', emoji: '🐲', special: null },
-                { name: 'Serpent', emoji: '🐍', special: '☠️' },
-                { name: 'Rat', emoji: '🐀', special: null },
-                { name: 'Crow', emoji: '🐦‍⬛', special: '🕯️' },
-                { name: 'Spider', emoji: '🕷️', special: '☠️' },
-                { name: 'Scorpion', emoji: '🦂', special: null },
-                { name: 'Mosquito', emoji: '🦟', special: '🐌' },
-                { name: 'Zombie', emoji: '🧟', special: '🐌' },
-                { name: 'Genie', emoji: '🧞', special: '❇️' },
-                { name: 'Troll', emoji: '🧌', special: null },
-                { name: 'Ninja', emoji: '🥷', special: '🫳' },
-                { name: 'Vampire', emoji: '🧛', special: '🕯️' },
-                { name: 'Supervillain', emoji: '🦹', special: null },
-                { name: 'Gift', emoji: '🎁', special: '🎉' }
+                { name: 'Ghost', emoji: '👻', special: null, attack: 1 },
+                { name: 'Wolf', emoji: '🐺', special: null, attack: 1 },
+                { name: 'Frog', emoji: '🐸', special: '☠️', attack: 1 },
+                { name: 'Unicorn', emoji: '🦄', special: '❇️', attack: 1 },
+                { name: 'Dragon', emoji: '🐲', special: null, attack: 2 },
+                { name: 'Serpent', emoji: '🐍', special: '☠️', attack: 1 },
+                { name: 'Rat', emoji: '🐀', special: null, attack: 1 },
+                { name: 'Crow', emoji: '🐦‍⬛', special: '🕯️', attack: 1 },
+                { name: 'Spider', emoji: '🕷️', special: '☠️', attack: 1 },
+                { name: 'Scorpion', emoji: '🦂', special: null, attack: 1 },
+                { name: 'Mosquito', emoji: '🦟', special: '🐌', attack: 1 },
+                { name: 'Zombie', emoji: '🧟', special: '🐌', attack: 1 },
+                { name: 'Genie', emoji: '🧞', special: '❇️', attack: 2 },
+                { name: 'Troll', emoji: '🧌', special: null, attack: 1 },
+                { name: 'Ninja', emoji: '🥷', special: '🫳', attack: 1 },
+                { name: 'Vampire', emoji: '🧛', special: '🕯️', attack: 1 },
+                { name: 'Supervillain', emoji: '🦹', special: null, attack: 2 },
+                { name: 'Gift', emoji: '🎁', special: '🎉', attack: 0 }
             ];
             
             let currentEnemies = [];
@@ -308,6 +317,14 @@
                     healthBar.style.width = '100%';
                     const healthText = document.getElementById(`health-text-${i + 1}`);
                     healthText.textContent = `${enemy.currentHealth}/${enemy.maxHealth}`;
+
+                    // UPDATE: Show and set attack value
+                    const reel = document.getElementById(`reel${i + 1}`);
+                    const attackValueEl = reel.querySelector('.attack-value');
+                    if (attackValueEl) {
+                        attackValueEl.innerHTML = `💥${enemy.attack}`;
+                        attackValueEl.classList.remove('hidden');
+                    }
                 });
                 enemyInfoArea.classList.remove('hidden');
             };
@@ -318,6 +335,11 @@
                     reel.disabled = true;
                     // Reset visual state from any previous defeated enemies
                     reel.classList.remove('opacity-50', 'cursor-not-allowed');
+                    // UPDATE: Hide attack value during spin
+                    const attackValueEl = reel.querySelector('.attack-value');
+                    if (attackValueEl) {
+                        attackValueEl.classList.add('hidden');
+                    }
                 });
                 enemyInfoArea.classList.add('hidden');
 
@@ -325,17 +347,19 @@
                 currentEnemies = [];
 
                 reels.forEach((reel, i) => {
+                    const reelContent = reel.querySelector('.reel-content');
                     spinIntervals[i] = setInterval(() => {
                         const randomIndex = Math.floor(Math.random() * enemies.length);
-                        reel.textContent = enemies[randomIndex].emoji;
+                        reelContent.textContent = enemies[randomIndex].emoji;
                     }, 100);
 
                     setTimeout(() => {
                         clearInterval(spinIntervals[i]);
                         const finalIndex = Math.floor(Math.random() * enemies.length);
-                        const finalEnemy = enemies[finalIndex];
+                        // BUG FIX: Clone the enemy object to ensure unique instances
+                        const finalEnemy = { ...enemies[finalIndex] };
                         currentEnemies[i] = finalEnemy;
-                        reel.textContent = finalEnemy.emoji;
+                        reelContent.textContent = finalEnemy.emoji;
                         reel.disabled = false; 
                         
                         if (i === reels.length - 1) {
@@ -381,11 +405,16 @@
                         // Delay hiding info and showing skull to let health bar animation finish
                         setTimeout(() => {
                             // Update UI for defeated enemy
-                            reel.textContent = '💀';
+                            reel.querySelector('.reel-content').textContent = '💀';
                             // Visually indicate it's defeated and prevent further attacks
                             reel.classList.add('opacity-50', 'cursor-not-allowed'); 
                             // Hide enemy info
                             enemyInfo.style.visibility = 'hidden';
+                             // UPDATE: Hide attack value on defeat
+                            const attackValueEl = reel.querySelector('.attack-value');
+                            if (attackValueEl) {
+                                attackValueEl.classList.add('hidden');
+                            }
                         }, 300); // Match this delay to the transition duration of the health bar
                     } else {
                          // Update health bar and text
@@ -400,4 +429,3 @@
     </script>
 </body>
 </html>
-
