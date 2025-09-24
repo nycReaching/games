@@ -58,12 +58,12 @@
             <!-- Counters -->
             <div class="grid grid-cols-4 gap-x-2 text-center items-center">
                 <div class="flex items-center justify-center">
-                    <span class="text-3xl">🛡️</span>
+                    <span id="status-armor-icon" class="text-3xl">🛡️</span>
                     <span class="font-bold text-lg ml-1">10</span>
                 </div>
                 <!-- UPDATED: Changed attack power display to 5 -->
                 <div class="flex items-center justify-center">
-                    <span class="text-3xl">🗡️</span>
+                    <span id="status-weapon-icon" class="text-3xl">⚔️</span>
                     <span id="attack-power" class="font-bold text-lg ml-1">5</span>
                 </div>
                 <div class="flex items-center justify-center">
@@ -742,6 +742,8 @@
             const equipSlotButtons = document.querySelectorAll('.equip-slot-btn');
             const equipChoices = document.querySelectorAll('.equip-choices');
             const equipChoiceButtons = document.querySelectorAll('.equip-choices button:not([disabled])');
+            const statusWeaponIcon = document.getElementById('status-weapon-icon');
+            const statusArmorIcon = document.getElementById('status-armor-icon');
 
             equipSlotButtons.forEach(button => {
                 button.addEventListener('click', () => {
@@ -766,7 +768,8 @@
                     const newEmoji = choiceButton.dataset.emoji;
                     const newTitle = choiceButton.dataset.title;
                     
-                    const parentChoicesId = choiceButton.closest('.equip-choices').id;
+                    const parentChoices = choiceButton.closest('.equip-choices');
+                    const parentChoicesId = parentChoices.id;
                     const slotButton = document.querySelector(`.equip-slot-btn[data-target='${parentChoicesId}']`);
 
                     if (slotButton) {
@@ -775,6 +778,13 @@
                         
                         emojiContainer.textContent = newEmoji;
                         textContainer.textContent = newTitle;
+                    }
+
+                    // Update status bar icons
+                    if (parentChoicesId === 'weapon-choices') {
+                        statusWeaponIcon.textContent = newEmoji;
+                    } else if (parentChoicesId === 'armor-choices') {
+                        statusArmorIcon.textContent = newEmoji;
                     }
                 });
             });
