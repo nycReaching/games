@@ -27,6 +27,23 @@
         .shake {
             animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
         }
+        /* ADDED: Utility to hide scrollbars */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        /* ADDED: Carousel snap scrolling */
+        .shop-carousel {
+            scroll-snap-type: x mandatory;
+            /* Added for smoother scrolling on touch devices */
+            -webkit-overflow-scrolling: touch;
+        }
+        .shop-item {
+            scroll-snap-align: center;
+        }
     </style>
 </head>
 <body class="bg-gray-900 flex items-center justify-center min-h-screen">
@@ -199,7 +216,24 @@
             <!-- MODALS: REBUILT STRUCTURE -->
             <!-- Items Modal -->
             <div id="items-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
-                <div class="h-full w-full bg-gradient-to-b from-amber-600 to-amber-800"></div>
+                <div class="h-full w-full bg-gradient-to-b from-amber-600 to-amber-800 flex flex-col">
+                    <!-- Carousel Area -->
+                    <div id="shop-carousel" class="shop-carousel h-1/2 w-full flex items-center overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing">
+                        <div class="flex space-x-4 px-[calc(50%-4rem)]"> <!-- Padding to center items -->
+                            <div class="shop-item flex-shrink-0 w-32 h-32 rounded-lg flex items-center justify-center text-6xl select-none transition-transform duration-200" data-index="0">🍶</div>
+                            <div class="shop-item flex-shrink-0 w-32 h-32 rounded-lg flex items-center justify-center text-6xl select-none transition-transform duration-200" data-index="1">✝️</div>
+                            <div class="shop-item flex-shrink-0 w-32 h-32 rounded-lg flex items-center justify-center text-6xl select-none transition-transform duration-200" data-index="2">💎</div>
+                            <div class="shop-item flex-shrink-0 w-32 h-32 rounded-lg flex items-center justify-center text-6xl select-none transition-transform duration-200" data-index="3">🧚🏼</div>
+                            <div class="shop-item flex-shrink-0 w-32 h-32 rounded-lg flex items-center justify-center text-6xl select-none transition-transform duration-200" data-index="4">🌒</div>
+                            <div class="shop-item flex-shrink-0 w-32 h-32 rounded-lg flex items-center justify-center text-6xl select-none transition-transform duration-200" data-index="5">♾️</div>
+                        </div>
+                    </div>
+                    <!-- Item Info Area -->
+                    <div class="h-1/2 w-full flex flex-col items-center justify-center text-center text-white p-4">
+                        <h3 id="item-title" class="text-3xl font-bold mb-2 text-shadow-lg"></h3>
+                        <p id="item-description" class="text-lg"></p>
+                    </div>
+                </div>
                 <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center hover:bg-gray-700 active:bg-gray-800 transition-colors">&times;</button>
             </div>
 
@@ -231,7 +265,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // MODAL LOGIC: UPDATED FOR NEW STRUCTURE
+            // MODAL LOGIC
             const modalButtons = document.querySelectorAll('[data-modal-target]');
             const closeButtons = document.querySelectorAll('.close-modal-btn');
             const buttonGrid = document.getElementById('button-grid');
@@ -241,6 +275,10 @@
                 if (modal == null) return;
                 buttonGrid.classList.add('hidden');
                 modal.classList.remove('hidden');
+                // If it's the shop modal, trigger the initial selection update
+                if (modal.id === 'items-modal-wrapper') {
+                    updateShopSelection();
+                }
             }
 
             const closeModal = () => {
@@ -261,13 +299,99 @@
 
             closeButtons.forEach(button => {
                 button.addEventListener('click', (e) => {
-                    // Stop the click from propagating to elements underneath
                     e.stopPropagation(); 
                     closeModal();
                 });
             });
 
-            // GAME LOGIC (UNCHANGED)
+            // SHOP CAROUSEL LOGIC
+            const shopItems = [
+                { title: 'Tonic', description: 'Restores 6 HP.' },
+                { title: 'Cross', description: 'Cures curse, +1 max HP.' },
+                { title: 'Gem', description: 'Gain a buff, give a debuff.' },
+                { title: 'Fairy', description: 'Restores magic meter.' },
+                { title: 'Moonstone', description: 'Unlocks the use of moon arts.' },
+                { title: 'Infinity Ring', description: 'Take damage to reroll.' },
+            ];
+            const carousel = document.getElementById('shop-carousel');
+            const carouselItems = carousel.querySelectorAll('.shop-item');
+            const itemTitle = document.getElementById('item-title');
+            const itemDescription = document.getElementById('item-description');
+
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+
+            const startDragging = (e) => {
+                isDown = true;
+                startX = (e.pageX || e.touches[0].pageX) - carousel.offsetLeft;
+                scrollLeft = carousel.scrollLeft;
+            };
+
+            const stopDragging = () => {
+                isDown = false;
+            };
+
+            const drag = (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = (e.pageX || e.touches[0].pageX) - carousel.offsetLeft;
+                const walk = (x - startX) * 2; // Multiplier for faster scrolling
+                carousel.scrollLeft = scrollLeft - walk;
+            };
+            
+            carousel.addEventListener('mousedown', startDragging);
+            carousel.addEventListener('touchstart', startDragging);
+            carousel.addEventListener('mouseleave', stopDragging);
+            carousel.addEventListener('mouseup', stopDragging);
+            carousel.addEventListener('touchend', stopDragging);
+            carousel.addEventListener('mousemove', drag);
+            carousel.addEventListener('touchmove', drag);
+
+            let scrollTimeout;
+            const updateShopSelection = () => {
+                // Debounce the scroll event to avoid running the logic too frequently
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    const carouselCenter = carousel.offsetWidth / 2;
+                    let closestItem = null;
+                    let smallestDistance = Infinity;
+
+                    carouselItems.forEach(item => {
+                        const itemRect = item.getBoundingClientRect();
+                        const carouselRect = carousel.getBoundingClientRect();
+                        // Calculate item center relative to the carousel's left edge
+                        const itemCenter = (itemRect.left - carouselRect.left) + (itemRect.width / 2);
+                        const distance = Math.abs(carouselCenter - itemCenter);
+                        
+                        if (distance < smallestDistance) {
+                            smallestDistance = distance;
+                            closestItem = item;
+                        }
+                    });
+
+                    if (closestItem) {
+                        // Update styles for all items
+                        carouselItems.forEach(item => {
+                            item.classList.remove('scale-125');
+                            item.classList.add('scale-100');
+                        });
+                        closestItem.classList.remove('scale-100');
+                        closestItem.classList.add('scale-125');
+
+                        // Update description
+                        const itemIndex = parseInt(closestItem.dataset.index);
+                        const selectedItemData = shopItems[itemIndex];
+                        itemTitle.textContent = selectedItemData.title;
+                        itemDescription.textContent = selectedItemData.description;
+                    }
+                }, 50); // A 50ms debounce is usually sufficient
+            };
+
+            carousel.addEventListener('scroll', updateShopSelection);
+
+
+            // GAME LOGIC
             const spinButton = document.getElementById('spin-button');
             const reels = [
                 document.getElementById('reel1'),
