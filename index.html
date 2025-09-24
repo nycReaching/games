@@ -183,57 +183,59 @@
         </div>
 
         <!-- Controls Area -->
-        <div id="controls-area" class="h-[35%] bg-gray-800 border-t-4 border-gray-700 relative overflow-hidden">
+        <div id="controls-area" class="h-[35%] bg-gray-800 border-t-4 border-gray-700 relative">
             <!-- Button Grid Container -->
             <div id="button-grid" class="p-8 h-full">
                 <div class="grid grid-cols-3 grid-rows-2 gap-6 h-full items-center">
-                    <button data-modal-target="items-modal" class="h-16 bg-gradient-to-b from-amber-600 to-amber-800 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-amber-700 hover:to-amber-900 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">🏪</button>
+                    <button data-modal-target="items-modal-wrapper" class="h-16 bg-gradient-to-b from-amber-600 to-amber-800 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-amber-700 hover:to-amber-900 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">🏪</button>
                     <button id="spin-button" class="bg-gradient-to-b from-green-400 to-green-600 text-white font-bold rounded-full aspect-square border-2 border-black shadow-[10px_10px_0px_#000] hover:from-green-500 hover:to-green-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 flex items-center justify-center">Spin</button>
-                    <!-- Changed "Map" button to a moon emoji -->
-                    <button data-modal-target="map-modal" class="h-16 bg-gradient-to-b from-indigo-700 to-indigo-900 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-indigo-800 hover:to-indigo-900 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">🌙</button>
-                    <button data-modal-target="equip-modal" class="h-16 bg-gradient-to-b from-purple-700 to-purple-900 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-purple-800 hover:to-purple-900 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">🔮</button>
-                    <button data-modal-target="quests-modal" class="h-16 bg-gradient-to-b from-pink-400 to-pink-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-pink-500 hover:to-pink-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">✨</button>
-                    <button data-modal-target="system-modal" class="h-16 bg-gradient-to-b from-blue-400 to-blue-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-blue-500 hover:to-blue-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">⚔️</button>
+                    <button data-modal-target="map-modal-wrapper" class="h-16 bg-gradient-to-b from-indigo-700 to-indigo-900 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-indigo-800 hover:to-indigo-900 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">🌙</button>
+                    <button data-modal-target="equip-modal-wrapper" class="h-16 bg-gradient-to-b from-purple-700 to-purple-900 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-purple-800 hover:to-purple-900 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">🔮</button>
+                    <button data-modal-target="quests-modal-wrapper" class="h-16 bg-gradient-to-b from-pink-400 to-pink-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-pink-500 hover:to-pink-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">✨</button>
+                    <button data-modal-target="system-modal-wrapper" class="h-16 bg-gradient-to-b from-blue-400 to-blue-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-blue-500 hover:to-blue-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">⚔️</button>
                 </div>
             </div>
             
-            <!-- Modals -->
-            <div id="items-modal" class="modal-content hidden absolute inset-0 h-full w-full p-8 bg-gradient-to-b from-amber-600 to-amber-800 text-white flex flex-col items-center justify-center text-center">
-                <button class="close-modal absolute top-4 right-4 text-white font-bold text-3xl leading-none hover:text-gray-300">&times;</button>
-                <h2 class="text-3xl font-bold mb-4">Shop</h2>
-                <p>The shop will be displayed here.</p>
+            <!-- MODALS: REBUILT STRUCTURE -->
+            <!-- Items Modal -->
+            <div id="items-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
+                <div class="h-full w-full bg-gradient-to-b from-amber-600 to-amber-800"></div>
+                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center hover:bg-gray-700 active:bg-gray-800 transition-colors">&times;</button>
             </div>
 
-            <div id="map-modal" class="modal-content hidden absolute inset-0 h-full w-full p-8 bg-gradient-to-b from-indigo-700 to-indigo-900 text-white flex flex-col items-center justify-center text-center">
-                <button class="close-modal absolute top-4 right-4 text-white font-bold text-3xl leading-none hover:text-gray-300">&times;</button>
-                <h2 class="text-3xl font-bold mb-4">Moon Arts</h2>
-                <p>Your Moon Arts will be displayed here.</p>
+            <!-- Map Modal -->
+            <div id="map-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
+                <div class="h-full w-full bg-gradient-to-b from-indigo-700 to-indigo-900"></div>
+                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center hover:bg-gray-700 active:bg-gray-800 transition-colors">&times;</button>
             </div>
-            <div id="equip-modal" class="modal-content hidden absolute inset-0 h-full w-full p-8 bg-gradient-to-b from-purple-700 to-purple-900 text-white flex flex-col items-center justify-center text-center">
-                <button class="close-modal absolute top-4 right-4 text-white font-bold text-3xl leading-none hover:text-gray-300">&times;</button>
-                <h2 class="text-3xl font-bold mb-4">Fortunes</h2>
-                <p>Your fortunes will be displayed here.</p>
+
+            <!-- Equip Modal -->
+            <div id="equip-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
+                <div class="h-full w-full bg-gradient-to-b from-purple-700 to-purple-900"></div>
+                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center hover:bg-gray-700 active:bg-gray-800 transition-colors">&times;</button>
             </div>
-            <div id="quests-modal" class="modal-content hidden absolute inset-0 h-full w-full p-8 bg-gradient-to-b from-pink-400 to-pink-600 text-white flex flex-col items-center justify-center text-center">
-                <button class="close-modal absolute top-4 right-4 text-white font-bold text-3xl leading-none hover:text-gray-300">&times;</button>
-                <h2 class="text-3xl font-bold mb-4">Magic</h2>
-                <p>Your magic will be displayed here.</p>
+
+            <!-- Quests Modal -->
+            <div id="quests-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
+                <div class="h-full w-full bg-gradient-to-b from-pink-400 to-pink-600"></div>
+                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center hover:bg-gray-700 active:bg-gray-800 transition-colors">&times;</button>
             </div>
-            <div id="system-modal" class="modal-content hidden absolute inset-0 h-full w-full p-8 bg-gradient-to-b from-blue-400 to-blue-600 text-white flex flex-col items-center justify-center text-center">
-                <button class="close-modal absolute top-4 right-4 text-white font-bold text-3xl leading-none hover:text-gray-300">&times;</button>
-                <h2 class="text-3xl font-bold mb-4">Equipment</h2>
-                <p>Your character's equipment will be displayed here.</p>
+
+            <!-- System Modal -->
+            <div id="system-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
+                <div class="h-full w-full bg-gradient-to-b from-blue-400 to-blue-600"></div>
+                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center hover:bg-gray-700 active:bg-gray-800 transition-colors">&times;</button>
             </div>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Modal Logic
+            // MODAL LOGIC: UPDATED FOR NEW STRUCTURE
             const modalButtons = document.querySelectorAll('[data-modal-target]');
-            const closeButtons = document.querySelectorAll('.close-modal');
+            const closeButtons = document.querySelectorAll('.close-modal-btn');
             const buttonGrid = document.getElementById('button-grid');
-            const allModals = document.querySelectorAll('.modal-content');
+            const allModals = document.querySelectorAll('.modal-wrapper');
 
             const openModal = (modal) => {
                 if (modal == null) return;
@@ -252,18 +254,20 @@
 
             modalButtons.forEach(button => {
                 button.addEventListener('click', () => {
-                    const modal = document.querySelector(button.dataset.modalTarget) || document.getElementById(button.dataset.modalTarget);
+                    const modal = document.getElementById(button.dataset.modalTarget);
                     openModal(modal);
                 });
             });
 
             closeButtons.forEach(button => {
-                button.addEventListener('click', () => {
+                button.addEventListener('click', (e) => {
+                    // Stop the click from propagating to elements underneath
+                    e.stopPropagation(); 
                     closeModal();
                 });
             });
 
-            // Game Logic
+            // GAME LOGIC (UNCHANGED)
             const spinButton = document.getElementById('spin-button');
             const reels = [
                 document.getElementById('reel1'),
@@ -271,10 +275,8 @@
                 document.getElementById('reel3')
             ];
             const enemyInfoArea = document.getElementById('enemy-info-area');
-            // UPDATED: Changed player attack to 5
             const playerAttack = 5;
             
-            // UPDATED: Added attack power to enemies
             const enemies = [
                 { name: 'Ghost', emoji: '👻', special: null, attack: 1 },
                 { name: 'Wolf', emoji: '🐺', special: null, attack: 1 },
@@ -298,27 +300,23 @@
             
             let currentEnemies = [];
 
-            // UPDATED: Function to manage enemy state and display info
             const displayEnemyInfo = (finalEnemies) => {
                 finalEnemies.forEach((enemy, i) => {
-                    // Add properties to the enemy object for tracking state
                     enemy.maxHealth = 10;
                     enemy.currentHealth = 10;
                     enemy.isDefeated = false;
 
                     const enemyInfo = document.getElementById(`enemy-info-${i + 1}`);
-                    enemyInfo.style.visibility = 'visible'; // Make info visible for new enemies
+                    enemyInfo.style.visibility = 'visible';
 
                     document.getElementById(`enemy-name-${i + 1}`).textContent = enemy.name;
                     document.getElementById(`enemy-special-${i + 1}`).textContent = enemy.special || ' ';
                     
-                    // Reset health bar and text for new enemies
                     const healthBar = enemyInfo.querySelector('.health-bar');
                     healthBar.style.width = '100%';
                     const healthText = document.getElementById(`health-text-${i + 1}`);
                     healthText.textContent = `${enemy.currentHealth}/${enemy.maxHealth}`;
 
-                    // UPDATE: Show and set attack value
                     const reel = document.getElementById(`reel${i + 1}`);
                     const attackValueEl = reel.querySelector('.attack-value');
                     if (attackValueEl) {
@@ -333,9 +331,7 @@
                 spinButton.disabled = true;
                 reels.forEach(reel => {
                     reel.disabled = true;
-                    // Reset visual state from any previous defeated enemies
                     reel.classList.remove('opacity-50', 'cursor-not-allowed');
-                    // UPDATE: Hide attack value during spin
                     const attackValueEl = reel.querySelector('.attack-value');
                     if (attackValueEl) {
                         attackValueEl.classList.add('hidden');
@@ -356,7 +352,6 @@
                     setTimeout(() => {
                         clearInterval(spinIntervals[i]);
                         const finalIndex = Math.floor(Math.random() * enemies.length);
-                        // BUG FIX: Clone the enemy object to ensure unique instances
                         const finalEnemy = { ...enemies[finalIndex] };
                         currentEnemies[i] = finalEnemy;
                         reelContent.textContent = finalEnemy.emoji;
@@ -372,22 +367,18 @@
 
             spinButton.addEventListener('click', spinReels);
             
-            // UPDATED: Implemented tap-to-attack system with polish
             reels.forEach((reel, index) => {
                 reel.addEventListener('click', () => {
                     const enemy = currentEnemies[index];
-                    // Can only attack if the spin is over and the enemy isn't already defeated
                     if (reel.disabled || !enemy || enemy.isDefeated) {
                         return;
                     }
                     
-                    // Add shake animation
                     reel.classList.add('shake');
                     reel.addEventListener('animationend', () => {
                         reel.classList.remove('shake');
                     }, { once: true });
 
-                    // Deal damage
                     enemy.currentHealth -= playerAttack;
 
                     const enemyInfo = document.getElementById(`enemy-info-${index + 1}`);
@@ -398,26 +389,19 @@
                         enemy.currentHealth = 0;
                         enemy.isDefeated = true;
 
-                        // Update health bar one last time before hiding
                         healthBar.style.width = '0%';
                         healthText.textContent = `0/${enemy.maxHealth}`;
 
-                        // Delay hiding info and showing skull to let health bar animation finish
                         setTimeout(() => {
-                            // Update UI for defeated enemy
                             reel.querySelector('.reel-content').textContent = '💀';
-                            // Visually indicate it's defeated and prevent further attacks
                             reel.classList.add('opacity-50', 'cursor-not-allowed'); 
-                            // Hide enemy info
                             enemyInfo.style.visibility = 'hidden';
-                             // UPDATE: Hide attack value on defeat
                             const attackValueEl = reel.querySelector('.attack-value');
                             if (attackValueEl) {
                                 attackValueEl.classList.add('hidden');
                             }
-                        }, 300); // Match this delay to the transition duration of the health bar
+                        }, 300);
                     } else {
-                         // Update health bar and text
                         const healthPercent = (enemy.currentHealth / enemy.maxHealth) * 100;
                         healthBar.style.width = `${healthPercent}%`;
                         healthText.textContent = `${enemy.currentHealth}/${enemy.maxHealth}`;
@@ -429,3 +413,4 @@
     </script>
 </body>
 </html>
+
