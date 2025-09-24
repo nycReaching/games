@@ -7,11 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Changed font to Poppins for a clean, modern look -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Changed font to Nunito for a softer, more curved look -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Nunito', sans-serif;
         }
         /* Style for tappable reels */
         .reel:not(:disabled) {
@@ -61,17 +61,18 @@
                     <span id="status-armor-icon" class="text-3xl">🛡️</span>
                     <span class="font-bold text-lg ml-1">10</span>
                 </div>
-                <!-- UPDATED: Changed attack power display to 5 -->
+                <!-- UPDATED: Changed attack power display to 10 -->
                 <div class="flex items-center justify-center">
                     <span id="status-weapon-icon" class="text-3xl">⚔️</span>
-                    <span id="attack-power" class="font-bold text-lg ml-1">5</span>
+                    <span id="attack-power" class="font-bold text-lg ml-1">10</span>
                 </div>
                 <div class="flex items-center justify-center">
                     <span class="text-3xl">💰</span>
                     <span id="player-gold" class="font-bold text-lg ml-1">99</span>
                 </div>
                 <div class="flex items-center justify-center">
-                    <button data-modal-target="world-map-modal-wrapper" class="text-3xl transition-transform active:scale-90">🗺️</button>
+                    <!-- UPDATED: Icon changed to a standard man emoji -->
+                    <button data-modal-target="world-map-modal-wrapper" class="text-3xl transition-transform active:scale-90">👨</button>
                 </div>
             </div>
             <!-- Meters -->
@@ -80,9 +81,9 @@
                 <div class="flex items-center">
                     <span class="text-2xl w-10 text-center">❤️</span>
                     <div class="relative w-full bg-black rounded-full h-5 border-2 border-gray-900">
-                        <div class="bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full" style="width: 100%"></div>
+                        <div id="hp-bar" class="bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full" style="width: 100%"></div>
                         <div class="absolute inset-0 flex items-center justify-center">
-                            <span class="text-xs font-bold text-white">10/10</span>
+                            <span id="hp-text" class="text-xs font-bold text-white">10/10</span>
                         </div>
                     </div>
                 </div>
@@ -198,6 +199,15 @@
                 <span>🌟</span>
                 <span>⚡</span>
             </div>
+            
+            <!-- SKULL METER FULL MODAL (UPDATED) -->
+            <div id="skull-meter-modal" class="hidden absolute inset-x-4 top-1/3 flex flex-col items-center text-white z-20 gap-8">
+                <h2 class="text-2xl font-bold text-center" style="text-shadow: 2px 2px 0px #000;">Make a choice.</h2>
+                <div class="w-full flex flex-col gap-4">
+                    <button id="choice-hp" class="w-full py-3 bg-red-600 rounded-lg font-bold border-2 border-black shadow-[5px_5px_0px_#000] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all text-lg">+1 Max HP</button>
+                    <button id="choice-luck" class="w-full py-3 bg-emerald-400 text-black rounded-lg font-bold border-2 border-black shadow-[5px_5px_0px_#000] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all text-lg">+5% Luck</button>
+                </div>
+            </div>
         </div>
 
         <!-- Controls Area -->
@@ -205,12 +215,12 @@
             <!-- Button Grid Container -->
             <div id="button-grid" class="p-8 h-full">
                 <div class="grid grid-cols-3 grid-rows-2 gap-6 h-full items-center">
-                    <button data-modal-target="items-modal-wrapper" class="h-16 bg-gradient-to-b from-amber-600 to-amber-800 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-amber-700 hover:to-amber-900 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">🏪</button>
-                    <button id="spin-button" class="bg-gradient-to-b from-green-400 to-green-600 text-white font-bold rounded-full aspect-square border-2 border-black shadow-[10px_10px_0px_#000] hover:from-green-500 hover:to-green-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 flex items-center justify-center">Spin</button>
-                    <button data-modal-target="map-modal-wrapper" class="h-16 bg-gradient-to-b from-indigo-700 to-indigo-900 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-indigo-800 hover:to-indigo-900 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">🌙</button>
-                    <button data-modal-target="equip-modal-wrapper" class="h-16 bg-gradient-to-b from-purple-700 to-purple-900 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-purple-800 hover:to-purple-900 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">🔮</button>
-                    <button data-modal-target="quests-modal-wrapper" class="h-16 bg-gradient-to-b from-pink-400 to-pink-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-pink-500 hover:to-pink-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">✨</button>
-                    <button data-modal-target="system-modal-wrapper" class="h-16 bg-gradient-to-b from-blue-400 to-blue-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-blue-500 hover:to-blue-700 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">⚔️</button>
+                    <button data-modal-target="items-modal-wrapper" class="h-16 bg-gradient-to-b from-amber-600 to-amber-800 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">🏪</button>
+                    <button id="spin-button" class="bg-gradient-to-b from-green-400 to-green-600 text-white font-bold rounded-full aspect-square border-2 border-black shadow-[10px_10px_0px_#000] active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 flex items-center justify-center">Spin</button>
+                    <button data-modal-target="map-modal-wrapper" class="h-16 bg-gradient-to-b from-indigo-700 to-indigo-900 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">🌙</button>
+                    <button data-modal-target="equip-modal-wrapper" class="h-16 bg-gradient-to-b from-purple-700 to-purple-900 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">🔮</button>
+                    <button data-modal-target="quests-modal-wrapper" class="h-16 bg-gradient-to-b from-pink-400 to-pink-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">✨</button>
+                    <button data-modal-target="system-modal-wrapper" class="h-16 bg-gradient-to-b from-blue-400 to-blue-600 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">⚔️</button>
                 </div>
             </div>
             
@@ -236,12 +246,12 @@
                             <span id="item-owned" class="bg-blue-900 text-white text-xs font-bold px-2 py-1 rounded-md">x0</span>
                         </div>
                         <p id="item-description" class="text-sm"></p>
-                        <button id="buy-item-btn" class="absolute bottom-4 right-4 bg-green-500 text-white font-bold w-12 h-12 flex items-center justify-center rounded-md border border-black shadow-[4px_4px_0px_#000] hover:bg-green-600 active:shadow-none active:translate-x-1 active:translate-y-1 transition-all text-lg">
+                        <button id="buy-item-btn" class="absolute bottom-4 right-4 bg-green-500 text-white font-bold w-12 h-12 flex items-center justify-center rounded-md border border-black shadow-[4px_4px_0px_#000] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all text-lg">
                             5🪙
                         </button>
                     </div>
                 </div>
-                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center hover:bg-gray-700 active:bg-gray-800 transition-colors">&times;</button>
+                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center active:bg-gray-800 transition-colors">&times;</button>
             </div>
 
             <!-- Map Modal -->
@@ -265,12 +275,12 @@
                             <span id="map-item-owned" class="bg-blue-900 text-white text-xs font-bold px-2 py-1 rounded-md">x0</span>
                         </div>
                         <p id="map-item-description" class="text-sm"></p>
-                        <button id="buy-map-item-btn" class="absolute bottom-4 right-4 bg-gray-800 text-white font-bold w-12 h-12 flex items-center justify-center rounded-md border border-black shadow-[4px_4px_0px_#000] hover:bg-gray-900 active:shadow-none active:translate-x-1 active:translate-y-1 transition-all text-lg">
+                        <button id="buy-map-item-btn" class="absolute bottom-4 right-4 bg-gray-800 text-white font-bold w-12 h-12 flex items-center justify-center rounded-md border border-black shadow-[4px_4px_0px_#000] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all text-lg">
                             1🌙
                         </button>
                     </div>
                 </div>
-                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center hover:bg-gray-700 active:bg-gray-800 transition-colors">&times;</button>
+                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center active:bg-gray-800 transition-colors">&times;</button>
             </div>
 
             <!-- Fortunes Modal (Previously Magic) -->
@@ -288,7 +298,7 @@
                          <!-- JS will inject 3 random fortunes here -->
                     </div>
                 </div>
-                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center hover:bg-gray-700 active:bg-gray-800 transition-colors">&times;</button>
+                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center active:bg-gray-800 transition-colors">&times;</button>
             </div>
 
             <!-- Spells Modal -->
@@ -315,7 +325,7 @@
                         </button>
                     </div>
                 </div>
-                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center hover:bg-gray-700 active:bg-gray-800 transition-colors">&times;</button>
+                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center active:bg-gray-800 transition-colors">&times;</button>
             </div>
 
             <!-- Equipment Modal -->
@@ -345,19 +355,19 @@
                         <div class="relative min-h-[84px]"> <!-- Set a min-height to ensure space is reserved -->
                             <!-- Weapon Choices -->
                             <div id="weapon-choices" class="equip-choices flex flex-col space-y-1 hidden">
-                                <button data-emoji="🏹" data-title="Bow" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg hover:bg-black/40 focus:bg-blue-900/50 focus:outline-none transition-colors">🏹 Bow (+1 💥)</button>
-                                <button data-emoji="🗡️" data-title="Dagger" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg hover:bg-black/40 focus:bg-blue-900/50 focus:outline-none transition-colors">🗡️ Dagger (+2 💥)</button>
-                                <button data-emoji="🔨" data-title="Hammer" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg hover:bg-black/40 focus:bg-blue-900/50 focus:outline-none transition-colors">🔨 Hammer (+5 💥)</button>
+                                <button data-emoji="🏹" data-title="Bow" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🏹 Bow (+1 💥)</button>
+                                <button data-emoji="🗡️" data-title="Dagger" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🗡️ Dagger (+2 💥)</button>
+                                <button data-emoji="🔨" data-title="Hammer" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🔨 Hammer (+5 💥)</button>
                             </div>
                             <!-- Armor Choices -->
                             <div id="armor-choices" class="equip-choices flex flex-col space-y-1 hidden">
-                                <button data-emoji="🧥" data-title="Leather Gear" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg hover:bg-black/40 focus:bg-blue-900/50 focus:outline-none transition-colors">🧥 Leather Gear (+2 🛡️)</button>
-                                <button data-emoji="🪨" data-title="Rock Bracer" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg hover:bg-black/40 focus:bg-blue-900/50 focus:outline-none transition-colors">🪨 Rock Bracer (+4 🛡️)</button>
-                                <button data-emoji="🕸️" data-title="Cloak" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg hover:bg-black/40 focus:bg-blue-900/50 focus:outline-none transition-colors">🕸️ Cloak (+15% 🍀)</button>
+                                <button data-emoji="🧥" data-title="Leather Gear" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🧥 Leather Gear (+2 🛡️)</button>
+                                <button data-emoji="🪨" data-title="Rock Bracer" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🪨 Rock Bracer (+4 🛡️)</button>
+                                <button data-emoji="🕸️" data-title="Cloak" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🕸️ Cloak (+15% 🍀)</button>
                             </div>
                             <!-- Ring Choices -->
                             <div id="ring-choices" class="equip-choices flex flex-col space-y-1 hidden">
-                                 <button data-emoji="💍" data-title="Eccentric Jewel" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg hover:bg-black/40 focus:bg-blue-900/50 focus:outline-none transition-colors">💍 Eccentric Jewel</button>
+                                 <button data-emoji="💍" data-title="Eccentric Jewel" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">💍 Eccentric Jewel</button>
                                  <button class="w-full text-center py-1 px-2 bg-black/20 rounded-lg opacity-50 cursor-not-allowed" disabled>-</button>
                                  <button class="w-full text-center py-1 px-2 bg-black/20 rounded-lg opacity-50 cursor-not-allowed" disabled>-</button>
                             </div>
@@ -365,21 +375,48 @@
                     </div>
     
                 </div>
-                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center hover:bg-gray-700 active:bg-gray-800 transition-colors">&times;</button>
+                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center active:bg-gray-800 transition-colors">&times;</button>
             </div>
         </div>
 
-        <!-- World Map Modal (Full Screen) -->
+        <!-- Character Modal (Previously World Map) -->
         <div id="world-map-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
-            <div class="h-full w-full bg-gradient-to-b from-emerald-800 to-green-900 flex flex-col justify-center items-center text-white">
-                <!-- This modal is currently blank -->
+            <div class="h-full w-full flex flex-col text-white">
+                <!-- UPDATED: Darker gradient background -->
+                <div class="h-1/2 w-full bg-gradient-to-b from-gray-900 to-green-900 flex flex-col justify-center items-center text-center p-4">
+                     <h2 class="text-4xl font-bold" style="text-shadow: 3px 3px 0 #000;">Character</h2>
+                     <p class="text-green-300">View your stats and progress.</p>
+                </div>
+                <!-- UPDATED: Darker gradient and new content for fortunes -->
+                 <div class="h-1/2 w-full bg-gradient-to-b from-gray-900 to-purple-900 flex flex-col justify-center items-center text-center p-4">
+                    <h3 class="text-xl font-bold mb-4 text-purple-300" style="text-shadow: 2px 2px 0 #000;">Collected Fortunes</h3>
+                    <div id="collected-fortunes-container" class="grid grid-cols-3 gap-4">
+                        <!-- JS will populate this with fortune slots -->
+                    </div>
+                </div>
             </div>
-            <button class="close-modal-btn absolute top-4 right-6 text-white text-5xl font-bold hover:text-gray-300 transition-colors">&times;</button>
+            <button class="close-modal-btn absolute top-4 right-6 text-white text-5xl font-bold transition-colors" style="text-shadow: 2px 2px 4px #000;">&times;</button>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // PLAYER STATS
+            let player = {
+                maxHp: 10,
+                currentHp: 10,
+                luck: 0, // as a percentage
+            };
+
+            // UI ELEMENTS
+            const hpBar = document.getElementById('hp-bar');
+            const hpText = document.getElementById('hp-text');
+
+            function updatePlayerUI() {
+                hpText.textContent = `${player.currentHp}/${player.maxHp}`;
+                hpBar.style.width = `${(player.currentHp / player.maxHp) * 100}%`;
+            }
+
             // MODAL LOGIC
             const modalButtons = document.querySelectorAll('[data-modal-target]');
             const closeButtons = document.querySelectorAll('.close-modal-btn');
@@ -390,13 +427,11 @@
                 if (modal == null) return;
                 buttonGrid.classList.add('hidden');
                 modal.classList.remove('hidden');
-                // Trigger initial selection update for the correct modal
                 if (modal.id === 'items-modal-wrapper') {
                     updateShopSelection();
                 } else if (modal.id === 'map-modal-wrapper') {
                     updateMapSelection();
                 } else if (modal.id === 'equip-modal-wrapper') {
-                    // This is the fortunes modal now
                     initializeFortuneSelection();
                 }
             }
@@ -629,32 +664,36 @@
             }
 
             function selectSacrifice() {
-                // Hide sacrifices, show fortunes
                 sacrificesContainer.classList.add('hidden');
                 fortunesContainer.classList.remove('hidden');
                 fortuneModalTitle.textContent = 'Choose your Fortune';
 
                 const randomFortunes = getRandomItems(allFortunes, 3);
-                fortunesContainer.innerHTML = ''; // Clear previous fortunes
+                fortunesContainer.innerHTML = ''; 
 
                 randomFortunes.forEach(fortune => {
                     const fortuneEl = document.createElement('button');
-                    
                     let bgColorClass = '';
                     switch (fortune.color) {
-                        case 'blue': bgColorClass = 'bg-blue-600/80 hover:bg-blue-600'; break;
-                        case 'yellow': bgColorClass = 'bg-yellow-500/80 hover:bg-yellow-500'; break;
-                        case 'pink': bgColorClass = 'bg-pink-500/80 hover:bg-pink-500'; break;
+                        case 'blue': bgColorClass = 'bg-blue-600/80'; break;
+                        case 'yellow': bgColorClass = 'bg-yellow-500/80'; break;
+                        case 'pink': bgColorClass = 'bg-pink-500/80'; break;
                     }
 
                     fortuneEl.className = `w-1/3 flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-lg transition-all active:scale-95 ${bgColorClass} shadow-[3px_3px_0px_#000]`;
-                    
                     fortuneEl.innerHTML = `
                         <h3 class="font-bold text-sm text-center">${fortune.title}</h3>
                         <p class="text-[11px] text-white/80 text-center">${fortune.description}</p>
                     `;
+                    // UPDATED: Onclick now saves the selected fortune
                     fortuneEl.onclick = () => {
                         console.log('Fortune selected:', fortune.title);
+                        if (collectedFortunes.length < 6) {
+                            collectedFortunes.push(fortune);
+                            updateCollectedFortunesDisplay();
+                        } else {
+                            console.log("Maximum fortunes collected.");
+                        }
                         closeModal();
                     };
                     fortunesContainer.appendChild(fortuneEl);
@@ -662,11 +701,10 @@
             }
 
             function initializeFortuneSelection() {
-                // Reset to sacrifice view
                 fortuneModalTitle.textContent = 'Choose a Sacrifice';
                 sacrificesContainer.classList.remove('hidden');
                 fortunesContainer.classList.add('hidden');
-                sacrificesContainer.innerHTML = ''; // Clear previous options
+                sacrificesContainer.innerHTML = '';
 
                 const randomSacrifices = getRandomItems(allSacrifices, 3);
                 
@@ -695,10 +733,71 @@
                 document.getElementById('reel3')
             ];
             const enemyInfoArea = document.getElementById('enemy-info-area');
-            const playerAttack = 5;
+            const playerAttack = 10; // UPDATED: Player attack increased to 10
             const skullMeterBar = document.getElementById('skull-meter-bar');
             const skullMeterText = document.getElementById('skull-meter-text');
+            const skullMeterModal = document.getElementById('skull-meter-modal');
+            const choiceHpButton = document.getElementById('choice-hp');
+            const choiceLuckButton = document.getElementById('choice-luck');
             let skullCount = 0;
+            let collectedFortunes = []; // STORES COLLECTED FORTUNES
+            const collectedFortunesContainer = document.getElementById('collected-fortunes-container');
+
+            // NEW: Function to render collected fortunes
+            function updateCollectedFortunesDisplay() {
+                if (!collectedFortunesContainer) return;
+                collectedFortunesContainer.innerHTML = ''; // Clear it
+
+                for (let i = 0; i < 6; i++) {
+                    const fortune = collectedFortunes[i];
+                    const slotEl = document.createElement('div');
+                    
+                    if (fortune) {
+                        let borderColorClass = 'border-purple-700'; // default
+                        switch (fortune.color) {
+                            case 'blue': borderColorClass = 'border-blue-500'; break;
+                            case 'yellow': borderColorClass = 'border-yellow-500'; break;
+                            case 'pink': borderColorClass = 'border-pink-500'; break;
+                        }
+                        slotEl.className = `relative w-20 h-20 bg-black/30 rounded-lg flex items-center justify-center text-center p-1 group border-2 ${borderColorClass} shadow-inner`;
+                        slotEl.innerHTML = `<span class="font-bold text-xs">${fortune.title}</span>`;
+
+                        const tooltip = document.createElement('div');
+                        tooltip.className = 'absolute bottom-full mb-2 w-max max-w-xs p-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 transition-opacity pointer-events-none z-10';
+                        tooltip.textContent = fortune.description;
+                        slotEl.appendChild(tooltip);
+                    } else {
+                        slotEl.className = 'w-20 h-20 bg-black/30 rounded-lg flex items-center justify-center text-center p-1 border-2 border-dashed border-purple-900';
+                        slotEl.innerHTML = `<span class="text-3xl text-purple-700/50">?</span>`;
+                    }
+                    collectedFortunesContainer.appendChild(slotEl);
+                }
+            }
+
+            const showSkullModal = () => {
+                skullMeterModal.classList.remove('hidden');
+            };
+
+            const hideSkullModal = () => {
+                skullMeterModal.classList.add('hidden');
+                skullCount = 0;
+                skullMeterBar.style.width = '0%';
+                skullMeterText.textContent = '0/10';
+            };
+
+            choiceHpButton.addEventListener('click', () => {
+                player.maxHp += 1;
+                player.currentHp += 1;
+                updatePlayerUI();
+                console.log("Player chose +1 Max HP. New Max HP:", player.maxHp);
+                hideSkullModal();
+            });
+
+            choiceLuckButton.addEventListener('click', () => {
+                player.luck += 5;
+                console.log("Player chose +5% Luck. New Luck:", player.luck);
+                hideSkullModal();
+            });
             
             const enemies = [
                 { name: 'Ghost', emoji: '👻', special: null, attack: 1 },
@@ -795,21 +894,23 @@
                     const enemy = currentEnemies[index];
                     const reelContent = reel.querySelector('.reel-content');
 
-                    // Case 1: The reel is a skull to be collected.
                     if (enemy && enemy.isDefeated && reelContent.textContent === '💀') {
                         skullCount++;
-                        const skullPercent = (skullCount / 10) * 100;
+                        const skullPercent = Math.min((skullCount / 10) * 100, 100);
                         skullMeterBar.style.width = `${skullPercent}%`;
                         skullMeterText.textContent = `${skullCount}/10`;
 
                         reelContent.textContent = '❔';
                         reel.disabled = true;
                         reel.classList.add('opacity-50', 'cursor-not-allowed');
-                        currentEnemies[index] = null; // Slot is now empty
+                        currentEnemies[index] = null; 
+
+                        if (skullCount >= 10) {
+                            setTimeout(showSkullModal, 300);
+                        }
                         return;
                     }
                     
-                    // Case 2: Attacking an enemy.
                     if (reel.disabled || !enemy || enemy.isDefeated) {
                         return;
                     }
@@ -827,13 +928,13 @@
 
                     if (enemy.currentHealth <= 0) {
                         enemy.currentHealth = 0;
-                        enemy.isDefeated = true; // Mark as defeated
+                        enemy.isDefeated = true; 
 
                         healthBar.style.width = '0%';
                         healthText.textContent = `0/${enemy.maxHealth}`;
 
                         setTimeout(() => {
-                            reelContent.textContent = '💀'; // Becomes a collectible skull
+                            reelContent.textContent = '💀';
                             reel.classList.remove('opacity-50', 'cursor-not-allowed');
                             enemyInfo.style.visibility = 'hidden';
                             const attackValueEl = reel.querySelector('.attack-value');
@@ -861,12 +962,10 @@
                     const targetId = button.dataset.target;
                     const targetChoices = document.getElementById(targetId);
 
-                    // Hide all choices
                     equipChoices.forEach(choiceDiv => {
                         choiceDiv.classList.add('hidden');
                     });
 
-                    // Show the target choices
                     if (targetChoices) {
                         targetChoices.classList.remove('hidden');
                     }
@@ -891,7 +990,6 @@
                         textContainer.textContent = newTitle;
                     }
 
-                    // Update status bar icons
                     if (parentChoicesId === 'weapon-choices') {
                         statusWeaponIcon.textContent = newEmoji;
                     } else if (parentChoicesId === 'armor-choices') {
@@ -900,7 +998,6 @@
                 });
             });
             
-            // Auto-focus the first button and show its content on modal open
             const equipmentModalButton = document.querySelector('[data-modal-target="system-modal-wrapper"]');
             equipmentModalButton.addEventListener('click', () => {
                 setTimeout(() => {
@@ -912,13 +1009,12 @@
                 },0);
             });
 
+            // Initialize views on load
+            updatePlayerUI();
+            updateCollectedFortunesDisplay();
+
         });
     </script>
 </body>
 </html>
-
-
-
-
-
 
