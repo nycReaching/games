@@ -89,12 +89,12 @@
                 </div>
                 <!-- Enemy Bar -->
                 <div class="flex items-center">
-                    <!-- UPDATED: Changed ghost icon to skull -->
                     <span class="text-2xl w-10 text-center">💀</span>
                     <div class="relative w-full bg-black rounded-full h-5 border-2 border-gray-900">
-                        <div class="bg-gradient-to-r from-gray-700 to-gray-400 h-full rounded-full" style="width: 60%"></div>
+                        <!-- UPDATED: Skull meter starts at 0 -->
+                        <div id="skull-meter-bar" class="bg-gradient-to-r from-gray-700 to-gray-400 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
                         <div class="absolute inset-0 flex items-center justify-center">
-                            <span class="text-xs font-bold text-white">6/10</span>
+                            <span id="skull-meter-text" class="text-xs font-bold text-white">0/10</span>
                         </div>
                     </div>
                 </div>
@@ -511,6 +511,9 @@
             ];
             const enemyInfoArea = document.getElementById('enemy-info-area');
             const playerAttack = 5;
+            const skullMeterBar = document.getElementById('skull-meter-bar');
+            const skullMeterText = document.getElementById('skull-meter-text');
+            let skullCount = 0;
             
             const enemies = [
                 { name: 'Ghost', emoji: '👻', special: null, attack: 1 },
@@ -605,6 +608,23 @@
             reels.forEach((reel, index) => {
                 reel.addEventListener('click', () => {
                     const enemy = currentEnemies[index];
+                    const reelContent = reel.querySelector('.reel-content');
+
+                    // Case 1: The reel is a skull to be collected.
+                    if (enemy && enemy.isDefeated && reelContent.textContent === '💀') {
+                        skullCount++;
+                        const skullPercent = (skullCount / 10) * 100;
+                        skullMeterBar.style.width = `${skullPercent}%`;
+                        skullMeterText.textContent = `${skullCount}/10`;
+
+                        reelContent.textContent = '?';
+                        reel.disabled = true;
+                        reel.classList.add('opacity-50', 'cursor-not-allowed');
+                        currentEnemies[index] = null; // Slot is now empty
+                        return;
+                    }
+                    
+                    // Case 2: Attacking an enemy.
                     if (reel.disabled || !enemy || enemy.isDefeated) {
                         return;
                     }
@@ -622,14 +642,14 @@
 
                     if (enemy.currentHealth <= 0) {
                         enemy.currentHealth = 0;
-                        enemy.isDefeated = true;
+                        enemy.isDefeated = true; // Mark as defeated
 
                         healthBar.style.width = '0%';
                         healthText.textContent = `0/${enemy.maxHealth}`;
 
                         setTimeout(() => {
-                            reel.querySelector('.reel-content').textContent = '💀';
-                            reel.classList.add('opacity-50', 'cursor-not-allowed'); 
+                            reelContent.textContent = '💀'; // Becomes a collectible skull
+                            reel.classList.remove('opacity-50', 'cursor-not-allowed');
                             enemyInfo.style.visibility = 'hidden';
                             const attackValueEl = reel.querySelector('.attack-value');
                             if (attackValueEl) {
