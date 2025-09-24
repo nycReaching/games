@@ -68,11 +68,11 @@
                 </div>
                 <div class="flex items-center justify-center">
                     <span class="text-3xl">💰</span>
-                    <span class="font-bold text-lg ml-1">99</span>
+                    <span id="player-gold" class="font-bold text-lg ml-1">99</span>
                 </div>
                 <div class="flex items-center justify-center">
                     <span class="text-3xl">🌙</span>
-                    <span class="font-bold text-lg ml-1">4</span>
+                    <span id="player-moondust" class="font-bold text-lg ml-1">4</span>
                 </div>
             </div>
             <!-- Meters -->
@@ -221,9 +221,7 @@
                 <div class="h-full w-full bg-gradient-to-b from-amber-600 to-amber-800 flex flex-col">
                     <!-- Carousel Area -->
                     <div id="shop-carousel" class="shop-carousel h-1/2 w-full flex items-center overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing">
-                        <!-- UPDATED: Padding changed for smaller items -->
                         <div class="flex space-x-4 px-[calc(50%-3.5rem)]"> <!-- Padding to center items -->
-                            <!-- UPDATED: Scaled down items -->
                             <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="0">🍶</div>
                             <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="1">✝️</div>
                             <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="2">💎</div>
@@ -234,13 +232,11 @@
                     </div>
                     <!-- Item Info Area -->
                     <div class="h-1/2 w-full flex flex-col items-center justify-center text-center text-white p-4 relative">
-                        <!-- UPDATED: Added container for title and owned count -->
                         <div class="flex items-center justify-center gap-2 mb-2">
                             <h3 id="item-title" class="text-xl font-bold text-shadow-lg"></h3>
                             <span id="item-owned" class="bg-blue-900 text-white text-xs font-bold px-2 py-1 rounded-md">x0</span>
                         </div>
                         <p id="item-description" class="text-sm"></p>
-                        <!-- UPDATED: Scaled down button and changed position -->
                         <button id="buy-item-btn" class="absolute bottom-4 right-4 bg-green-500 text-white font-bold w-12 h-12 flex items-center justify-center rounded-md border border-black shadow-[4px_4px_0px_#000] hover:bg-green-600 active:shadow-none active:translate-x-1 active:translate-y-1 transition-all text-lg">
                             5🪙
                         </button>
@@ -251,7 +247,27 @@
 
             <!-- Map Modal -->
             <div id="map-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
-                <div class="h-full w-full bg-gradient-to-b from-indigo-700 to-indigo-900"></div>
+                <div class="h-full w-full bg-gradient-to-b from-indigo-700 to-indigo-900 flex flex-col">
+                    <!-- Carousel Area -->
+                    <div id="map-carousel" class="shop-carousel h-1/2 w-full flex items-center overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing">
+                        <div class="flex space-x-4 px-[calc(50%-3.5rem)]"> <!-- Padding to center items -->
+                            <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="0">☠️</div>
+                            <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="1">🕯️</div>
+                            <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="2">🐌</div>
+                            <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="3">❇️</div>
+                            <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="4">🌟</div>
+                            <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="5">⚡</div>
+                        </div>
+                    </div>
+                    <!-- Item Info Area -->
+                    <div class="h-1/2 w-full flex flex-col items-center justify-center text-center text-white p-4 relative">
+                        <h3 id="map-item-title" class="text-xl font-bold mb-2 text-shadow-lg"></h3>
+                        <p id="map-item-description" class="text-sm"></p>
+                        <button id="buy-map-item-btn" class="absolute bottom-4 right-4 bg-gray-800 text-white font-bold w-12 h-12 flex items-center justify-center rounded-md border border-black shadow-[4px_4px_0px_#000] hover:bg-gray-900 active:shadow-none active:translate-x-1 active:translate-y-1 transition-all text-lg">
+                            1🌙
+                        </button>
+                    </div>
+                </div>
                 <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center hover:bg-gray-700 active:bg-gray-800 transition-colors">&times;</button>
             </div>
 
@@ -287,9 +303,11 @@
                 if (modal == null) return;
                 buttonGrid.classList.add('hidden');
                 modal.classList.remove('hidden');
-                // If it's the shop modal, trigger the initial selection update
+                // Trigger initial selection update for the correct modal
                 if (modal.id === 'items-modal-wrapper') {
                     updateShopSelection();
+                } else if (modal.id === 'map-modal-wrapper') {
+                    updateMapSelection();
                 }
             }
 
@@ -318,12 +336,12 @@
 
             // SHOP CAROUSEL LOGIC
             const shopItems = [
-                { title: 'Tonic', description: 'Restores 6 HP.', owned: 0 },
-                { title: 'Cross', description: 'Cures curse, +1 max HP.', owned: 0 },
-                { title: 'Gem', description: 'Gain a buff, give a debuff.', owned: 0 },
-                { title: 'Fairy', description: 'Restores magic meter.', owned: 0 },
-                { title: 'Moonstone', description: 'Unlocks the use of moon arts.', owned: 0 },
-                { title: 'Infinity Ring', description: 'Take damage to reroll.', owned: 0 },
+                { title: 'Tonic', description: 'Restores 6 HP.', owned: 0, cost: 5 },
+                { title: 'Cross', description: 'Cures curse, +1 max HP.', owned: 0, cost: 5 },
+                { title: 'Gem', description: 'Gain a buff, give a debuff.', owned: 0, cost: 5 },
+                { title: 'Fairy', description: 'Restores magic meter.', owned: 0, cost: 5 },
+                { title: 'Moonstone', description: 'Unlocks the use of moon arts.', owned: 0, cost: 5 },
+                { title: 'Infinity Ring', description: 'Take damage to reroll.', owned: 0, cost: 5 },
             ];
             const carousel = document.getElementById('shop-carousel');
             const carouselItems = carousel.querySelectorAll('.shop-item');
@@ -331,41 +349,38 @@
             const itemDescription = document.getElementById('item-description');
             const itemOwned = document.getElementById('item-owned');
 
-            let isDown = false;
-            let startX;
-            let scrollLeft;
+            let isShopDown = false;
+            let shopStartX;
+            let shopScrollLeft;
 
-            const startDragging = (e) => {
-                isDown = true;
-                startX = (e.pageX || e.touches[0].pageX) - carousel.offsetLeft;
-                scrollLeft = carousel.scrollLeft;
+            const startShopDragging = (e) => {
+                isShopDown = true;
+                shopStartX = (e.pageX || e.touches[0].pageX) - carousel.offsetLeft;
+                shopScrollLeft = carousel.scrollLeft;
             };
 
-            const stopDragging = () => {
-                isDown = false;
-            };
+            const stopShopDragging = () => { isShopDown = false; };
 
-            const drag = (e) => {
-                if (!isDown) return;
+            const dragShop = (e) => {
+                if (!isShopDown) return;
                 e.preventDefault();
                 const x = (e.pageX || e.touches[0].pageX) - carousel.offsetLeft;
-                const walk = (x - startX) * 2; // Multiplier for faster scrolling
-                carousel.scrollLeft = scrollLeft - walk;
+                const walk = (x - shopStartX) * 2;
+                carousel.scrollLeft = shopScrollLeft - walk;
             };
             
-            carousel.addEventListener('mousedown', startDragging);
-            carousel.addEventListener('touchstart', startDragging);
-            carousel.addEventListener('mouseleave', stopDragging);
-            carousel.addEventListener('mouseup', stopDragging);
-            carousel.addEventListener('touchend', stopDragging);
-            carousel.addEventListener('mousemove', drag);
-            carousel.addEventListener('touchmove', drag);
+            carousel.addEventListener('mousedown', startShopDragging);
+            carousel.addEventListener('touchstart', startShopDragging);
+            carousel.addEventListener('mouseleave', stopShopDragging);
+            carousel.addEventListener('mouseup', stopShopDragging);
+            carousel.addEventListener('touchend', stopShopDragging);
+            carousel.addEventListener('mousemove', dragShop);
+            carousel.addEventListener('touchmove', dragShop);
 
-            let scrollTimeout;
+            let shopScrollTimeout;
             const updateShopSelection = () => {
-                // Debounce the scroll event to avoid running the logic too frequently
-                clearTimeout(scrollTimeout);
-                scrollTimeout = setTimeout(() => {
+                clearTimeout(shopScrollTimeout);
+                shopScrollTimeout = setTimeout(() => {
                     const carouselCenter = carousel.offsetWidth / 2;
                     let closestItem = null;
                     let smallestDistance = Infinity;
@@ -373,7 +388,6 @@
                     carouselItems.forEach(item => {
                         const itemRect = item.getBoundingClientRect();
                         const carouselRect = carousel.getBoundingClientRect();
-                        // Calculate item center relative to the carousel's left edge
                         const itemCenter = (itemRect.left - carouselRect.left) + (itemRect.width / 2);
                         const distance = Math.abs(carouselCenter - itemCenter);
                         
@@ -384,7 +398,6 @@
                     });
 
                     if (closestItem) {
-                        // Update styles for all items
                         carouselItems.forEach(item => {
                             item.classList.remove('scale-125');
                             item.classList.add('scale-100');
@@ -392,17 +405,96 @@
                         closestItem.classList.remove('scale-100');
                         closestItem.classList.add('scale-125');
 
-                        // Update description
                         const itemIndex = parseInt(closestItem.dataset.index);
                         const selectedItemData = shopItems[itemIndex];
                         itemTitle.textContent = selectedItemData.title;
                         itemDescription.textContent = selectedItemData.description;
                         itemOwned.textContent = `x${selectedItemData.owned}`;
                     }
-                }, 50); // A 50ms debounce is usually sufficient
+                }, 50);
             };
 
             carousel.addEventListener('scroll', updateShopSelection);
+
+            // MAP CAROUSEL LOGIC
+            const moonArts = [
+                { title: 'Poison', description: '1 Damage per turn.' },
+                { title: 'Curse', description: 'Share damage.' },
+                { title: 'Sluggish', description: '50% Chance no action.' },
+                { title: 'Regen', description: 'Heal 1 per turn.' },
+                { title: 'Blessing', description: 'Add HP to armor.' },
+                { title: 'Rush', description: '2 Actions per turn.' }
+            ];
+            const mapCarousel = document.getElementById('map-carousel');
+            const mapCarouselItems = mapCarousel.querySelectorAll('.map-item');
+            const mapItemTitle = document.getElementById('map-item-title');
+            const mapItemDescription = document.getElementById('map-item-description');
+
+            let isMapDown = false;
+            let mapStartX;
+            let mapScrollLeft;
+
+            const startMapDragging = (e) => {
+                isMapDown = true;
+                mapStartX = (e.pageX || e.touches[0].pageX) - mapCarousel.offsetLeft;
+                mapScrollLeft = mapCarousel.scrollLeft;
+            };
+
+            const stopMapDragging = () => { isMapDown = false; };
+
+            const dragMap = (e) => {
+                if (!isMapDown) return;
+                e.preventDefault();
+                const x = (e.pageX || e.touches[0].pageX) - mapCarousel.offsetLeft;
+                const walk = (x - mapStartX) * 2;
+                mapCarousel.scrollLeft = mapScrollLeft - walk;
+            };
+
+            mapCarousel.addEventListener('mousedown', startMapDragging);
+            mapCarousel.addEventListener('touchstart', startMapDragging);
+            mapCarousel.addEventListener('mouseleave', stopMapDragging);
+            mapCarousel.addEventListener('mouseup', stopMapDragging);
+            mapCarousel.addEventListener('touchend', stopMapDragging);
+            mapCarousel.addEventListener('mousemove', dragMap);
+            mapCarousel.addEventListener('touchmove', dragMap);
+
+            let mapScrollTimeout;
+            const updateMapSelection = () => {
+                clearTimeout(mapScrollTimeout);
+                mapScrollTimeout = setTimeout(() => {
+                    const carouselCenter = mapCarousel.offsetWidth / 2;
+                    let closestItem = null;
+                    let smallestDistance = Infinity;
+
+                    mapCarouselItems.forEach(item => {
+                        const itemRect = item.getBoundingClientRect();
+                        const carouselRect = mapCarousel.getBoundingClientRect();
+                        const itemCenter = (itemRect.left - carouselRect.left) + (itemRect.width / 2);
+                        const distance = Math.abs(carouselCenter - itemCenter);
+                        
+                        if (distance < smallestDistance) {
+                            smallestDistance = distance;
+                            closestItem = item;
+                        }
+                    });
+
+                    if (closestItem) {
+                        mapCarouselItems.forEach(item => {
+                            item.classList.remove('scale-125');
+                            item.classList.add('scale-100');
+                        });
+                        closestItem.classList.remove('scale-100');
+                        closestItem.classList.add('scale-125');
+
+                        const itemIndex = parseInt(closestItem.dataset.index);
+                        const selectedItemData = moonArts[itemIndex];
+                        mapItemTitle.textContent = selectedItemData.title;
+                        mapItemDescription.textContent = selectedItemData.description;
+                    }
+                }, 50);
+            };
+
+            mapCarousel.addEventListener('scroll', updateMapSelection);
 
 
             // GAME LOGIC
