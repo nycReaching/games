@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Changed font to Poppins for a clean, modern look -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -50,18 +49,14 @@
 </head>
 <body class="bg-gray-900 flex items-center justify-center min-h-screen">
 
-    <!-- Mobile Phone Silhouette -->
     <div class="w-full max-w-sm h-[90vh] max-h-[800px] bg-black border-4 border-gray-700 rounded-3xl shadow-2xl flex flex-col overflow-hidden">
         
-        <!-- Top Status Bar -->
         <div class="bg-gray-800 p-4 border-b-4 border-gray-700 flex flex-col justify-center gap-3 text-white">
-            <!-- Counters -->
             <div class="grid grid-cols-4 gap-x-2 text-center items-center">
                 <div class="flex items-center justify-center">
                     <span class="text-3xl">🛡️</span>
                     <span class="font-bold text-lg ml-1">10</span>
                 </div>
-                <!-- UPDATED: Changed attack power display to 5 -->
                 <div class="flex items-center justify-center">
                     <span class="text-3xl">🗡️</span>
                     <span id="attack-power" class="font-bold text-lg ml-1">5</span>
@@ -75,9 +70,7 @@
                     <span id="player-moondust" class="font-bold text-lg ml-1">4</span>
                 </div>
             </div>
-            <!-- Meters -->
             <div class="space-y-2">
-                <!-- HP Bar -->
                 <div class="flex items-center">
                     <span class="text-2xl w-10 text-center">❤️</span>
                     <div class="relative w-full bg-black rounded-full h-5 border-2 border-gray-900">
@@ -87,11 +80,9 @@
                         </div>
                     </div>
                 </div>
-                <!-- Enemy Bar -->
                 <div class="flex items-center">
                     <span class="text-2xl w-10 text-center">💀</span>
                     <div class="relative w-full bg-black rounded-full h-5 border-2 border-gray-900">
-                        <!-- UPDATED: Skull meter starts at 0 -->
                         <div id="skull-meter-bar" class="bg-gradient-to-r from-gray-700 to-gray-400 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
                         <div class="absolute inset-0 flex items-center justify-center">
                             <span id="skull-meter-text" class="text-xs font-bold text-white">0/10</span>
@@ -101,13 +92,9 @@
             </div>
         </div>
 
-        <!-- Game Screen Area (Central Area) -->
         <div class="flex-grow bg-gray-900 flex flex-col p-4 relative">
-            <!-- Top half for slot machine -->
             <div class="h-1/2 flex items-center justify-center">
-                <!-- Slot Machine -->
                 <div id="slot-machine" class="flex space-x-4 items-end">
-                    <!-- Reel 1 Column -->
                     <div class="flex flex-col items-center gap-1">
                         <div class="h-4 flex items-center justify-center gap-0.5">
                             <span class="text-xs">☠️</span>
@@ -120,7 +107,6 @@
                             <div class="attack-value absolute top-1 left-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-br-md rounded-tl-md hidden" style="text-shadow: 1px 1px 0 #000;">💥1</div>
                         </button>
                     </div>
-                    <!-- Reel 2 Column -->
                     <div class="flex flex-col items-center gap-1">
                          <div class="h-4 flex items-center justify-center gap-0.5">
                             <span class="text-xs">☠️</span>
@@ -133,7 +119,6 @@
                             <div class="attack-value absolute top-1 left-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-br-md rounded-tl-md hidden" style="text-shadow: 1px 1px 0 #000;">💥1</div>
                         </button>
                     </div>
-                    <!-- Reel 3 Column -->
                     <div class="flex flex-col items-center gap-1">
                          <div class="h-4 flex items-center justify-center gap-0.5">
                             <span class="text-xs">☠️</span>
@@ -148,39 +133,32 @@
                     </div>
                 </div>
             </div>
-            <!-- Bottom half for enemy info -->
             <div class="h-1/2 pt-4 flex justify-center items-start">
                 <div id="enemy-info-area" class="flex space-x-4 text-white hidden">
-                    <!-- Enemy 1 Info -->
                     <div id="enemy-info-1" class="text-center w-24">
                         <div class="relative w-full bg-black rounded-full h-4 border-2 border-gray-600 mb-1">
                             <div class="health-bar bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <!-- ADDED: ID for health text -->
                                 <span id="health-text-1" class="text-white font-bold" style="font-size: 0.6rem; line-height: 1;">10/10</span>
                             </div>
                         </div>
                         <p id="enemy-name-1" class="text-xs font-bold truncate">-</p>
                         <p id="enemy-special-1" class="text-lg h-6">-</p>
                     </div>
-                    <!-- Enemy 2 Info -->
                     <div id="enemy-info-2" class="text-center w-24">
                         <div class="relative w-full bg-black rounded-full h-4 border-2 border-gray-600 mb-1">
                             <div class="health-bar bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <!-- ADDED: ID for health text -->
                                 <span id="health-text-2" class="text-white font-bold" style="font-size: 0.6rem; line-height: 1;">10/10</span>
                             </div>
                         </div>
                         <p id="enemy-name-2" class="text-xs font-bold truncate">-</p>
                         <p id="enemy-special-2" class="text-lg h-6">-</p>
                     </div>
-                    <!-- Enemy 3 Info -->
                     <div id="enemy-info-3" class="text-center w-24">
                         <div class="relative w-full bg-black rounded-full h-4 border-2 border-gray-600 mb-1">
                             <div class="health-bar bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <!-- ADDED: ID for health text -->
                                 <span id="health-text-3" class="text-white font-bold" style="font-size: 0.6rem; line-height: 1;">10/10</span>
                             </div>
                         </div>
@@ -190,7 +168,6 @@
                 </div>
             </div>
             <div class="absolute bottom-2 left-4 text-teal-400 text-sm font-bold">Wave 1</div>
-            <!-- Player Status Effects -->
             <div id="player-status-effects" class="absolute bottom-2 right-4 flex flex-nowrap justify-end gap-0.5 text-lg">
                 <span>☠️</span>
                 <span>🕯️</span>
@@ -201,9 +178,7 @@
             </div>
         </div>
 
-        <!-- Controls Area -->
         <div id="controls-area" class="h-[35%] bg-gray-800 border-t-4 border-gray-700 relative">
-            <!-- Button Grid Container -->
             <div id="button-grid" class="p-8 h-full">
                 <div class="grid grid-cols-3 grid-rows-2 gap-6 h-full items-center">
                     <button data-modal-target="items-modal-wrapper" class="h-16 bg-gradient-to-b from-amber-600 to-amber-800 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] hover:from-amber-700 hover:to-amber-900 active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">🏪</button>
@@ -215,14 +190,10 @@
                 </div>
             </div>
             
-            <!-- MODALS: REBUILT STRUCTURE -->
-            <!-- Items Modal -->
             <div id="items-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
                 <div class="h-full w-full bg-gradient-to-b from-amber-600 to-amber-800 flex flex-col">
-                    <!-- Carousel Area -->
                     <div id="shop-carousel" class="shop-carousel h-1/2 w-full flex items-center overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing">
-                        <div class="flex space-x-4 px-[calc(50%-3.5rem)]"> <!-- Padding to center items -->
-                            <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="0">🍶</div>
+                        <div class="flex space-x-4 px-[calc(50%-3.5rem)]"> <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="0">🍶</div>
                             <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="1">✝️</div>
                             <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="2">💎</div>
                             <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="3">🧚🏼</div>
@@ -230,7 +201,6 @@
                             <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="5">♾️</div>
                         </div>
                     </div>
-                    <!-- Item Info Area -->
                     <div class="h-1/2 w-full flex flex-col items-center justify-center text-center text-white p-4 relative">
                         <div class="flex items-center justify-center gap-2 mb-2">
                             <h3 id="item-title" class="text-xl font-bold text-shadow-lg"></h3>
@@ -245,13 +215,10 @@
                 <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center hover:bg-gray-700 active:bg-gray-800 transition-colors">&times;</button>
             </div>
 
-            <!-- Map Modal -->
             <div id="map-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
                 <div class="h-full w-full bg-gradient-to-b from-indigo-700 to-indigo-900 flex flex-col">
-                    <!-- Carousel Area -->
                     <div id="map-carousel" class="shop-carousel h-1/2 w-full flex items-center overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing">
-                        <div class="flex space-x-4 px-[calc(50%-3.5rem)]"> <!-- Padding to center items -->
-                            <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="0">☠️</div>
+                        <div class="flex space-x-4 px-[calc(50%-3.5rem)]"> <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="0">☠️</div>
                             <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="1">🕯️</div>
                             <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="2">🐌</div>
                             <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="3">❇️</div>
@@ -259,7 +226,6 @@
                             <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="5">⚡</div>
                         </div>
                     </div>
-                    <!-- Item Info Area -->
                     <div class="h-1/2 w-full flex flex-col items-center justify-center text-center text-white p-4 relative">
                         <div class="flex items-center justify-center gap-2 mb-2">
                             <h3 id="map-item-title" class="text-xl font-bold text-shadow-lg"></h3>
@@ -274,52 +240,62 @@
                 <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center hover:bg-gray-700 active:bg-gray-800 transition-colors">&times;</button>
             </div>
 
-            <!-- Equip Modal -->
             <div id="equip-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
-                <div class="h-full w-full bg-gradient-to-b from-purple-700 to-purple-900"></div>
+                <div class="h-full w-full bg-gradient-to-b from-purple-700 to-purple-900 p-8 text-white flex flex-col justify-center">
+                    <div class="flex justify-around items-start text-center">
+                        <button class="w-1/3 flex flex-col items-center gap-2 transition-transform active:scale-95">
+                            <div class="text-7xl" style="text-shadow: 5px 5px 0px #000;">❤️‍🔥</div>
+                            <h3 class="font-bold text-lg">Flameheart</h3>
+                            <p class="text-xs text-white/80 h-10">Deal 5 damage and heal 5 HP.</p>
+                        </button>
+                        <button class="w-1/3 flex flex-col items-center gap-2 transition-transform active:scale-95">
+                            <div class="text-7xl" style="text-shadow: 5px 5px 0px #000;">❄️</div>
+                            <h3 class="font-bold text-lg">Frostbite</h3>
+                            <p class="text-xs text-white/80 h-10">Deal 5 damage & inflict 🐌 Sluggish.</p>
+                        </button>
+                        <button class="w-1/3 flex flex-col items-center gap-2 transition-transform active:scale-95">
+                            <div class="text-7xl" style="text-shadow: 5px 5px 0px #000;">🩶</div>
+                            <h3 class="font-bold text-lg">Armorheart</h3>
+                            <p class="text-xs text-white/80 h-10">Add current health to armor.</p>
+                        </button>
+                    </div>
+                </div>
                 <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center hover:bg-gray-700 active:bg-gray-800 transition-colors">&times;</button>
             </div>
 
-            <!-- Quests Modal -->
             <div id="quests-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
                 <div class="h-full w-full bg-gradient-to-b from-pink-400 to-pink-600"></div>
                 <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center hover:bg-gray-700 active:bg-gray-800 transition-colors">&times;</button>
             </div>
 
-            <!-- System Modal (Now Equipment) -->
             <div id="system-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
-                <div class="h-full w-full bg-gradient-to-b from-blue-400 to-blue-600 p-4 text-white flex flex-col gap-4 text-center">
-                    <!-- Equipment Slots -->
-                    <div class="grid grid-cols-3 gap-4">
-                        <button data-target="weapon-choices" class="equip-slot-btn bg-gray-900/50 p-4 rounded-lg border-2 border-transparent focus:border-yellow-400 focus:outline-none transition-all">
-                            <div class="text-3xl">⚔️</div>
-                            <div class="font-bold">Weapon</div>
+                <div class="h-full w-full bg-gradient-to-b from-blue-400 to-blue-600 pt-2 pb-4 px-4 text-white flex flex-col gap-4 text-center">
+                    <div class="grid grid-cols-3 gap-4 items-center">
+                        <button data-target="weapon-choices" class="equip-slot-btn focus:outline-none transition-all group">
+                            <div class="text-5xl group-focus:scale-110 transition-transform" style="text-shadow: 5px 5px 0px #000;">⚔️</div>
+                            <div class="font-bold group-focus:text-yellow-400 transition-colors">Weapon</div>
                         </button>
-                        <button data-target="armor-choices" class="equip-slot-btn bg-gray-900/50 p-4 rounded-lg border-2 border-transparent focus:border-yellow-400 focus:outline-none transition-all">
-                            <div class="text-3xl">🛡️</div>
-                            <div class="font-bold">Armor</div>
+                        <button data-target="armor-choices" class="equip-slot-btn focus:outline-none transition-all group">
+                            <div class="text-5xl group-focus:scale-110 transition-transform" style="text-shadow: 5px 5px 0px #000;">🛡️</div>
+                            <div class="font-bold group-focus:text-yellow-400 transition-colors">Armor</div>
                         </button>
-                        <button data-target="ring-choices" class="equip-slot-btn bg-gray-900/50 p-4 rounded-lg border-2 border-transparent focus:border-yellow-400 focus:outline-none transition-all">
-                            <div class="text-3xl">💍</div>
-                            <div class="font-bold">Ring</div>
+                        <button data-target="ring-choices" class="equip-slot-btn focus:outline-none transition-all group">
+                            <div class="text-5xl group-focus:scale-110 transition-transform" style="text-shadow: 5px 5px 0px #000;">💍</div>
+                            <div class="font-bold group-focus:text-yellow-400 transition-colors">Ring</div>
                         </button>
                     </div>
 
-                    <!-- Equipment Choices -->
                     <div class="flex-grow bg-black/30 rounded-lg p-4 overflow-y-auto">
-                        <!-- Weapon Choices -->
                         <div id="weapon-choices" class="equip-choices space-y-3 hidden">
                             <button class="w-full text-left p-3 bg-gray-700/50 rounded-lg hover:bg-gray-600/50 transition-colors">🏹 Bow (+1 💥)</button>
                             <button class="w-full text-left p-3 bg-gray-700/50 rounded-lg hover:bg-gray-600/50 transition-colors">🗡️ Dagger (+2 💥)</button>
                             <button class="w-full text-left p-3 bg-gray-700/50 rounded-lg hover:bg-gray-600/50 transition-colors">🔨 Hammer (+5 💥)</button>
                         </div>
-                        <!-- Armor Choices -->
                         <div id="armor-choices" class="equip-choices space-y-3 hidden">
                             <button class="w-full text-left p-3 bg-gray-700/50 rounded-lg hover:bg-gray-600/50 transition-colors">🧥 Leather Gear (+2 🛡️)</button>
                             <button class="w-full text-left p-3 bg-gray-700/50 rounded-lg hover:bg-gray-600/50 transition-colors">🪨 Rock Bracer (+4 🛡️)</button>
                             <button class="w-full text-left p-3 bg-gray-700/50 rounded-lg hover:bg-gray-600/50 transition-colors">🕸️ Cloak (+15% 🍀)</button>
                         </div>
-                        <!-- Ring Choices -->
                         <div id="ring-choices" class="equip-choices space-y-3 hidden">
                              <button class="w-full text-left p-3 bg-gray-700/50 rounded-lg hover:bg-gray-600/50 transition-colors">💍 Eccentric Jewel</button>
                         </div>
@@ -706,10 +682,6 @@
 
             equipSlotButtons.forEach(button => {
                 button.addEventListener('click', () => {
-                    // Handle active state for slot buttons
-                    equipSlotButtons.forEach(btn => btn.classList.remove('border-yellow-400', 'bg-gray-900/80'));
-                    button.classList.add('border-yellow-400', 'bg-gray-900/80');
-
                     const targetId = button.dataset.target;
                     const targetChoices = document.getElementById(targetId);
 
@@ -723,6 +695,18 @@
                         targetChoices.classList.remove('hidden');
                     }
                 });
+            });
+            
+            // Auto-focus the first button and show its content on modal open
+            const equipmentModalButton = document.querySelector('[data-modal-target="system-modal-wrapper"]');
+            equipmentModalButton.addEventListener('click', () => {
+                setTimeout(() => {
+                    const firstSlot = document.querySelector('.equip-slot-btn');
+                    if(firstSlot) {
+                        firstSlot.focus();
+                        firstSlot.click();
+                    }
+                },0);
             });
 
         });
