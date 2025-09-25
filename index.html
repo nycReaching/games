@@ -7,17 +7,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Changed font to Nunito for a softer, more curved look -->
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Nunito', sans-serif;
+            font-family: 'Poppins', sans-serif;
         }
         /* Style for tappable reels */
         .reel:not(:disabled) {
             cursor: pointer;
         }
-        /* ADDED: Shake animation for when an enemy is hit */
+        /* Shake animation for when an enemy is hit */
         @keyframes shake {
             10%, 90% { transform: translateX(-1px); }
             20%, 80% { transform: translateX(2px); }
@@ -27,7 +26,7 @@
         .shake {
             animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
         }
-        /* ADDED: Utility to hide scrollbars */
+        /* Utility to hide scrollbars */
         .scrollbar-hide::-webkit-scrollbar {
             display: none;
         }
@@ -35,16 +34,41 @@
             -ms-overflow-style: none;  /* IE and Edge */
             scrollbar-width: none;  /* Firefox */
         }
-        /* ADDED: Carousel snap scrolling */
+        /* Carousel snap scrolling */
         .shop-carousel {
             scroll-snap-type: x mandatory;
-            /* Added for smoother scrolling on touch devices */
             -webkit-overflow-scrolling: touch;
         }
         .shop-item {
             scroll-snap-align: center;
-            /* ADDED: Drop shadow to match button aesthetic */
             text-shadow: 5px 5px 0px #000;
+        }
+
+        /* ADDED: Keyframes for fade-in and glow animations */
+        @keyframes fade-in-from-left {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes glow-pink {
+            0%, 100% { box-shadow: 0 0 5px #f472b6, 0 0 10px #f472b6, 3px 3px 0px #000; }
+            50% { box-shadow: 0 0 15px #f9a8d4, 0 0 20px #f9a8d4, 3px 3px 0px #000; }
+        }
+
+        /* ADDED: Animation utility classes */
+        .animate-fade-in {
+            animation: fade-in-from-left 0.8s ease-out forwards;
+            opacity: 0; /* Start hidden */
+        }
+
+        .glow-pink {
+            animation: glow-pink 2s infinite ease-in-out;
         }
     </style>
 </head>
@@ -59,19 +83,17 @@
             <div class="grid grid-cols-4 gap-x-2 text-center items-center">
                 <div class="flex items-center justify-center">
                     <span id="status-armor-icon" class="text-3xl">🛡️</span>
-                    <span class="font-bold text-lg ml-1">10</span>
+                    <span id="player-armor" class="font-bold text-lg ml-1">0</span>
                 </div>
-                <!-- UPDATED: Changed attack power display to 10 -->
                 <div class="flex items-center justify-center">
                     <span id="status-weapon-icon" class="text-3xl">⚔️</span>
-                    <span id="attack-power" class="font-bold text-lg ml-1">10</span>
+                    <span id="attack-power" class="font-bold text-lg ml-1">8</span>
                 </div>
                 <div class="flex items-center justify-center">
                     <span class="text-3xl">💰</span>
                     <span id="player-gold" class="font-bold text-lg ml-1">99</span>
                 </div>
                 <div class="flex items-center justify-center">
-                    <!-- UPDATED: Icon changed to a standard man emoji -->
                     <button data-modal-target="world-map-modal-wrapper" class="text-3xl transition-transform active:scale-90">👨</button>
                 </div>
             </div>
@@ -91,7 +113,6 @@
                 <div class="flex items-center">
                     <span class="text-2xl w-10 text-center">💀</span>
                     <div class="relative w-full bg-black rounded-full h-5 border-2 border-gray-900">
-                        <!-- UPDATED: Skull meter starts at 0 -->
                         <div id="skull-meter-bar" class="bg-gradient-to-r from-gray-700 to-gray-400 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
                         <div class="absolute inset-0 flex items-center justify-center">
                             <span id="skull-meter-text" class="text-xs font-bold text-white">0/10</span>
@@ -156,7 +177,6 @@
                         <div class="relative w-full bg-black rounded-full h-4 border-2 border-gray-600 mb-1">
                             <div class="health-bar bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <!-- ADDED: ID for health text -->
                                 <span id="health-text-1" class="text-white font-bold" style="font-size: 0.6rem; line-height: 1;">10/10</span>
                             </div>
                         </div>
@@ -168,7 +188,6 @@
                         <div class="relative w-full bg-black rounded-full h-4 border-2 border-gray-600 mb-1">
                             <div class="health-bar bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <!-- ADDED: ID for health text -->
                                 <span id="health-text-2" class="text-white font-bold" style="font-size: 0.6rem; line-height: 1;">10/10</span>
                             </div>
                         </div>
@@ -180,7 +199,6 @@
                         <div class="relative w-full bg-black rounded-full h-4 border-2 border-gray-600 mb-1">
                             <div class="health-bar bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <!-- ADDED: ID for health text -->
                                 <span id="health-text-3" class="text-white font-bold" style="font-size: 0.6rem; line-height: 1;">10/10</span>
                             </div>
                         </div>
@@ -200,7 +218,7 @@
                 <span>⚡</span>
             </div>
             
-            <!-- SKULL METER FULL MODAL (UPDATED) -->
+            <!-- SKULL METER FULL MODAL -->
             <div id="skull-meter-modal" class="hidden absolute inset-x-4 top-1/3 flex flex-col items-center text-white z-20 gap-8">
                 <h2 class="text-2xl font-bold text-center" style="text-shadow: 2px 2px 0px #000;">Make a choice.</h2>
                 <div class="w-full flex flex-col gap-4">
@@ -224,7 +242,7 @@
                 </div>
             </div>
             
-            <!-- MODALS: REBUILT STRUCTURE -->
+            <!-- MODALS -->
             <!-- Items Modal -->
             <div id="items-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
                 <div class="h-full w-full bg-gradient-to-b from-amber-600 to-amber-800 flex flex-col">
@@ -246,8 +264,8 @@
                             <span id="item-owned" class="bg-blue-900 text-white text-xs font-bold px-2 py-1 rounded-md">x0</span>
                         </div>
                         <p id="item-description" class="text-sm"></p>
-                        <button id="buy-item-btn" class="absolute bottom-4 right-4 bg-green-500 text-white font-bold w-12 h-12 flex items-center justify-center rounded-md border border-black shadow-[4px_4px_0px_#000] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all text-lg">
-                            5🪙
+                        <button id="buy-item-btn" class="absolute bottom-4 right-4 bg-green-500 text-white font-bold w-auto h-12 px-3 flex items-center justify-center gap-1 rounded-md border border-black shadow-[4px_4px_0px_#000] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all text-lg">
+                            <!-- Content is now set by JS -->
                         </button>
                     </div>
                 </div>
@@ -332,7 +350,6 @@
             <div id="system-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
                 <div class="h-full w-full bg-gradient-to-b from-blue-400 to-blue-600 p-4 text-white flex flex-col text-center">
                     
-                    <!-- Flex container to manage vertical space and prevent overflow -->
                     <div class="flex-grow flex flex-col justify-around">
     
                         <!-- Equipment Slots -->
@@ -352,22 +369,22 @@
                         </div>
     
                         <!-- Equipment Choices Container -->
-                        <div class="relative min-h-[84px]"> <!-- Set a min-height to ensure space is reserved -->
+                        <div class="relative min-h-[84px]">
                             <!-- Weapon Choices -->
                             <div id="weapon-choices" class="equip-choices flex flex-col space-y-1 hidden">
-                                <button data-emoji="🏹" data-title="Bow" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🏹 Bow (+1 💥)</button>
-                                <button data-emoji="🗡️" data-title="Dagger" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🗡️ Dagger (+2 💥)</button>
-                                <button data-emoji="🔨" data-title="Hammer" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🔨 Hammer (+5 💥)</button>
+                                <button data-emoji="🏹" data-title="Bow" data-stat-type="attack" data-stat-value="1" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🏹 Bow (+1 💥)</button>
+                                <button data-emoji="🗡️" data-title="Dagger" data-stat-type="attack" data-stat-value="2" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🗡️ Dagger (+2 💥)</button>
+                                <button data-emoji="🔨" data-title="Hammer" data-stat-type="attack" data-stat-value="5" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🔨 Hammer (+5 💥)</button>
                             </div>
                             <!-- Armor Choices -->
                             <div id="armor-choices" class="equip-choices flex flex-col space-y-1 hidden">
-                                <button data-emoji="🧥" data-title="Leather Gear" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🧥 Leather Gear (+2 🛡️)</button>
-                                <button data-emoji="🪨" data-title="Rock Bracer" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🪨 Rock Bracer (+4 🛡️)</button>
-                                <button data-emoji="🕸️" data-title="Cloak" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🕸️ Cloak (+15% 🍀)</button>
+                                <button data-emoji="🧥" data-title="Leather Gear" data-stat-type="armor" data-stat-value="2" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🧥 Leather Gear (+2 🛡️)</button>
+                                <button data-emoji="🪨" data-title="Rock Bracer" data-stat-type="armor" data-stat-value="4" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🪨 Rock Bracer (+4 🛡️)</button>
+                                <button data-emoji="🕸️" data-title="Cloak" data-stat-type="luck" data-stat-value="15" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🕸️ Cloak (+15% 🍀)</button>
                             </div>
                             <!-- Ring Choices -->
                             <div id="ring-choices" class="equip-choices flex flex-col space-y-1 hidden">
-                                 <button data-emoji="💍" data-title="Eccentric Jewel" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">💍 Eccentric Jewel</button>
+                                 <button data-emoji="💍" data-title="Eccentric Jewel" data-stat-type="none" data-stat-value="0" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">💍 Eccentric Jewel</button>
                                  <button class="w-full text-center py-1 px-2 bg-black/20 rounded-lg opacity-50 cursor-not-allowed" disabled>-</button>
                                  <button class="w-full text-center py-1 px-2 bg-black/20 rounded-lg opacity-50 cursor-not-allowed" disabled>-</button>
                             </div>
@@ -382,12 +399,10 @@
         <!-- Character Modal (Previously World Map) -->
         <div id="world-map-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
             <div class="h-full w-full flex flex-col text-white">
-                <!-- UPDATED: Darker gradient background -->
                 <div class="h-1/2 w-full bg-gradient-to-b from-gray-900 to-green-900 flex flex-col justify-center items-center text-center p-4">
                      <h2 class="text-4xl font-bold" style="text-shadow: 3px 3px 0 #000;">Character</h2>
                      <p class="text-green-300">View your stats and progress.</p>
                 </div>
-                <!-- UPDATED: Darker gradient and new content for fortunes -->
                  <div class="h-1/2 w-full bg-gradient-to-b from-gray-900 to-purple-900 flex flex-col justify-center items-center text-center p-4">
                     <h3 class="text-xl font-bold mb-4 text-purple-300" style="text-shadow: 2px 2px 0 #000;">Collected Fortunes</h3>
                     <div id="collected-fortunes-container" class="grid grid-cols-3 gap-4">
@@ -405,16 +420,29 @@
             let player = {
                 maxHp: 10,
                 currentHp: 10,
-                luck: 0, // as a percentage
+                luck: 0, 
+                gold: 99,
+                baseAttack: 8,
+                attackBonus: 0,
+                baseArmor: 0,
+                armorBonus: 0,
             };
 
             // UI ELEMENTS
             const hpBar = document.getElementById('hp-bar');
             const hpText = document.getElementById('hp-text');
+            const playerGoldEl = document.getElementById('player-gold');
+            const buyItemBtn = document.getElementById('buy-item-btn');
+            const attackPowerEl = document.getElementById('attack-power');
+            const playerArmorEl = document.getElementById('player-armor');
+
 
             function updatePlayerUI() {
                 hpText.textContent = `${player.currentHp}/${player.maxHp}`;
                 hpBar.style.width = `${(player.currentHp / player.maxHp) * 100}%`;
+                playerGoldEl.textContent = player.gold;
+                attackPowerEl.textContent = player.baseAttack + player.attackBonus;
+                playerArmorEl.textContent = player.baseArmor + player.armorBonus;
             }
 
             // MODAL LOGIC
@@ -427,9 +455,12 @@
                 if (modal == null) return;
                 buttonGrid.classList.add('hidden');
                 modal.classList.remove('hidden');
+                
                 if (modal.id === 'items-modal-wrapper') {
+                    carousel.scrollLeft = 0;
                     updateShopSelection();
                 } else if (modal.id === 'map-modal-wrapper') {
+                    mapCarousel.scrollLeft = 0;
                     updateMapSelection();
                 } else if (modal.id === 'equip-modal-wrapper') {
                     initializeFortuneSelection();
@@ -462,17 +493,18 @@
             // SHOP CAROUSEL LOGIC
             const shopItems = [
                 { title: 'Tonic', description: 'Restores 6 HP.', owned: 0, cost: 5 },
-                { title: 'Cross', description: 'Cures curse, +1 max HP.', owned: 0, cost: 5 },
-                { title: 'Gem', description: 'Gain a buff, give a debuff.', owned: 0, cost: 5 },
-                { title: 'Fairy', description: 'Restores magic meter.', owned: 0, cost: 5 },
-                { title: 'Moonstone', description: 'Unlocks the use of moon arts.', owned: 0, cost: 5 },
-                { title: 'Infinity Ring', description: 'Take damage to reroll.', owned: 0, cost: 5 },
+                { title: 'Cross', description: 'Cures curse, +1 max HP.', owned: 0, cost: 10 },
+                { title: 'Gem', description: 'Gain a buff, give a debuff.', owned: 0, cost: 15 },
+                { title: 'Fairy', description: 'Restores magic meter.', owned: 0, cost: 8 },
+                { title: 'Moonstone', description: 'Unlocks the use of moon arts.', owned: 0, cost: 20 },
+                { title: 'Infinity Ring', description: 'Take damage to reroll.', owned: 0, cost: 25 },
             ];
             const carousel = document.getElementById('shop-carousel');
             const carouselItems = carousel.querySelectorAll('.shop-item');
             const itemTitle = document.getElementById('item-title');
             const itemDescription = document.getElementById('item-description');
             const itemOwned = document.getElementById('item-owned');
+            let currentShopIndex = 0;
 
             let isShopDown = false;
             let shopStartX;
@@ -534,10 +566,22 @@
                         closestItem.classList.add('scale-125');
 
                         const itemIndex = parseInt(closestItem.dataset.index);
+                        currentShopIndex = itemIndex;
                         const selectedItemData = shopItems[itemIndex];
                         itemTitle.textContent = selectedItemData.title;
                         itemDescription.textContent = selectedItemData.description;
                         itemOwned.textContent = `x${selectedItemData.owned}`;
+                        
+                        buyItemBtn.innerHTML = `<span>${selectedItemData.cost}</span><span>🪙</span>`;
+                        if (player.gold >= selectedItemData.cost) {
+                            buyItemBtn.disabled = false;
+                            buyItemBtn.classList.remove('opacity-50', 'bg-gray-500', 'cursor-not-allowed');
+                            buyItemBtn.classList.add('bg-green-500');
+                        } else {
+                            buyItemBtn.disabled = true;
+                            buyItemBtn.classList.add('opacity-50', 'bg-gray-500', 'cursor-not-allowed');
+                            buyItemBtn.classList.remove('bg-green-500');
+                        }
                     }
                 }, 50);
             };
@@ -545,6 +589,22 @@
             if (carousel) {
                 carousel.addEventListener('scroll', updateShopSelection);
             }
+
+            buyItemBtn.addEventListener('click', () => {
+                if (buyItemBtn.disabled) return;
+
+                const itemToBuy = shopItems[currentShopIndex];
+                if (player.gold >= itemToBuy.cost) {
+                    player.gold -= itemToBuy.cost;
+                    itemToBuy.owned++;
+
+                    buyItemBtn.classList.add('scale-90');
+                    setTimeout(() => buyItemBtn.classList.remove('scale-90'), 150);
+
+                    updatePlayerUI();
+                    updateShopSelection();
+                }
+            });
 
             // MAP CAROUSEL LOGIC
             const moonArts = [
@@ -671,21 +731,31 @@
                 const randomFortunes = getRandomItems(allFortunes, 3);
                 fortunesContainer.innerHTML = ''; 
 
-                randomFortunes.forEach(fortune => {
+                // UPDATED: Added staggered fade-in animation and pink glow
+                randomFortunes.forEach((fortune, index) => {
                     const fortuneEl = document.createElement('button');
                     let bgColorClass = '';
+                    
                     switch (fortune.color) {
                         case 'blue': bgColorClass = 'bg-blue-600/80'; break;
                         case 'yellow': bgColorClass = 'bg-yellow-500/80'; break;
-                        case 'pink': bgColorClass = 'bg-pink-500/80'; break;
+                        case 'pink': 
+                            bgColorClass = 'bg-pink-600/80';
+                            break;
                     }
 
-                    fortuneEl.className = `w-1/3 flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-lg transition-all active:scale-95 ${bgColorClass} shadow-[3px_3px_0px_#000]`;
+                    let rareHTML = '';
+                    if (fortune.color === 'pink') {
+                        rareHTML = `<div class="text-[10px] font-bold text-pink-300">RARE</div>`;
+                    }
+
+                    fortuneEl.className = `w-1/3 flex flex-col items-center justify-center gap-1 p-2 rounded-lg transition-all active:scale-95 ${bgColorClass} shadow-[3px_3px_0px_#000] animate-fade-in`;
+                    fortuneEl.style.animationDelay = `${index * 250}ms`;
                     fortuneEl.innerHTML = `
+                        ${rareHTML}
                         <h3 class="font-bold text-sm text-center">${fortune.title}</h3>
                         <p class="text-[11px] text-white/80 text-center">${fortune.description}</p>
                     `;
-                    // UPDATED: Onclick now saves the selected fortune
                     fortuneEl.onclick = () => {
                         console.log('Fortune selected:', fortune.title);
                         if (collectedFortunes.length < 6) {
@@ -701,16 +771,16 @@
             }
 
             function initializeFortuneSelection() {
-                fortuneModalTitle.textContent = 'Choose a Sacrifice';
-                sacrificesContainer.classList.remove('hidden');
-                fortunesContainer.classList.add('hidden');
+// ... existing code ... -->
                 sacrificesContainer.innerHTML = '';
 
                 const randomSacrifices = getRandomItems(allSacrifices, 3);
                 
-                randomSacrifices.forEach(sacrifice => {
+                // UPDATED: Added staggered fade-in animation
+                randomSacrifices.forEach((sacrifice, index) => {
                     const sacrificeEl = document.createElement('button');
-                    sacrificeEl.className = 'w-1/3 flex flex-col items-center gap-1 transition-transform active:scale-95';
+                    sacrificeEl.className = 'w-1/3 flex flex-col items-center gap-1 transition-transform active:scale-95 animate-fade-in';
+                    sacrificeEl.style.animationDelay = `${index * 250}ms`;
                     sacrificeEl.innerHTML = `
                         <div class="text-5xl" style="text-shadow: 4px 4px 0px #000;">${sacrifice.emoji}</div>
                         <h3 class="font-bold text-sm">${sacrifice.title}</h3>
@@ -733,27 +803,25 @@
                 document.getElementById('reel3')
             ];
             const enemyInfoArea = document.getElementById('enemy-info-area');
-            const playerAttack = 10; // UPDATED: Player attack increased to 10
             const skullMeterBar = document.getElementById('skull-meter-bar');
             const skullMeterText = document.getElementById('skull-meter-text');
             const skullMeterModal = document.getElementById('skull-meter-modal');
             const choiceHpButton = document.getElementById('choice-hp');
             const choiceLuckButton = document.getElementById('choice-luck');
             let skullCount = 0;
-            let collectedFortunes = []; // STORES COLLECTED FORTUNES
+            let collectedFortunes = [];
             const collectedFortunesContainer = document.getElementById('collected-fortunes-container');
 
-            // NEW: Function to render collected fortunes
             function updateCollectedFortunesDisplay() {
                 if (!collectedFortunesContainer) return;
-                collectedFortunesContainer.innerHTML = ''; // Clear it
+                collectedFortunesContainer.innerHTML = '';
 
                 for (let i = 0; i < 6; i++) {
                     const fortune = collectedFortunes[i];
                     const slotEl = document.createElement('div');
                     
                     if (fortune) {
-                        let borderColorClass = 'border-purple-700'; // default
+                        let borderColorClass = 'border-purple-700';
                         switch (fortune.color) {
                             case 'blue': borderColorClass = 'border-blue-500'; break;
                             case 'yellow': borderColorClass = 'border-yellow-500'; break;
@@ -871,6 +939,7 @@
                         reelContent.textContent = enemies[randomIndex].emoji;
                     }, 100);
 
+                    // UPDATED: Faster spin animation
                     setTimeout(() => {
                         clearInterval(spinIntervals[i]);
                         const finalIndex = Math.floor(Math.random() * enemies.length);
@@ -883,7 +952,7 @@
                             spinButton.disabled = false;
                             displayEnemyInfo(currentEnemies);
                         }
-                    }, 1000 + (i * 500)); 
+                    }, 500 + (i * 250)); 
                 });
             };
 
@@ -919,8 +988,9 @@
                     reel.addEventListener('animationend', () => {
                         reel.classList.remove('shake');
                     }, { once: true });
-
-                    enemy.currentHealth -= playerAttack;
+                    
+                    const totalPlayerAttack = player.baseAttack + player.attackBonus;
+                    enemy.currentHealth -= totalPlayerAttack;
 
                     const enemyInfo = document.getElementById(`enemy-info-${index + 1}`);
                     const healthBar = enemyInfo.querySelector('.health-bar');
@@ -990,11 +1060,18 @@
                         textContainer.textContent = newTitle;
                     }
 
+                    const statType = choiceButton.dataset.statType;
+                    const statValue = parseInt(choiceButton.dataset.statValue);
+
                     if (parentChoicesId === 'weapon-choices') {
                         statusWeaponIcon.textContent = newEmoji;
+                        player.attackBonus = (statType === 'attack') ? statValue : 0;
                     } else if (parentChoicesId === 'armor-choices') {
                         statusArmorIcon.textContent = newEmoji;
+                        player.armorBonus = (statType === 'armor') ? statValue : 0;
                     }
+                    
+                    updatePlayerUI();
                 });
             });
             
@@ -1017,4 +1094,6 @@
     </script>
 </body>
 </html>
+
+
 
