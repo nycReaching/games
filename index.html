@@ -70,15 +70,50 @@
         .glow-pink {
             animation: glow-pink 2s infinite ease-in-out;
         }
+        
+        /* ADDED: Floating damage number animation */
+        @keyframes float-up {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+        }
+
+        .damage-popup {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2.25rem; /* text-4xl - Made Bigger */
+            font-weight: bold;
+            color: #FBBF24; /* amber-400 */
+            text-shadow: 2px 2px 0 #000;
+            pointer-events: none; /* So it doesn't interfere with clicks */
+            animation: float-up 0.5s ease-out forwards;
+        }
+
+        /* ADDED: Enemy attack zoom animation */
+        @keyframes zoom-attack {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+        .zoom-attack {
+            animation: zoom-attack 0.4s ease-in-out;
+        }
     </style>
 </head>
-<body class="bg-gray-900 flex items-center justify-center min-h-screen">
+<body class="bg-gray-900 flex items-center justify-center min-h-screen transition-all">
 
     <!-- Mobile Phone Silhouette -->
     <div class="w-full max-w-sm h-[90vh] max-h-[800px] bg-black border-4 border-gray-700 rounded-3xl shadow-2xl flex flex-col overflow-hidden relative">
         
         <!-- Top Status Bar -->
-        <div class="bg-gray-800 p-4 border-b-4 border-gray-700 flex flex-col justify-center gap-3 text-white">
+        <div id="top-status-bar" class="bg-gray-800 p-4 border-b-4 border-gray-700 flex flex-col justify-center gap-3 text-white">
             <!-- Counters -->
             <div class="grid grid-cols-4 gap-x-2 text-center items-center">
                 <div class="flex items-center justify-center">
@@ -399,9 +434,19 @@
         <!-- Character Modal (Previously World Map) -->
         <div id="world-map-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
             <div class="h-full w-full flex flex-col text-white">
-                <div class="h-1/2 w-full bg-gradient-to-b from-gray-900 to-green-900 flex flex-col justify-center items-center text-center p-4">
-                     <h2 class="text-4xl font-bold" style="text-shadow: 3px 3px 0 #000;">Character</h2>
-                     <p class="text-green-300">View your stats and progress.</p>
+                <!-- UPDATED: Character section with blank lines and button -->
+                <div class="h-1/2 w-full bg-gradient-to-b from-gray-900 to-green-900 p-4 relative flex flex-col justify-between">
+                    <!-- 8 Blank rows, using thin divs spaced out -->
+                    <div class="w-full h-px bg-green-700/50"></div>
+                    <div class="w-full h-px bg-green-700/50"></div>
+                    <div class="w-full h-px bg-green-700/50"></div>
+                    <div class="w-full h-px bg-green-700/50"></div>
+                    <div class="w-full h-px bg-green-700/50"></div>
+                    <div class="w-full h-px bg-green-700/50"></div>
+                    <div class="w-full h-px bg-green-700/50"></div>
+                    <div class="w-full h-px bg-green-700/50"></div>
+                    
+                    <button class="absolute bottom-4 right-4 text-3xl bg-gray-700 hover:bg-gray-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg border-2 border-gray-500 transition-transform active:scale-95">❔</button>
                 </div>
                  <div class="h-1/2 w-full bg-gradient-to-b from-gray-900 to-purple-900 flex flex-col justify-center items-center text-center p-4">
                     <h3 class="text-xl font-bold mb-4 text-purple-300" style="text-shadow: 2px 2px 0 #000;">Collected Fortunes</h3>
@@ -435,6 +480,7 @@
             const buyItemBtn = document.getElementById('buy-item-btn');
             const attackPowerEl = document.getElementById('attack-power');
             const playerArmorEl = document.getElementById('player-armor');
+            const topStatusBar = document.getElementById('top-status-bar');
 
 
             function updatePlayerUI() {
@@ -958,6 +1004,51 @@
 
             spinButton.addEventListener('click', spinReels);
             
+            function enemyAttack(enemy, reel) {
+                if (!enemy || enemy.isDefeated || enemy.attack <= 0) return;
+
+                const reelContent = reel.querySelector('.reel-content');
+                reelContent.classList.add('zoom-attack');
+                reelContent.addEventListener('animationend', () => {
+                    reelContent.classList.remove('zoom-attack');
+                }, { once: true });
+
+                setTimeout(() => {
+                    let damageFromEnemy = enemy.attack;
+
+                    // Apply damage to bonus armor first
+                    const damageToBonusArmor = Math.min(damageFromEnemy, player.armorBonus);
+                    player.armorBonus -= damageToBonusArmor;
+                    damageFromEnemy -= damageToBonusArmor;
+
+                    // Then apply to base armor
+                    if (damageFromEnemy > 0) {
+                        const damageToBaseArmor = Math.min(damageFromEnemy, player.baseArmor);
+                        player.baseArmor -= damageToBaseArmor;
+                        damageFromEnemy -= damageToBaseArmor;
+                    }
+
+                    // Finally, apply remaining damage to HP
+                    if (damageFromEnemy > 0) {
+                        player.currentHp = Math.max(0, player.currentHp - damageFromEnemy);
+                    }
+
+                    topStatusBar.classList.add('shake');
+                    topStatusBar.addEventListener('animationend', () => {
+                        topStatusBar.classList.remove('shake');
+                    }, { once: true });
+
+                    updatePlayerUI();
+
+                    if (player.currentHp <= 0) {
+                        console.log("PLAYER DEFEATED!");
+                        document.body.style.filter = 'grayscale(100%)';
+                        spinButton.disabled = true;
+                        reels.forEach(r => r.disabled = true);
+                    }
+                }, 200);
+            }
+
             reels.forEach((reel, index) => {
                 reel.addEventListener('click', () => {
                     const enemy = currentEnemies[index];
@@ -984,12 +1075,23 @@
                         return;
                     }
                     
+                    const totalPlayerAttack = player.baseAttack + player.attackBonus;
+                    
+                    // Create and display damage popup
+                    const damagePopup = document.createElement('div');
+                    damagePopup.textContent = `${totalPlayerAttack}`;
+                    damagePopup.className = 'damage-popup';
+                    reel.appendChild(damagePopup);
+
+                    damagePopup.addEventListener('animationend', () => {
+                        damagePopup.remove();
+                    });
+
                     reel.classList.add('shake');
                     reel.addEventListener('animationend', () => {
                         reel.classList.remove('shake');
                     }, { once: true });
                     
-                    const totalPlayerAttack = player.baseAttack + player.attackBonus;
                     enemy.currentHealth -= totalPlayerAttack;
 
                     const enemyInfo = document.getElementById(`enemy-info-${index + 1}`);
@@ -1016,6 +1118,11 @@
                         const healthPercent = (enemy.currentHealth / enemy.maxHealth) * 100;
                         healthBar.style.width = `${healthPercent}%`;
                         healthText.textContent = `${enemy.currentHealth}/${enemy.maxHealth}`;
+                        
+                        // Enemy attacks back after a delay
+                        setTimeout(() => {
+                            enemyAttack(enemy, reel);
+                        }, 500);
                     }
                 });
             });
@@ -1094,6 +1201,4 @@
     </script>
 </body>
 </html>
-
-
 
