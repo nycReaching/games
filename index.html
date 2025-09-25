@@ -430,7 +430,7 @@
                             <!-- Ring Choices -->
                             <div id="ring-choices" class="equip-choices flex flex-col space-y-1 hidden">
                                  <button data-emoji="💍" data-title="Eccentric Jewel" data-stat-type="none" data-stat-value="0" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">💍 Eccentric Jewel</button>
-                                 <button class="w-full text-center py-1 px-2 bg-black/20 rounded-lg opacity-50 cursor-not-allowed" disabled>-</button>
+                                 <button id="ring-slot-2" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg opacity-50 cursor-not-allowed" disabled>-</button>
                                  <button class="w-full text-center py-1 px-2 bg-black/20 rounded-lg opacity-50 cursor-not-allowed" disabled>-</button>
                             </div>
                         </div>
@@ -444,18 +444,40 @@
         <!-- Character Modal (Previously World Map) -->
         <div id="world-map-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
             <div class="h-full w-full flex flex-col text-white">
-                <!-- UPDATED: Character section with blank lines and button -->
-                <div class="h-1/2 w-full bg-gradient-to-b from-gray-900 to-green-900 p-4 relative flex flex-col justify-between">
-                    <!-- 8 Blank rows, using thin divs spaced out -->
-                    <div class="w-full h-px bg-green-700/50"></div>
-                    <div class="w-full h-px bg-green-700/50"></div>
-                    <div class="w-full h-px bg-green-700/50"></div>
-                    <div class="w-full h-px bg-green-700/50"></div>
-                    <div class="w-full h-px bg-green-700/50"></div>
-                    <div class="w-full h-px bg-green-700/50"></div>
-                    <div class="w-full h-px bg-green-700/50"></div>
-                    <div class="w-full h-px bg-green-700/50"></div>
-                    
+                <!-- UPDATED: Character section with stats -->
+                <div class="h-1/2 w-full bg-gradient-to-b from-gray-900 to-green-900 p-4 relative flex flex-col justify-center">
+                    <div class="space-y-4 text-lg">
+                        <!-- Magic Meter -->
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-purple-400 w-28">Magic:</span>
+                            <div class="relative w-full bg-black rounded-full h-5 border-2 border-purple-900">
+                                <div class="bg-gradient-to-r from-purple-500 to-indigo-500 h-full rounded-full" style="width: 75%"></div>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-xs font-bold text-white">75/100</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Luck Stat -->
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-emerald-400 w-28">Luck:</span>
+                            <span class="font-bold">🍀 15%</span>
+                        </div>
+                        <!-- Record Wave -->
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-amber-400 w-28">Wave Record:</span>
+                            <span class="font-bold">🌊 24</span>
+                        </div>
+                        <!-- Unlocks -->
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-cyan-400 w-28">Unlocks:</span>
+                            <div class="flex gap-2 text-2xl">
+                                <span>🏆</span>
+                                <span>🗝️</span>
+                                <span class="opacity-30">❓</span>
+                                <span class="opacity-30">❓</span>
+                            </div>
+                        </div>
+                    </div>
                     <button class="absolute bottom-4 right-4 text-3xl bg-gray-700 hover:bg-gray-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg border-2 border-gray-500 transition-transform active:scale-95">❔</button>
                 </div>
                  <div class="h-1/2 w-full bg-gradient-to-b from-gray-900 to-purple-900 flex flex-col justify-center items-center text-center p-4">
@@ -551,9 +573,9 @@
                 { title: 'Tonic', description: 'Restores 6 HP.', owned: 0, cost: 5 },
                 { title: 'Cross', description: 'Cures curse, +1 max HP.', owned: 0, cost: 10 },
                 { title: 'Gem', description: 'Gain a buff, give a debuff.', owned: 0, cost: 15 },
-                { title: 'Fairy', description: 'Restores magic meter.', owned: 0, cost: 8 },
+                { title: 'Fairy', description: 'Restores magic meter.', owned: 0, cost: 15 },
                 { title: 'Moonstone', description: 'Unlocks the use of moon arts.', owned: 0, cost: 20 },
-                { title: 'Infinity Ring', description: 'Take damage to reroll.', owned: 0, cost: 25 },
+                { title: 'Infinity Ring', description: 'Take damage to reroll.', owned: 0, cost: 25, purchased: false },
             ];
             const carousel = document.getElementById('shop-carousel');
             const carouselItems = carousel.querySelectorAll('.shop-item');
@@ -628,15 +650,22 @@
                         itemDescription.textContent = selectedItemData.description;
                         itemOwned.textContent = `x${selectedItemData.owned}`;
                         
-                        buyItemBtn.innerHTML = `<span>${selectedItemData.cost}</span><span>🪙</span>`;
-                        if (player.gold >= selectedItemData.cost) {
-                            buyItemBtn.disabled = false;
-                            buyItemBtn.classList.remove('opacity-50', 'bg-gray-500', 'cursor-not-allowed');
-                            buyItemBtn.classList.add('bg-green-500');
-                        } else {
+                        if (selectedItemData.purchased) {
+                            buyItemBtn.innerHTML = `<span>Owned</span>`;
                             buyItemBtn.disabled = true;
                             buyItemBtn.classList.add('opacity-50', 'bg-gray-500', 'cursor-not-allowed');
                             buyItemBtn.classList.remove('bg-green-500');
+                        } else {
+                            buyItemBtn.innerHTML = `<span>${selectedItemData.cost}</span><span>🪙</span>`;
+                            if (player.gold >= selectedItemData.cost) {
+                                buyItemBtn.disabled = false;
+                                buyItemBtn.classList.remove('opacity-50', 'bg-gray-500', 'cursor-not-allowed');
+                                buyItemBtn.classList.add('bg-green-500');
+                            } else {
+                                buyItemBtn.disabled = true;
+                                buyItemBtn.classList.add('opacity-50', 'bg-gray-500', 'cursor-not-allowed');
+                                buyItemBtn.classList.remove('bg-green-500');
+                            }
                         }
                     }
                 }, 50);
@@ -653,6 +682,11 @@
                 if (player.gold >= itemToBuy.cost) {
                     player.gold -= itemToBuy.cost;
                     itemToBuy.owned++;
+
+                    if (itemToBuy.title === 'Infinity Ring') {
+                        itemToBuy.purchased = true;
+                        unlockInfinityRing();
+                    }
 
                     buyItemBtn.classList.add('scale-90');
                     setTimeout(() => buyItemBtn.classList.remove('scale-90'), 150);
@@ -763,7 +797,7 @@
             ];
 
             const allFortunes = [
-                { title: 'Durable Stones', description: '+1 Status stone use.', color: 'blue' },
+                { title: 'Double Moon', description: 'Moon Arts effect neighbors.', color: 'blue' },
                 { title: 'Efficient Magic', description: '1/2 MP cost for spells.', color: 'blue' },
                 { title: 'Bartering Edge', description: '15% shop discount.', color: 'blue' },
                 { title: 'Archer\'s Edge', description: 'Attacks all with 🏹 Bow.', color: 'yellow' },
@@ -827,8 +861,12 @@
             }
 
             function initializeFortuneSelection() {
-// ... existing code ... -->
-                sacrificesContainer.innerHTML = '';
+                // Reset the modal to the initial state
+                fortuneModalTitle.textContent = 'Choose a Sacrifice';
+                sacrificesContainer.classList.remove('hidden');
+                fortunesContainer.classList.add('hidden');
+                fortunesContainer.innerHTML = ''; // Clear out old fortunes
+                sacrificesContainer.innerHTML = ''; // Clear out old sacrifices
 
                 const randomSacrifices = getRandomItems(allSacrifices, 3);
                 
@@ -1025,7 +1063,7 @@
                     reelContent.classList.remove('zoom-attack');
                 }, { once: true });
 
-                // 2. After a short delay, apply the damage and trigger the player's hit animations at the same time.
+                // 2. After a short delay that syncs with the animation's peak, apply damage and trigger player hit animations.
                 setTimeout(() => {
                     let damagePreview = enemy.attack;
                     const totalArmor = player.baseArmor + player.armorBonus;
@@ -1069,7 +1107,7 @@
                         spinButton.disabled = true;
                         reels.forEach(r => r.disabled = true);
                     }
-                }, 250); // Delay before damage is applied and animated
+                }, 150); // TIMING UPDATED: Delay before damage is applied and animated
             }
 
             reels.forEach((reel, index) => {
@@ -1157,6 +1195,55 @@
             const statusWeaponIcon = document.getElementById('status-weapon-icon');
             const statusArmorIcon = document.getElementById('status-armor-icon');
 
+            function handleEquipChoice(event) {
+                const choiceButton = event.currentTarget;
+                const newEmoji = choiceButton.dataset.emoji;
+                const newTitle = choiceButton.dataset.title;
+                
+                const parentChoices = choiceButton.closest('.equip-choices');
+                const parentChoicesId = parentChoices.id;
+                const slotButton = document.querySelector(`.equip-slot-btn[data-target='${parentChoicesId}']`);
+
+                if (slotButton) {
+                    const emojiContainer = slotButton.children[0];
+                    const textContainer = slotButton.children[1];
+                    
+                    emojiContainer.textContent = newEmoji;
+                    textContainer.textContent = newTitle;
+                }
+
+                const statType = choiceButton.dataset.statType;
+                const statValue = parseInt(choiceButton.dataset.statValue);
+
+                if (parentChoicesId === 'weapon-choices') {
+                    statusWeaponIcon.textContent = newEmoji;
+                    player.attackBonus = (statType === 'attack') ? statValue : 0;
+                } else if (parentChoicesId === 'armor-choices') {
+                    statusArmorIcon.textContent = newEmoji;
+                    player.armorBonus = (statType === 'armor') ? statValue : 0;
+                }
+                
+                updatePlayerUI();
+            }
+
+            function unlockInfinityRing() {
+                const ringChoicesContainer = document.getElementById('ring-choices');
+                const placeholderButton = document.getElementById('ring-slot-2');
+                if (!ringChoicesContainer || !placeholderButton) return;
+
+                const newRingButton = document.createElement('button');
+                newRingButton.dataset.emoji = "♾️";
+                newRingButton.dataset.title = "Infinity Ring";
+                newRingButton.dataset.statType = "none";
+                newRingButton.dataset.statValue = "0";
+                newRingButton.className = "w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors";
+                newRingButton.innerHTML = `♾️ Infinity Ring`;
+                
+                newRingButton.addEventListener('click', handleEquipChoice);
+                
+                ringChoicesContainer.replaceChild(newRingButton, placeholderButton);
+            }
+
             equipSlotButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     const targetId = button.dataset.target;
@@ -1173,36 +1260,7 @@
             });
 
             equipChoiceButtons.forEach(button => {
-                button.addEventListener('click', (event) => {
-                    const choiceButton = event.currentTarget;
-                    const newEmoji = choiceButton.dataset.emoji;
-                    const newTitle = choiceButton.dataset.title;
-                    
-                    const parentChoices = choiceButton.closest('.equip-choices');
-                    const parentChoicesId = parentChoices.id;
-                    const slotButton = document.querySelector(`.equip-slot-btn[data-target='${parentChoicesId}']`);
-
-                    if (slotButton) {
-                        const emojiContainer = slotButton.children[0];
-                        const textContainer = slotButton.children[1];
-                        
-                        emojiContainer.textContent = newEmoji;
-                        textContainer.textContent = newTitle;
-                    }
-
-                    const statType = choiceButton.dataset.statType;
-                    const statValue = parseInt(choiceButton.dataset.statValue);
-
-                    if (parentChoicesId === 'weapon-choices') {
-                        statusWeaponIcon.textContent = newEmoji;
-                        player.attackBonus = (statType === 'attack') ? statValue : 0;
-                    } else if (parentChoicesId === 'armor-choices') {
-                        statusArmorIcon.textContent = newEmoji;
-                        player.armorBonus = (statType === 'armor') ? statValue : 0;
-                    }
-                    
-                    updatePlayerUI();
-                });
+                button.addEventListener('click', handleEquipChoice);
             });
             
             const equipmentModalButton = document.querySelector('[data-modal-target="system-modal-wrapper"]');
@@ -1224,10 +1282,6 @@
     </script>
 </body>
 </html>
-
-
-
-
 
 
 
