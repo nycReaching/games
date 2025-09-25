@@ -600,7 +600,7 @@
                 if (!isShopDown) return;
                 e.preventDefault();
                 const x = (e.pageX || e.touches[0].pageX) - carousel.offsetLeft;
-                const walk = (x - shopStartX) * 2;
+                const walk = (x - shopStartX); // Speed multiplier removed for more conventional feel
                 carousel.scrollLeft = shopScrollLeft - walk;
             };
             
@@ -727,7 +727,7 @@
                 if (!isMapDown) return;
                 e.preventDefault();
                 const x = (e.pageX || e.touches[0].pageX) - mapCarousel.offsetLeft;
-                const walk = (x - mapStartX) * 2;
+                const walk = (x - mapStartX); // Speed multiplier removed for more conventional feel
                 mapCarousel.scrollLeft = mapScrollLeft - walk;
             };
 
@@ -1282,6 +1282,7 @@
     </script>
 </body>
 </html>
+
 
 
 
