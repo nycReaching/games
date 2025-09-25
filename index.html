@@ -115,6 +115,40 @@
         .hit-effect {
             animation: hit-effect 0.3s ease-in-out;
         }
+
+        /* Player Damage Flash Animation */
+        @keyframes screen-flash {
+            0% { opacity: 0.5; }
+            100% { opacity: 0; }
+        }
+        .screen-flash-effect {
+            animation: screen-flash 0.3s ease-out forwards;
+        }
+
+        /* Reward Modal Animations */
+        @keyframes reward-cycle {
+            0% { transform: translateY(-100%); opacity: 0; }
+            10%, 90% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(100%); opacity: 0; }
+        }
+
+        .reward-cycle-item {
+            animation: reward-cycle 0.1s linear;
+        }
+
+        @keyframes final-reward-pop {
+            from {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .final-reward-pop {
+            animation: final-reward-pop 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+        }
     </style>
 </head>
 <body class="bg-gray-900 flex items-center justify-center min-h-screen transition-all">
@@ -122,11 +156,14 @@
     <!-- Mobile Phone Silhouette -->
     <div class="w-full max-w-sm h-[90vh] max-h-[800px] bg-black border-4 border-gray-700 rounded-3xl shadow-2xl flex flex-col overflow-hidden relative">
         
+        <!-- Player Damage Flash Overlay -->
+        <div id="player-damage-flash" class="absolute inset-0 bg-red-600 opacity-0 pointer-events-none z-[100]"></div>
+
         <!-- Top Status Bar -->
         <div id="top-status-bar" class="bg-gray-800 p-4 border-b-4 border-gray-700 flex flex-col justify-center gap-3 text-white">
             <!-- Counters -->
             <div class="grid grid-cols-4 gap-x-2 text-center items-center">
-                <div class="flex items-center justify-center">
+                <div id="player-armor-container" class="flex items-center justify-center">
                     <span id="status-armor-icon" class="text-3xl">🛡️</span>
                     <span id="player-armor" class="font-bold text-lg ml-1">0</span>
                 </div>
@@ -145,7 +182,7 @@
             <!-- Meters -->
             <div class="space-y-2">
                 <!-- HP Bar -->
-                <div class="flex items-center">
+                <div id="player-hp-container" class="flex items-center">
                     <span class="text-2xl w-10 text-center">❤️</span>
                     <div class="relative w-full bg-black rounded-full h-5 border-2 border-gray-900">
                         <div id="hp-bar" class="bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full" style="width: 100%"></div>
@@ -460,7 +497,7 @@
                         <!-- Luck Stat -->
                         <div class="flex items-center gap-2">
                             <span class="font-bold text-emerald-400 w-28">Luck:</span>
-                            <span class="font-bold">🍀 15%</span>
+                            <span id="player-luck-stat" class="font-bold">🍀 0%</span>
                         </div>
                         <!-- Record Wave -->
                         <div class="flex items-center gap-2">
@@ -489,6 +526,20 @@
             </div>
             <button class="close-modal-btn absolute top-4 right-6 text-white text-5xl font-bold transition-colors" style="text-shadow: 2px 2px 4px #000;">&times;</button>
         </div>
+
+        <!-- REWARD MODAL -->
+        <div id="reward-modal" class="hidden absolute inset-0 bg-black/70 z-50 flex items-center justify-center p-8">
+            <div id="reward-container" class="bg-gray-800 border-4 border-yellow-400 rounded-2xl shadow-2xl p-6 w-full max-w-xs text-center text-white flex flex-col items-center gap-4">
+                <h2 class="text-2xl font-bold text-yellow-300">You got a reward!</h2>
+                <div id="reward-spinner" class="text-7xl h-24 w-24 flex items-center justify-center overflow-hidden">
+                    <span>❔</span>
+                </div>
+                <div id="final-reward" class="hidden flex-col items-center gap-2">
+                    <!-- Final reward shown here -->
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -513,6 +564,9 @@
             const attackPowerEl = document.getElementById('attack-power');
             const playerArmorEl = document.getElementById('player-armor');
             const topStatusBar = document.getElementById('top-status-bar');
+            const playerLuckStatEl = document.getElementById('player-luck-stat');
+            const playerArmorContainer = document.getElementById('player-armor-container');
+            const playerHpContainer = document.getElementById('player-hp-container');
 
 
             function updatePlayerUI() {
@@ -521,6 +575,9 @@
                 playerGoldEl.textContent = player.gold;
                 attackPowerEl.textContent = player.baseAttack + player.attackBonus;
                 playerArmorEl.textContent = player.baseArmor + player.armorBonus;
+                if (playerLuckStatEl) {
+                    playerLuckStatEl.textContent = `🍀 ${player.luck}%`;
+                }
             }
 
             // MODAL LOGIC
@@ -528,6 +585,10 @@
             const closeButtons = document.querySelectorAll('.close-modal-btn');
             const buttonGrid = document.getElementById('button-grid');
             const allModals = document.querySelectorAll('.modal-wrapper');
+            const rewardModal = document.getElementById('reward-modal');
+            const rewardSpinner = document.getElementById('reward-spinner');
+            const finalRewardContainer = document.getElementById('final-reward');
+            const playerDamageFlash = document.getElementById('player-damage-flash');
 
             const openModal = (modal) => {
                 if (modal == null) return;
@@ -957,6 +1018,7 @@
 
             choiceLuckButton.addEventListener('click', () => {
                 player.luck += 5;
+                updatePlayerUI();
                 console.log("Player chose +5% Luck. New Luck:", player.luck);
                 hideSkullModal();
             });
@@ -979,15 +1041,15 @@
                 { name: 'Ninja', emoji: '🥷', special: '🫳', attack: 1 },
                 { name: 'Vampire', emoji: '🧛', special: '🕯️', attack: 1 },
                 { name: 'Supervillain', emoji: '🦹', special: null, attack: 2 },
-                { name: 'Gift', emoji: '🎁', special: '🎉', attack: 0 }
+                { name: 'Gift', emoji: '🎁', special: '🎉', attack: 0, maxHealth: 1 }
             ];
             
             let currentEnemies = [];
 
             const displayEnemyInfo = (finalEnemies) => {
                 finalEnemies.forEach((enemy, i) => {
-                    enemy.maxHealth = 10;
-                    enemy.currentHealth = 10;
+                    enemy.maxHealth = enemy.maxHealth || 10;
+                    enemy.currentHealth = enemy.maxHealth;
                     enemy.isDefeated = false;
 
                     const enemyInfo = document.getElementById(`enemy-info-${i + 1}`);
@@ -1009,6 +1071,67 @@
                     }
                 });
                 enemyInfoArea.classList.remove('hidden');
+            };
+
+            const showRewardModal = (reelIndex) => {
+                const rewards = [
+                    { icon: '❤️', text: '+1 Max HP', type: 'hp', value: 1 },
+                    { icon: '🍀', text: '+3 Luck', type: 'luck', value: 3 },
+                    { icon: '💰', text: '+25 Gold', type: 'gold', value: 25 }
+                ];
+
+                rewardModal.classList.remove('hidden');
+                finalRewardContainer.classList.add('hidden');
+                finalRewardContainer.innerHTML = '';
+                rewardSpinner.classList.remove('hidden');
+                
+                let cycleCount = 0;
+                const maxCycles = 20 + Math.floor(Math.random() * 10); // Randomize duration
+
+                const cycleInterval = setInterval(() => {
+                    const randomReward = rewards[Math.floor(Math.random() * rewards.length)];
+                    rewardSpinner.innerHTML = `<span class="reward-cycle-item">${randomReward.icon}</span>`;
+                    cycleCount++;
+
+                    if (cycleCount >= maxCycles) {
+                        clearInterval(cycleInterval);
+                        const finalReward = rewards[Math.floor(Math.random() * rewards.length)];
+                        
+                        rewardSpinner.classList.add('hidden');
+                        
+                        finalRewardContainer.innerHTML = `
+                            <div class="text-8xl">${finalReward.icon}</div>
+                            <p class="text-xl font-bold">${finalReward.text}</p>
+                            <button id="claim-reward-btn" class="mt-4 w-full py-2 bg-green-500 rounded-lg font-bold border-2 border-black shadow-[4px_4px_0px_#000] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all">Claim</button>
+                        `;
+                        finalRewardContainer.classList.remove('hidden');
+                        finalRewardContainer.classList.add('final-reward-pop', 'flex');
+
+                        document.getElementById('claim-reward-btn').addEventListener('click', () => {
+                            switch (finalReward.type) {
+                                case 'hp':
+                                    player.maxHp += finalReward.value;
+                                    player.currentHp += finalReward.value;
+                                    break;
+                                case 'luck':
+                                    player.luck += finalReward.value;
+                                    break;
+                                case 'gold':
+                                    player.gold += finalReward.value;
+                                    break;
+                            }
+                            updatePlayerUI();
+                            rewardModal.classList.add('hidden');
+
+                            const reel = reels[reelIndex];
+                            const reelContent = reel.querySelector('.reel-content');
+                            reelContent.textContent = '❔';
+                            reel.disabled = true;
+                            reel.classList.add('opacity-50', 'cursor-not-allowed');
+                            currentEnemies[reelIndex] = null;
+                        }, { once: true });
+                    }
+                }, 100);
             };
 
             const spinReels = () => {
@@ -1033,7 +1156,6 @@
                         reelContent.textContent = enemies[randomIndex].emoji;
                     }, 100);
 
-                    // UPDATED: Faster spin animation
                     setTimeout(() => {
                         clearInterval(spinIntervals[i]);
                         const finalIndex = Math.floor(Math.random() * enemies.length);
@@ -1057,28 +1179,34 @@
 
                 const reelContent = reel.querySelector('.reel-content');
                 
-                // 1. Start the enemy's attack animation immediately.
+                // 1. Start the enemy's attack animation.
                 reelContent.classList.add('zoom-attack');
                 reelContent.addEventListener('animationend', () => {
                     reelContent.classList.remove('zoom-attack');
                 }, { once: true });
 
-                // 2. After a short delay that syncs with the animation's peak, apply damage and trigger player hit animations.
+                // 2. After a short delay to sync with the animation's peak, trigger the player hit effect.
                 setTimeout(() => {
-                    let damagePreview = enemy.attack;
                     const totalArmor = player.baseArmor + player.armorBonus;
-                    
-                    // Trigger armor hit animation if armor will be hit
-                    if (totalArmor > 0 && damagePreview > 0) {
-                        const armorElement = document.getElementById('status-armor-icon').parentElement;
-                        armorElement.classList.add('hit-effect');
-                        armorElement.addEventListener('animationend', () => armorElement.classList.remove('hit-effect'), { once: true });
+
+                    // Animate armor/hp getting hit & conditional flash
+                    if (enemy.attack > 0 && totalArmor > 0) {
+                        playerArmorContainer.classList.add('hit-effect');
+                        playerArmorContainer.addEventListener('animationend', () => {
+                            playerArmorContainer.classList.remove('hit-effect');
+                        }, { once: true });
                     }
-                    // Trigger HP hit animation if HP will be hit
-                    if (damagePreview > totalArmor) {
-                        const hpElement = document.getElementById('hp-bar').parentElement.parentElement;
-                        hpElement.classList.add('hit-effect');
-                        hpElement.addEventListener('animationend', () => hpElement.classList.remove('hit-effect'), { once: true });
+                    if (enemy.attack > totalArmor) {
+                        // Player visual feedback: screen flash ONLY when HP is hit
+                        playerDamageFlash.classList.add('screen-flash-effect');
+                        playerDamageFlash.addEventListener('animationend', () => {
+                            playerDamageFlash.classList.remove('screen-flash-effect');
+                        }, { once: true });
+
+                        playerHpContainer.classList.add('hit-effect');
+                        playerHpContainer.addEventListener('animationend', () => {
+                            playerHpContainer.classList.remove('hit-effect');
+                        }, { once: true });
                     }
 
                     // Apply the actual damage logic
@@ -1107,7 +1235,7 @@
                         spinButton.disabled = true;
                         reels.forEach(r => r.disabled = true);
                     }
-                }, 150); // TIMING UPDATED: Delay before damage is applied and animated
+                }, 200); // This delay syncs the flash with the middle of the 0.4s zoom animation.
             }
 
             reels.forEach((reel, index) => {
@@ -1138,7 +1266,6 @@
                     
                     const totalPlayerAttack = player.baseAttack + player.attackBonus;
                     
-                    // Create and display damage popup
                     const damagePopup = document.createElement('div');
                     damagePopup.textContent = `${totalPlayerAttack}`;
                     damagePopup.className = 'damage-popup';
@@ -1165,22 +1292,32 @@
 
                         healthBar.style.width = '0%';
                         healthText.textContent = `0/${enemy.maxHealth}`;
-
-                        setTimeout(() => {
-                            reelContent.textContent = '💀';
-                            reel.classList.remove('opacity-50', 'cursor-not-allowed');
-                            enemyInfo.style.visibility = 'hidden';
-                            const attackValueEl = reel.querySelector('.attack-value');
-                            if (attackValueEl) {
-                                attackValueEl.classList.add('hidden');
-                            }
-                        }, 300);
+                        
+                        if (enemy.emoji === '🎁') {
+                            setTimeout(() => {
+                                enemyInfo.style.visibility = 'hidden';
+                                const attackValueEl = reel.querySelector('.attack-value');
+                                if (attackValueEl) {
+                                    attackValueEl.classList.add('hidden');
+                                }
+                                showRewardModal(index);
+                            }, 300);
+                        } else {
+                            setTimeout(() => {
+                                reelContent.textContent = '💀';
+                                reel.classList.remove('opacity-50', 'cursor-not-allowed');
+                                enemyInfo.style.visibility = 'hidden';
+                                const attackValueEl = reel.querySelector('.attack-value');
+                                if (attackValueEl) {
+                                    attackValueEl.classList.add('hidden');
+                                }
+                            }, 300);
+                        }
                     } else {
                         const healthPercent = (enemy.currentHealth / enemy.maxHealth) * 100;
                         healthBar.style.width = `${healthPercent}%`;
                         healthText.textContent = `${enemy.currentHealth}/${enemy.maxHealth}`;
                         
-                        // Enemy attacks back after a delay
                         setTimeout(() => {
                             enemyAttack(enemy, reel);
                         }, 500);
@@ -1282,6 +1419,7 @@
     </script>
 </body>
 </html>
+
 
 
 
