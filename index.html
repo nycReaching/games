@@ -79,7 +79,7 @@
             }
             to {
                 opacity: 0;
-                transform: translateY(-30px);
+                transform: translateY(-50px);
             }
         }
 
@@ -88,7 +88,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 2.25rem; /* text-4xl - Made Bigger */
+            font-size: 3rem; /* text-5xl */
             font-weight: bold;
             color: #FBBF24; /* amber-400 */
             text-shadow: 2px 2px 0 #000;
@@ -104,6 +104,16 @@
         }
         .zoom-attack {
             animation: zoom-attack 0.4s ease-in-out;
+        }
+
+        /* ADDED: Player hit effect animation */
+        @keyframes hit-effect {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+        .hit-effect {
+            animation: hit-effect 0.3s ease-in-out;
         }
     </style>
 </head>
@@ -1008,45 +1018,58 @@
                 if (!enemy || enemy.isDefeated || enemy.attack <= 0) return;
 
                 const reelContent = reel.querySelector('.reel-content');
+                
+                // 1. Start the enemy's attack animation immediately.
                 reelContent.classList.add('zoom-attack');
                 reelContent.addEventListener('animationend', () => {
                     reelContent.classList.remove('zoom-attack');
                 }, { once: true });
 
+                // 2. After a short delay, apply the damage and trigger the player's hit animations at the same time.
                 setTimeout(() => {
-                    let damageFromEnemy = enemy.attack;
+                    let damagePreview = enemy.attack;
+                    const totalArmor = player.baseArmor + player.armorBonus;
+                    
+                    // Trigger armor hit animation if armor will be hit
+                    if (totalArmor > 0 && damagePreview > 0) {
+                        const armorElement = document.getElementById('status-armor-icon').parentElement;
+                        armorElement.classList.add('hit-effect');
+                        armorElement.addEventListener('animationend', () => armorElement.classList.remove('hit-effect'), { once: true });
+                    }
+                    // Trigger HP hit animation if HP will be hit
+                    if (damagePreview > totalArmor) {
+                        const hpElement = document.getElementById('hp-bar').parentElement.parentElement;
+                        hpElement.classList.add('hit-effect');
+                        hpElement.addEventListener('animationend', () => hpElement.classList.remove('hit-effect'), { once: true });
+                    }
 
-                    // Apply damage to bonus armor first
+                    // Apply the actual damage logic
+                    let damageFromEnemy = enemy.attack;
                     const damageToBonusArmor = Math.min(damageFromEnemy, player.armorBonus);
                     player.armorBonus -= damageToBonusArmor;
                     damageFromEnemy -= damageToBonusArmor;
 
-                    // Then apply to base armor
                     if (damageFromEnemy > 0) {
                         const damageToBaseArmor = Math.min(damageFromEnemy, player.baseArmor);
                         player.baseArmor -= damageToBaseArmor;
                         damageFromEnemy -= damageToBaseArmor;
                     }
 
-                    // Finally, apply remaining damage to HP
                     if (damageFromEnemy > 0) {
                         player.currentHp = Math.max(0, player.currentHp - damageFromEnemy);
                     }
-
-                    topStatusBar.classList.add('shake');
-                    topStatusBar.addEventListener('animationend', () => {
-                        topStatusBar.classList.remove('shake');
-                    }, { once: true });
-
+                    
+                    // Update the UI to show the new stat values
                     updatePlayerUI();
 
+                    // Check for player defeat
                     if (player.currentHp <= 0) {
                         console.log("PLAYER DEFEATED!");
                         document.body.style.filter = 'grayscale(100%)';
                         spinButton.disabled = true;
                         reels.forEach(r => r.disabled = true);
                     }
-                }, 200);
+                }, 250); // Delay before damage is applied and animated
             }
 
             reels.forEach((reel, index) => {
@@ -1201,4 +1224,10 @@
     </script>
 </body>
 </html>
+
+
+
+
+
+
 
