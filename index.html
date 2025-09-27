@@ -567,8 +567,10 @@
                 gold: 99,
                 baseAttack: 8,
                 attackBonus: 0,
+                maxBaseArmor: 2,
                 baseArmor: 2,
-                armorBonus: 0,
+                armorBonus: 0, // This is the dynamic total, including temporary spell effects
+                equippedArmorBonus: 0, // Stores the persistent bonus from equipped armor
                 maxMp: 10,
                 currentMp: 10,
                 moons: 3, // Moons for special arts
@@ -1638,6 +1640,11 @@
             const spinReels = () => {
                 if (spinButton.disabled) return;
 
+                // Restore armor at the start of a spin
+                player.baseArmor = player.maxBaseArmor;
+                player.armorBonus = player.equippedArmorBonus; // Reset armor bonus to its base from equipment
+                updatePlayerUI();
+
                 spinsRemaining--;
                 if (spinsRemaining < 0) {
                     wave++;
@@ -2135,15 +2142,17 @@
                     player.attackBonus = (statType === 'attack') ? statValue : 0;
                 } else if (parentChoicesId === 'armor-choices') {
                     statusArmorIcon.textContent = newEmoji;
-                    // Reset all bonuses from this slot before applying the new one
-                    player.armorBonus = 0;
+                    // Reset persistent bonus and special armor from this slot before applying the new one
+                    player.equippedArmorBonus = 0;
                     player.specialArmor = null;
                     
                     if (statType === 'armor') {
-                        player.armorBonus = statValue;
+                        player.equippedArmorBonus = statValue;
                     } else if (statType === 'special' && statValue === 'admirers') {
                         player.specialArmor = 'admirers';
                     }
+                    // Update the total armor bonus to reflect only the new equipment
+                    player.armorBonus = player.equippedArmorBonus;
                     // TODO: Handle luck from cloak
                 }
                 
@@ -2226,5 +2235,7 @@
     </script>
 </body>
 </html>
+
+
 
 
