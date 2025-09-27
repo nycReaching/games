@@ -140,16 +140,23 @@
         .final-reward-pop {
             animation: final-reward-pop 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
         }
+
+        /* ADDED: Armor gain effect animation */
+        @keyframes armor-gain {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); text-shadow: 0 0 10px #60a5fa; } /* blue-400 */
+            100% { transform: scale(1); }
+        }
+        .armor-gain {
+            animation: armor-gain 0.4s ease-in-out;
+        }
     </style>
 </head>
 <body class="bg-gray-900 flex items-center justify-center min-h-screen transition-all">
 
-    <!-- Mobile Phone Silhouette -->
     <div class="w-full max-w-sm h-[90vh] max-h-[800px] bg-black border-4 border-gray-700 rounded-3xl shadow-2xl flex flex-col overflow-hidden relative">
         
-        <!-- Top Status Bar -->
         <div id="top-status-bar" class="bg-gray-800 p-4 border-b-4 border-gray-700 flex flex-col justify-center gap-3 text-white">
-            <!-- Counters -->
             <div class="grid grid-cols-4 gap-x-2 text-center items-center">
                 <div id="player-armor-container" class="flex items-center justify-center">
                     <span id="status-armor-icon" class="text-3xl">🛡️</span>
@@ -167,9 +174,7 @@
                     <button data-modal-target="world-map-modal-wrapper" class="text-3xl transition-transform active:scale-90">👨</button>
                 </div>
             </div>
-            <!-- Meters -->
             <div class="space-y-2">
-                <!-- HP Bar -->
                 <div id="player-hp-container" class="flex items-center">
                     <span class="text-2xl w-10 text-center">❤️</span>
                     <div class="relative w-full bg-black rounded-full h-5 border-2 border-gray-900">
@@ -179,7 +184,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- Enemy Bar -->
                 <div class="flex items-center">
                     <span class="text-2xl w-10 text-center">💀</span>
                     <div class="relative w-full bg-black rounded-full h-5 border-2 border-gray-900">
@@ -192,13 +196,9 @@
             </div>
         </div>
 
-        <!-- Game Screen Area (Central Area) -->
         <div class="flex-grow bg-gray-900 flex flex-col p-4 relative">
-            <!-- Top half for slot machine -->
             <div class="h-1/2 flex items-center justify-center">
-                <!-- Slot Machine -->
                 <div id="slot-machine" class="flex space-x-4 items-end">
-                    <!-- Reel 1 Column -->
                     <div class="flex flex-col items-center gap-1">
                         <div class="h-4 flex items-center justify-center gap-0.5" style="min-width: 56px;">
                             <span class="enemy-status enemy-1-status-poison text-xs" style="display: none;">☠️</span>
@@ -211,7 +211,6 @@
                             <div class="attack-value absolute top-1 left-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-br-md rounded-tl-md hidden" style="text-shadow: 1px 1px 0 #000;">💥1</div>
                         </button>
                     </div>
-                    <!-- Reel 2 Column -->
                     <div class="flex flex-col items-center gap-1">
                          <div class="h-4 flex items-center justify-center gap-0.5" style="min-width: 56px;">
                             <span class="enemy-status enemy-2-status-poison text-xs" style="display: none;">☠️</span>
@@ -224,7 +223,6 @@
                             <div class="attack-value absolute top-1 left-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-br-md rounded-tl-md hidden" style="text-shadow: 1px 1px 0 #000;">💥1</div>
                         </button>
                     </div>
-                    <!-- Reel 3 Column -->
                     <div class="flex flex-col items-center gap-1">
                          <div class="h-4 flex items-center justify-center gap-0.5" style="min-width: 56px;">
                             <span class="enemy-status enemy-3-status-poison text-xs" style="display: none;">☠️</span>
@@ -239,10 +237,8 @@
                     </div>
                 </div>
             </div>
-            <!-- Bottom half for enemy info -->
             <div class="h-1/2 pt-4 flex justify-center items-start">
                 <div id="enemy-info-area" class="flex space-x-4 text-white hidden">
-                    <!-- Enemy 1 Info -->
                     <div id="enemy-info-1" class="text-center w-24">
                         <div class="relative w-full bg-black rounded-full h-4 border-2 border-gray-600 mb-1">
                             <div class="health-bar bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
@@ -253,7 +249,6 @@
                         <p id="enemy-name-1" class="text-xs font-bold truncate">-</p>
                         <p id="enemy-special-1" class="text-lg h-6">-</p>
                     </div>
-                    <!-- Enemy 2 Info -->
                     <div id="enemy-info-2" class="text-center w-24">
                         <div class="relative w-full bg-black rounded-full h-4 border-2 border-gray-600 mb-1">
                             <div class="health-bar bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
@@ -264,7 +259,6 @@
                         <p id="enemy-name-2" class="text-xs font-bold truncate">-</p>
                         <p id="enemy-special-2" class="text-lg h-6">-</p>
                     </div>
-                    <!-- Enemy 3 Info -->
                     <div id="enemy-info-3" class="text-center w-24">
                         <div class="relative w-full bg-black rounded-full h-4 border-2 border-gray-600 mb-1">
                             <div class="health-bar bg-gradient-to-r from-pink-500 to-red-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
@@ -278,7 +272,6 @@
                 </div>
             </div>
             <div class="absolute bottom-2 left-4 text-teal-400 text-sm font-bold">Wave 1</div>
-            <!-- Player Status Effects -->
             <div id="player-status-effects" class="absolute bottom-2 right-4 flex flex-nowrap justify-end items-center gap-0.5 text-lg" style="min-width: 120px;">
                 <span id="player-status-poison" style="display: none;">☠️</span>
                 <span id="player-status-curse" style="display: none;">🕯️</span>
@@ -288,7 +281,6 @@
                 <span id="player-status-rush" style="display: none;">⚡</span>
             </div>
             
-            <!-- SKULL METER FULL MODAL -->
             <div id="skull-meter-modal" class="hidden absolute inset-x-4 top-1/3 flex flex-col items-center text-white z-20 gap-8">
                 <h2 class="text-2xl font-bold text-center" style="text-shadow: 2px 2px 0px #000;">Make a choice.</h2>
                 <div class="w-full flex flex-col gap-4">
@@ -298,9 +290,7 @@
             </div>
         </div>
 
-        <!-- Controls Area -->
         <div id="controls-area" class="h-[35%] bg-gray-800 border-t-4 border-gray-700 relative">
-            <!-- Button Grid Container -->
             <div id="button-grid" class="p-8 h-full">
                 <div class="grid grid-cols-3 grid-rows-2 gap-6 h-full items-center">
                     <button data-modal-target="items-modal-wrapper" class="h-16 bg-gradient-to-b from-amber-600 to-amber-800 text-white font-bold rounded-lg border-2 border-black shadow-[10px_10px_0px_#000] active:shadow-none active:translate-x-2.5 active:translate-y-2.5 transition-all duration-75 text-4xl">🏪</button>
@@ -312,11 +302,8 @@
                 </div>
             </div>
             
-            <!-- MODALS -->
-            <!-- Items Modal -->
             <div id="items-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
                 <div class="h-full w-full bg-gradient-to-b from-amber-600 to-amber-800 flex flex-col">
-                    <!-- Item Info Area -->
                     <div class="h-1/2 w-full flex flex-col items-center justify-center text-center text-white p-4 relative">
                         <div class="flex items-center justify-center gap-2 mb-2">
                             <h3 id="item-title" class="text-xl font-bold text-shadow-lg"></h3>
@@ -324,13 +311,10 @@
                         </div>
                         <p id="item-description" class="text-sm"></p>
                         <button id="buy-item-btn" class="absolute top-4 right-4 bg-green-500 text-white font-bold w-auto h-12 px-3 flex items-center justify-center gap-1 rounded-md border border-black shadow-[4px_4px_0px_#000] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all text-lg">
-                            <!-- Content is now set by JS -->
-                        </button>
+                            </button>
                     </div>
-                    <!-- Carousel Area -->
                     <div id="shop-carousel" class="shop-carousel h-1/2 w-full flex items-center overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing">
-                        <div class="flex space-x-4 px-[calc(50%-3.5rem)]"> <!-- Padding to center items -->
-                            <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="0">🍶</div>
+                        <div class="flex space-x-4 px-[calc(50%-3.5rem)]"> <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="0">🍶</div>
                             <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="1">✝️</div>
                             <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="2">💎</div>
                             <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="3">🧚🏼</div>
@@ -342,11 +326,9 @@
                 <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center active:bg-gray-800 transition-colors">&times;</button>
             </div>
 
-            <!-- Map Modal -->
             <div id="map-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
                 <div class="h-full w-full bg-gradient-to-b from-indigo-700 to-indigo-900 flex flex-col">
-                     <!-- Item Info Area -->
-                    <div class="h-1/2 w-full flex flex-col items-center justify-center text-center text-white p-4 relative">
+                     <div class="h-1/2 w-full flex flex-col items-center justify-center text-center text-white p-4 relative">
                         <div class="flex items-center justify-center gap-2 mb-2">
                             <h3 id="map-item-title" class="text-xl font-bold text-shadow-lg"></h3>
                             <span id="map-item-owned" class="bg-blue-900 text-white text-xs font-bold px-2 py-1 rounded-md">x0</span>
@@ -356,10 +338,8 @@
                             0🌙
                         </button>
                     </div>
-                    <!-- Carousel Area -->
                     <div id="map-carousel" class="shop-carousel h-1/2 w-full flex items-center overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing">
-                        <div class="flex space-x-4 px-[calc(50%-3.5rem)]"> <!-- Padding to center items -->
-                            <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="0">☠️</div>
+                        <div class="flex space-x-4 px-[calc(50%-3.5rem)]"> <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="0">☠️</div>
                             <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="1">🕯️</div>
                             <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="2">🐌</div>
                             <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="3">❇️</div>
@@ -371,28 +351,21 @@
                 <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center active:bg-gray-800 transition-colors">&times;</button>
             </div>
 
-            <!-- Fortunes Modal (Previously Magic) -->
             <div id="equip-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
                 <div class="h-full w-full bg-gradient-to-b from-purple-700 to-purple-900 p-4 text-white flex flex-col justify-center">
                     <h2 id="fortune-modal-title" class="text-xl font-bold mb-4 text-center" style="text-shadow: 2px 2px 0px #000;">Choose a Sacrifice</h2>
             
-                    <!-- Sacrifices Container -->
                     <div id="sacrifices-container" class="flex justify-around items-start text-center">
-                        <!-- JS will inject 3 random sacrifices here -->
-                    </div>
+                        </div>
             
-                    <!-- Fortunes Container -->
                     <div id="fortunes-container" class="hidden flex justify-around items-stretch text-center gap-2">
-                         <!-- JS will inject 3 random fortunes here -->
-                    </div>
+                         </div>
                 </div>
                 <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center active:bg-gray-800 transition-colors">&times;</button>
             </div>
 
-            <!-- Spells Modal -->
             <div id="quests-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
                 <div class="h-full w-full bg-gradient-to-b from-pink-400 to-pink-600 p-4 text-white flex flex-col justify-around">
-                    <!-- Magic Meter -->
                     <div class="flex items-center gap-2 px-4">
                         <span class="text-2xl w-10 text-center">✨</span>
                         <div class="relative w-full bg-black rounded-full h-5 border-2 border-purple-900">
@@ -403,20 +376,17 @@
                         </div>
                     </div>
                     <div class="flex justify-around items-start text-center">
-                        <!-- Spell 1: Flameheart -->
-                        <button class="w-1/3 flex flex-col items-center gap-1 transition-transform active:scale-95">
+                        <button data-spell="flameheart" class="w-1/3 flex flex-col items-center gap-1 transition-transform active:scale-95">
                             <div class="text-6xl" style="text-shadow: 4px 4px 0px #000;">❤️‍🔥</div>
                             <h3 class="font-bold text-base">Flameheart</h3>
                             <p class="text-[11px] text-white/80">Deal 5 damage and heal 5 HP.</p>
                         </button>
-                        <!-- Spell 2: Frostbite -->
-                        <button class="w-1/3 flex flex-col items-center gap-1 transition-transform active:scale-95">
+                        <button data-spell="frostbite" class="w-1/3 flex flex-col items-center gap-1 transition-transform active:scale-95">
                             <div class="text-6xl" style="text-shadow: 4px 4px 0px #000;">❄️</div>
                             <h3 class="font-bold text-base">Frostbite</h3>
                             <p class="text-[11px] text-white/80">Deal 5 damage & inflict 🐌 Sluggish.</p>
                         </button>
-                        <!-- Spell 3: Armorheart -->
-                        <button class="w-1/3 flex flex-col items-center gap-1 transition-transform active:scale-95">
+                        <button data-spell="armorheart" class="w-1/3 flex flex-col items-center gap-1 transition-transform active:scale-95">
                             <div class="text-6xl" style="text-shadow: 4px 4px 0px #000;">🩶</div>
                             <h3 class="font-bold text-base">Armorheart</h3>
                             <p class="text-[11px] text-white/80">Add current health to armor.</p>
@@ -426,13 +396,11 @@
                 <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border-4 border-gray-600 flex items-center justify-center active:bg-gray-800 transition-colors">&times;</button>
             </div>
 
-            <!-- Equipment Modal -->
             <div id="system-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
                 <div class="h-full w-full bg-gradient-to-b from-blue-400 to-blue-600 p-4 text-white flex flex-col text-center">
                     
                     <div class="flex-grow flex flex-col justify-around">
     
-                        <!-- Equipment Slots -->
                         <div class="grid grid-cols-3 gap-4 items-center">
                             <button data-target="weapon-choices" class="equip-slot-btn focus:outline-none transition-all group">
                                 <div class="text-5xl group-focus:scale-110 transition-transform truncate" style="text-shadow: 5px 5px 0px #000;">⚔️</div>
@@ -448,21 +416,17 @@
                             </button>
                         </div>
     
-                        <!-- Equipment Choices Container -->
                         <div class="relative min-h-[84px]">
-                            <!-- Weapon Choices -->
                             <div id="weapon-choices" class="equip-choices flex flex-col space-y-1 hidden">
                                 <button data-emoji="🏹" data-title="Bow" data-stat-type="attack" data-stat-value="1" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🏹 Bow (+1 💥)</button>
                                 <button data-emoji="🗡️" data-title="Dagger" data-stat-type="attack" data-stat-value="2" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🗡️ Dagger (+2 💥)</button>
                                 <button data-emoji="🔨" data-title="Hammer" data-stat-type="attack" data-stat-value="5" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🔨 Hammer (+5 💥)</button>
                             </div>
-                            <!-- Armor Choices -->
                             <div id="armor-choices" class="equip-choices flex flex-col space-y-1 hidden">
                                 <button data-emoji="🧥" data-title="Leather Gear" data-stat-type="armor" data-stat-value="2" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🧥 Leather Gear (+2 🛡️)</button>
                                 <button data-emoji="🪨" data-title="Rock Bracer" data-stat-type="armor" data-stat-value="4" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🪨 Rock Bracer (+4 🛡️)</button>
                                 <button data-emoji="🕸️" data-title="Cloak" data-stat-type="luck" data-stat-value="15" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🕸️ Cloak (+15% 🍀)</button>
                             </div>
-                            <!-- Ring Choices -->
                             <div id="ring-choices" class="equip-choices flex flex-col space-y-1 hidden">
                                  <button data-emoji="💍" data-title="Eccentric Jewel" data-stat-type="none" data-stat-value="0" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">💍 Eccentric Jewel</button>
                                  <button id="ring-slot-2" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg opacity-50 cursor-not-allowed" disabled>-</button>
@@ -478,32 +442,25 @@
             
         </div>
 
-        <!-- Tutorial Modal -->
         <div id="tutorial-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-[60] p-4">
             <div class="h-full w-full bg-gradient-to-b from-blue-800 to-indigo-900 rounded-lg border-4 border-blue-600 flex flex-col items-center justify-center text-white relative">
                 <h2 class="text-3xl font-bold mb-4" style="text-shadow: 2px 2px 0 #000;">How to Play</h2>
-                <!-- Tutorial content will go here -->
-                 <button id="tutorial-close-btn" class="absolute top-4 right-4 text-white text-4xl font-bold transition-colors" style="text-shadow: 2px 2px 4px #000;">&times;</button>
+                <button id="tutorial-close-btn" class="absolute top-4 right-4 text-white text-4xl font-bold transition-colors" style="text-shadow: 2px 2px 4px #000;">&times;</button>
             </div>
         </div>
 
-        <!-- Character Modal (Previously World Map) -->
         <div id="world-map-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
             <div class="h-full w-full flex flex-col text-white">
-                <!-- Character section with stats -->
                 <div class="h-1/2 w-full bg-gradient-to-b from-gray-900 to-green-900 p-4 relative flex flex-col justify-center">
                     <div class="space-y-4 text-lg">
-                        <!-- Luck Stat -->
                         <div class="flex items-center gap-2">
                             <span class="font-bold text-emerald-400 w-28">Luck:</span>
                             <span id="player-luck-stat" class="font-bold">🍀 0%</span>
                         </div>
-                        <!-- Record Wave -->
                         <div class="flex items-center gap-2">
                             <span class="font-bold text-teal-400 w-28">Wave Record:</span>
                             <span class="font-bold">0</span>
                         </div>
-                        <!-- Unlocks -->
                         <div class="flex items-center gap-2">
                             <span class="font-bold text-cyan-400 w-28">Unlocks:</span>
                             <div class="flex gap-2 text-2xl">
@@ -516,18 +473,15 @@
                     </div>
                     <button id="tutorial-open-btn" class="absolute bottom-4 right-4 text-3xl bg-gray-700 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg border-2 border-gray-500 transition-transform active:scale-95">❔</button>
                 </div>
-                 <!-- UPDATED: Redesigned fortunes section -->
                  <div class="h-1/2 w-full bg-gradient-to-b from-gray-900 to-purple-900 flex flex-col justify-start items-center text-center p-4">
                     <h3 class="text-xl font-bold mb-4 text-purple-300" style="text-shadow: 2px 2px 0 #000;">Collected Fortunes</h3>
                     <div id="collected-fortunes-container" class="grid grid-cols-3 gap-2 w-full">
-                        <!-- JS will populate this with fortune slots -->
-                    </div>
+                        </div>
                 </div>
             </div>
             <button class="close-modal-btn absolute top-4 right-6 text-white text-5xl font-bold transition-colors" style="text-shadow: 2px 2px 4px #000;">&times;</button>
         </div>
 
-        <!-- REWARD MODAL -->
         <div id="reward-modal" class="hidden absolute inset-0 bg-black/70 z-50 flex items-center justify-center p-8">
             <div id="reward-container" class="bg-gray-800 border-4 border-yellow-400 rounded-2xl shadow-2xl p-6 w-full max-w-xs text-center text-white flex flex-col items-center gap-4">
                 <h2 class="text-2xl font-bold text-yellow-300">You got a reward!</h2>
@@ -536,8 +490,7 @@
                 </div>
                 <p id="reward-text" class="text-xl font-bold h-7"></p>
                 <div id="reward-action" class="h-14">
-                     <!-- Claim button will be injected here -->
-                </div>
+                     </div>
             </div>
         </div>
 
@@ -1065,15 +1018,14 @@
             spellButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     if (button.disabled) return;
-
-                    if (player.currentMp >= 5) {
-                        player.currentMp -= 5;
+            
+                    const spellCost = 5;
+                    if (player.currentMp >= spellCost) {
+                        player.currentMp -= spellCost;
                         updateMagicUI();
-                        console.log('Spell cast! Remaining MP:', player.currentMp);
-                        
-                        // Add a small visual feedback for casting the spell
-                        button.classList.add('scale-90');
-                        setTimeout(() => button.classList.remove('scale-90'), 150);
+            
+                        const spellName = button.dataset.spell;
+                        castSpell(spellName);
                     }
                 });
             });
@@ -1531,6 +1483,105 @@
                 });
             }
 
+            function applyDamageAndAnimate(index, damageAmount) {
+                const enemy = currentEnemies[index];
+                if (!enemy || enemy.isDefeated) return;
+
+                const reel = reels[index];
+                
+                const damagePopup = document.createElement('div');
+                damagePopup.textContent = `${damageAmount}`;
+                damagePopup.className = 'damage-popup';
+                reel.appendChild(damagePopup);
+                damagePopup.addEventListener('animationend', () => damagePopup.remove());
+
+                reel.classList.add('shake');
+                reel.addEventListener('animationend', () => reel.classList.remove('shake'), { once: true });
+                
+                enemy.currentHealth -= damageAmount;
+
+                const enemyInfo = document.getElementById(`enemy-info-${index + 1}`);
+                const healthBar = enemyInfo.querySelector('.health-bar');
+                const healthText = document.getElementById(`health-text-${index + 1}`);
+
+                if (enemy.currentHealth <= 0) {
+                    enemy.currentHealth = 0;
+                    enemy.isDefeated = true;
+                    healthBar.style.width = '0%';
+                    healthText.textContent = `0/${enemy.maxHealth}`;
+                    updateAllStatusIcons();
+
+                    if (enemy.emoji === '🎁') {
+                        setTimeout(() => {
+                            enemyInfo.style.visibility = 'hidden';
+                            reel.querySelector('.attack-value')?.classList.add('hidden');
+                            showRewardModal(index);
+                        }, 300);
+                    } else {
+                        setTimeout(() => {
+                            reel.querySelector('.reel-content').textContent = '💀';
+                            reel.classList.remove('opacity-50', 'cursor-not-allowed');
+                            enemyInfo.style.visibility = 'hidden';
+                            reel.querySelector('.attack-value')?.classList.add('hidden');
+                        }, 300);
+                    }
+                } else {
+                    const healthPercent = (enemy.currentHealth / enemy.maxHealth) * 100;
+                    healthBar.style.width = `${healthPercent}%`;
+                    healthText.textContent = `${enemy.currentHealth}/${enemy.maxHealth}`;
+                }
+            }
+
+
+            function castSpell(spellName) {
+                closeModal();
+                reels.forEach(r => r.disabled = true);
+            
+                switch (spellName) {
+                    case 'flameheart':
+                        console.log('Casting Flameheart...');
+                        currentEnemies.forEach((enemy, index) => {
+                            if (enemy && !enemy.isDefeated) {
+                                applyDamageAndAnimate(index, 5);
+                            }
+                        });
+                        player.currentHp = Math.min(player.maxHp, player.currentHp + 5);
+                        updatePlayerUI();
+                        break;
+            
+                    case 'frostbite':
+                        console.log('Casting Frostbite...');
+                        currentEnemies.forEach((enemy, index) => {
+                            if (enemy && !enemy.isDefeated) {
+                                applyDamageAndAnimate(index, 5);
+                                // Apply sluggish if not already present
+                                if (!enemy.statusEffects.includes('sluggish')) {
+                                    enemy.statusEffects.push('sluggish');
+                                }
+                            }
+                        });
+                        updateAllStatusIcons();
+                        break;
+            
+                    case 'armorheart':
+                        console.log('Casting Armorheart...');
+                        player.armorBonus += player.currentHp;
+                        updatePlayerUI();
+                        // Animate the armor gain
+                        playerArmorContainer.classList.add('armor-gain');
+                        playerArmorContainer.addEventListener('animationend', () => {
+                            playerArmorContainer.classList.remove('armor-gain');
+                        }, { once: true });
+                        break;
+                }
+            
+                // Enemies attack after the spell is cast
+                setTimeout(() => {
+                    allEnemiesAttack();
+                }, 800); // A slightly longer delay for spell effects to be visible
+            }
+
+
             reels.forEach((reel, index) => {
                 reel.addEventListener('click', () => {
                     const enemy = currentEnemies[index];
@@ -1564,59 +1615,7 @@
                     
                     const totalPlayerAttack = player.baseAttack + player.attackBonus;
                     
-                    const damagePopup = document.createElement('div');
-                    damagePopup.textContent = `${totalPlayerAttack}`;
-                    damagePopup.className = 'damage-popup';
-                    reel.appendChild(damagePopup);
-
-                    damagePopup.addEventListener('animationend', () => {
-                        damagePopup.remove();
-                    });
-
-                    reel.classList.add('shake');
-                    reel.addEventListener('animationend', () => {
-                        reel.classList.remove('shake');
-                    }, { once: true });
-                    
-                    enemy.currentHealth -= totalPlayerAttack;
-
-                    const enemyInfo = document.getElementById(`enemy-info-${index + 1}`);
-                    const healthBar = enemyInfo.querySelector('.health-bar');
-                    const healthText = document.getElementById(`health-text-${index + 1}`);
-
-                    if (enemy.currentHealth <= 0) {
-                        enemy.currentHealth = 0;
-                        enemy.isDefeated = true; 
-
-                        healthBar.style.width = '0%';
-                        healthText.textContent = `0/${enemy.maxHealth}`;
-                        updateAllStatusIcons(); // Hide status icons on defeat
-                        
-                        if (enemy.emoji === '🎁') {
-                            setTimeout(() => {
-                                enemyInfo.style.visibility = 'hidden';
-                                const attackValueEl = reel.querySelector('.attack-value');
-                                if (attackValueEl) {
-                                    attackValueEl.classList.add('hidden');
-                                }
-                                showRewardModal(index);
-                            }, 300);
-                        } else {
-                            setTimeout(() => {
-                                reelContent.textContent = '💀';
-                                reel.classList.remove('opacity-50', 'cursor-not-allowed');
-                                enemyInfo.style.visibility = 'hidden';
-                                const attackValueEl = reel.querySelector('.attack-value');
-                                if (attackValueEl) {
-                                    attackValueEl.classList.add('hidden');
-                                }
-                            }, 300);
-                        }
-                    } else {
-                        const healthPercent = (enemy.currentHealth / enemy.maxHealth) * 100;
-                        healthBar.style.width = `${healthPercent}%`;
-                        healthText.textContent = `${enemy.currentHealth}/${enemy.maxHealth}`;
-                    }
+                    applyDamageAndAnimate(index, totalPlayerAttack);
                     
                     // --- PLAYER'S TURN END ---
                     // After a delay, trigger the enemy counter-attack sequence
@@ -1739,6 +1738,3 @@
     </script>
 </body>
 </html>
-
-
-
