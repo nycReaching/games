@@ -468,7 +468,7 @@
                             </div>
                             <!-- Armor Choices -->
                             <div id="armor-choices" class="equip-choices flex flex-col space-y-1 hidden">
-                                <button data-emoji="🧥" data-title="Leather Gear" data-stat-type="armor" data-stat-value="2" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🧥 Leather Gear (+2 🛡️)</button>
+                                <button data-emoji="🧥" data-title="Leather Gear" data-stat-type="special" data-stat-value="admirers" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🧥 Leather Gear (Gain Admirers)</button>
                                 <button data-emoji="🪨" data-title="Rock Bracer" data-stat-type="armor" data-stat-value="4" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🪨 Rock Bracer (+4 🛡️)</button>
                                 <button data-emoji="🕸️" data-title="Cloak" data-stat-type="luck" data-stat-value="15" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors">🕸️ Cloak (+15% 🍀)</button>
                             </div>
@@ -493,6 +493,10 @@
             <div class="h-full w-full bg-gradient-to-b from-blue-800 to-indigo-900 rounded-lg border-4 border-blue-600 flex flex-col items-center justify-center text-white relative">
                 <h2 class="text-3xl font-bold mb-4" style="text-shadow: 2px 2px 0 #000;">How to Play</h2>
                 <!-- Tutorial content will go here -->
+                <div class="p-4 text-center">
+                    <h3 class="font-bold text-xl mb-2 text-yellow-300">Notes</h3>
+                    <p class="text-base">Enemies are either animal-like or human-like.</p>
+                </div>
                  <button id="tutorial-close-btn" class="absolute top-4 right-4 text-white text-4xl font-bold transition-colors" style="text-shadow: 2px 2px 4px #000;">&times;</button>
             </div>
         </div>
@@ -563,7 +567,7 @@
                 gold: 99,
                 baseAttack: 8,
                 attackBonus: 0,
-                baseArmor: 0,
+                baseArmor: 2,
                 armorBonus: 0,
                 maxMp: 10,
                 currentMp: 10,
@@ -571,6 +575,7 @@
                 statusEffects: [], // Handles active player buffs/debuffs
                 activeSacrifices: [], // To track which sacrifices are active
                 disabledSpells: [], // To track disabled spells like from Heartbreak
+                specialArmor: null, 
             };
 
             // GAME STATE
@@ -1478,24 +1483,26 @@
             });
             
             const enemies = [
-                { name: 'Ghost', emoji: '👻', special: null, attack: 1 },
-                { name: 'Wolf', emoji: '🐺', special: null, attack: 1 },
-                { name: 'Frog', emoji: '🐸', special: '☠️', attack: 1 },
-                { name: 'Unicorn', emoji: '🦄', special: '❇️', attack: 1 },
-                { name: 'Dragon', emoji: '🐲', special: null, attack: 2 },
-                { name: 'Serpent', emoji: '🐍', special: '☠️', attack: 1 },
-                { name: 'Rat', emoji: '🐀', special: null, attack: 1 },
-                { name: 'Crow', emoji: '🐦‍⬛', special: '🕯️', attack: 1 },
-                { name: 'Spider', emoji: '🕷️', special: '☠️', attack: 1 },
-                { name: 'Scorpion', emoji: '🦂', special: null, attack: 1 },
-                { name: 'Mosquito', emoji: '🦟', special: '🐌', attack: 1 },
-                { name: 'Zombie', emoji: '🧟', special: '🐌', attack: 1 },
-                { name: 'Genie', emoji: '🧞', special: '❇️', attack: 2 },
-                { name: 'Troll', emoji: '🧌', special: null, attack: 1 },
-                { name: 'Ninja', emoji: '🥷', special: '🫳', attack: 1 },
-                { name: 'Vampire', emoji: '🧛', special: '🕯️', attack: 1 },
-                { name: 'Supervillain', emoji: '🦹', special: null, attack: 2 },
-                { name: 'Gift', emoji: '🎁', special: '🎉', attack: 0, maxHealth: 1 }
+                // Animal-like
+                { name: 'Wolf', emoji: '🐺', special: null, attack: 2, maxHealth: 13, class: 'animal' },
+                { name: 'Frog', emoji: '🐸', special: '☠️', attack: 1, maxHealth: 9, class: 'animal' },
+                { name: 'Unicorn', emoji: '🦄', special: '❇️', attack: 1, maxHealth: 14, class: 'animal' },
+                { name: 'Dragon', emoji: '🐲', special: null, attack: 3, maxHealth: 18, class: 'animal' },
+                { name: 'Serpent', emoji: '🐍', special: '☠️', attack: 1, maxHealth: 9, class: 'animal' },
+                { name: 'Rat', emoji: '🐀', special: null, attack: 1, maxHealth: 8, class: 'animal' },
+                { name: 'Crow', emoji: '🐦‍⬛', special: '🕯️', attack: 1, maxHealth: 9, class: 'animal' },
+                { name: 'Spider', emoji: '🕷️', special: '☠️', attack: 1, maxHealth: 8, class: 'animal' },
+                { name: 'Scorpion', emoji: '🦂', special: null, attack: 2, maxHealth: 10, class: 'animal' },
+                { name: 'Mosquito', emoji: '🦟', special: '🐌', attack: 5, maxHealth: 5, class: 'animal' },
+                // Human-like
+                { name: 'Ghost', emoji: '👻', special: null, attack: 1, maxHealth: 20, class: 'human' },
+                { name: 'Zombie', emoji: '🧟', special: '🐌', attack: 1, maxHealth: 9, class: 'human' },
+                { name: 'Genie', emoji: '🧞', special: '❇️', attack: 2, maxHealth: 12, class: 'human' },
+                { name: 'Troll', emoji: '🧌', special: null, attack: 3, maxHealth: 12, class: 'human' },
+                { name: 'Ninja', emoji: '🥷', special: '🫳', attack: 2, maxHealth: 10, class: 'human' },
+                { name: 'Vampire', emoji: '🧛', special: '🕯️', attack: 2, maxHealth: 12, class: 'human' },
+                { name: 'Supervillain', emoji: '🦹', special: null, attack: 6, maxHealth: 18, class: 'human' },
+                { name: 'Gift', emoji: '🎁', special: '🎉', attack: 0, maxHealth: 1, class: 'human' }
             ];
             
             let currentEnemies = [];
@@ -1720,6 +1727,19 @@
                     }
 
                     let damageFromEnemy = enemy.attack;
+
+                    // --- Leather Gear (Admirers) Effect ---
+                    if (player.specialArmor === 'admirers' && enemy.class === 'human') {
+                        if (damageFromEnemy === 1) {
+                            // Special case: attack of 1 still does 1.
+                            damageFromEnemy = 1;
+                        } else {
+                            // For all other attacks, half damage and round down.
+                            damageFromEnemy = Math.floor(damageFromEnemy / 2);
+                        }
+                        console.log(`${enemy.name} is an admirer, damage reduced to ${damageFromEnemy}`);
+                    }
+
 
                     // --- CURSE EFFECT ---
                     if (enemy.statusEffects.includes('curse')) {
@@ -2108,14 +2128,23 @@
                 }
 
                 const statType = choiceButton.dataset.statType;
-                const statValue = parseInt(choiceButton.dataset.statValue);
+                const statValue = choiceButton.dataset.statType === 'special' ? choiceButton.dataset.statValue : parseInt(choiceButton.dataset.statValue, 10);
 
                 if (parentChoicesId === 'weapon-choices') {
                     statusWeaponIcon.textContent = newEmoji;
                     player.attackBonus = (statType === 'attack') ? statValue : 0;
                 } else if (parentChoicesId === 'armor-choices') {
                     statusArmorIcon.textContent = newEmoji;
-                    player.armorBonus = (statType === 'armor') ? statValue : 0;
+                    // Reset all bonuses from this slot before applying the new one
+                    player.armorBonus = 0;
+                    player.specialArmor = null;
+                    
+                    if (statType === 'armor') {
+                        player.armorBonus = statValue;
+                    } else if (statType === 'special' && statValue === 'admirers') {
+                        player.specialArmor = 'admirers';
+                    }
+                    // TODO: Handle luck from cloak
                 }
                 
                 updatePlayerUI();
