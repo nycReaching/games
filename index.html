@@ -567,9 +567,13 @@
                 armorBonus: 0,
                 maxMp: 10,
                 currentMp: 10,
-                moons: 0, // Moons for special arts
+                moons: 3, // Moons for special arts
                 statusEffects: [], // Handles active player buffs/debuffs
             };
+
+            // GAME STATE
+            let actionsTakenThisTurn = 0;
+            let isGamePaused = false;
 
             // UI ELEMENTS
             const hpBar = document.getElementById('hp-bar');
@@ -587,6 +591,17 @@
             const magicText = document.getElementById('magic-text');
             const spellButtons = document.querySelectorAll('#quests-modal-wrapper button:not(.close-modal-btn)');
 
+            // Helper for visual effect popups (like sluggish, poison damage, etc.)
+            function createEffectPopup(text, color, targetElement) {
+                const popup = document.createElement('div');
+                popup.textContent = text;
+                popup.className = 'damage-popup';
+                popup.style.color = color;
+                popup.style.fontSize = '2rem';
+                popup.style.textShadow = `1px 1px 0 #000`;
+                targetElement.appendChild(popup);
+                popup.addEventListener('animationend', () => popup.remove());
+            }
 
             function updatePlayerUI() {
                 hpText.textContent = `${player.currentHp}/${player.maxHp}`;
@@ -923,7 +938,7 @@
                 { id: 'curse', title: 'Curse', description: 'Share damage.', owned: 0, type: 'debuff' },
                 { id: 'sluggish', title: 'Sluggish', description: '50% Chance no action.', owned: 0, type: 'debuff' },
                 { id: 'regen', title: 'Regen', description: 'Heal 1 per turn.', owned: 0, type: 'buff' },
-                { id: 'blessing', title: 'Blessing', description: 'Add HP to armor.', owned: 0, type: 'buff' },
+                { id: 'blessing', title: 'Blessing', description: 'Add current armor to attack.', owned: 0, type: 'buff' },
                 { id: 'rush', title: 'Rush', description: '2 Actions per turn.', owned: 0, type: 'buff' }
             ];
             const mapCarousel = document.getElementById('map-carousel');
@@ -1402,6 +1417,7 @@
             };
 
             const showRewardModal = (reelIndex) => {
+                isGamePaused = true;
                 const rewards = [
                     { icon: '❤️', text: '+1 Max HP', type: 'hp', value: 1 },
                     { icon: '🍀', text: '+3 Luck', type: 'luck', value: 3 },
@@ -1464,6 +1480,7 @@
                             }
                             updatePlayerUI();
                             rewardModal.classList.add('hidden');
+                            isGamePaused = false;
 
                             const reel = reels[reelIndex];
                             const reelContent = reel.querySelector('.reel-content');
@@ -1471,6 +1488,13 @@
                             reel.disabled = true;
                             reel.classList.add('opacity-50', 'cursor-not-allowed');
                             currentEnemies[reelIndex] = null;
+                            
+                            // Now that the reward is claimed and game is unpaused, continue the turn.
+                            if (player.statusEffects.includes('rush') && actionsTakenThisTurn < 2) {
+                                startPlayerTurn();
+                            } else {
+                                startEnemyTurn();
+                            }
                         }, { once: true });
                     }
                 }, 100);
@@ -1507,11 +1531,12 @@
                         const finalEnemy = { ...enemies[finalIndex] };
                         currentEnemies[i] = finalEnemy;
                         reelContent.textContent = finalEnemy.emoji;
-                        reel.disabled = false; 
                         
                         if (i === reels.length - 1) {
                             spinButton.disabled = false;
                             displayEnemyInfo(currentEnemies);
+                            actionsTakenThisTurn = 0; // Reset for new combat
+                            startPlayerTurn(); // Start the first turn
                         }
                     }, 500 + (i * 250)); 
                 });
@@ -1521,6 +1546,18 @@
             
             function enemyAttack(enemy, reel, index) {
                 if (!enemy || enemy.isDefeated || enemy.attack <= 0) return;
+
+                // --- SLUGGISH EFFECT ---
+                if (enemy.statusEffects.includes('sluggish')) {
+                    const sluggishRoll = Math.random();
+                    console.log(`${enemy.name} sluggish roll: ${sluggishRoll}`);
+                    if (sluggishRoll < 0.5) {
+                        console.log(`${enemy.name} is sluggish and missed its turn.`);
+                        createEffectPopup('Miss!', '#9ca3af', reel); // gray-400
+                        applyPostActionStatusEffects(enemy, false, index); // Still apply post-turn effects
+                        return;
+                    }
+                }
 
                 const reelContent = reel.querySelector('.reel-content');
                 
@@ -1546,6 +1583,15 @@
                     }
 
                     let damageFromEnemy = enemy.attack;
+
+                    // --- CURSE EFFECT ---
+                    if (enemy.statusEffects.includes('curse')) {
+                        const selfDamage = Math.ceil(damageFromEnemy / 2);
+                        damageFromEnemy = selfDamage; // Both deal and take the same halved (ceiled) damage
+                        console.log(`${enemy.name} is cursed and takes ${selfDamage} damage.`);
+                        applyDamageAndAnimate(index, selfDamage);
+                    }
+                    
                     const damageToBonusArmor = Math.min(damageFromEnemy, player.armorBonus);
                     player.armorBonus -= damageToBonusArmor;
                     damageFromEnemy -= damageToBonusArmor;
@@ -1571,22 +1617,19 @@
 
                     const statusToApply = debuffSpecials[enemy.special];
 
-                    // Check if the enemy has a special, hasn't used it yet, and the player isn't already affected
                     if (statusToApply && !enemy.specialUsed && !player.statusEffects.includes(statusToApply)) {
                         player.statusEffects.push(statusToApply);
                         updateAllStatusIcons();
                         console.log(`Player afflicted with ${statusToApply} by ${enemy.name}`);
-
-                        // Mark the special as used for this specific enemy instance
                         enemy.specialUsed = true;
                         
-                        // Visually remove the icon from the enemy's description
                         const enemySpecialEl = document.getElementById(`enemy-special-${index + 1}`);
                         if (enemySpecialEl) {
                             enemySpecialEl.textContent = ' '; 
                         }
                     }
-
+                    
+                    applyPostActionStatusEffects(enemy, false, index);
 
                     if (player.currentHp <= 0) {
                         console.log("PLAYER DEFEATED!");
@@ -1601,22 +1644,14 @@
                 for (let i = 0; i < currentEnemies.length; i++) {
                     const enemy = currentEnemies[i];
                     const reel = reels[i];
-                    // Only attack if the enemy exists and is not defeated
                     if (enemy && !enemy.isDefeated) {
-                        // Wait for a short duration before each attack for sequence effect
                         await new Promise(resolve => setTimeout(resolve, 500));
                         enemyAttack(enemy, reel, i);
                     }
                 }
 
-                // After all enemies have had a chance to attack, re-enable the player's controls
                 await new Promise(resolve => setTimeout(resolve, 500));
-                reels.forEach((r, i) => {
-                    // A reel is only enabled if there is an enemy (alive or a skull to collect)
-                    if (currentEnemies[i]) {
-                        r.disabled = false;
-                    }
-                });
+                startPlayerTurn();
             }
 
             function applyDamageAndAnimate(index, damageAmount) {
@@ -1709,11 +1744,74 @@
                         break;
                 }
             
+                startEnemyTurn();
+            }
+
+            function applyPostActionStatusEffects(character, isPlayer, index = -1) {
+                if (!character || (isPlayer ? player.currentHp <= 0 : character.isDefeated)) return;
+
+                // --- POISON EFFECT ---
+                if (character.statusEffects.includes('poison')) {
+                    if (isPlayer) {
+                        player.currentHp -= 1;
+                        createEffectPopup('☠️1', '#a855f7', playerHpContainer); // purple-500
+                    } else {
+                        applyDamageAndAnimate(index, 1);
+                    }
+                }
+
+                // --- REGEN EFFECT ---
+                if (character.statusEffects.includes('regen')) {
+                     if (isPlayer) {
+                        if(player.currentHp < player.maxHp) {
+                           player.currentHp += 1;
+                           createEffectPopup('❇️1', '#22c55e', playerHpContainer); // green-500
+                        }
+                    } else {
+                        if (character.currentHealth < character.maxHealth && !character.isDefeated) {
+                            character.currentHealth += 1;
+                            const enemyInfo = document.getElementById(`enemy-info-${index + 1}`);
+                             if (enemyInfo) {
+                                const healthBar = enemyInfo.querySelector('.health-bar');
+                                const healthText = document.getElementById(`health-text-${index + 1}`);
+                                const healthPercent = (character.currentHealth / character.maxHealth) * 100;
+                                healthBar.style.width = `${healthPercent}%`;
+                                healthText.textContent = `${character.currentHealth}/${character.maxHealth}`;
+                                createEffectPopup('❇️1', '#22c55e', reels[index]);
+                            }
+                        }
+                    }
+                }
+
+                if (isPlayer) {
+                    updatePlayerUI();
+                     if (player.currentHp <= 0) {
+                        console.log("PLAYER DEFEATED by status effect!");
+                        document.body.style.filter = 'grayscale(100%)';
+                        spinButton.disabled = true;
+                        reels.forEach(r => r.disabled = true);
+                    }
+                }
+            }
+            
+            function startPlayerTurn() {
+                reels.forEach((reel, i) => {
+                    const enemy = currentEnemies[i];
+                    if (enemy && player.currentHp > 0) { // Can attack living enemies or collect skulls
+                        reel.disabled = false;
+                    } else {
+                        reel.disabled = true;
+                    }
+                });
+            }
+
+            function startEnemyTurn() {
+                if (isGamePaused) return; // Don't start enemy turn if game is paused for reward
+                actionsTakenThisTurn = 0;
                 setTimeout(() => {
                     allEnemiesAttack();
                 }, 800);
             }
-
 
             reels.forEach((reel, index) => {
                 reel.addEventListener('click', () => {
@@ -1743,13 +1841,63 @@
 
                     reels.forEach(r => r.disabled = true);
                     
-                    const totalPlayerAttack = player.baseAttack + player.attackBonus;
+                    // --- SLUGGISH EFFECT ---
+                    if (player.statusEffects.includes('sluggish')) {
+                        const sluggishRoll = Math.random();
+                        console.log(`Player sluggish roll: ${sluggishRoll}`);
+                        if (sluggishRoll < 0.5) {
+                            console.log("Player is sluggish and missed a turn.");
+                            createEffectPopup('Miss!', '#9ca3af', document.getElementById('slot-machine'));
+                            applyPostActionStatusEffects(player, true);
+                            if (player.currentHp > 0) startEnemyTurn();
+                            return;
+                        }
+                    }
+
+                    actionsTakenThisTurn++;
+
+                    // Calculate total attack, applying Blessing
+                    let totalPlayerAttack = player.baseAttack + player.attackBonus;
+                    if (player.statusEffects.includes('blessing')) {
+                        totalPlayerAttack += player.baseArmor + player.armorBonus;
+                    }
+                    
+                    // --- CURSE EFFECT ---
+                    if (player.statusEffects.includes('curse')) {
+                        const selfDamage = Math.ceil(totalPlayerAttack / 2);
+                        totalPlayerAttack = selfDamage; // Player deals and takes the same damage
+                        console.log(`Player is cursed and takes ${selfDamage} damage.`);
+                        player.currentHp -= selfDamage;
+                        updatePlayerUI();
+                        if (player.currentHp <= 0) {
+                             console.log("PLAYER DEFEATED by curse!");
+                             document.body.style.filter = 'grayscale(100%)';
+                             spinButton.disabled = true;
+                             reels.forEach(r => r.disabled = true);
+                             return; // Stop action if dead
+                        }
+                    }
                     
                     applyDamageAndAnimate(index, totalPlayerAttack);
+                    applyPostActionStatusEffects(player, true);
                     
-                    setTimeout(() => {
-                        allEnemiesAttack();
-                    }, 250);
+                    if (player.currentHp <= 0) return; // Stop if dead from poison
+
+                    // --- GIFT PAUSE LOGIC ---
+                    // If a gift was just defeated, the reward modal will handle resuming the turn.
+                    // So we stop the normal turn progression here to prevent enemies from attacking.
+                    const defeatedEnemy = currentEnemies[index];
+                    if (defeatedEnemy && defeatedEnemy.isDefeated && defeatedEnemy.emoji === '🎁') {
+                        return;
+                    }
+
+                    // --- RUSH EFFECT ---
+                    if (player.statusEffects.includes('rush') && actionsTakenThisTurn < 2) {
+                        console.log("Rush allows another action.");
+                        startPlayerTurn(); // Re-enable reels for second action
+                    } else {
+                        startEnemyTurn(); // End turn normally
+                    }
                 });
             });
 
@@ -1866,4 +2014,6 @@
     </script>
 </body>
 </html>
+
+
 
