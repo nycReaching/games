@@ -559,7 +559,7 @@
             let player = {
                 maxHp: 10,
                 currentHp: 10,
-                luck: 0, 
+                luck: 10, 
                 gold: 99,
                 baseAttack: 8,
                 attackBonus: 0,
@@ -569,6 +569,8 @@
                 currentMp: 10,
                 moons: 3, // Moons for special arts
                 statusEffects: [], // Handles active player buffs/debuffs
+                activeSacrifices: [], // To track which sacrifices are active
+                disabledSpells: [], // To track disabled spells like from Heartbreak
             };
 
             // GAME STATE
@@ -632,6 +634,13 @@
                     magicText.textContent = `${player.currentMp}/${player.maxMp}`;
                     magicBar.style.width = `${(player.currentMp / player.maxMp) * 100}%`;
                     spellButtons.forEach(button => {
+                        // New check for disabled spells
+                        if (player.disabledSpells.includes(button.dataset.spell)) {
+                            button.disabled = true;
+                            button.classList.add('opacity-50', 'cursor-not-allowed');
+                            return; // Use return instead of continue in forEach callback
+                        }
+
                         if (player.currentMp < 5) { // Assuming all spells cost 5 for now
                             button.disabled = true;
                             button.classList.add('opacity-50', 'cursor-not-allowed');
@@ -715,8 +724,48 @@
                 switch (itemData.title) {
                     case 'Tonic':
                         if (player.currentHp < player.maxHp) {
-                            player.currentHp = Math.min(player.maxHp, player.currentHp + 6);
+                            const healAmount = 6;
+                            player.currentHp = Math.min(player.maxHp, player.currentHp + healAmount);
                             itemUsed = true;
+
+                            // --- UNSTABLE MIND SACRIFICE ---
+                            if (player.activeSacrifices.includes('UNSTABLE MIND')) {
+                                const livingEnemies = currentEnemies.filter(e => e && !e.isDefeated);
+                                if (livingEnemies.length > 0) {
+                                    let maxHpLost = -1;
+                                    // First, find the maximum amount of HP any enemy has lost.
+                                    livingEnemies.forEach(enemy => {
+                                        const hpLost = enemy.maxHealth - enemy.currentHealth;
+                                        if (hpLost > maxHpLost) {
+                                            maxHpLost = hpLost;
+                                        }
+                                    });
+
+                                    // If at least one enemy has lost health...
+                                    if (maxHpLost > 0) {
+                                        // Find all enemies who are tied for having lost the most health.
+                                        const mostInjuredEnemies = livingEnemies.filter(enemy => (enemy.maxHealth - enemy.currentHealth) === maxHpLost);
+                                        
+                                        // Pick one of the most injured enemies to heal (randomly if there's a tie).
+                                        const targetEnemy = mostInjuredEnemies[Math.floor(Math.random() * mostInjuredEnemies.length)];
+                                        const enemyIndex = currentEnemies.indexOf(targetEnemy);
+                                        
+                                        console.log(`Unstable Mind heals ${targetEnemy.name} for ${healAmount}`);
+                                        targetEnemy.currentHealth = Math.min(targetEnemy.maxHealth, targetEnemy.currentHealth + healAmount);
+                                        
+                                        // Update enemy UI
+                                        const enemyInfo = document.getElementById(`enemy-info-${enemyIndex + 1}`);
+                                        if (enemyInfo) {
+                                            const healthBar = enemyInfo.querySelector('.health-bar');
+                                            const healthText = document.getElementById(`health-text-${enemyIndex + 1}`);
+                                            const healthPercent = (targetEnemy.currentHealth / targetEnemy.maxHealth) * 100;
+                                            healthBar.style.width = `${healthPercent}%`;
+                                            healthText.textContent = `${targetEnemy.currentHealth}/${targetEnemy.maxHealth}`;
+                                            createEffectPopup(`+${healAmount}`, '#22c55e', reels[enemyIndex]); // green-500
+                                        }
+                                    }
+                                }
+                            }
                         }
                         break;
                     case 'Cross':
@@ -1274,6 +1323,7 @@
                     `;
                     sacrificeEl.onclick = () => {
                         console.log('Sacrifice selected:', sacrifice.title);
+                        applySacrifice(sacrifice); // Apply the effect immediately
                         currentSacrifice = sacrifice;
                         usedSacrifices.push(sacrifice.title);
                         selectSacrifice();
@@ -1747,6 +1797,40 @@
                 startEnemyTurn();
             }
 
+            function applySacrifice(sacrifice) {
+                player.activeSacrifices.push(sacrifice.title);
+                console.log("Applying sacrifice:", sacrifice.title);
+
+                switch (sacrifice.title) {
+                    case 'BLOOD PACT':
+                        player.maxHp = Math.max(1, player.maxHp - 3);
+                        player.currentHp = Math.min(player.currentHp, player.maxHp);
+                        break;
+                    case 'BROKEN ANKLE':
+                        player.luck = Math.max(0, player.luck - 10);
+                        break;
+                    case 'HEARTBREAK':
+                        const spells = ['flameheart', 'armorheart'];
+                        const spellToDisable = spells[Math.floor(Math.random() * spells.length)];
+                        player.disabledSpells.push(spellToDisable);
+                        console.log(`Heartbreak disabled: ${spellToDisable}`);
+                        updateMagicUI(); // Immediately update spell UI
+                        break;
+                    case 'GAMBLING DEBT':
+                        player.gold = Math.max(0, player.gold - 30);
+                        break;
+                    case 'CLUMSY':
+                        player.moons = Math.max(0, player.moons - 1);
+                        updateMoonModalUI(); // Immediately update moon UI
+                        break;
+                    case 'UNSTABLE MIND':
+                        // The effect is handled in useItem, just need to track it.
+                        break;
+                }
+
+                updatePlayerUI();
+            }
+
             function applyPostActionStatusEffects(character, isPlayer, index = -1) {
                 if (!character || (isPlayer ? player.currentHp <= 0 : character.isDefeated)) return;
 
@@ -2014,6 +2098,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 
