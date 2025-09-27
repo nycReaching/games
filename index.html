@@ -116,15 +116,6 @@
             animation: hit-effect 0.3s ease-in-out;
         }
 
-        /* Player Damage Flash Animation */
-        @keyframes screen-flash {
-            0% { opacity: 0.5; }
-            100% { opacity: 0; }
-        }
-        .screen-flash-effect {
-            animation: screen-flash 0.3s ease-out forwards;
-        }
-
         /* Reward Modal Animations */
         @keyframes reward-cycle {
             0% { transform: translateY(-100%); opacity: 0; }
@@ -156,9 +147,6 @@
     <!-- Mobile Phone Silhouette -->
     <div class="w-full max-w-sm h-[90vh] max-h-[800px] bg-black border-4 border-gray-700 rounded-3xl shadow-2xl flex flex-col overflow-hidden relative">
         
-        <!-- Player Damage Flash Overlay -->
-        <div id="player-damage-flash" class="absolute inset-0 bg-red-600 opacity-0 pointer-events-none z-[100]"></div>
-
         <!-- Top Status Bar -->
         <div id="top-status-bar" class="bg-gray-800 p-4 border-b-4 border-gray-700 flex flex-col justify-center gap-3 text-white">
             <!-- Counters -->
@@ -218,7 +206,7 @@
                             <span class="text-xs">🐌</span>
                             <span class="text-xs">❇️</span>
                         </div>
-                        <button id="reel1" class="relative reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95 disabled:opacity-50" disabled>
+                        <button id="reel1" class="relative reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95" disabled>
                             <span class="reel-content">❔</span>
                             <div class="attack-value absolute top-1 left-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-br-md rounded-tl-md hidden" style="text-shadow: 1px 1px 0 #000;">💥1</div>
                         </button>
@@ -231,7 +219,7 @@
                             <span class="text-xs">🐌</span>
                             <span class="text-xs">❇️</span>
                         </div>
-                        <button id="reel2" class="relative reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95 disabled:opacity-50" disabled>
+                        <button id="reel2" class="relative reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95" disabled>
                             <span class="reel-content">❔</span>
                             <div class="attack-value absolute top-1 left-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-br-md rounded-tl-md hidden" style="text-shadow: 1px 1px 0 #000;">💥1</div>
                         </button>
@@ -244,7 +232,7 @@
                             <span class="text-xs">🐌</span>
                             <span class="text-xs">❇️</span>
                         </div>
-                        <button id="reel3" class="relative reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95 disabled:opacity-50" disabled>
+                        <button id="reel3" class="relative reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95" disabled>
                             <span class="reel-content">❔</span>
                             <div class="attack-value absolute top-1 left-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-br-md rounded-tl-md hidden" style="text-shadow: 1px 1px 0 #000;">💥1</div>
                         </button>
@@ -408,9 +396,9 @@
                     <div class="flex items-center gap-2 px-4">
                         <span class="text-2xl w-10 text-center">✨</span>
                         <div class="relative w-full bg-black rounded-full h-5 border-2 border-purple-900">
-                            <div class="bg-gradient-to-r from-purple-500 to-indigo-500 h-full rounded-full" style="width: 100%"></div>
+                            <div id="magic-bar" class="bg-gradient-to-r from-purple-500 to-indigo-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <span class="text-xs font-bold text-white">10/10</span>
+                                <span id="magic-text" class="text-xs font-bold text-white">10/10</span>
                             </div>
                         </div>
                     </div>
@@ -567,6 +555,8 @@
                 attackBonus: 0,
                 baseArmor: 0,
                 armorBonus: 0,
+                maxMp: 10,
+                currentMp: 10,
                 moons: 0, // Moons for special arts
             };
 
@@ -582,6 +572,9 @@
             const playerArmorContainer = document.getElementById('player-armor-container');
             const playerHpContainer = document.getElementById('player-hp-container');
             const buyMapItemBtn = document.getElementById('buy-map-item-btn');
+            const magicBar = document.getElementById('magic-bar');
+            const magicText = document.getElementById('magic-text');
+            const spellButtons = document.querySelectorAll('#quests-modal-wrapper button:not(.close-modal-btn)');
 
 
             function updatePlayerUI() {
@@ -608,14 +601,29 @@
                 }
             }
 
+            function updateMagicUI() {
+                if (magicBar && magicText) {
+                    magicText.textContent = `${player.currentMp}/${player.maxMp}`;
+                    magicBar.style.width = `${(player.currentMp / player.maxMp) * 100}%`;
+                    spellButtons.forEach(button => {
+                        if (player.currentMp < 5) { // Assuming all spells cost 5 for now
+                            button.disabled = true;
+                            button.classList.add('opacity-50', 'cursor-not-allowed');
+                        } else {
+                            button.disabled = false;
+                            button.classList.remove('opacity-50', 'cursor-not-allowed');
+                        }
+                    });
+                }
+            }
+
             // MODAL LOGIC
             const modalButtons = document.querySelectorAll('[data-modal-target]');
             const closeButtons = document.querySelectorAll('.close-modal-btn');
             const buttonGrid = document.getElementById('button-grid');
             const allModals = document.querySelectorAll('.modal-wrapper');
             const rewardModal = document.getElementById('reward-modal');
-            const playerDamageFlash = document.getElementById('player-damage-flash');
-
+            
             const openModal = (modal) => {
                 if (modal == null) return;
                 buttonGrid.classList.add('hidden');
@@ -630,6 +638,8 @@
                     updateMoonModalUI();
                 } else if (modal.id === 'equip-modal-wrapper') {
                     initializeFortuneSelection();
+                } else if (modal.id === 'quests-modal-wrapper') {
+                    updateMagicUI();
                 }
             }
 
@@ -841,10 +851,38 @@
             const mapItemTitle = document.getElementById('map-item-title');
             const mapItemDescription = document.getElementById('map-item-description');
             const mapItemOwned = document.getElementById('map-item-owned');
+            let currentMapIndex = 0;
 
             let isMapDown = false;
             let mapStartX;
             let mapScrollLeft;
+
+            mapCarouselItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const itemIndex = parseInt(item.dataset.index, 10);
+                    const selectedItemData = moonArts[itemIndex];
+
+                    if (itemIndex !== currentMapIndex) {
+                        const targetScroll = item.offsetLeft - (mapCarousel.offsetWidth / 2) + (item.offsetWidth / 2);
+                        mapCarousel.scrollTo({
+                            left: targetScroll,
+                            behavior: 'smooth'
+                        });
+                        return;
+                    }
+
+                    if (selectedItemData.owned > 0) {
+                        selectedItemData.owned--;
+                        
+                        console.log(`Used ${selectedItemData.title}. Remaining: ${selectedItemData.owned}`);
+
+                        item.classList.add('transition-transform', 'duration-150', 'scale-110');
+                        setTimeout(() => item.classList.remove('scale-110'), 150);
+
+                        updateMapSelection();
+                    }
+                });
+            });
 
             const startMapDragging = (e) => {
                 isMapDown = true;
@@ -901,10 +939,17 @@
                         closestItem.classList.add('scale-125');
 
                         const itemIndex = parseInt(closestItem.dataset.index);
+                        currentMapIndex = itemIndex;
                         const selectedItemData = moonArts[itemIndex];
                         mapItemTitle.textContent = selectedItemData.title;
                         mapItemDescription.textContent = selectedItemData.description;
                         mapItemOwned.textContent = `x${selectedItemData.owned}`;
+
+                        if (selectedItemData.owned > 0) {
+                            closestItem.classList.add('cursor-pointer');
+                        } else {
+                            closestItem.classList.remove('cursor-pointer');
+                        }
                     }
                 }, 50);
             };
@@ -925,6 +970,23 @@
                 }
             });
 
+            // SPELLS MODAL LOGIC
+            spellButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    if (button.disabled) return;
+
+                    if (player.currentMp >= 5) {
+                        player.currentMp -= 5;
+                        updateMagicUI();
+                        console.log('Spell cast! Remaining MP:', player.currentMp);
+                        
+                        // Add a small visual feedback for casting the spell
+                        button.classList.add('scale-90');
+                        setTimeout(() => button.classList.remove('scale-90'), 150);
+                    }
+                });
+            });
+            
             // FORTUNE MODAL LOGIC
             const fortuneModalTitle = document.getElementById('fortune-modal-title');
             const sacrificesContainer = document.getElementById('sacrifices-container');
@@ -1299,11 +1361,6 @@
                         }, { once: true });
                     }
                     if (enemy.attack > totalArmor) {
-                        playerDamageFlash.classList.add('screen-flash-effect');
-                        playerDamageFlash.addEventListener('animationend', () => {
-                            playerDamageFlash.classList.remove('screen-flash-effect');
-                        }, { once: true });
-
                         playerHpContainer.classList.add('hit-effect');
                         playerHpContainer.addEventListener('animationend', () => {
                             playerHpContainer.classList.remove('hit-effect');
@@ -1336,11 +1393,34 @@
                 }, 200);
             }
 
+            async function allEnemiesAttack() {
+                for (let i = 0; i < currentEnemies.length; i++) {
+                    const enemy = currentEnemies[i];
+                    const reel = reels[i];
+                    // Only attack if the enemy exists and is not defeated
+                    if (enemy && !enemy.isDefeated) {
+                        // Wait for a short duration before each attack for sequence effect
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        enemyAttack(enemy, reel);
+                    }
+                }
+
+                // After all enemies have had a chance to attack, re-enable the player's controls
+                await new Promise(resolve => setTimeout(resolve, 500));
+                reels.forEach((r, i) => {
+                    // A reel is only enabled if there is an enemy (alive or a skull to collect)
+                    if (currentEnemies[i]) {
+                        r.disabled = false;
+                    }
+                });
+            }
+
             reels.forEach((reel, index) => {
                 reel.addEventListener('click', () => {
                     const enemy = currentEnemies[index];
                     const reelContent = reel.querySelector('.reel-content');
 
+                    // Handle skull collection first, as it's a separate action
                     if (enemy && enemy.isDefeated && reelContent.textContent === '💀') {
                         skullCount++;
                         const skullPercent = Math.min((skullCount / 10) * 100, 100);
@@ -1358,9 +1438,13 @@
                         return;
                     }
                     
+                    // Guard against clicking disabled reels or defeated enemies
                     if (reel.disabled || !enemy || enemy.isDefeated) {
                         return;
                     }
+
+                    // --- PLAYER'S TURN START ---
+                    reels.forEach(r => r.disabled = true); // Disable all reels during the turn sequence
                     
                     const totalPlayerAttack = player.baseAttack + player.attackBonus;
                     
@@ -1415,11 +1499,13 @@
                         const healthPercent = (enemy.currentHealth / enemy.maxHealth) * 100;
                         healthBar.style.width = `${healthPercent}%`;
                         healthText.textContent = `${enemy.currentHealth}/${enemy.maxHealth}`;
-                        
-                        setTimeout(() => {
-                            enemyAttack(enemy, reel);
-                        }, 500);
                     }
+                    
+                    // --- PLAYER'S TURN END ---
+                    // After a delay, trigger the enemy counter-attack sequence
+                    setTimeout(() => {
+                        allEnemiesAttack();
+                    }, 250);
                 });
             });
 
@@ -1529,8 +1615,16 @@
             // Initialize views on load
             updatePlayerUI();
             updateCollectedFortunesDisplay();
+            updateMagicUI();
 
         });
     </script>
 </body>
 </html>
+
+
+
+
+
+
+
