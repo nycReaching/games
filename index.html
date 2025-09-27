@@ -287,7 +287,7 @@
                     </div>
                 </div>
             </div>
-            <div class="absolute bottom-2 left-4 text-teal-400 text-sm font-bold">Wave 1</div>
+            <div id="wave-counter" class="absolute bottom-2 left-4 text-teal-400 text-sm font-bold">Wave <span id="wave-number">1</span> (<span id="spin-counter" class="text-red-500">5</span>)</div>
             <!-- Player Status Effects -->
             <div id="player-status-effects" class="absolute bottom-2 right-4 flex flex-nowrap justify-end items-center gap-0.5 text-lg" style="min-width: 120px;">
                 <span id="player-status-poison" style="display: none;">☠️</span>
@@ -574,6 +574,8 @@
             };
 
             // GAME STATE
+            let wave = 1;
+            let spinsRemaining = 5;
             let actionsTakenThisTurn = 0;
             let isGamePaused = false;
 
@@ -592,6 +594,13 @@
             const magicBar = document.getElementById('magic-bar');
             const magicText = document.getElementById('magic-text');
             const spellButtons = document.querySelectorAll('#quests-modal-wrapper button:not(.close-modal-btn)');
+            const waveNumberEl = document.getElementById('wave-number');
+            const spinCounterEl = document.getElementById('spin-counter');
+
+            // NEW: Helper function to check for active enemies
+            function areEnemiesActive() {
+                return currentEnemies.some(enemy => enemy && !enemy.isDefeated);
+            }
 
             // Helper for visual effect popups (like sluggish, poison damage, etc.)
             function createEffectPopup(text, color, targetElement) {
@@ -649,6 +658,13 @@
                             button.classList.remove('opacity-50', 'cursor-not-allowed');
                         }
                     });
+                }
+            }
+
+            function updateWaveUI() {
+                if (waveNumberEl && spinCounterEl) {
+                    waveNumberEl.textContent = wave;
+                    spinCounterEl.textContent = spinsRemaining;
                 }
             }
 
@@ -1089,6 +1105,12 @@
                     
                     // If it is the selected item and we own some...
                     if (selectedArt.owned > 0) {
+                        // NEW check for active enemies
+                        if (!areEnemiesActive()) {
+                             console.log("Cannot use Moon Arts without active enemies.");
+                             return;
+                        }
+
                         selectedArt.owned--; // Consume one
                         
                         // Add a small visual feedback animation
@@ -1208,6 +1230,12 @@
             spellButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     if (button.disabled) return;
+
+                    // NEW CHECK: Prevent spell usage without active enemies
+                    if (!areEnemiesActive()) {
+                        console.log("Cannot cast spells without active enemies.");
+                        return;
+                    }
             
                     const spellCost = 5;
                     if (player.currentMp >= spellCost) {
@@ -1239,21 +1267,47 @@
             ];
 
             const allFortunes = [
-                { title: 'Double Moon', description: 'Moon Arts effect neighbors.', color: 'blue' },
-                { title: 'Efficient Magic', description: '1/2 MP cost for spells.', color: 'blue' },
-                { title: 'Bartering Edge', description: '15% shop discount.', color: 'blue' },
-                { title: 'Archer\'s Edge', description: 'Attacks all with 🏹 Bow.', color: 'yellow' },
-                { title: 'Enchantment', description: '🧚🏼 Fairy also grants ❇️ Regen.', color: 'yellow' },
-                { title: 'Battle Grace', description: 'Buffs restore 1 🛡️ Armor.', color: 'yellow' },
-                { title: 'Prolonged Torment', description: '2x 🕯️ Curse and 🐌 Sluggish durations.', color: 'pink' },
-                { title: 'Thief Strike', description: 'Steal 2 gold with 🗡️ Dagger.', color: 'pink' },
-                { title: 'Toxic Decay', description: '☠️ Poison can stack.', color: 'pink' },
+                // Common (Blue) - 40% chance
+                { title: 'Double Moon', description: '🌙 Gives 2 uses.', color: 'blue' },
+                { title: 'Efficient Magic', description: 'Spells use 50% less MP.', color: 'blue' },
+                { title: 'Bartering Edge', description: '25% shop discount.', color: 'blue' },
+                // Uncommon (Yellow) - 30% chance
+                { title: 'Archer\'s Edge', description: 'Attacks all with 🏹.', color: 'yellow' },
+                { title: 'Enchantment', description: 'Using 🧚🏼 grants ❇️.', color: 'yellow' },
+                { title: 'Battle Grace', description: 'Receive buff = +1 🛡️.', color: 'yellow' },
+                // Rare (Pink) - 20% chance
+                { title: 'Torment', description: 'Applying debuffs also deals 2 damage.', color: 'pink' },
+                { title: 'Thief Strike', description: 'Steal 5 🪙 when attacking with 🗡️.', color: 'pink' },
+                { title: 'Toxic Decay', description: '+2 ☠️ Damage.', color: 'pink' },
             ];
             
             function getRandomItems(arr, num) {
                 const shuffled = [...arr].sort(() => 0.5 - Math.random());
                 return shuffled.slice(0, num);
             }
+            
+            function getRandomFortuneByWeight(availableFortunes) {
+                const weightedList = [];
+
+                availableFortunes.forEach(fortune => {
+                    if (fortune.color === 'blue') {
+                        // Common, weight 40
+                        for (let i = 0; i < 40; i++) weightedList.push(fortune);
+                    } else if (fortune.color === 'yellow') {
+                        // Uncommon, weight 30
+                        for (let i = 0; i < 30; i++) weightedList.push(fortune);
+                    } else if (fortune.color === 'pink') {
+                        // Rare, weight 20
+                        for (let i = 0; i < 20; i++) weightedList.push(fortune);
+                    }
+                });
+                
+                if (weightedList.length === 0) return null;
+
+                const randomIndex = Math.floor(Math.random() * weightedList.length);
+                return weightedList[randomIndex];
+            }
+
 
             function selectSacrifice() {
                 sacrificesContainer.classList.add('hidden');
@@ -1261,7 +1315,22 @@
                 fortuneModalTitle.textContent = 'Choose your Fortune';
 
                 const availableFortunes = allFortunes.filter(f => !usedFortunes.includes(f.title));
-                const randomFortunes = getRandomItems(availableFortunes, 3);
+                
+                // NEW: Use weighted randomizer
+                const chosenFortunes = new Set();
+                if (availableFortunes.length <= 3) {
+                    // Not enough unique fortunes for weighted logic, just show what's available
+                    availableFortunes.forEach(f => chosenFortunes.add(f));
+                } else {
+                    while (chosenFortunes.size < 3) {
+                        const newFortune = getRandomFortuneByWeight(availableFortunes);
+                        if (newFortune) {
+                            chosenFortunes.add(newFortune);
+                        }
+                    }
+                }
+                const randomFortunes = Array.from(chosenFortunes);
+                
                 fortunesContainer.innerHTML = ''; 
 
                 randomFortunes.forEach((fortune, index) => {
@@ -1433,8 +1502,17 @@
 
             const displayEnemyInfo = (finalEnemies) => {
                 finalEnemies.forEach((enemy, i) => {
-                    enemy.maxHealth = enemy.maxHealth || 10;
+                    // enemy.maxHealth = enemy.maxHealth || 10;
+                    // enemy.currentHealth = enemy.maxHealth;
+                    
+                    // NEW LOGIC to scale HP with waves
+                    let baseHealth = enemy.maxHealth || 10;
+                    if (enemy.name !== 'Gift') {
+                        baseHealth += (wave - 1);
+                    }
+                    enemy.maxHealth = baseHealth;
                     enemy.currentHealth = enemy.maxHealth;
+
                     enemy.isDefeated = false;
                     enemy.statusEffects = [];
                     enemy.specialUsed = false; // Add this flag for the new mechanic
@@ -1551,6 +1629,15 @@
             };
 
             const spinReels = () => {
+                if (spinButton.disabled) return;
+
+                spinsRemaining--;
+                if (spinsRemaining < 0) {
+                    wave++;
+                    spinsRemaining = 4; // 5 spins per wave, this is the 1st of the new wave.
+                }
+                updateWaveUI();
+
                 spinButton.disabled = true;
                 reels.forEach(reel => {
                     reel.disabled = true;
@@ -1706,7 +1793,9 @@
 
             function applyDamageAndAnimate(index, damageAmount) {
                 const enemy = currentEnemies[index];
-                if (!enemy || enemy.isDefeated) return;
+                if (!enemy || enemy.isDefeated) return false;
+
+                let giftDefeated = false;
 
                 const reel = reels[index];
                 
@@ -1733,6 +1822,7 @@
                     updateAllStatusIcons();
 
                     if (enemy.emoji === '🎁') {
+                        giftDefeated = true;
                         setTimeout(() => {
                             enemyInfo.style.visibility = 'hidden';
                             reel.querySelector('.attack-value')?.classList.add('hidden');
@@ -1751,19 +1841,23 @@
                     healthBar.style.width = `${healthPercent}%`;
                     healthText.textContent = `${enemy.currentHealth}/${enemy.maxHealth}`;
                 }
+                return giftDefeated;
             }
 
 
             function castSpell(spellName) {
                 closeModal();
                 reels.forEach(r => r.disabled = true);
+                let aGiftWasDefeated = false;
             
                 switch (spellName) {
                     case 'flameheart':
                         console.log('Casting Flameheart...');
                         currentEnemies.forEach((enemy, index) => {
                             if (enemy && !enemy.isDefeated) {
-                                applyDamageAndAnimate(index, 5);
+                                if (applyDamageAndAnimate(index, 5)) {
+                                    aGiftWasDefeated = true;
+                                }
                             }
                         });
                         player.currentHp = Math.min(player.maxHp, player.currentHp + 5);
@@ -1774,7 +1868,9 @@
                         console.log('Casting Frostbite...');
                         currentEnemies.forEach((enemy, index) => {
                             if (enemy && !enemy.isDefeated) {
-                                applyDamageAndAnimate(index, 5);
+                                if (applyDamageAndAnimate(index, 5)) {
+                                    aGiftWasDefeated = true;
+                                }
                                 if (!enemy.statusEffects.includes('sluggish')) {
                                     enemy.statusEffects.push('sluggish');
                                 }
@@ -1794,7 +1890,9 @@
                         break;
                 }
             
-                startEnemyTurn();
+                if (!aGiftWasDefeated) {
+                    startEnemyTurn();
+                }
             }
 
             function applySacrifice(sacrifice) {
@@ -2093,13 +2191,11 @@
             updateCollectedFortunesDisplay();
             updateMagicUI();
             updateAllStatusIcons();
+            updateWaveUI();
 
         });
     </script>
 </body>
 </html>
-
-
-
 
 
