@@ -1412,6 +1412,7 @@
                 enemyInfoArea.classList.add('hidden');
                 
                 currentEnemies = [];
+                player.statusEffects = []; // Clear player status effects on new spin
                 updateAllStatusIcons(); // Clear icons from previous wave
 
                 let spinIntervals = [];
@@ -1738,5 +1739,6 @@
     </script>
 </body>
 </html>
+
 
 
