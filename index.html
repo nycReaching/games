@@ -364,8 +364,8 @@
                             <span id="map-item-owned" class="bg-blue-900 text-white text-xs font-bold px-2 py-1 rounded-md">x0</span>
                         </div>
                         <p id="map-item-description" class="text-sm"></p>
-                        <button id="buy-map-item-btn" class="absolute top-4 right-4 bg-gray-800 text-white font-bold w-12 h-12 flex items-center justify-center rounded-md border border-black shadow-[4px_4px_0px_#000] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all text-lg">
-                            1🌙
+                        <button id="buy-map-item-btn" class="absolute top-4 right-4 bg-gray-800 text-white font-bold w-auto h-12 px-4 flex items-center justify-center rounded-md border border-black shadow-[4px_4px_0px_#000] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all text-lg">
+                            0🌙
                         </button>
                     </div>
                     <!-- Carousel Area -->
@@ -502,7 +502,7 @@
         <!-- Character Modal (Previously World Map) -->
         <div id="world-map-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
             <div class="h-full w-full flex flex-col text-white">
-                <!-- UPDATED: Character section with stats -->
+                <!-- Character section with stats -->
                 <div class="h-1/2 w-full bg-gradient-to-b from-gray-900 to-green-900 p-4 relative flex flex-col justify-center">
                     <div class="space-y-4 text-lg">
                         <!-- Luck Stat -->
@@ -526,11 +526,12 @@
                             </div>
                         </div>
                     </div>
-                    <button id="tutorial-open-btn" class="absolute bottom-4 right-4 text-3xl bg-gray-700 hover:bg-gray-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg border-2 border-gray-500 transition-transform active:scale-95">❔</button>
+                    <button id="tutorial-open-btn" class="absolute bottom-4 right-4 text-3xl bg-gray-700 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg border-2 border-gray-500 transition-transform active:scale-95">❔</button>
                 </div>
-                 <div class="h-1/2 w-full bg-gradient-to-b from-gray-900 to-purple-900 flex flex-col justify-center items-center text-center p-4">
+                 <!-- UPDATED: Redesigned fortunes section -->
+                 <div class="h-1/2 w-full bg-gradient-to-b from-gray-900 to-purple-900 flex flex-col justify-start items-center text-center p-4">
                     <h3 class="text-xl font-bold mb-4 text-purple-300" style="text-shadow: 2px 2px 0 #000;">Collected Fortunes</h3>
-                    <div id="collected-fortunes-container" class="grid grid-cols-3 gap-4">
+                    <div id="collected-fortunes-container" class="grid grid-cols-3 gap-2 w-full">
                         <!-- JS will populate this with fortune slots -->
                     </div>
                 </div>
@@ -542,11 +543,12 @@
         <div id="reward-modal" class="hidden absolute inset-0 bg-black/70 z-50 flex items-center justify-center p-8">
             <div id="reward-container" class="bg-gray-800 border-4 border-yellow-400 rounded-2xl shadow-2xl p-6 w-full max-w-xs text-center text-white flex flex-col items-center gap-4">
                 <h2 class="text-2xl font-bold text-yellow-300">You got a reward!</h2>
-                <div id="reward-spinner" class="text-7xl h-24 w-24 flex items-center justify-center overflow-hidden">
+                <div id="reward-display" class="text-7xl h-24 w-24 flex items-center justify-center overflow-hidden">
                     <span>❔</span>
                 </div>
-                <div id="final-reward" class="hidden flex-col items-center gap-2">
-                    <!-- Final reward shown here -->
+                <p id="reward-text" class="text-xl font-bold h-7"></p>
+                <div id="reward-action" class="h-14">
+                     <!-- Claim button will be injected here -->
                 </div>
             </div>
         </div>
@@ -565,6 +567,7 @@
                 attackBonus: 0,
                 baseArmor: 0,
                 armorBonus: 0,
+                moons: 0, // Moons for special arts
             };
 
             // UI ELEMENTS
@@ -578,6 +581,7 @@
             const playerLuckStatEl = document.getElementById('player-luck-stat');
             const playerArmorContainer = document.getElementById('player-armor-container');
             const playerHpContainer = document.getElementById('player-hp-container');
+            const buyMapItemBtn = document.getElementById('buy-map-item-btn');
 
 
             function updatePlayerUI() {
@@ -590,6 +594,19 @@
                     playerLuckStatEl.textContent = `🍀 ${player.luck}%`;
                 }
             }
+            
+            function updateMoonModalUI() {
+                if (buyMapItemBtn) {
+                    buyMapItemBtn.innerHTML = `${player.moons}🌙`;
+                    if (player.moons > 0) {
+                        buyMapItemBtn.disabled = false;
+                        buyMapItemBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    } else {
+                        buyMapItemBtn.disabled = true;
+                        buyMapItemBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    }
+                }
+            }
 
             // MODAL LOGIC
             const modalButtons = document.querySelectorAll('[data-modal-target]');
@@ -597,8 +614,6 @@
             const buttonGrid = document.getElementById('button-grid');
             const allModals = document.querySelectorAll('.modal-wrapper');
             const rewardModal = document.getElementById('reward-modal');
-            const rewardSpinner = document.getElementById('reward-spinner');
-            const finalRewardContainer = document.getElementById('final-reward');
             const playerDamageFlash = document.getElementById('player-damage-flash');
 
             const openModal = (modal) => {
@@ -612,6 +627,7 @@
                 } else if (modal.id === 'map-modal-wrapper') {
                     mapCarousel.scrollLeft = 0;
                     updateMapSelection();
+                    updateMoonModalUI();
                 } else if (modal.id === 'equip-modal-wrapper') {
                     initializeFortuneSelection();
                 }
@@ -646,7 +662,7 @@
                 { title: 'Cross', description: 'Cures curse, +1 max HP.', owned: 0, cost: 10 },
                 { title: 'Gem', description: 'Gain a buff, give a debuff.', owned: 0, cost: 15 },
                 { title: 'Fairy', description: 'Restores magic meter.', owned: 0, cost: 15 },
-                { title: 'Moonstone', description: 'Unlocks the use of moon arts.', owned: 0, cost: 20 },
+                { title: 'Moonstone', description: 'Grants 1 Moon to spend.', owned: 0, cost: 20 },
                 { title: 'Infinity Ring', description: 'Take damage to reroll.', owned: 0, cost: 25, purchased: false },
             ];
             const carousel = document.getElementById('shop-carousel');
@@ -655,6 +671,40 @@
             const itemDescription = document.getElementById('item-description');
             const itemOwned = document.getElementById('item-owned');
             let currentShopIndex = 0;
+
+            // Add click listeners to consume items from the carousel
+            carouselItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const itemIndex = parseInt(item.dataset.index, 10);
+                    const selectedItemData = shopItems[itemIndex];
+
+                    // If the clicked item isn't the currently selected one, just scroll to it.
+                    if (itemIndex !== currentShopIndex) {
+                        const targetScroll = item.offsetLeft - (carousel.offsetWidth / 2) + (item.offsetWidth / 2);
+                        carousel.scrollTo({
+                            left: targetScroll,
+                            behavior: 'smooth'
+                        });
+                        return; // Exit without consuming
+                    }
+                    
+                    // If it is the selected item, and we own some, and it's not a permanent purchase...
+                    if (selectedItemData.owned > 0 && !selectedItemData.purchased) {
+                        selectedItemData.owned--;
+                        
+                        // FUTURE: Add actual item effect logic here.
+                        console.log(`Consumed ${selectedItemData.title}. Remaining: ${selectedItemData.owned}`);
+
+                        // Add a small visual feedback animation on tap
+                        // This class temporarily overrides the 'scale-125' for a shrink effect
+                        item.classList.add('transition-transform', 'duration-150', 'scale-110');
+                        setTimeout(() => item.classList.remove('scale-110'), 150);
+
+                        // Refresh the UI to reflect the new owned amount
+                        updateShopSelection();
+                    }
+                });
+            });
 
             let isShopDown = false;
             let shopStartX;
@@ -709,7 +759,7 @@
 
                     if (closestItem) {
                         carouselItems.forEach(item => {
-                            item.classList.remove('scale-125');
+                            item.classList.remove('scale-125', 'cursor-pointer');
                             item.classList.add('scale-100');
                         });
                         closestItem.classList.remove('scale-100');
@@ -721,6 +771,10 @@
                         itemTitle.textContent = selectedItemData.title;
                         itemDescription.textContent = selectedItemData.description;
                         itemOwned.textContent = `x${selectedItemData.owned}`;
+
+                        if (selectedItemData.owned > 0 && !selectedItemData.purchased) {
+                            closestItem.classList.add('cursor-pointer');
+                        }
                         
                         if (selectedItemData.purchased) {
                             buyItemBtn.innerHTML = `<span>Owned</span>`;
@@ -758,6 +812,11 @@
                     if (itemToBuy.title === 'Infinity Ring') {
                         itemToBuy.purchased = true;
                         unlockInfinityRing();
+                    }
+                    
+                    if (itemToBuy.title === 'Moonstone') {
+                        player.moons++;
+                        updateMoonModalUI(); // Update moon UI in case modal is open
                     }
 
                     buyItemBtn.classList.add('scale-90');
@@ -799,7 +858,7 @@
                 if (!isMapDown) return;
                 e.preventDefault();
                 const x = (e.pageX || e.touches[0].pageX) - mapCarousel.offsetLeft;
-                const walk = (x - mapStartX); // Speed multiplier removed for more conventional feel
+                const walk = (x - mapStartX);
                 mapCarousel.scrollLeft = mapScrollLeft - walk;
             };
 
@@ -854,10 +913,26 @@
                 mapCarousel.addEventListener('scroll', updateMapSelection);
             }
 
+            buyMapItemBtn.addEventListener('click', () => {
+                if (player.moons >= 1) {
+                    player.moons--;
+                    const selectedItemIndex = parseInt(mapCarousel.querySelector('.scale-125').dataset.index);
+                    const purchasedArt = moonArts[selectedItemIndex];
+                    purchasedArt.owned++;
+                    console.log(`Purchased ${purchasedArt.title}. You have ${player.moons} moons left.`);
+                    updateMoonModalUI();
+                    updateMapSelection();
+                }
+            });
+
             // FORTUNE MODAL LOGIC
             const fortuneModalTitle = document.getElementById('fortune-modal-title');
             const sacrificesContainer = document.getElementById('sacrifices-container');
             const fortunesContainer = document.getElementById('fortunes-container');
+            
+            let usedSacrifices = [];
+            let usedFortunes = [];
+            let currentSacrifice = null;
 
             const allSacrifices = [
                 { emoji: '🩸', title: 'BLOOD PACT', description: '-3 Max HP.' },
@@ -890,10 +965,10 @@
                 fortunesContainer.classList.remove('hidden');
                 fortuneModalTitle.textContent = 'Choose your Fortune';
 
-                const randomFortunes = getRandomItems(allFortunes, 3);
+                const availableFortunes = allFortunes.filter(f => !usedFortunes.includes(f.title));
+                const randomFortunes = getRandomItems(availableFortunes, 3);
                 fortunesContainer.innerHTML = ''; 
 
-                // UPDATED: Added staggered fade-in animation and pink glow
                 randomFortunes.forEach((fortune, index) => {
                     const fortuneEl = document.createElement('button');
                     let bgColorClass = '';
@@ -901,9 +976,7 @@
                     switch (fortune.color) {
                         case 'blue': bgColorClass = 'bg-blue-600/80'; break;
                         case 'yellow': bgColorClass = 'bg-yellow-500/80'; break;
-                        case 'pink': 
-                            bgColorClass = 'bg-pink-600/80';
-                            break;
+                        case 'pink': bgColorClass = 'bg-pink-600/80'; break;
                     }
 
                     let rareHTML = '';
@@ -921,7 +994,9 @@
                     fortuneEl.onclick = () => {
                         console.log('Fortune selected:', fortune.title);
                         if (collectedFortunes.length < 6) {
-                            collectedFortunes.push(fortune);
+                            collectedFortunes.push({ sacrifice: currentSacrifice, fortune: fortune });
+                            usedFortunes.push(fortune.title);
+                            currentSacrifice = null; // Reset for next time
                             updateCollectedFortunesDisplay();
                         } else {
                             console.log("Maximum fortunes collected.");
@@ -933,16 +1008,15 @@
             }
 
             function initializeFortuneSelection() {
-                // Reset the modal to the initial state
                 fortuneModalTitle.textContent = 'Choose a Sacrifice';
                 sacrificesContainer.classList.remove('hidden');
                 fortunesContainer.classList.add('hidden');
-                fortunesContainer.innerHTML = ''; // Clear out old fortunes
-                sacrificesContainer.innerHTML = ''; // Clear out old sacrifices
+                fortunesContainer.innerHTML = '';
+                sacrificesContainer.innerHTML = '';
 
-                const randomSacrifices = getRandomItems(allSacrifices, 3);
+                const availableSacrifices = allSacrifices.filter(s => !usedSacrifices.includes(s.title));
+                const randomSacrifices = getRandomItems(availableSacrifices, 3);
                 
-                // UPDATED: Added staggered fade-in animation
                 randomSacrifices.forEach((sacrifice, index) => {
                     const sacrificeEl = document.createElement('button');
                     sacrificeEl.className = 'w-1/3 flex flex-col items-center gap-1 transition-transform active:scale-95 animate-fade-in';
@@ -954,6 +1028,8 @@
                     `;
                     sacrificeEl.onclick = () => {
                         console.log('Sacrifice selected:', sacrifice.title);
+                        currentSacrifice = sacrifice;
+                        usedSacrifices.push(sacrifice.title);
                         selectSacrifice();
                     };
                     sacrificesContainer.appendChild(sacrificeEl);
@@ -981,27 +1057,31 @@
             function updateCollectedFortunesDisplay() {
                 if (!collectedFortunesContainer) return;
                 collectedFortunesContainer.innerHTML = '';
-
+            
                 for (let i = 0; i < 6; i++) {
-                    const fortune = collectedFortunes[i];
+                    const collection = collectedFortunes[i];
                     const slotEl = document.createElement('div');
                     
-                    if (fortune) {
+                    if (collection) {
+                        const fortune = collection.fortune;
+                        const sacrifice = collection.sacrifice;
                         let borderColorClass = 'border-purple-700';
                         switch (fortune.color) {
                             case 'blue': borderColorClass = 'border-blue-500'; break;
                             case 'yellow': borderColorClass = 'border-yellow-500'; break;
                             case 'pink': borderColorClass = 'border-pink-500'; break;
                         }
-                        slotEl.className = `relative w-20 h-20 bg-black/30 rounded-lg flex items-center justify-center text-center p-1 group border-2 ${borderColorClass} shadow-inner`;
-                        slotEl.innerHTML = `<span class="font-bold text-xs">${fortune.title}</span>`;
-
-                        const tooltip = document.createElement('div');
-                        tooltip.className = 'absolute bottom-full mb-2 w-max max-w-xs p-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 transition-opacity pointer-events-none z-10';
-                        tooltip.textContent = fortune.description;
-                        slotEl.appendChild(tooltip);
+            
+                        slotEl.className = `relative h-20 bg-black/30 rounded-lg flex flex-col items-center justify-center text-center p-1 border-2 ${borderColorClass} shadow-inner`;
+                        slotEl.innerHTML = `
+                            <span class="font-bold text-[11px] leading-tight">${fortune.title}</span>
+                            <span class="text-[10px] text-white/70 leading-tight mt-1">${sacrifice.title}</span>
+                        `;
+            
+                        // Tooltip removed as hover effects are not mobile-friendly
+            
                     } else {
-                        slotEl.className = 'w-20 h-20 bg-black/30 rounded-lg flex items-center justify-center text-center p-1 border-2 border-dashed border-purple-900';
+                        slotEl.className = 'h-20 bg-black/30 rounded-lg flex items-center justify-center text-center p-1 border-2 border-dashed border-purple-900';
                         slotEl.innerHTML = `<span class="text-3xl text-purple-700/50">?</span>`;
                     }
                     collectedFortunesContainer.appendChild(slotEl);
@@ -1091,32 +1171,46 @@
                     { icon: '💰', text: '+25 Gold', type: 'gold', value: 25 }
                 ];
 
+                const rewardDisplay = document.getElementById('reward-display');
+                const rewardText = document.getElementById('reward-text');
+                const rewardAction = document.getElementById('reward-action');
+
+                // Reset state for new reward
                 rewardModal.classList.remove('hidden');
-                finalRewardContainer.classList.add('hidden');
-                finalRewardContainer.innerHTML = '';
-                rewardSpinner.classList.remove('hidden');
+                rewardDisplay.innerHTML = `<span>❔</span>`;
+                rewardDisplay.classList.remove('final-reward-pop');
+                rewardText.textContent = '';
+                rewardAction.innerHTML = '';
                 
                 let cycleCount = 0;
                 const maxCycles = 20 + Math.floor(Math.random() * 10); // Randomize duration
 
                 const cycleInterval = setInterval(() => {
                     const randomReward = rewards[Math.floor(Math.random() * rewards.length)];
-                    rewardSpinner.innerHTML = `<span class="reward-cycle-item">${randomReward.icon}</span>`;
+                    rewardDisplay.innerHTML = `<span class="reward-cycle-item">${randomReward.icon}</span>`;
                     cycleCount++;
 
                     if (cycleCount >= maxCycles) {
                         clearInterval(cycleInterval);
                         const finalReward = rewards[Math.floor(Math.random() * rewards.length)];
                         
-                        rewardSpinner.classList.add('hidden');
+                        // Resolve on the winner and apply animation
+                        rewardDisplay.innerHTML = `<div class="text-8xl">${finalReward.icon}</div>`;
+                        rewardDisplay.classList.add('final-reward-pop');
+                        rewardDisplay.addEventListener('animationend', () => {
+                             rewardDisplay.classList.remove('final-reward-pop');
+                        }, { once: true });
+
+                        // Display the reward text
+                        rewardText.textContent = finalReward.text;
                         
-                        finalRewardContainer.innerHTML = `
-                            <div class="text-8xl">${finalReward.icon}</div>
-                            <p class="text-xl font-bold">${finalReward.text}</p>
-                            <button id="claim-reward-btn" class="mt-4 w-full py-2 bg-green-500 rounded-lg font-bold border-2 border-black shadow-[4px_4px_0px_#000] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all">Claim</button>
-                        `;
-                        finalRewardContainer.classList.remove('hidden');
-                        finalRewardContainer.classList.add('final-reward-pop', 'flex');
+                        // Create and display the claim button
+                        const claimButton = document.createElement('button');
+                        claimButton.id = 'claim-reward-btn';
+                        claimButton.className = 'w-full py-2 bg-green-500 rounded-lg font-bold border-2 border-black shadow-[4px_4px_0px_#000] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all';
+                        claimButton.textContent = 'Claim';
+                        rewardAction.appendChild(claimButton);
+
 
                         document.getElementById('claim-reward-btn').addEventListener('click', () => {
                             switch (finalReward.type) {
@@ -1190,17 +1284,14 @@
 
                 const reelContent = reel.querySelector('.reel-content');
                 
-                // 1. Start the enemy's attack animation.
                 reelContent.classList.add('zoom-attack');
                 reelContent.addEventListener('animationend', () => {
                     reelContent.classList.remove('zoom-attack');
                 }, { once: true });
 
-                // 2. After a short delay to sync with the animation's peak, trigger the player hit effect.
                 setTimeout(() => {
                     const totalArmor = player.baseArmor + player.armorBonus;
 
-                    // Animate armor/hp getting hit & conditional flash
                     if (enemy.attack > 0 && totalArmor > 0) {
                         playerArmorContainer.classList.add('hit-effect');
                         playerArmorContainer.addEventListener('animationend', () => {
@@ -1208,7 +1299,6 @@
                         }, { once: true });
                     }
                     if (enemy.attack > totalArmor) {
-                        // Player visual feedback: screen flash ONLY when HP is hit
                         playerDamageFlash.classList.add('screen-flash-effect');
                         playerDamageFlash.addEventListener('animationend', () => {
                             playerDamageFlash.classList.remove('screen-flash-effect');
@@ -1220,7 +1310,6 @@
                         }, { once: true });
                     }
 
-                    // Apply the actual damage logic
                     let damageFromEnemy = enemy.attack;
                     const damageToBonusArmor = Math.min(damageFromEnemy, player.armorBonus);
                     player.armorBonus -= damageToBonusArmor;
@@ -1236,17 +1325,15 @@
                         player.currentHp = Math.max(0, player.currentHp - damageFromEnemy);
                     }
                     
-                    // Update the UI to show the new stat values
                     updatePlayerUI();
 
-                    // Check for player defeat
                     if (player.currentHp <= 0) {
                         console.log("PLAYER DEFEATED!");
                         document.body.style.filter = 'grayscale(100%)';
                         spinButton.disabled = true;
                         reels.forEach(r => r.disabled = true);
                     }
-                }, 200); // This delay syncs the flash with the middle of the 0.4s zoom animation.
+                }, 200);
             }
 
             reels.forEach((reel, index) => {
@@ -1447,6 +1534,3 @@
     </script>
 </body>
 </html>
-
-
-
