@@ -200,11 +200,11 @@
                 <div id="slot-machine" class="flex space-x-4 items-end">
                     <!-- Reel 1 Column -->
                     <div class="flex flex-col items-center gap-1">
-                        <div class="h-4 flex items-center justify-center gap-0.5">
-                            <span class="text-xs">☠️</span>
-                            <span class="text-xs">🕯️</span>
-                            <span class="text-xs">🐌</span>
-                            <span class="text-xs">❇️</span>
+                        <div class="h-4 flex items-center justify-center gap-0.5" style="min-width: 56px;">
+                            <span class="enemy-status enemy-1-status-poison text-xs" style="display: none;">☠️</span>
+                            <span class="enemy-status enemy-1-status-curse text-xs" style="display: none;">🕯️</span>
+                            <span class="enemy-status enemy-1-status-sluggish text-xs" style="display: none;">🐌</span>
+                            <span class="enemy-status enemy-1-status-regen text-xs" style="display: none;">❇️</span>
                         </div>
                         <button id="reel1" class="relative reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95" disabled>
                             <span class="reel-content">❔</span>
@@ -213,11 +213,11 @@
                     </div>
                     <!-- Reel 2 Column -->
                     <div class="flex flex-col items-center gap-1">
-                         <div class="h-4 flex items-center justify-center gap-0.5">
-                            <span class="text-xs">☠️</span>
-                            <span class="text-xs">🕯️</span>
-                            <span class="text-xs">🐌</span>
-                            <span class="text-xs">❇️</span>
+                         <div class="h-4 flex items-center justify-center gap-0.5" style="min-width: 56px;">
+                            <span class="enemy-status enemy-2-status-poison text-xs" style="display: none;">☠️</span>
+                            <span class="enemy-status enemy-2-status-curse text-xs" style="display: none;">🕯️</span>
+                            <span class="enemy-status enemy-2-status-sluggish text-xs" style="display: none;">🐌</span>
+                            <span class="enemy-status enemy-2-status-regen text-xs" style="display: none;">❇️</span>
                         </div>
                         <button id="reel2" class="relative reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95" disabled>
                             <span class="reel-content">❔</span>
@@ -226,11 +226,11 @@
                     </div>
                     <!-- Reel 3 Column -->
                     <div class="flex flex-col items-center gap-1">
-                         <div class="h-4 flex items-center justify-center gap-0.5">
-                            <span class="text-xs">☠️</span>
-                            <span class="text-xs">🕯️</span>
-                            <span class="text-xs">🐌</span>
-                            <span class="text-xs">❇️</span>
+                         <div class="h-4 flex items-center justify-center gap-0.5" style="min-width: 56px;">
+                            <span class="enemy-status enemy-3-status-poison text-xs" style="display: none;">☠️</span>
+                            <span class="enemy-status enemy-3-status-curse text-xs" style="display: none;">🕯️</span>
+                            <span class="enemy-status enemy-3-status-sluggish text-xs" style="display: none;">🐌</span>
+                            <span class="enemy-status enemy-3-status-regen text-xs" style="display: none;">❇️</span>
                         </div>
                         <button id="reel3" class="relative reel text-6xl p-4 bg-gray-800 border-2 border-gray-600 rounded-lg w-24 h-24 flex items-center justify-center transition-transform transform active:scale-95" disabled>
                             <span class="reel-content">❔</span>
@@ -279,13 +279,13 @@
             </div>
             <div class="absolute bottom-2 left-4 text-teal-400 text-sm font-bold">Wave 1</div>
             <!-- Player Status Effects -->
-            <div id="player-status-effects" class="absolute bottom-2 right-4 flex flex-nowrap justify-end gap-0.5 text-lg">
-                <span>☠️</span>
-                <span>🕯️</span>
-                <span>🐌</span>
-                <span>❇️</span>
-                <span>🌟</span>
-                <span>⚡</span>
+            <div id="player-status-effects" class="absolute bottom-2 right-4 flex flex-nowrap justify-end items-center gap-0.5 text-lg" style="min-width: 120px;">
+                <span id="player-status-poison" style="display: none;">☠️</span>
+                <span id="player-status-curse" style="display: none;">🕯️</span>
+                <span id="player-status-sluggish" style="display: none;">🐌</span>
+                <span id="player-status-regen" style="display: none;">❇️</span>
+                <span id="player-status-blessing" style="display: none;">🌟</span>
+                <span id="player-status-rush" style="display: none;">⚡</span>
             </div>
             
             <!-- SKULL METER FULL MODAL -->
@@ -558,6 +558,7 @@
                 maxMp: 10,
                 currentMp: 10,
                 moons: 0, // Moons for special arts
+                statusEffects: [], // Handles active player buffs/debuffs
             };
 
             // UI ELEMENTS
@@ -837,14 +838,14 @@
                 }
             });
 
-            // MAP CAROUSEL LOGIC
+            // MAP CAROUSEL LOGIC / STATUS EFFECTS
             const moonArts = [
-                { title: 'Poison', description: '1 Damage per turn.', owned: 0 },
-                { title: 'Curse', description: 'Share damage.', owned: 0 },
-                { title: 'Sluggish', description: '50% Chance no action.', owned: 0 },
-                { title: 'Regen', description: 'Heal 1 per turn.', owned: 0 },
-                { title: 'Blessing', description: 'Add HP to armor.', owned: 0 },
-                { title: 'Rush', description: '2 Actions per turn.', owned: 0 }
+                { id: 'poison', title: 'Poison', description: '1 Damage per turn.', owned: 0, type: 'debuff' },
+                { id: 'curse', title: 'Curse', description: 'Share damage.', owned: 0, type: 'debuff' },
+                { id: 'sluggish', title: 'Sluggish', description: '50% Chance no action.', owned: 0, type: 'debuff' },
+                { id: 'regen', title: 'Regen', description: 'Heal 1 per turn.', owned: 0, type: 'buff' },
+                { id: 'blessing', title: 'Blessing', description: 'Add HP to armor.', owned: 0, type: 'buff' },
+                { id: 'rush', title: 'Rush', description: '2 Actions per turn.', owned: 0, type: 'buff' }
             ];
             const mapCarousel = document.getElementById('map-carousel');
             const mapCarouselItems = mapCarousel.querySelectorAll('.map-item');
@@ -856,30 +857,119 @@
             let isMapDown = false;
             let mapStartX;
             let mapScrollLeft;
+            
+            function updateAllStatusIcons() {
+                // --- Player Statuses ---
+                const playerStatusContainer = document.getElementById('player-status-effects');
+                const allPlayerStatusElements = {
+                    poison: document.getElementById('player-status-poison'),
+                    curse: document.getElementById('player-status-curse'),
+                    sluggish: document.getElementById('player-status-sluggish'),
+                    regen: document.getElementById('player-status-regen'),
+                    blessing: document.getElementById('player-status-blessing'),
+                    rush: document.getElementById('player-status-rush'),
+                };
+
+                // Hide all player status icons first
+                for (const id in allPlayerStatusElements) {
+                    if (allPlayerStatusElements[id]) {
+                        allPlayerStatusElements[id].style.display = 'none';
+                    }
+                }
+                
+                // Create an ordered list of active status IDs for the player
+                const orderedPlayerActiveIds = moonArts
+                    .map(art => art.id)
+                    .filter(id => player.statusEffects.includes(id));
+
+                // Show and re-append active statuses to enforce visual order
+                orderedPlayerActiveIds.forEach(id => {
+                    const span = allPlayerStatusElements[id];
+                    if (span) {
+                        span.style.display = 'inline';
+                        playerStatusContainer.appendChild(span);
+                    }
+                });
+
+                // --- Enemy Statuses ---
+                const allEnemyStatusIds = ['poison', 'curse', 'sluggish', 'regen'];
+                for (let i = 1; i <= 3; i++) {
+                    const enemy = currentEnemies[i - 1];
+                    // Find the container relative to the reel
+                    const reelElement = document.getElementById(`reel${i}`);
+                    if (!reelElement) continue;
+                    const enemyStatusContainer = reelElement.parentElement.querySelector('.h-4');
+                    if(!enemyStatusContainer) continue;
+
+                    const allEnemySpansForSlot = {
+                        poison: document.querySelector(`.enemy-${i}-status-poison`),
+                        curse: document.querySelector(`.enemy-${i}-status-curse`),
+                        sluggish: document.querySelector(`.enemy-${i}-status-sluggish`),
+                        regen: document.querySelector(`.enemy-${i}-status-regen`),
+                    };
+
+                    // Hide all status icons for this enemy slot
+                    for (const id in allEnemySpansForSlot) {
+                        if (allEnemySpansForSlot[id]) {
+                            allEnemySpansForSlot[id].style.display = 'none';
+                        }
+                    }
+
+                    if (enemy && !enemy.isDefeated) {
+                        // Create an ordered list of active status IDs for the enemy
+                        const orderedEnemyActiveIds = allEnemyStatusIds.filter(id => enemy.statusEffects.includes(id));
+
+                        // Show and re-append active statuses for this enemy
+                        orderedEnemyActiveIds.forEach(id => {
+                            const span = allEnemySpansForSlot[id];
+                            if (span) {
+                                span.style.display = 'inline';
+                                enemyStatusContainer.appendChild(span);
+                            }
+                        });
+                    }
+                }
+            }
+
 
             mapCarouselItems.forEach(item => {
                 item.addEventListener('click', () => {
                     const itemIndex = parseInt(item.dataset.index, 10);
-                    const selectedItemData = moonArts[itemIndex];
+                    const selectedArt = moonArts[itemIndex];
 
+                    // If the clicked item isn't the currently selected one, just scroll to it.
                     if (itemIndex !== currentMapIndex) {
                         const targetScroll = item.offsetLeft - (mapCarousel.offsetWidth / 2) + (item.offsetWidth / 2);
-                        mapCarousel.scrollTo({
-                            left: targetScroll,
-                            behavior: 'smooth'
-                        });
-                        return;
+                        mapCarousel.scrollTo({ left: targetScroll, behavior: 'smooth' });
+                        return; // Exit without using the art
                     }
-
-                    if (selectedItemData.owned > 0) {
-                        selectedItemData.owned--;
+                    
+                    // If it is the selected item and we own some...
+                    if (selectedArt.owned > 0) {
+                        selectedArt.owned--; // Consume one
                         
-                        console.log(`Used ${selectedItemData.title}. Remaining: ${selectedItemData.owned}`);
-
+                        // Add a small visual feedback animation
                         item.classList.add('transition-transform', 'duration-150', 'scale-110');
                         setTimeout(() => item.classList.remove('scale-110'), 150);
 
-                        updateMapSelection();
+                        // Apply the effect
+                        if (selectedArt.type === 'buff') {
+                            if (!player.statusEffects.includes(selectedArt.id)) {
+                                player.statusEffects.push(selectedArt.id);
+                            }
+                        } else if (selectedArt.type === 'debuff') {
+                            currentEnemies.forEach(enemy => {
+                                if (enemy && !enemy.isDefeated && !enemy.statusEffects.includes(selectedArt.id)) {
+                                    enemy.statusEffects.push(selectedArt.id);
+                                }
+                            });
+                        }
+                        
+                        console.log(`Used ${selectedArt.title}. Remaining: ${selectedArt.owned}`);
+                        
+                        // Refresh ALL UI that might have changed
+                        updateMapSelection(); // Updates the owned count text
+                        updateAllStatusIcons(); // Updates the visible icons in the main game screen
                     }
                 });
             });
@@ -945,6 +1035,7 @@
                         mapItemDescription.textContent = selectedItemData.description;
                         mapItemOwned.textContent = `x${selectedItemData.owned}`;
 
+                        // Make the item tappable if owned
                         if (selectedItemData.owned > 0) {
                             closestItem.classList.add('cursor-pointer');
                         } else {
@@ -1204,6 +1295,12 @@
                     enemy.maxHealth = enemy.maxHealth || 10;
                     enemy.currentHealth = enemy.maxHealth;
                     enemy.isDefeated = false;
+                    enemy.statusEffects = []; // Initialize status effects array
+
+                    // Exception: If enemy special is Regen, apply it
+                    if (enemy.special === '❇️') {
+                        enemy.statusEffects.push('regen');
+                    }
 
                     const enemyInfo = document.getElementById(`enemy-info-${i + 1}`);
                     enemyInfo.style.visibility = 'visible';
@@ -1224,6 +1321,7 @@
                     }
                 });
                 enemyInfoArea.classList.remove('hidden');
+                updateAllStatusIcons(); // Update UI for new wave
             };
 
             const showRewardModal = (reelIndex) => {
@@ -1312,9 +1410,11 @@
                     }
                 });
                 enemyInfoArea.classList.add('hidden');
+                
+                currentEnemies = [];
+                updateAllStatusIcons(); // Clear icons from previous wave
 
                 let spinIntervals = [];
-                currentEnemies = [];
 
                 reels.forEach((reel, i) => {
                     const reelContent = reel.querySelector('.reel-content');
@@ -1383,6 +1483,21 @@
                     }
                     
                     updatePlayerUI();
+
+                    // Apply status effect from enemy special
+                    const debuffSpecials = {
+                        '☠️': 'poison',
+                        '🕯️': 'curse',
+                        '🐌': 'sluggish'
+                    };
+
+                    const statusToApply = debuffSpecials[enemy.special];
+
+                    if (statusToApply && !player.statusEffects.includes(statusToApply)) {
+                        player.statusEffects.push(statusToApply);
+                        updateAllStatusIcons(); // Refresh the UI to show the new status
+                        console.log(`Player afflicted with ${statusToApply} by ${enemy.name}`);
+                    }
 
                     if (player.currentHp <= 0) {
                         console.log("PLAYER DEFEATED!");
@@ -1474,6 +1589,7 @@
 
                         healthBar.style.width = '0%';
                         healthText.textContent = `0/${enemy.maxHealth}`;
+                        updateAllStatusIcons(); // Hide status icons on defeat
                         
                         if (enemy.emoji === '🎁') {
                             setTimeout(() => {
@@ -1616,15 +1732,11 @@
             updatePlayerUI();
             updateCollectedFortunesDisplay();
             updateMagicUI();
+            updateAllStatusIcons(); // Ensure all statuses are hidden on start
 
         });
     </script>
 </body>
 </html>
-
-
-
-
-
 
 
