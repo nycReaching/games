@@ -151,30 +151,39 @@
             animation: armor-gain 0.4s ease-in-out;
         }
 
-        /* Vibe - Retro CRT Effect */
+        /* Vibe - Dreamy/Underwater Effect */
+        @keyframes drift {
+            0% { transform: translate(-10%, -10%); }
+            25% { transform: translate(10%, -10%); }
+            50% { transform: translate(10%, 10%); }
+            75% { transform: translate(-10%, 10%); }
+            100% { transform: translate(-10%, -10%); }
+        }
+
         #game-container::after {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background:
-                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
-                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 3px, 3px 100%;
+            top: -20%;
+            left: -20%;
+            width: 140%;
+            height: 140%;
+            background: radial-gradient(ellipse at center, rgba(10, 50, 120, 0.2) 0%, rgba(5, 25, 60, 0.7) 100%);
+            mix-blend-mode: soft-light;
+            filter: blur(30px);
+            animation: drift 25s infinite linear alternate;
             pointer-events: none;
             z-index: 100;
+            opacity: 1;
         }
 
         #game-container::before {
-            content: '';
+             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            box-shadow: inset 0 0 80px rgba(0,0,0,0.7);
+            box-shadow: inset 0 0 80px rgba(0,0,0,0.6);
             pointer-events: none;
             z-index: 101;
         }
@@ -2383,5 +2392,7 @@
     </script>
 </body>
 </html>
+
+
 
 
