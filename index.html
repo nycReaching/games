@@ -5,232 +5,95 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gogo Game</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- UPDATED: Swapped Inter for Poppins for a more fun, rounded feel -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            /* UPDATED: Font changed to Poppins */
-            font-family: 'Poppins', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
         }
-        /* Style for tappable reels */
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
         .reel:not(:disabled) {
             cursor: pointer;
         }
-        /* Shake animation for when an enemy is hit */
-        @keyframes shake {
-            10%, 90% { transform: translateX(-1px); }
-            20%, 80% { transform: translateX(2px); }
-            30%, 50%, 70% { transform: translateX(-4px); }
-            40%, 60% { transform: translateX(4px); }
-        }
-        .shake {
-            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-        }
-        /* Utility to hide scrollbars */
         .scrollbar-hide::-webkit-scrollbar {
             display: none;
         }
         .scrollbar-hide {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
-        /* Carousel snap scrolling */
         .shop-carousel {
             scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
         }
         .shop-item {
             scroll-snap-align: center;
         }
-
-        /* ADDED: Keyframes for fade-in and glow animations */
-        @keyframes fade-in-from-left {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-        
-        /* ADDED: Pulse animation for the main spin button */
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.4);
-            }
-            50% {
-                transform: scale(1.05);
-                box-shadow: 0 0 0 10px rgba(168, 85, 247, 0);
-            }
-        }
-
-        /* ADDED: Animation utility classes */
-        .animate-fade-in {
-            animation: fade-in-from-left 0.8s ease-out forwards;
-            opacity: 0; /* Start hidden */
-        }
-
-        .animate-pulse-spin {
-            animation: pulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
-        }
-        
-        /* Floating damage number animation */
-        @keyframes float-up {
+        /* Minimal animation for damage/effect popups to ensure they are removed after appearing */
+        @keyframes fade-out-quick {
             from {
                 opacity: 1;
-                transform: translateY(0) scale(1);
             }
             to {
                 opacity: 0;
-                transform: translateY(-60px) scale(0.8);
             }
         }
-
         .damage-popup {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 2.5rem; /* ~text-4xl */
-            font-weight: 700; /* bold */
-            /* UPDATED: Brighter color for more pop */
-            color: #FDE047; /* yellow-300 */
-            text-shadow: 0px 2px 4px rgba(0,0,0,0.6);
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #FFFFFF;
             pointer-events: none;
-            animation: float-up 0.6s ease-out forwards;
-        }
-
-        /* Enemy attack zoom animation */
-        @keyframes zoom-attack {
-            0% { transform: scale(1); }
-            /* UPDATED: Made the attack lunge happen faster */
-            40% { transform: scale(1.3); }
-            100% { transform: scale(1); }
-        }
-        .zoom-attack {
-            animation: zoom-attack 0.4s ease-in-out;
-        }
-
-        /* Player hit effect animation */
-        @keyframes hit-effect {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.15); }
-            100% { transform: scale(1); }
-        }
-        .hit-effect {
-            /* UPDATED: Shortened duration for a snappier feel */
-            animation: hit-effect 0.2s ease-in-out;
-        }
-
-        /* Reward Modal Animations */
-        @keyframes reward-cycle {
-            0% { transform: translateY(-100%); opacity: 0; }
-            10%, 90% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(100%); opacity: 0; }
-        }
-
-        .reward-cycle-item {
-            animation: reward-cycle 0.1s linear;
-        }
-
-        @keyframes final-reward-pop {
-            from {
-                transform: scale(0.5);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-        .final-reward-pop {
-            animation: final-reward-pop 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
-        }
-
-        /* Armor gain effect animation */
-        @keyframes armor-gain {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.3); text-shadow: 0 0 10px #60a5fa; } /* blue-400 */
-            100% { transform: scale(1); }
-        }
-        .armor-gain {
-            animation: armor-gain 0.4s ease-in-out;
-        }
-
-        /* ADDED: Funky animated background for enemy reels */
-        @keyframes pan-bg {
-          from { background-position: 0% 0%; }
-          to { background-position: 100% 100%; }
-        }
-
-        .fun-reel-bg {
-            background-color: #000000; /* black */
-            /* UPDATED: A subtle, square SVG pattern with multiple colors */
-            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='3.5' y='3.5' width='3' height='3' fill='white' fill-opacity='0.5'/%3E%3Crect x='14.25' y='24.25' width='1.5' height='1.5' fill='%23fde047' fill-opacity='0.5'/%3E%3Crect x='28.5' y='8.5' width='3' height='3' fill='%23ef4444' fill-opacity='0.5'/%3E%3Crect x='24' y='34' width='2' height='2' fill='white' fill-opacity='0.5'/%3E%3C/svg%3E");
-            background-size: 40px 40px; /* Make the pattern larger */
-            animation: pan-bg 20s linear infinite; /* Speed up the animation */
+            animation: fade-out-quick 0.5s ease-out forwards;
         }
     </style>
 </head>
-<!-- UPDATED: Background changed to a cool, dark slate for a modern look -->
-<body class="bg-black flex items-center justify-center min-h-screen transition-all">
+<body class="bg-black flex items-center justify-center min-h-screen">
 
     <!-- Mobile Phone Silhouette -->
-    <!-- UPDATED: Colors refreshed to match the new slate theme -->
-    <div class="w-full max-w-sm h-[90vh] max-h-[800px] bg-black border-2 border-slate-800 rounded-[2.5rem] shadow-2xl shadow-black/50 flex flex-col overflow-hidden relative">
+    <div class="w-full max-w-sm h-[90vh] max-h-[800px] bg-gray-900 border border-gray-800 rounded-lg flex flex-col overflow-hidden relative">
         
         <!-- Top Status Bar -->
-        <!-- UPDATED: Background swapped from solid color to a subtle gradient for depth -->
-        <div id="top-status-bar" class="relative p-4 border-b-2 border-slate-800 flex flex-col justify-center gap-3 text-white backdrop-blur-sm z-10 bg-gradient-to-b from-black/80 to-indigo-950/80">
+        <div id="top-status-bar" class="relative p-4 border-b border-gray-800 flex flex-col justify-center gap-3 text-white bg-gray-900 z-10">
             <!-- Counters -->
             <div class="grid grid-cols-4 gap-x-2 text-center items-center">
                 <div id="player-armor-container" class="flex items-center justify-center gap-1.5">
-                    <span id="status-armor-icon" class="text-2xl opacity-75">🛡️</span>
+                    <span id="status-armor-icon" class="text-2xl">🛡️</span>
                     <span id="player-armor" class="font-bold text-lg">0</span>
                 </div>
                 <div class="flex items-center justify-center gap-1.5">
-                    <span id="status-weapon-icon" class="text-2xl opacity-75">⚔️</span>
+                    <span id="status-weapon-icon" class="text-2xl">⚔️</span>
                     <span id="attack-power" class="font-bold text-lg">8</span>
                 </div>
                 <div class="flex items-center justify-center gap-1.5">
-                    <span class="text-2xl opacity-75">💰</span>
+                    <span class="text-2xl">💰</span>
                     <span id="player-gold" class="font-bold text-lg">99</span>
                 </div>
                 <div class="flex items-center justify-center">
-                    <!-- UPDATED: Changed emoji for better visual consistency -->
-                    <button data-modal-target="world-map-modal-wrapper" class="text-3xl transition-transform active:scale-90 opacity-75 hover:opacity-100">👤</button>
+                    <button data-modal-target="world-map-modal-wrapper" class="text-3xl">👤</button>
                 </div>
             </div>
             <!-- Meters -->
             <div class="space-y-1.5">
                 <!-- HP Bar -->
                 <div id="player-hp-container" class="flex items-center">
-                    <span class="text-xl w-10 text-center opacity-75">❤️</span>
-                    <!-- UPDATED: Meter track color and border -->
-                    <div class="relative w-full bg-slate-800 rounded-full h-4 border-2 border-slate-700">
-                        <!-- UPDATED: More vibrant HP bar color -->
-                        <div id="hp-bar" class="bg-pink-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
+                    <span class="text-xl w-10 text-center">❤️</span>
+                    <div class="relative w-full bg-gray-800 rounded-full h-4 border border-gray-700">
+                        <div id="hp-bar" class="bg-gray-200 h-full rounded-full" style="width: 100%"></div>
                         <div class="absolute inset-0 flex items-center justify-center">
-                            <span id="hp-text" class="text-xs font-bold text-white/90">10/10</span>
+                            <span id="hp-text" class="text-xs font-bold text-black">10/10</span>
                         </div>
                     </div>
                 </div>
                 <!-- Enemy Bar -->
                 <div class="flex items-center">
-                    <span class="text-xl w-10 text-center opacity-75">💀</span>
-                    <!-- UPDATED: Meter track color and border -->
-                    <div class="relative w-full bg-slate-800 rounded-full h-4 border-2 border-slate-700">
-                        <!-- UPDATED: More vibrant skull meter color -->
-                        <div id="skull-meter-bar" class="bg-violet-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                    <span class="text-xl w-10 text-center">💀</span>
+                    <div class="relative w-full bg-gray-800 rounded-full h-4 border border-gray-700">
+                        <div id="skull-meter-bar" class="bg-gray-200 h-full rounded-full" style="width: 0%"></div>
                         <div class="absolute inset-0 flex items-center justify-center">
-                            <span id="skull-meter-text" class="text-xs font-bold text-white/90">0/10</span>
+                            <span id="skull-meter-text" class="text-xs font-bold text-black">0/10</span>
                         </div>
                     </div>
                 </div>
@@ -238,8 +101,7 @@
         </div>
 
         <!-- Game Screen Area (Central Area) -->
-        <!-- UPDATED: Background changed to a radial gradient for a "spotlight" effect -->
-        <div class="flex-grow flex flex-col p-4 relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 to-black">
+        <div class="flex-grow flex flex-col p-4 relative bg-gray-900">
             <!-- Top half for slot machine -->
             <div class="h-1/2 flex items-center justify-center">
                 <!-- Slot Machine -->
@@ -252,13 +114,10 @@
                             <span class="enemy-status enemy-1-status-sluggish text-xs" style="display: none;">🐌</span>
                             <span class="enemy-status enemy-1-status-regen text-xs" style="display: none;">❇️</span>
                         </div>
-                        <!-- UPDATED: Refreshed reel styling with a fun, animated background -->
-                        <button id="reel1" class="relative reel text-6xl p-4 border-2 border-slate-700 rounded-xl w-24 h-24 flex items-center justify-center transition-all duration-150 transform active:scale-95 hover:border-violet-500 fun-reel-bg" disabled>
+                        <button id="reel1" class="relative reel text-6xl p-4 border border-gray-700 rounded-xl w-24 h-24 flex items-center justify-center bg-gray-800" disabled>
                             <span class="reel-content">❔</span>
-                            <!-- UPDATED: Brighter attack badge, removed emoji -->
-                            <div class="attack-value absolute top-1 left-1 bg-rose-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden">1</div>
-                            <!-- ADDED: Special ability bubble -->
-                            <div class="special-value absolute top-1 right-1 bg-slate-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden"></div>
+                            <div class="attack-value absolute top-1 left-1 bg-gray-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden">1</div>
+                            <div class="special-value absolute top-1 right-1 bg-gray-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden"></div>
                         </button>
                     </div>
                     <!-- Reel 2 Column -->
@@ -269,11 +128,10 @@
                             <span class="enemy-status enemy-2-status-sluggish text-xs" style="display: none;">🐌</span>
                             <span class="enemy-status enemy-2-status-regen text-xs" style="display: none;">❇️</span>
                         </div>
-                        <button id="reel2" class="relative reel text-6xl p-4 border-2 border-slate-700 rounded-xl w-24 h-24 flex items-center justify-center transition-all duration-150 transform active:scale-95 hover:border-violet-500 fun-reel-bg" disabled>
+                        <button id="reel2" class="relative reel text-6xl p-4 border border-gray-700 rounded-xl w-24 h-24 flex items-center justify-center bg-gray-800" disabled>
                             <span class="reel-content">❔</span>
-                            <div class="attack-value absolute top-1 left-1 bg-rose-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden">1</div>
-                            <!-- ADDED: Special ability bubble -->
-                            <div class="special-value absolute top-1 right-1 bg-slate-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden"></div>
+                            <div class="attack-value absolute top-1 left-1 bg-gray-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden">1</div>
+                            <div class="special-value absolute top-1 right-1 bg-gray-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden"></div>
                         </button>
                     </div>
                     <!-- Reel 3 Column -->
@@ -284,11 +142,10 @@
                             <span class="enemy-status enemy-3-status-sluggish text-xs" style="display: none;">🐌</span>
                             <span class="enemy-status enemy-3-status-regen text-xs" style="display: none;">❇️</span>
                         </div>
-                        <button id="reel3" class="relative reel text-6xl p-4 border-2 border-slate-700 rounded-xl w-24 h-24 flex items-center justify-center transition-all duration-150 transform active:scale-95 hover:border-violet-500 fun-reel-bg" disabled>
+                        <button id="reel3" class="relative reel text-6xl p-4 border border-gray-700 rounded-xl w-24 h-24 flex items-center justify-center bg-gray-800" disabled>
                             <span class="reel-content">❔</span>
-                            <div class="attack-value absolute top-1 left-1 bg-rose-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden">1</div>
-                            <!-- ADDED: Special ability bubble -->
-                            <div class="special-value absolute top-1 right-1 bg-slate-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden"></div>
+                            <div class="attack-value absolute top-1 left-1 bg-gray-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden">1</div>
+                            <div class="special-value absolute top-1 right-1 bg-gray-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden"></div>
                         </button>
                     </div>
                 </div>
@@ -298,39 +155,37 @@
                 <div id="enemy-info-area" class="flex space-x-4 text-white hidden">
                     <!-- Enemy 1 Info -->
                     <div id="enemy-info-1" class="text-center w-24">
-                        <!-- UPDATED: Refreshed meter styles -->
-                        <div class="relative w-full bg-slate-800 rounded-full h-4 border-2 border-slate-700 mb-1">
-                            <div class="health-bar bg-pink-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
+                        <div class="relative w-full bg-gray-800 rounded-full h-4 border border-gray-700 mb-1">
+                            <div class="health-bar bg-gray-200 h-full rounded-full" style="width: 100%"></div>
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <span id="health-text-1" class="text-white font-bold" style="font-size: 0.7rem;">10/10</span>
+                                <span id="health-text-1" class="text-black font-bold" style="font-size: 0.7rem;">10/10</span>
                             </div>
                         </div>
                         <p id="enemy-name-1" class="text-xs font-bold truncate">-</p>
                     </div>
                     <!-- Enemy 2 Info -->
                     <div id="enemy-info-2" class="text-center w-24">
-                        <div class="relative w-full bg-slate-800 rounded-full h-4 border-2 border-slate-700 mb-1">
-                            <div class="health-bar bg-pink-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
+                        <div class="relative w-full bg-gray-800 rounded-full h-4 border border-gray-700 mb-1">
+                            <div class="health-bar bg-gray-200 h-full rounded-full" style="width: 100%"></div>
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <span id="health-text-2" class="text-white font-bold" style="font-size: 0.7rem;">10/10</span>
+                                <span id="health-text-2" class="text-black font-bold" style="font-size: 0.7rem;">10/10</span>
                             </div>
                         </div>
                         <p id="enemy-name-2" class="text-xs font-bold truncate">-</p>
                     </div>
                     <!-- Enemy 3 Info -->
                     <div id="enemy-info-3" class="text-center w-24">
-                        <div class="relative w-full bg-slate-800 rounded-full h-4 border-2 border-slate-700 mb-1">
-                            <div class="health-bar bg-pink-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
+                        <div class="relative w-full bg-gray-800 rounded-full h-4 border border-gray-700 mb-1">
+                            <div class="health-bar bg-gray-200 h-full rounded-full" style="width: 100%"></div>
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <span id="health-text-3" class="text-white font-bold" style="font-size: 0.7rem;">10/10</span>
+                                <span id="health-text-3" class="text-black font-bold" style="font-size: 0.7rem;">10/10</span>
                             </div>
                         </div>
                         <p id="enemy-name-3" class="text-xs font-bold truncate">-</p>
                     </div>
                 </div>
             </div>
-            <!-- UPDATED: Brighter text colors -->
-            <div id="wave-counter" class="absolute bottom-2 left-4 text-sky-400 text-sm font-medium">Wave <span id="wave-number">1</span> (<span id="spin-counter" class="text-pink-400">5</span>)</div>
+            <div id="wave-counter" class="absolute bottom-2 left-4 text-gray-400 text-sm font-medium">Wave <span id="wave-number">1</span> (<span id="spin-counter" class="text-gray-300">5</span>)</div>
             <!-- Player Status Effects -->
             <div id="player-status-effects" class="absolute bottom-2 right-4 flex flex-nowrap justify-end items-center gap-0.5 text-lg" style="min-width: 120px;">
                 <span id="player-status-poison" style="display: none;">☠️</span>
@@ -345,239 +200,177 @@
             <div id="skull-meter-modal" class="hidden absolute inset-x-4 top-1/3 flex flex-col items-center text-white z-20 gap-8">
                 <h2 class="text-2xl font-bold text-center">Make a choice.</h2>
                 <div class="w-full flex flex-col gap-4">
-                    <!-- UPDATED: Brighter, more vibrant choice buttons -->
-                    <button id="choice-hp" class="w-full py-3 bg-pink-600 hover:bg-pink-500 rounded-lg font-bold border border-pink-500/50 shadow-lg shadow-black/30 active:scale-95 transition-all text-lg">+1 Max HP</button>
-                    <button id="choice-luck" class="w-full py-3 bg-teal-500 hover:bg-teal-400 text-white rounded-lg font-bold border border-teal-400/50 shadow-lg shadow-black/30 active:scale-95 transition-all text-lg">+5% Luck</button>
+                    <button id="choice-hp" class="w-full py-3 bg-gray-700 rounded-lg font-bold border border-gray-600 text-lg">+1 Max HP</button>
+                    <button id="choice-luck" class="w-full py-3 bg-gray-700 text-white rounded-lg font-bold border border-gray-600 text-lg">+5% Luck</button>
                 </div>
             </div>
         </div>
 
         <!-- Controls Area -->
-        <!-- UPDATED: Background swapped from solid to a gradient that matches the top bar -->
-        <div id="controls-area" class="h-[35%] border-t-2 border-slate-800 relative bg-gradient-to-t from-black to-indigo-950">
+        <div id="controls-area" class="h-[35%] border-t border-gray-800 relative bg-black">
             <!-- Button Grid Container -->
             <div id="button-grid" class="p-6 h-full">
                 <div class="grid grid-cols-3 grid-rows-2 gap-4 h-full items-center">
-                    <!-- ENTIRE GRID RE-ORDERED -->
-                    <button data-modal-target="items-modal-wrapper" class="h-16 bg-orange-600 text-white font-bold rounded-xl border-2 border-orange-500/50 hover:bg-orange-500 active:scale-95 transition-all duration-100 text-4xl shadow-lg shadow-black/30">🏪</button>
-                    <!-- MOVED: Magic button (Spells) is now in the top-center position -->
-                    <button data-modal-target="quests-modal-wrapper" class="h-16 bg-rose-600 text-white font-bold rounded-xl border-2 border-rose-500/50 hover:bg-rose-500 active:scale-95 transition-all duration-100 text-4xl shadow-lg shadow-black/30">✨</button>
-                    <button data-modal-target="map-modal-wrapper" class="h-16 bg-sky-600 text-white font-bold rounded-xl border-2 border-sky-500/50 hover:bg-sky-500 active:scale-95 transition-all duration-100 text-4xl shadow-lg shadow-black/30">🌙</button>
-                    <button data-modal-target="equip-modal-wrapper" class="h-16 bg-indigo-600 text-white font-bold rounded-xl border-2 border-indigo-500/50 hover:bg-indigo-500 active:scale-95 transition-all duration-100 text-4xl shadow-lg shadow-black/30">🔮</button>
-                    <!-- MOVED: Spin button is now in the bottom-center position -->
-                    <button id="spin-button" class="bg-gradient-to-br from-pink-500 to-violet-600 text-white font-bold rounded-full aspect-square border-2 border-violet-400/50 shadow-lg shadow-violet-500/40 hover:from-pink-400 hover:to-violet-500 active:scale-95 transition-all duration-100 flex items-center justify-center text-xl animate-pulse-spin">Spin</button>
-                    <button data-modal-target="system-modal-wrapper" class="h-16 bg-cyan-600 text-white font-bold rounded-xl border-2 border-cyan-500/50 hover:bg-cyan-500 active:scale-95 transition-all duration-100 text-4xl shadow-lg shadow-black/30">⚔️</button>
+                    <button data-modal-target="items-modal-wrapper" class="h-16 bg-gray-800 text-white font-bold rounded-xl border border-gray-700 text-4xl">🏪</button>
+                    <button data-modal-target="quests-modal-wrapper" class="h-16 bg-gray-800 text-white font-bold rounded-xl border border-gray-700 text-4xl">✨</button>
+                    <button data-modal-target="map-modal-wrapper" class="h-16 bg-gray-800 text-white font-bold rounded-xl border border-gray-700 text-4xl">🌙</button>
+                    <button data-modal-target="equip-modal-wrapper" class="h-16 bg-gray-800 text-white font-bold rounded-xl border border-gray-700 text-4xl">🔮</button>
+                    <button id="spin-button" class="bg-blue-800 text-white font-bold rounded-full aspect-square border border-blue-700 flex items-center justify-center text-xl">Spin</button>
+                    <button data-modal-target="system-modal-wrapper" class="h-16 bg-gray-800 text-white font-bold rounded-xl border border-gray-700 text-4xl">⚔️</button>
                 </div>
             </div>
             
             <!-- MODALS -->
             <!-- Items Modal -->
             <div id="items-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
-                <!-- UPDATED: Themed with the new orange color -->
-                <div class="h-full w-full bg-orange-900 flex flex-col">
-                    <!-- Item Info Area -->
-                    <div class="h-1/2 w-full flex flex-col items-center justify-center text-center text-white p-4 relative">
-                        <div class="flex items-center justify-center gap-2 mb-2">
-                            <h3 id="item-title" class="text-xl font-bold text-shadow-lg"></h3>
-                            <span id="item-owned" class="bg-sky-500 text-white text-xs font-bold px-2 py-1 rounded-md">x0</span>
-                        </div>
-                        <p id="item-description" class="text-sm text-orange-200/80"></p>
-                        <button id="buy-item-btn" class="absolute top-4 right-4 bg-green-500 text-white font-bold w-auto h-12 px-3 flex items-center justify-center gap-1.5 rounded-md border-2 border-green-400/50 shadow-md shadow-black/30 active:scale-95 transition-all text-lg">
-                            <!-- Content is set by JS -->
-                        </button>
-                    </div>
-                    <!-- Carousel Area -->
-                    <div id="shop-carousel" class="shop-carousel h-1/2 w-full flex items-center overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing">
-                        <div class="flex space-x-4 px-[calc(50%-3.5rem)]"> <!-- Padding to center items -->
-                            <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="0">🍶</div>
-                            <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="1">✝️</div>
-                            <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="2">💎</div>
-                            <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="3">🧚🏼</div>
-                            <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="4">🌙</div>
-                            <div class="shop-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="5">♾️</div>
-                        </div>
+                <div class="h-full w-full bg-gray-900 flex flex-col">
+                    <div id="shop-list-container" class="flex-grow p-4 space-y-2 overflow-y-auto scrollbar-hide">
+                        <!-- Shop items are dynamically inserted here by JavaScript -->
                     </div>
                 </div>
-                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-orange-900 text-white text-3xl font-bold rounded-full border-2 border-orange-700 flex items-center justify-center active:bg-orange-800 transition-colors">&times;</button>
+                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border border-gray-800 flex items-center justify-center">&times;</button>
             </div>
 
             <!-- Map Modal -->
             <div id="map-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
-                <!-- UPDATED: Themed with the new sky color -->
-                <div class="h-full w-full bg-sky-900 flex flex-col">
-                     <!-- Item Info Area -->
+                <div class="h-full w-full bg-gray-900 flex flex-col">
                     <div class="h-1/2 w-full flex flex-col items-center justify-center text-center text-white p-4 relative">
                         <div class="flex items-center justify-center gap-2 mb-2">
-                            <h3 id="map-item-title" class="text-xl font-bold text-shadow-lg"></h3>
-                            <span id="map-item-owned" class="bg-violet-500 text-white text-xs font-bold px-2 py-1 rounded-md">x0</span>
+                            <h3 id="map-item-title" class="text-xl font-bold"></h3>
+                            <span id="map-item-owned" class="bg-gray-600 text-white text-xs font-bold px-2 py-1 rounded-md">x0</span>
                         </div>
-                        <p id="map-item-description" class="text-sm text-sky-200/80"></p>
-                        <button id="buy-map-item-btn" class="absolute top-4 right-4 bg-slate-800 text-white font-bold w-auto h-12 px-4 flex items-center justify-center rounded-md border-2 border-slate-700 shadow-md shadow-black/30 active:scale-95 transition-all text-lg">
+                        <p id="map-item-description" class="text-sm text-gray-300"></p>
+                        <button id="buy-map-item-btn" class="absolute top-4 right-4 bg-gray-800 text-white font-bold w-auto h-12 px-4 flex items-center justify-center rounded-md border border-gray-700 text-lg">
                             0🌙
                         </button>
                     </div>
-                    <!-- Carousel Area -->
-                    <div id="map-carousel" class="shop-carousel h-1/2 w-full flex items-center overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing">
-                        <div class="flex space-x-4 px-[calc(50%-3.5rem)]"> <!-- Padding to center items -->
-                            <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="0">☠️</div>
-                            <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="1">🕯️</div>
-                            <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="2">🐌</div>
-                            <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="3">❇️</div>
-                            <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="4">🌟</div>
-                            <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none transition-transform duration-200" data-index="5">⚡</div>
+                    <div id="map-carousel" class="shop-carousel h-1/2 w-full flex items-center overflow-x-auto scrollbar-hide">
+                        <div class="flex space-x-4 px-[calc(50%-3.5rem)]">
+                            <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none" data-index="0">☠️</div>
+                            <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none" data-index="1">🕯️</div>
+                            <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none" data-index="2">🐌</div>
+                            <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none" data-index="3">❇️</div>
+                            <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none" data-index="4">🌟</div>
+                            <div class="shop-item map-item flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center text-5xl select-none" data-index="5">⚡</div>
                         </div>
                     </div>
                 </div>
-                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-sky-900 text-white text-3xl font-bold rounded-full border-2 border-sky-700 flex items-center justify-center active:bg-sky-800 transition-colors">&times;</button>
+                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border border-gray-800 flex items-center justify-center">&times;</button>
             </div>
 
-            <!-- Fortunes Modal (Previously Magic) -->
+            <!-- Fortunes Modal -->
             <div id="equip-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
-                <!-- UPDATED: Themed with the new indigo color -->
-                <div class="h-full w-full bg-indigo-900 p-4 text-white flex flex-col justify-center">
+                <div class="h-full w-full bg-gray-900 p-4 text-white flex flex-col justify-center">
                     <h2 id="fortune-modal-title" class="text-xl font-bold mb-4 text-center">Choose a Sacrifice</h2>
-            
-                    <!-- Sacrifices Container -->
                     <div id="sacrifices-container" class="flex justify-around items-start text-center">
-                        <!-- JS will inject 3 random sacrifices here -->
                     </div>
-            
-                    <!-- Fortunes Container -->
                     <div id="fortunes-container" class="hidden flex justify-around items-stretch text-center gap-2">
-                         <!-- JS will inject 3 random fortunes here -->
                     </div>
                 </div>
-                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-indigo-900 text-white text-3xl font-bold rounded-full border-2 border-indigo-700 flex items-center justify-center active:bg-indigo-800 transition-colors">&times;</button>
+                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border border-gray-800 flex items-center justify-center">&times;</button>
             </div>
 
             <!-- Spells Modal -->
             <div id="quests-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
-                <!-- UPDATED: Themed with the new rose color -->
-                <div class="h-full w-full bg-rose-900 p-4 text-white flex flex-col justify-around">
-                    <!-- Magic Meter -->
+                <div class="h-full w-full bg-gray-900 p-4 text-white flex flex-col justify-around">
                     <div class="flex items-center gap-2 px-4">
                         <span class="text-2xl w-10 text-center">✨</span>
-                        <!-- UPDATED: Refreshed meter style -->
-                        <div class="relative w-full bg-slate-800 rounded-full h-4 border-2 border-slate-700">
-                            <div id="magic-bar" class="bg-gradient-to-r from-fuchsia-500 to-pink-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
+                        <div class="relative w-full bg-gray-800 rounded-full h-4 border border-gray-700">
+                            <div id="magic-bar" class="bg-gray-200 h-full rounded-full" style="width: 100%"></div>
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <span id="magic-text" class="text-xs font-bold text-white">10/10</span>
+                                <span id="magic-text" class="text-xs font-bold text-black">10/10</span>
                             </div>
                         </div>
                     </div>
                     <div class="flex justify-around items-start text-center">
-                        <!-- Spell 1: Flameheart -->
-                        <button data-spell="flameheart" class="w-1/3 flex flex-col items-center gap-1 transition-transform active:scale-95 p-2 rounded-lg hover:bg-white/10">
+                        <button data-spell="flameheart" class="w-1/3 flex flex-col items-center gap-1 p-2 rounded-lg">
                             <div class="text-6xl">❤️‍🔥</div>
                             <h3 class="font-bold text-base">Flameheart</h3>
-                            <p class="text-[11px] text-rose-200/80">Deal 5 damage and heal 5 HP.</p>
+                            <p class="text-[11px] text-gray-300">Deal 5 damage and heal 5 HP.</p>
                         </button>
-                        <!-- Spell 2: Frostbite -->
-                        <button data-spell="frostbite" class="w-1/3 flex flex-col items-center gap-1 transition-transform active:scale-95 p-2 rounded-lg hover:bg-white/10">
+                        <button data-spell="frostbite" class="w-1/3 flex flex-col items-center gap-1 p-2 rounded-lg">
                             <div class="text-6xl">❄️</div>
                             <h3 class="font-bold text-base">Frostbite</h3>
-                            <p class="text-[11px] text-rose-200/80">Deal 5 damage & inflict 🐌 Sluggish.</p>
+                            <p class="text-[11px] text-gray-300">Deal 5 damage & inflict 🐌 Sluggish.</p>
                         </button>
-                        <!-- Spell 3: Armorheart -->
-                        <button data-spell="armorheart" class="w-1/3 flex flex-col items-center gap-1 transition-transform active:scale-95 p-2 rounded-lg hover:bg-white/10">
+                        <button data-spell="armorheart" class="w-1/3 flex flex-col items-center gap-1 p-2 rounded-lg">
                             <div class="text-6xl">🩶</div>
                             <h3 class="font-bold text-base">Armorheart</h3>
-                            <p class="text-[11px] text-rose-200/80">Add current health to armor.</p>
+                            <p class="text-[11px] text-gray-300">Add current health to armor.</p>
                         </button>
                     </div>
                 </div>
-                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-rose-900 text-white text-3xl font-bold rounded-full border-2 border-rose-700 flex items-center justify-center active:bg-rose-800 transition-colors">&times;</button>
+                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border border-gray-800 flex items-center justify-center">&times;</button>
             </div>
 
             <!-- Equipment Modal -->
             <div id="system-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
-                <!-- UPDATED: Themed with the new cyan color -->
-                <div class="h-full w-full bg-cyan-900 p-4 text-white flex flex-col text-center">
-                    
+                <div class="h-full w-full bg-gray-900 p-4 text-white flex flex-col text-center">
                     <div class="flex-grow flex flex-col justify-around">
-    
-                        <!-- Equipment Slots -->
                         <div class="grid grid-cols-3 gap-4 items-center">
-                            <!-- UPDATED: Brighter focus states for clarity -->
-                            <button data-target="weapon-choices" class="equip-slot-btn focus:outline-none transition-all group p-2 rounded-lg focus:bg-white/10">
-                                <div class="text-5xl group-focus:scale-110 transition-transform truncate">⚔️</div>
-                                <div class="font-bold group-focus:text-yellow-300 transition-colors text-sm truncate">Weapon</div>
+                            <button data-target="weapon-choices" class="equip-slot-btn focus:outline-none group p-2 rounded-lg focus:bg-gray-700">
+                                <div class="text-5xl truncate">⚔️</div>
+                                <div class="font-bold text-sm truncate">Weapon</div>
                             </button>
-                            <button data-target="armor-choices" class="equip-slot-btn focus:outline-none transition-all group p-2 rounded-lg focus:bg-white/10">
-                                <div class="text-5xl group-focus:scale-110 transition-transform truncate">🛡️</div>
-                                <div class="font-bold group-focus:text-yellow-300 transition-colors text-sm truncate">Armor</div>
+                            <button data-target="armor-choices" class="equip-slot-btn focus:outline-none group p-2 rounded-lg focus:bg-gray-700">
+                                <div class="text-5xl truncate">🛡️</div>
+                                <div class="font-bold text-sm truncate">Armor</div>
                             </button>
-                            <button data-target="ring-choices" class="equip-slot-btn focus:outline-none transition-all group p-2 rounded-lg focus:bg-white/10">
-                                <div class="text-5xl group-focus:scale-110 transition-transform truncate">💍</div>
-                                <div class="font-bold group-focus:text-yellow-300 transition-colors text-sm truncate">Ring</div>
+                            <button data-target="ring-choices" class="equip-slot-btn focus:outline-none group p-2 rounded-lg focus:bg-gray-700">
+                                <div class="text-5xl truncate">💍</div>
+                                <div class="font-bold text-sm truncate">Ring</div>
                             </button>
                         </div>
-    
-                        <!-- Equipment Choices Container -->
                         <div class="relative min-h-[84px]">
-                            <!-- Weapon Choices -->
                             <div id="weapon-choices" class="equip-choices flex flex-col space-y-1 hidden">
-                                <button data-emoji="🏹" data-title="Bow" data-stat-type="attack" data-stat-value="1" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-cyan-600/50 focus:outline-none transition-colors">🏹 Bow (+1 💥)</button>
-                                <button data-emoji="🗡️" data-title="Dagger" data-stat-type="attack" data-stat-value="2" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-cyan-600/50 focus:outline-none transition-colors">🗡️ Dagger (+2 💥)</button>
-                                <button data-emoji="🔨" data-title="Hammer" data-stat-type="attack" data-stat-value="5" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-cyan-600/50 focus:outline-none transition-colors">🔨 Hammer (+5 💥)</button>
+                                <button data-emoji="🏹" data-title="Bow" data-stat-type="attack" data-stat-value="1" class="w-full text-center py-1 px-2 bg-gray-800 rounded-lg focus:bg-gray-600 focus:outline-none">🏹 Bow (+1 💥)</button>
+                                <button data-emoji="🗡️" data-title="Dagger" data-stat-type="attack" data-stat-value="2" class="w-full text-center py-1 px-2 bg-gray-800 rounded-lg focus:bg-gray-600 focus:outline-none">🗡️ Dagger (+2 💥)</button>
+                                <button data-emoji="🔨" data-title="Hammer" data-stat-type="attack" data-stat-value="5" class="w-full text-center py-1 px-2 bg-gray-800 rounded-lg focus:bg-gray-600 focus:outline-none">🔨 Hammer (+5 💥)</button>
                             </div>
-                            <!-- Armor Choices -->
                             <div id="armor-choices" class="equip-choices flex flex-col space-y-1 hidden">
-                                <button data-emoji="🧥" data-title="Leather Gear" data-stat-type="special" data-stat-value="admirers" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-cyan-600/50 focus:outline-none transition-colors">🧥 Leather Gear (Gain Admirers)</button>
-                                <button data-emoji="🪨" data-title="Rock Bracer" data-stat-type="armor" data-stat-value="4" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-cyan-600/50 focus:outline-none transition-colors">🪨 Rock Bracer (+4 🛡️)</button>
-                                <button data-emoji="🕸️" data-title="Cloak" data-stat-type="luck" data-stat-value="15" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-cyan-600/50 focus:outline-none transition-colors">🕸️ Cloak (+15% 🍀)</button>
+                                <button data-emoji="🧥" data-title="Leather Gear" data-stat-type="special" data-stat-value="admirers" class="w-full text-center py-1 px-2 bg-gray-800 rounded-lg focus:bg-gray-600 focus:outline-none">🧥 Leather Gear (Gain Admirers)</button>
+                                <button data-emoji="🪨" data-title="Rock Bracer" data-stat-type="armor" data-stat-value="4" class="w-full text-center py-1 px-2 bg-gray-800 rounded-lg focus:bg-gray-600 focus:outline-none">🪨 Rock Bracer (+4 🛡️)</button>
+                                <button data-emoji="🕸️" data-title="Cloak" data-stat-type="luck" data-stat-value="15" class="w-full text-center py-1 px-2 bg-gray-800 rounded-lg focus:bg-gray-600 focus:outline-none">🕸️ Cloak (+15% 🍀)</button>
                             </div>
-                            <!-- Ring Choices -->
                             <div id="ring-choices" class="equip-choices flex flex-col space-y-1 hidden">
-                                 <button data-emoji="💍" data-title="Eccentric Jewel" data-stat-type="none" data-stat-value="0" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-cyan-600/50 focus:outline-none transition-colors">💍 Eccentric Jewel</button>
-                                 <button id="ring-slot-2" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg opacity-50 cursor-not-allowed">-</button>
-                                 <button class="w-full text-center py-1 px-2 bg-black/20 rounded-lg opacity-50 cursor-not-allowed">-</button>
+                                 <button data-emoji="💍" data-title="Eccentric Jewel" data-stat-type="none" data-stat-value="0" class="w-full text-center py-1 px-2 bg-gray-800 rounded-lg focus:bg-gray-600 focus:outline-none">💍 Eccentric Jewel</button>
+                                 <button id="ring-slot-2" class="w-full text-center py-1 px-2 bg-gray-800 rounded-lg opacity-50 cursor-not-allowed">-</button>
+                                 <button class="w-full text-center py-1 px-2 bg-gray-800 rounded-lg opacity-50 cursor-not-allowed">-</button>
                             </div>
                         </div>
                     </div>
-    
                 </div>
-                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-cyan-900 text-white text-3xl font-bold rounded-full border-2 border-cyan-700 flex items-center justify-center active:bg-cyan-800 transition-colors">&times;</button>
+                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-gray-900 text-white text-3xl font-bold rounded-full border border-gray-800 flex items-center justify-center">&times;</button>
             </div>
-
-            
         </div>
 
         <!-- Tutorial Modal -->
         <div id="tutorial-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-[60] p-4">
-            <!-- UPDATED: Background and border colors -->
-            <div class="h-full w-full bg-sky-950 rounded-lg border-2 border-sky-800 flex flex-col items-center justify-center text-white relative">
+            <div class="h-full w-full bg-gray-900 rounded-lg border border-gray-800 flex flex-col items-center justify-center text-white relative">
                 <h2 class="text-3xl font-bold mb-4">How to Play</h2>
-                <!-- Tutorial content will go here -->
                 <div class="p-4 text-center">
-                    <h3 class="font-bold text-xl mb-2 text-yellow-300">Notes</h3>
-                    <p class="text-base text-slate-300">Enemies are either animal-like or human-like.</p>
+                    <h3 class="font-bold text-xl mb-2 text-gray-300">Notes</h3>
+                    <p class="text-base text-gray-300">Enemies are either animal-like or human-like.</p>
                 </div>
-                 <button id="tutorial-close-btn" class="absolute top-4 right-4 text-slate-400 hover:text-white text-4xl font-bold transition-colors">&times;</button>
+                 <button id="tutorial-close-btn" class="absolute top-4 right-4 text-gray-400 text-4xl font-bold">&times;</button>
             </div>
         </div>
 
-        <!-- Character Modal (Previously World Map) -->
+        <!-- Character Modal -->
         <div id="world-map-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
-            <!-- UPDATED: Background changed to match main theme -->
-            <div class="h-full w-full flex flex-col text-white bg-slate-950">
-                <!-- Character section with stats -->
-                <!-- UPDATED: Gradient updated to match new theme -->
-                <div class="h-1/2 w-full bg-gradient-to-b from-slate-900 to-teal-950 p-4 relative flex flex-col justify-center">
+            <div class="h-full w-full flex flex-col text-white bg-gray-900">
+                <div class="h-1/2 w-full bg-gray-800 p-4 relative flex flex-col justify-center">
                     <div class="space-y-4 text-lg">
-                        <!-- Luck Stat -->
                         <div class="flex items-center gap-2">
-                            <span class="font-bold text-teal-400 w-28">Luck:</span>
+                            <span class="font-bold text-gray-300 w-28">Luck:</span>
                             <span id="player-luck-stat" class="font-medium">🍀 0%</span>
                         </div>
-                        <!-- Record Wave -->
                         <div class="flex items-center gap-2">
-                            <span class="font-bold text-sky-400 w-28">Wave Record:</span>
+                            <span class="font-bold text-gray-300 w-28">Wave Record:</span>
                             <span class="font-medium">0</span>
                         </div>
-                        <!-- Unlocks -->
                         <div class="flex items-center gap-2">
-                            <span class="font-bold text-fuchsia-400 w-28">Unlocks:</span>
+                            <span class="font-bold text-gray-300 w-28">Unlocks:</span>
                             <div class="flex gap-2 text-2xl">
                                 <span>❓</span>
                                 <span>❓</span>
@@ -586,32 +379,26 @@
                             </div>
                         </div>
                     </div>
-                    <!-- UPDATED: Button colors -->
-                    <button id="tutorial-open-btn" class="absolute bottom-4 right-4 text-3xl bg-slate-800 border-2 border-slate-700 hover:bg-slate-700 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-95">❔</button>
+                    <button id="tutorial-open-btn" class="absolute bottom-4 right-4 text-3xl bg-gray-600 border border-gray-500 text-white w-12 h-12 rounded-full flex items-center justify-center">❔</button>
                 </div>
-                 <!-- Redesigned fortunes section -->
-                 <!-- UPDATED: Gradient and borders updated to match new theme -->
-                 <div class="h-1/2 w-full border-t-2 border-purple-800/50 bg-gradient-to-b from-slate-900 to-purple-950 flex flex-col justify-start items-center text-center p-4">
-                    <h3 class="text-xl font-bold mb-4 text-purple-400">Collected Fortunes</h3>
+                 <div class="h-1/2 w-full border-t border-gray-800 bg-gray-900 flex flex-col justify-start items-center text-center p-4">
+                    <h3 class="text-xl font-bold mb-4 text-gray-300">Collected Fortunes</h3>
                     <div id="collected-fortunes-container" class="grid grid-cols-3 gap-2 w-full">
-                        <!-- JS will populate this with fortune slots -->
                     </div>
                 </div>
             </div>
-            <button class="close-modal-btn absolute top-4 right-6 text-slate-400 hover:text-white text-5xl font-bold transition-colors">&times;</button>
+            <button class="close-modal-btn absolute top-4 right-6 text-gray-400 text-5xl font-bold">&times;</button>
         </div>
 
         <!-- REWARD MODAL -->
-        <div id="reward-modal" class="hidden absolute inset-0 bg-black/70 z-50 flex items-center justify-center p-8 backdrop-blur-sm">
-            <!-- UPDATED: Refreshed reward modal styling -->
-            <div id="reward-container" class="bg-slate-800 border-2 border-yellow-400/50 rounded-2xl shadow-2xl shadow-black/50 p-6 w-full max-w-xs text-center text-white flex flex-col items-center gap-4">
-                <h2 class="text-2xl font-bold text-yellow-300">You got a reward!</h2>
+        <div id="reward-modal" class="hidden absolute inset-0 bg-black/70 z-50 flex items-center justify-center p-8">
+            <div id="reward-container" class="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-full max-w-xs text-center text-white flex flex-col items-center gap-4">
+                <h2 class="text-2xl font-bold text-gray-200">You got a reward!</h2>
                 <div id="reward-display" class="text-7xl h-24 w-24 flex items-center justify-center overflow-hidden">
                     <span>❔</span>
                 </div>
                 <p id="reward-text" class="text-xl font-bold h-7"></p>
                 <div id="reward-action" class="h-14 w-full">
-                     <!-- Claim button will be injected here -->
                 </div>
             </div>
         </div>
@@ -653,7 +440,6 @@
             const hpBar = document.getElementById('hp-bar');
             const hpText = document.getElementById('hp-text');
             const playerGoldEl = document.getElementById('player-gold');
-            const buyItemBtn = document.getElementById('buy-item-btn');
             const attackPowerEl = document.getElementById('attack-power');
             const playerArmorEl = document.getElementById('player-armor');
             const topStatusBar = document.getElementById('top-status-bar');
@@ -679,7 +465,6 @@
                 popup.className = 'damage-popup';
                 popup.style.color = color;
                 popup.style.fontSize = '2rem';
-                popup.style.textShadow = `1px 1px 2px rgba(0,0,0,0.5)`;
                 targetElement.appendChild(popup);
                 popup.addEventListener('animationend', () => popup.remove());
             }
@@ -755,8 +540,7 @@
                 modal.classList.remove('hidden');
                 
                 if (modal.id === 'items-modal-wrapper') {
-                    carousel.scrollLeft = 0;
-                    updateShopSelection();
+                    renderShop();
                 } else if (modal.id === 'map-modal-wrapper') {
                     mapCarousel.scrollLeft = 0;
                     updateMapSelection();
@@ -791,21 +575,90 @@
                 });
             });
 
-            // SHOP CAROUSEL LOGIC
+            // SHOP LOGIC
             const shopItems = [
-                { title: 'Tonic', description: 'Restores 6 HP.', owned: 0, cost: 5 },
-                { title: 'Cross', description: 'Cures curse, +1 max HP.', owned: 0, cost: 10 },
-                { title: 'Gem', description: 'Gain a buff, give a debuff.', owned: 0, cost: 15 },
-                { title: 'Fairy', description: 'Restores magic meter.', owned: 0, cost: 15 },
-                { title: 'Moonstone', description: 'Grants 1 Moon to spend.', owned: 0, cost: 20 },
-                { title: 'Infinity Ring', description: '+2 Spins.', owned: 0, cost: 25, purchased: false },
+                { emoji: '🍶', title: 'Tonic', description: 'Restores 6 HP.', owned: 0, cost: 5 },
+                { emoji: '✝️', title: 'Cross', description: 'Cures curse, +1 max HP.', owned: 0, cost: 10 },
+                { emoji: '💎', title: 'Gem', description: 'Gain a buff, give a debuff.', owned: 0, cost: 15 },
+                { emoji: '🧚🏼', title: 'Fairy', description: 'Restores magic meter.', owned: 0, cost: 15 },
+                { emoji: '🌙', title: 'Moonstone', description: 'Grants 1 Moon to spend.', owned: 0, cost: 20 },
+                { emoji: '♾️', title: 'Infinity Ring', description: '+2 Spins.', owned: 0, cost: 25, purchased: false },
             ];
-            const carousel = document.getElementById('shop-carousel');
-            const carouselItems = carousel.querySelectorAll('.shop-item');
-            const itemTitle = document.getElementById('item-title');
-            const itemDescription = document.getElementById('item-description');
-            const itemOwned = document.getElementById('item-owned');
-            let currentShopIndex = 0;
+            const shopListContainer = document.getElementById('shop-list-container');
+
+            function renderShop() {
+                if (!shopListContainer) return;
+                shopListContainer.innerHTML = ''; // Clear existing items
+
+                shopItems.forEach((item, index) => {
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'flex items-center justify-between bg-gray-800 p-2 rounded-lg text-white';
+
+                    const hasBarteringEdge = player.activeFortunes.includes('Bartering Edge');
+                    const currentCost = hasBarteringEdge ? Math.floor(item.cost * 0.75) : item.cost;
+
+                    let isUsable = false;
+                    if (item.owned > 0) {
+                        switch (item.title) {
+                            case 'Tonic': isUsable = player.currentHp < player.maxHp; break;
+                            case 'Cross': isUsable = player.statusEffects.includes('curse'); break;
+                            case 'Fairy': isUsable = player.currentMp < player.maxMp; break;
+                            case 'Gem': isUsable = true; break;
+                            default: isUsable = false; break;
+                        }
+                    }
+
+                    itemEl.innerHTML = `
+                        <div class="flex items-center gap-3 flex-1">
+                            <span class="text-4xl">${item.emoji}</span>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-white">${item.title} <span class="text-gray-400 font-normal">(x${item.owned})</span></h4>
+                                <p class="text-xs text-gray-400">${item.description}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button data-use-index="${index}" class="use-item-btn bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md text-sm ${!isUsable ? 'opacity-50 cursor-not-allowed' : ''}" ${!isUsable ? 'disabled' : ''}>Use</button>
+                            <button data-buy-index="${index}" class="buy-item-btn bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md text-sm ${item.purchased || player.gold < currentCost ? 'opacity-50 cursor-not-allowed' : ''}" ${item.purchased || player.gold < currentCost ? 'disabled' : ''}>
+                                ${item.purchased ? 'Owned' : `${currentCost} <span class="opacity-75">🪙</span>`}
+                            </button>
+                        </div>
+                    `;
+
+                    shopListContainer.appendChild(itemEl);
+                });
+
+                // Add event listeners after rendering
+                shopListContainer.querySelectorAll('.use-item-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const itemIndex = parseInt(e.currentTarget.dataset.useIndex, 10);
+                        useItem(itemIndex);
+                    });
+                });
+
+                shopListContainer.querySelectorAll('.buy-item-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const itemIndex = parseInt(e.currentTarget.dataset.buyIndex, 10);
+                        const itemToBuy = shopItems[itemIndex];
+                        const hasBarteringEdge = player.activeFortunes.includes('Bartering Edge');
+                        const currentCost = hasBarteringEdge ? Math.floor(itemToBuy.cost * 0.75) : itemToBuy.cost;
+
+                        if (!itemToBuy.purchased && player.gold >= currentCost) {
+                            player.gold -= currentCost;
+                            itemToBuy.owned++;
+                            if (itemToBuy.title === 'Infinity Ring') {
+                                itemToBuy.purchased = true;
+                                unlockInfinityRing();
+                            }
+                            if (itemToBuy.title === 'Moonstone') {
+                                player.moons++;
+                                updateMoonModalUI();
+                            }
+                            updatePlayerUI();
+                            renderShop(); // Re-render to update UI
+                        }
+                    });
+                });
+            }
 
             // FORTUNE HELPER: Check for Battle Grace when receiving a buff
             function checkForBattleGrace() {
@@ -813,10 +666,6 @@
                     player.maxBaseArmor++;
                     player.baseArmor++;
                     console.log("Battle Grace triggered! +1 Armor.");
-                    playerArmorContainer.classList.add('armor-gain');
-                    playerArmorContainer.addEventListener('animationend', () => {
-                        playerArmorContainer.classList.remove('armor-gain');
-                    }, { once: true });
                     updatePlayerUI();
                 }
             }
@@ -865,7 +714,7 @@
                                             const healthPercent = (targetEnemy.currentHealth / targetEnemy.maxHealth) * 100;
                                             healthBar.style.width = `${healthPercent}%`;
                                             healthText.textContent = `${targetEnemy.currentHealth}/${targetEnemy.maxHealth}`;
-                                            createEffectPopup(`+${healAmount}`, '#22c55e', reels[enemyIndex]); // green-500
+                                            createEffectPopup(`+${healAmount}`, '#9ca3af', reels[enemyIndex]); // gray-400
                                         }
                                     }
                                 }
@@ -915,194 +764,19 @@
                             }
                         }
                         break;
-                    // Moonstone and Infinity Ring are handled elsewhere (on purchase/equip)
                 }
 
                 if (itemUsed) {
                     console.log(`Used ${itemData.title}.`);
                     itemData.owned--;
-                    
-                    const itemElement = carousel.querySelector(`.shop-item[data-index="${itemIndex}"]`);
-                    itemElement.classList.add('transition-transform', 'duration-150', 'scale-110');
-                    setTimeout(() => itemElement.classList.remove('scale-110'), 150);
-                    
                     updatePlayerUI();
                     updateMagicUI();
                     updateAllStatusIcons();
-                    updateShopSelection();
+                    renderShop();
                 } else {
                     console.log(`Could not use ${itemData.title}. Conditions not met.`);
                 }
             }
-
-
-            // Add click listeners to consume items from the carousel
-            carouselItems.forEach(item => {
-                item.addEventListener('click', () => {
-                    const itemIndex = parseInt(item.dataset.index, 10);
-
-                    // If the clicked item isn't the currently selected one, just scroll to it.
-                    if (itemIndex !== currentShopIndex) {
-                        const targetScroll = item.offsetLeft - (carousel.offsetWidth / 2) + (item.offsetWidth / 2);
-                        carousel.scrollTo({
-                            left: targetScroll,
-                            behavior: 'smooth'
-                        });
-                        return;
-                    }
-                    
-                    const selectedItemData = shopItems[itemIndex];
-                    if (selectedItemData.owned > 0 && !selectedItemData.purchased) {
-                       useItem(itemIndex);
-                    }
-                });
-            });
-
-            let isShopDown = false;
-            let shopStartX;
-            let shopScrollLeft;
-
-            const startShopDragging = (e) => {
-                isShopDown = true;
-                shopStartX = (e.pageX || e.touches[0].pageX) - carousel.offsetLeft;
-                shopScrollLeft = carousel.scrollLeft;
-            };
-
-            const stopShopDragging = () => { isShopDown = false; };
-
-            const dragShop = (e) => {
-                if (!isShopDown) return;
-                e.preventDefault();
-                const x = (e.pageX || e.touches[0].pageX) - carousel.offsetLeft;
-                const walk = (x - shopStartX); 
-                carousel.scrollLeft = shopScrollLeft - walk;
-            };
-            
-            if (carousel) {
-                carousel.addEventListener('mousedown', startShopDragging);
-                carousel.addEventListener('touchstart', startShopDragging);
-                carousel.addEventListener('mouseleave', stopShopDragging);
-                carousel.addEventListener('mouseup', stopShopDragging);
-                carousel.addEventListener('touchend', stopShopDragging);
-                carousel.addEventListener('mousemove', dragShop);
-                carousel.addEventListener('touchmove', dragShop);
-            }
-
-
-            let shopScrollTimeout;
-            const updateShopSelection = () => {
-                clearTimeout(shopScrollTimeout);
-                shopScrollTimeout = setTimeout(() => {
-                    const carouselCenter = carousel.offsetWidth / 2;
-                    let closestItem = null;
-                    let smallestDistance = Infinity;
-
-                    carouselItems.forEach(item => {
-                        const itemRect = item.getBoundingClientRect();
-                        const carouselRect = carousel.getBoundingClientRect();
-                        const itemCenter = (itemRect.left - carouselRect.left) + (itemRect.width / 2);
-                        const distance = Math.abs(carouselCenter - itemCenter);
-                        
-                        if (distance < smallestDistance) {
-                            smallestDistance = distance;
-                            closestItem = item;
-                        }
-                    });
-
-                    if (closestItem) {
-                        carouselItems.forEach(item => {
-                            item.classList.remove('scale-125', 'cursor-pointer', 'opacity-50');
-                            item.classList.add('scale-100');
-                        });
-                        closestItem.classList.remove('scale-100');
-                        closestItem.classList.add('scale-125');
-
-                        const itemIndex = parseInt(closestItem.dataset.index);
-                        currentShopIndex = itemIndex;
-                        const selectedItemData = shopItems[itemIndex];
-                        itemTitle.textContent = selectedItemData.title;
-                        itemDescription.textContent = selectedItemData.description;
-                        itemOwned.textContent = `x${selectedItemData.owned}`;
-
-                        // Check usability for owned items
-                        let isUsable = true;
-                        if (selectedItemData.owned > 0) {
-                            if (selectedItemData.title === 'Cross' && !player.statusEffects.includes('curse')) {
-                                isUsable = false;
-                            }
-                            if (selectedItemData.title === 'Fairy' && player.currentMp >= player.maxMp) {
-                                isUsable = false;
-                            }
-                             if (selectedItemData.title === 'Tonic' && player.currentHp >= player.maxHp) {
-                                isUsable = false;
-                            }
-                        }
-
-                        if (selectedItemData.owned > 0 && !selectedItemData.purchased && isUsable) {
-                            closestItem.classList.add('cursor-pointer');
-                        } else if (selectedItemData.owned > 0 && !isUsable) {
-                            closestItem.classList.add('opacity-50');
-                        }
-                        
-                        // FORTUNE CHANGE: Buy button logic with 'Bartering Edge'
-                        const hasBarteringEdge = player.activeFortunes.includes('Bartering Edge');
-                        const currentCost = hasBarteringEdge ? Math.floor(selectedItemData.cost * 0.75) : selectedItemData.cost;
-
-                        if (selectedItemData.purchased) {
-                            buyItemBtn.innerHTML = `<span>Owned</span>`;
-                            buyItemBtn.disabled = true;
-                            buyItemBtn.classList.add('opacity-50', 'bg-slate-700', 'cursor-not-allowed', 'border-transparent');
-                            buyItemBtn.classList.remove('bg-green-500');
-                        } else {
-                            buyItemBtn.innerHTML = `<span>${currentCost}</span><span class="opacity-75">🪙</span>`;
-                            if (player.gold >= currentCost) {
-                                buyItemBtn.disabled = false;
-                                buyItemBtn.classList.remove('opacity-50', 'bg-slate-700', 'cursor-not-allowed', 'border-transparent');
-                                buyItemBtn.classList.add('bg-green-500');
-                            } else {
-                                buyItemBtn.disabled = true;
-                                buyItemBtn.classList.add('opacity-50', 'bg-slate-700', 'cursor-not-allowed', 'border-transparent');
-                                buyItemBtn.classList.remove('bg-green-500');
-                            }
-                        }
-                    }
-                }, 50);
-            };
-            
-            if (carousel) {
-                carousel.addEventListener('scroll', updateShopSelection);
-            }
-
-            buyItemBtn.addEventListener('click', () => {
-                if (buyItemBtn.disabled) return;
-
-                const itemToBuy = shopItems[currentShopIndex];
-                
-                // FORTUNE CHANGE: Use discounted cost for 'Bartering Edge'
-                const hasBarteringEdge = player.activeFortunes.includes('Bartering Edge');
-                const currentCost = hasBarteringEdge ? Math.floor(itemToBuy.cost * 0.75) : itemToBuy.cost;
-
-                if (player.gold >= currentCost) {
-                    player.gold -= currentCost;
-                    itemToBuy.owned++;
-
-                    if (itemToBuy.title === 'Infinity Ring') {
-                        itemToBuy.purchased = true;
-                        unlockInfinityRing();
-                    }
-                    
-                    if (itemToBuy.title === 'Moonstone') {
-                        player.moons++;
-                        updateMoonModalUI(); // Update moon UI in case modal is open
-                    }
-
-                    buyItemBtn.classList.add('scale-90');
-                    setTimeout(() => buyItemBtn.classList.remove('scale-90'), 150);
-
-                    updatePlayerUI();
-                    updateShopSelection();
-                }
-            });
 
             // MAP CAROUSEL LOGIC / STATUS EFFECTS
             const moonArts = [
@@ -1120,11 +794,8 @@
             const mapItemOwned = document.getElementById('map-item-owned');
             let currentMapIndex = 0;
 
-            let isMapDown = false;
-            let mapStartX;
-            let mapScrollLeft;
-
-            // FORTUNE HELPER: Check for Torment when applying a debuff
+            let isMapDown = false, mapStartX, mapScrollLeft;
+            
             function checkForTorment(enemy, enemyIndex) {
                 if (player.activeFortunes.includes('Torment')) {
                     if (enemy && !enemy.isDefeated) {
@@ -1135,154 +806,51 @@
             }
             
             function updateAllStatusIcons() {
-                // --- Player Statuses ---
                 const playerStatusContainer = document.getElementById('player-status-effects');
-                const allPlayerStatusElements = {
-                    poison: document.getElementById('player-status-poison'),
-                    curse: document.getElementById('player-status-curse'),
-                    sluggish: document.getElementById('player-status-sluggish'),
-                    regen: document.getElementById('player-status-regen'),
-                    blessing: document.getElementById('player-status-blessing'),
-                    rush: document.getElementById('player-status-rush'),
-                };
+                const allPlayerStatusElements = { poison: document.getElementById('player-status-poison'), curse: document.getElementById('player-status-curse'), sluggish: document.getElementById('player-status-sluggish'), regen: document.getElementById('player-status-regen'), blessing: document.getElementById('player-status-blessing'), rush: document.getElementById('player-status-rush') };
+                for (const id in allPlayerStatusElements) { if (allPlayerStatusElements[id]) allPlayerStatusElements[id].style.display = 'none'; }
+                const orderedPlayerActiveIds = moonArts.map(art => art.id).filter(id => player.statusEffects.includes(id));
+                orderedPlayerActiveIds.forEach(id => { const span = allPlayerStatusElements[id]; if (span) { span.style.display = 'inline'; playerStatusContainer.appendChild(span); } });
 
-                // Hide all player status icons first
-                for (const id in allPlayerStatusElements) {
-                    if (allPlayerStatusElements[id]) {
-                        allPlayerStatusElements[id].style.display = 'none';
-                    }
-                }
-                
-                // Create an ordered list of active status IDs for the player
-                const orderedPlayerActiveIds = moonArts
-                    .map(art => art.id)
-                    .filter(id => player.statusEffects.includes(id));
-
-                // Show and re-append active statuses to enforce visual order
-                orderedPlayerActiveIds.forEach(id => {
-                    const span = allPlayerStatusElements[id];
-                    if (span) {
-                        span.style.display = 'inline';
-                        playerStatusContainer.appendChild(span);
-                    }
-                });
-
-                // --- Enemy Statuses ---
                 const allEnemyStatusIds = ['poison', 'curse', 'sluggish', 'regen'];
                 for (let i = 1; i <= 3; i++) {
                     const enemy = currentEnemies[i - 1];
-                    // Find the container relative to the reel
                     const reelElement = document.getElementById(`reel${i}`);
                     if (!reelElement) continue;
                     const enemyStatusContainer = reelElement.parentElement.querySelector('.h-4');
                     if(!enemyStatusContainer) continue;
-
-                    const allEnemySpansForSlot = {
-                        poison: document.querySelector(`.enemy-${i}-status-poison`),
-                        curse: document.querySelector(`.enemy-${i}-status-curse`),
-                        sluggish: document.querySelector(`.enemy-${i}-status-sluggish`),
-                        regen: document.querySelector(`.enemy-${i}-status-regen`),
-                    };
-
-                    // Hide all status icons for this enemy slot
-                    for (const id in allEnemySpansForSlot) {
-                        if (allEnemySpansForSlot[id]) {
-                            allEnemySpansForSlot[id].style.display = 'none';
-                        }
-                    }
-
+                    const allEnemySpansForSlot = { poison: document.querySelector(`.enemy-${i}-status-poison`), curse: document.querySelector(`.enemy-${i}-status-curse`), sluggish: document.querySelector(`.enemy-${i}-status-sluggish`), regen: document.querySelector(`.enemy-${i}-status-regen`) };
+                    for (const id in allEnemySpansForSlot) { if (allEnemySpansForSlot[id]) allEnemySpansForSlot[id].style.display = 'none'; }
                     if (enemy && !enemy.isDefeated) {
-                        // Create an ordered list of active status IDs for the enemy
                         const orderedEnemyActiveIds = allEnemyStatusIds.filter(id => enemy.statusEffects.includes(id));
-
-                        // Show and re-append active statuses for this enemy
-                        orderedEnemyActiveIds.forEach(id => {
-                            const span = allEnemySpansForSlot[id];
-                            if (span) {
-                                span.style.display = 'inline';
-                                enemyStatusContainer.appendChild(span);
-                            }
-                        });
+                        orderedEnemyActiveIds.forEach(id => { const span = allEnemySpansForSlot[id]; if (span) { span.style.display = 'inline'; enemyStatusContainer.appendChild(span); } });
                     }
                 }
             }
-
 
             mapCarouselItems.forEach(item => {
                 item.addEventListener('click', () => {
                     const itemIndex = parseInt(item.dataset.index, 10);
                     const selectedArt = moonArts[itemIndex];
-
-                    // If the clicked item isn't the currently selected one, just scroll to it.
-                    if (itemIndex !== currentMapIndex) {
-                        const targetScroll = item.offsetLeft - (mapCarousel.offsetWidth / 2) + (item.offsetWidth / 2);
-                        mapCarousel.scrollTo({ left: targetScroll, behavior: 'smooth' });
-                        return; // Exit without using the art
-                    }
-                    
-                    // If it is the selected item and we own some...
+                    if (itemIndex !== currentMapIndex) { const targetScroll = item.offsetLeft - (mapCarousel.offsetWidth / 2) + (item.offsetWidth / 2); mapCarousel.scrollTo({ left: targetScroll, behavior: 'auto' }); return; }
                     if (selectedArt.owned > 0) {
-                        // NEW check for active enemies
-                        if (!areEnemiesActive()) {
-                             console.log("Cannot use Moon Arts without active enemies.");
-                             return;
-                        }
-
-                        selectedArt.owned--; // Consume one
-                        
-                        closeModal(); // Close modal on use
-                        reels.forEach(r => r.disabled = true); // Disable reels to end player action phase
-
-                        // Apply the effect
-                        if (selectedArt.type === 'buff') {
-                            if (!player.statusEffects.includes(selectedArt.id)) {
-                                player.statusEffects.push(selectedArt.id);
-                                checkForBattleGrace(); // FORTUNE: Check for Battle Grace
-                            }
-                        } else if (selectedArt.type === 'debuff') {
-                            currentEnemies.forEach((enemy, index) => {
-                                if (enemy && !enemy.isDefeated && !enemy.statusEffects.includes(selectedArt.id)) {
-                                    enemy.statusEffects.push(selectedArt.id);
-                                    checkForTorment(enemy, index); // FORTUNE: Check for Torment
-                                }
-                            });
-                        }
-                        
+                        if (!areEnemiesActive()) { console.log("Cannot use Moon Arts without active enemies."); return; }
+                        selectedArt.owned--;
+                        closeModal();
+                        reels.forEach(r => r.disabled = true);
+                        if (selectedArt.type === 'buff') { if (!player.statusEffects.includes(selectedArt.id)) { player.statusEffects.push(selectedArt.id); checkForBattleGrace(); }
+                        } else if (selectedArt.type === 'debuff') { currentEnemies.forEach((enemy, index) => { if (enemy && !enemy.isDefeated && !enemy.statusEffects.includes(selectedArt.id)) { enemy.statusEffects.push(selectedArt.id); checkForTorment(enemy, index); } }); }
                         console.log(`Used ${selectedArt.title}. Remaining: ${selectedArt.owned}`);
-                        
-                        // Refresh ALL UI that might have changed
-                        updateAllStatusIcons(); // Updates the visible icons in the main game screen
-                        
-                        startEnemyTurn(); // Consume turn
+                        updateAllStatusIcons();
+                        startEnemyTurn();
                     }
                 });
             });
 
-            const startMapDragging = (e) => {
-                isMapDown = true;
-                mapStartX = (e.pageX || e.touches[0].pageX) - mapCarousel.offsetLeft;
-                mapScrollLeft = mapCarousel.scrollLeft;
-            };
-
+            const startMapDragging = (e) => { isMapDown = true; mapStartX = (e.pageX || e.touches[0].pageX) - mapCarousel.offsetLeft; mapScrollLeft = mapCarousel.scrollLeft; };
             const stopMapDragging = () => { isMapDown = false; };
-
-            const dragMap = (e) => {
-                if (!isMapDown) return;
-                e.preventDefault();
-                const x = (e.pageX || e.touches[0].pageX) - mapCarousel.offsetLeft;
-                const walk = (x - mapStartX);
-                mapCarousel.scrollLeft = mapScrollLeft - walk;
-            };
-
-            if (mapCarousel) {
-                mapCarousel.addEventListener('mousedown', startMapDragging);
-                mapCarousel.addEventListener('touchstart', startMapDragging);
-                mapCarousel.addEventListener('mouseleave', stopMapDragging);
-                mapCarousel.addEventListener('mouseup', stopMapDragging);
-                mapCarousel.addEventListener('touchend', stopMapDragging);
-                mapCarousel.addEventListener('mousemove', dragMap);
-                mapCarousel.addEventListener('touchmove', dragMap);
-            }
+            const dragMap = (e) => { if (!isMapDown) return; e.preventDefault(); const x = (e.pageX || e.touches[0].pageX) - mapCarousel.offsetLeft; const walk = (x - mapStartX); mapCarousel.scrollLeft = mapScrollLeft - walk; };
+            if (mapCarousel) { mapCarousel.addEventListener('mousedown', startMapDragging); mapCarousel.addEventListener('touchstart', startMapDragging); mapCarousel.addEventListener('mouseleave', stopMapDragging); mapCarousel.addEventListener('mouseup', stopMapDragging); mapCarousel.addEventListener('touchend', stopMapDragging); mapCarousel.addEventListener('mousemove', dragMap); mapCarousel.addEventListener('touchmove', dragMap); }
 
             let mapScrollTimeout;
             const updateMapSelection = () => {
@@ -1291,59 +859,28 @@
                     const carouselCenter = mapCarousel.offsetWidth / 2;
                     let closestItem = null;
                     let smallestDistance = Infinity;
-
-                    mapCarouselItems.forEach(item => {
-                        const itemRect = item.getBoundingClientRect();
-                        const carouselRect = mapCarousel.getBoundingClientRect();
-                        const itemCenter = (itemRect.left - carouselRect.left) + (itemRect.width / 2);
-                        const distance = Math.abs(carouselCenter - itemCenter);
-                        
-                        if (distance < smallestDistance) {
-                            smallestDistance = distance;
-                            closestItem = item;
-                        }
-                    });
-
+                    mapCarouselItems.forEach(item => { const itemRect = item.getBoundingClientRect(); const carouselRect = mapCarousel.getBoundingClientRect(); const itemCenter = (itemRect.left - carouselRect.left) + (itemRect.width / 2); const distance = Math.abs(carouselCenter - itemCenter); if (distance < smallestDistance) { smallestDistance = distance; closestItem = item; } });
                     if (closestItem) {
-                        mapCarouselItems.forEach(item => {
-                            item.classList.remove('scale-125');
-                            item.classList.add('scale-100');
-                        });
-                        closestItem.classList.remove('scale-100');
-                        closestItem.classList.add('scale-125');
-
                         const itemIndex = parseInt(closestItem.dataset.index);
                         currentMapIndex = itemIndex;
                         const selectedItemData = moonArts[itemIndex];
                         mapItemTitle.textContent = selectedItemData.title;
                         mapItemDescription.textContent = selectedItemData.description;
                         mapItemOwned.textContent = `x${selectedItemData.owned}`;
-
-                        // Make the item tappable if owned
-                        if (selectedItemData.owned > 0) {
-                            closestItem.classList.add('cursor-pointer');
-                        } else {
-                            closestItem.classList.remove('cursor-pointer');
-                        }
+                        if (selectedItemData.owned > 0) { closestItem.classList.add('cursor-pointer'); } else { closestItem.classList.remove('cursor-pointer'); }
                     }
                 }, 50);
             };
-            
-            if (mapCarousel) {
-                mapCarousel.addEventListener('scroll', updateMapSelection);
-            }
+            if (mapCarousel) mapCarousel.addEventListener('scroll', updateMapSelection);
 
             buyMapItemBtn.addEventListener('click', () => {
                 if (player.moons >= 1) {
                     player.moons--;
-                    const selectedItemIndex = parseInt(mapCarousel.querySelector('.scale-125').dataset.index);
+                    const selectedItemIndex = parseInt(mapCarousel.querySelector('.shop-item').dataset.index); // Simplified selection
                     const purchasedArt = moonArts[selectedItemIndex];
-                    
-                    // FORTUNE CHANGE: Check for 'Double Moon'
                     const hasDoubleMoon = player.activeFortunes.includes('Double Moon');
                     purchasedArt.owned += hasDoubleMoon ? 2 : 1;
                     console.log(`Purchased ${purchasedArt.title}. You have ${player.moons} moons left.`);
-
                     updateMoonModalUI();
                     updateMapSelection();
                 }
@@ -1353,20 +890,11 @@
             spellButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     if (button.disabled) return;
-
-                    // NEW CHECK: Prevent spell usage without active enemies
-                    if (!areEnemiesActive()) {
-                        console.log("Cannot cast spells without active enemies.");
-                        return;
-                    }
-            
-                    // FORTUNE CHANGE: Use dynamic spell cost
+                    if (!areEnemiesActive()) { console.log("Cannot cast spells without active enemies."); return; }
                     const spellCost = player.activeFortunes.includes('Efficient Magic') ? 2 : 4;
-
                     if (player.currentMp >= spellCost) {
                         player.currentMp -= spellCost;
                         updateMagicUI();
-            
                         const spellName = button.dataset.spell;
                         castSpell(spellName);
                     }
@@ -1377,174 +905,53 @@
             const fortuneModalTitle = document.getElementById('fortune-modal-title');
             const sacrificesContainer = document.getElementById('sacrifices-container');
             const fortunesContainer = document.getElementById('fortunes-container');
-            
-            let usedSacrifices = [];
-            let usedFortunes = [];
-            let currentSacrifice = null;
-
-            const allSacrifices = [
-                { emoji: '🩸', title: 'BLOOD PACT', description: '-3 Max HP.' },
-                { emoji: '🦶', title: 'BROKEN ANKLE', description: '-10% 🍀.' },
-                { emoji: '💔', title: 'HEARTBREAK', description: 'Lose ❤️‍🔥 or 🩶.' },
-                { emoji: '📜', title: 'GAMBLING DEBT', description: '-30 Gold.' },
-                { emoji: '🫴', title: 'CLUMSY', description: 'Lose 1 🌙.' },
-                { emoji: '🎭', title: 'UNSTABLE MIND', description: 'Share 🍶.' },
-            ];
-
-            const allFortunes = [
-                // Common (Blue)
-                { title: 'Double Moon', description: '🌙 Gives 2 uses.', color: 'blue' },
-                { title: 'Efficient Magic', description: 'Spells use 50% less MP.', color: 'blue' },
-                { title: 'Bartering Edge', description: '25% shop discount.', color: 'blue' },
-                // Uncommon (Yellow)
-                { title: 'Archer\'s Edge', description: 'Attacks all with 🏹.', color: 'yellow' },
-                { title: 'Enchantment', description: 'Using 🧚🏼 grants ❇️.', color: 'yellow' },
-                { title: 'Battle Grace', description: 'Receive buff = +1 🛡️.', color: 'yellow' },
-                // Rare (Pink)
-                { title: 'Torment', description: 'Applying debuffs also deals 2 damage.', color: 'pink' },
-                { title: 'Thief Strike', description: 'Steal 5 🪙 when attacking with 🗡️.', color: 'pink' },
-                { title: 'Toxic Decay', description: '+2 ☠️ Damage.', color: 'pink' },
-            ];
-            
-            function getRandomItems(arr, num) {
-                const shuffled = [...arr].sort(() => 0.5 - Math.random());
-                return shuffled.slice(0, num);
-            }
-            
-            function getRandomFortuneByWeight(availableFortunes) {
-                const weightedList = [];
-
-                availableFortunes.forEach(fortune => {
-                    if (fortune.color === 'blue') { // Common, weight 40
-                        for (let i = 0; i < 40; i++) weightedList.push(fortune);
-                    } else if (fortune.color === 'yellow') { // Uncommon, weight 30
-                        for (let i = 0; i < 30; i++) weightedList.push(fortune);
-                    } else if (fortune.color === 'pink') { // Rare, weight 20
-                        for (let i = 0; i < 20; i++) weightedList.push(fortune);
-                    }
-                });
-                
-                if (weightedList.length === 0) return null;
-
-                const randomIndex = Math.floor(Math.random() * weightedList.length);
-                return weightedList[randomIndex];
-            }
-
-            // FORTUNE: New function to handle acquiring a fortune
-            function acquireFortune(fortune) {
-                console.log('Acquiring Fortune:', fortune.title);
-                
-                // Add to player's active fortunes if not already present
-                if (!player.activeFortunes.includes(fortune.title)) {
-                    player.activeFortunes.push(fortune.title);
-                }
-
-                // Add to the UI collection
-                if (collectedFortunes.length < 6) {
-                    collectedFortunes.push({ sacrifice: currentSacrifice, fortune: fortune });
-                    usedFortunes.push(fortune.title);
-                    currentSacrifice = null; // Reset for next time
-                    updateCollectedFortunesDisplay();
-                } else {
-                    console.log("Maximum fortunes collected.");
-                }
-                
-                // Update any UI that might be affected by the new fortune
-                updateShopSelection(); // For Bartering Edge
-                updateMagicUI(); // For Efficient Magic
-                
-                closeModal();
-            }
-
+            let usedSacrifices = [], usedFortunes = [], currentSacrifice = null;
+            const allSacrifices = [ { emoji: '🩸', title: 'BLOOD PACT', description: '-3 Max HP.' }, { emoji: '🦶', title: 'BROKEN ANKLE', description: '-10% 🍀.' }, { emoji: '💔', title: 'HEARTBREAK', description: 'Lose ❤️‍🔥 or 🩶.' }, { emoji: '📜', title: 'GAMBLING DEBT', description: '-30 Gold.' }, { emoji: '🫴', title: 'CLUMSY', description: 'Lose 1 🌙.' }, { emoji: '🎭', title: 'UNSTABLE MIND', description: 'Share 🍶.' } ];
+            const allFortunes = [ { title: 'Double Moon', description: '🌙 Gives 2 uses.', color: 'blue' }, { title: 'Efficient Magic', description: 'Spells use 50% less MP.', color: 'blue' }, { title: 'Bartering Edge', description: '25% shop discount.', color: 'blue' }, { title: 'Archer\'s Edge', description: 'Attacks all with 🏹.', color: 'yellow' }, { title: 'Enchantment', description: 'Using 🧚🏼 grants ❇️.', color: 'yellow' }, { title: 'Battle Grace', description: 'Receive buff = +1 🛡️.', color: 'yellow' }, { title: 'Torment', description: 'Applying debuffs also deals 2 damage.', color: 'pink' }, { title: 'Thief Strike', description: 'Steal 5 🪙 when attacking with 🗡️.', color: 'pink' }, { title: 'Toxic Decay', description: '+2 ☠️ Damage.', color: 'pink' } ];
+            function getRandomItems(arr, num) { return [...arr].sort(() => 0.5 - Math.random()).slice(0, num); }
+            function getRandomFortuneByWeight(availableFortunes) { const weightedList = []; availableFortunes.forEach(fortune => { if (fortune.color === 'blue') { for (let i = 0; i < 40; i++) weightedList.push(fortune); } else if (fortune.color === 'yellow') { for (let i = 0; i < 30; i++) weightedList.push(fortune); } else if (fortune.color === 'pink') { for (let i = 0; i < 20; i++) weightedList.push(fortune); } }); if (weightedList.length === 0) return null; return weightedList[Math.floor(Math.random() * weightedList.length)]; }
+            function acquireFortune(fortune) { console.log('Acquiring Fortune:', fortune.title); if (!player.activeFortunes.includes(fortune.title)) player.activeFortunes.push(fortune.title); if (collectedFortunes.length < 6) { collectedFortunes.push({ sacrifice: currentSacrifice, fortune: fortune }); usedFortunes.push(fortune.title); currentSacrifice = null; updateCollectedFortunesDisplay(); } else { console.log("Maximum fortunes collected."); } updateShopSelection(); updateMagicUI(); closeModal(); }
             function selectSacrifice() {
                 sacrificesContainer.classList.add('hidden');
                 fortunesContainer.classList.remove('hidden');
                 fortuneModalTitle.textContent = 'Choose your Fortune';
-
                 const availableFortunes = allFortunes.filter(f => !usedFortunes.includes(f.title));
-                
                 const chosenFortunes = new Set();
-                if (availableFortunes.length <= 3) {
-                    availableFortunes.forEach(f => chosenFortunes.add(f));
-                } else {
-                    while (chosenFortunes.size < 3) {
-                        const newFortune = getRandomFortuneByWeight(availableFortunes);
-                        if (newFortune) {
-                            chosenFortunes.add(newFortune);
-                        }
-                    }
-                }
+                if (availableFortunes.length <= 3) { availableFortunes.forEach(f => chosenFortunes.add(f)); } else { while (chosenFortunes.size < 3) { const newFortune = getRandomFortuneByWeight(availableFortunes); if (newFortune) chosenFortunes.add(newFortune); } }
                 const randomFortunes = Array.from(chosenFortunes);
-                
                 fortunesContainer.innerHTML = ''; 
-
                 randomFortunes.forEach((fortune, index) => {
                     const fortuneEl = document.createElement('button');
-                    let bgColorClass = '';
-                    
-                    switch (fortune.color) {
-                        case 'blue': bgColorClass = 'bg-sky-600/20 hover:bg-sky-600/40'; break;
-                        case 'yellow': bgColorClass = 'bg-yellow-500/20 hover:bg-yellow-500/40'; break;
-                        case 'pink': bgColorClass = 'bg-pink-600/20 hover:bg-pink-600/40'; break;
-                    }
-
-                    let rareHTML = '';
-                    if (fortune.color === 'pink') {
-                        rareHTML = `<div class="text-[10px] font-bold text-pink-300">RARE</div>`;
-                    }
-
-                    fortuneEl.className = `w-1/3 flex flex-col items-center justify-center gap-1 p-2 rounded-lg transition-all active:scale-95 shadow-md shadow-black/30 animate-fade-in ${bgColorClass}`;
-                    fortuneEl.style.animationDelay = `${index * 250}ms`;
-                    fortuneEl.innerHTML = `
-                        ${rareHTML}
-                        <h3 class="font-bold text-sm text-center">${fortune.title}</h3>
-                        <p class="text-[11px] text-slate-400 text-center">${fortune.description}</p>
-                    `;
-                    fortuneEl.onclick = () => {
-                        acquireFortune(fortune); // FORTUNE: Use the helper function
-                    };
+                    let borderColorClass = 'border-gray-700';
+                    if (fortune.color === 'blue') borderColorClass = 'border-blue-500';
+                    else if (fortune.color === 'yellow') borderColorClass = 'border-yellow-500';
+                    else if (fortune.color === 'pink') borderColorClass = 'border-pink-500';
+                    fortuneEl.className = `w-1/3 flex flex-col items-center justify-center gap-1 p-2 rounded-lg bg-gray-800 border ${borderColorClass}`;
+                    fortuneEl.innerHTML = `<h3 class="font-bold text-sm text-center">${fortune.title}</h3><p class="text-[11px] text-gray-400 text-center">${fortune.description}</p>`;
+                    fortuneEl.onclick = () => acquireFortune(fortune);
                     fortunesContainer.appendChild(fortuneEl);
                 });
             }
-
             function initializeFortuneSelection() {
                 fortuneModalTitle.textContent = 'Choose a Sacrifice';
                 sacrificesContainer.classList.remove('hidden');
                 fortunesContainer.classList.add('hidden');
                 fortunesContainer.innerHTML = '';
                 sacrificesContainer.innerHTML = '';
-
                 const availableSacrifices = allSacrifices.filter(s => !usedSacrifices.includes(s.title));
                 const randomSacrifices = getRandomItems(availableSacrifices, 3);
-                
                 randomSacrifices.forEach((sacrifice, index) => {
                     const sacrificeEl = document.createElement('button');
-                    sacrificeEl.className = 'w-1/3 flex flex-col items-center gap-1 transition-transform active:scale-95 animate-fade-in p-2 rounded-lg hover:bg-white/10';
-                    sacrificeEl.style.animationDelay = `${index * 250}ms`;
-                    sacrificeEl.innerHTML = `
-                        <div class="text-5xl">${sacrifice.emoji}</div>
-                        <h3 class="font-bold text-sm">${sacrifice.title}</h3>
-                        <p class="text-[11px] text-slate-400">${sacrifice.description}</p>
-                    `;
-                    sacrificeEl.onclick = () => {
-                        console.log('Sacrifice selected:', sacrifice.title);
-                        applySacrifice(sacrifice); // Apply the effect immediately
-                        currentSacrifice = sacrifice;
-                        usedSacrifices.push(sacrifice.title);
-                        selectSacrifice();
-                    };
+                    sacrificeEl.className = 'w-1/3 flex flex-col items-center gap-1 p-2 rounded-lg';
+                    sacrificeEl.innerHTML = `<div class="text-5xl">${sacrifice.emoji}</div><h3 class="font-bold text-sm">${sacrifice.title}</h3><p class="text-[11px] text-gray-400">${sacrifice.description}</p>`;
+                    sacrificeEl.onclick = () => { console.log('Sacrifice selected:', sacrifice.title); applySacrifice(sacrifice); currentSacrifice = sacrifice; usedSacrifices.push(sacrifice.title); selectSacrifice(); };
                     sacrificesContainer.appendChild(sacrificeEl);
                 });
             }
 
-
             // GAME LOGIC
             const spinButton = document.getElementById('spin-button');
-            const reels = [
-                document.getElementById('reel1'),
-                document.getElementById('reel2'),
-                document.getElementById('reel3')
-            ];
+            const reels = [ document.getElementById('reel1'), document.getElementById('reel2'), document.getElementById('reel3') ];
             const enemyInfoArea = document.getElementById('enemy-info-area');
             const skullMeterBar = document.getElementById('skull-meter-bar');
             const skullMeterText = document.getElementById('skull-meter-text');
@@ -1558,276 +965,118 @@
             function updateCollectedFortunesDisplay() {
                 if (!collectedFortunesContainer) return;
                 collectedFortunesContainer.innerHTML = '';
-            
                 for (let i = 0; i < 6; i++) {
                     const collection = collectedFortunes[i];
                     const slotEl = document.createElement('div');
-                    
                     if (collection) {
                         const fortune = collection.fortune;
                         const sacrifice = collection.sacrifice;
-                        let borderColorClass = 'border-purple-700/50';
-                        switch (fortune.color) {
-                            case 'blue': borderColorClass = 'border-sky-500/50'; break;
-                            case 'yellow': borderColorClass = 'border-yellow-400/50'; break;
-                            case 'pink': borderColorClass = 'border-pink-500/50'; break;
-                        }
-            
-                        slotEl.className = `relative h-20 bg-black/30 rounded-lg flex flex-col items-center justify-center text-center p-1 border-2 ${borderColorClass} shadow-inner shadow-black/40`;
-                        slotEl.innerHTML = `
-                            <span class="font-bold text-[11px] leading-tight">${fortune.title}</span>
-                            <span class="text-[10px] text-slate-400 leading-tight mt-1">${sacrifice.title}</span>
-                        `;
-            
+                        let borderColorClass = 'border-gray-600';
+                        if (fortune.color === 'blue') borderColorClass = 'border-blue-500';
+                        else if (fortune.color === 'yellow') borderColorClass = 'border-yellow-500';
+                        else if (fortune.color === 'pink') borderColorClass = 'border-pink-500';
+                        slotEl.className = `relative h-20 bg-gray-800 rounded-lg flex flex-col items-center justify-center text-center p-1 border ${borderColorClass}`;
+                        slotEl.innerHTML = `<span class="font-bold text-[11px] leading-tight">${fortune.title}</span><span class="text-[10px] text-gray-400 leading-tight mt-1">${sacrifice.title}</span>`;
                     } else {
-                        slotEl.className = 'h-20 bg-black/30 rounded-lg flex items-center justify-center text-center p-1 border-2 border-dashed border-slate-700';
-                        slotEl.innerHTML = `<span class="text-3xl text-slate-700/50">?</span>`;
+                        slotEl.className = 'h-20 bg-gray-800 rounded-lg flex items-center justify-center text-center p-1 border border-dashed border-gray-700';
+                        slotEl.innerHTML = `<span class="text-3xl text-gray-700">?</span>`;
                     }
                     collectedFortunesContainer.appendChild(slotEl);
                 }
             }
-
-            const showSkullModal = () => {
-                skullMeterModal.classList.remove('hidden');
-            };
-
-            const hideSkullModal = () => {
-                skullMeterModal.classList.add('hidden');
-                skullCount = 0;
-                skullMeterBar.style.width = '0%';
-                skullMeterText.textContent = '0/10';
-            };
-
-            choiceHpButton.addEventListener('click', () => {
-                player.maxHp += 1;
-                player.currentHp += 1;
-                updatePlayerUI();
-                console.log("Player chose +1 Max HP. New Max HP:", player.maxHp);
-                hideSkullModal();
-            });
-
-            choiceLuckButton.addEventListener('click', () => {
-                player.luck += 5;
-                updatePlayerUI();
-                console.log("Player chose +5% Luck. New Luck:", player.luck);
-                hideSkullModal();
-            });
+            const showSkullModal = () => skullMeterModal.classList.remove('hidden');
+            const hideSkullModal = () => { skullMeterModal.classList.add('hidden'); skullCount = 0; skullMeterBar.style.width = '0%'; skullMeterText.textContent = '0/10'; };
+            choiceHpButton.addEventListener('click', () => { player.maxHp += 1; player.currentHp += 1; updatePlayerUI(); console.log("Player chose +1 Max HP."); hideSkullModal(); });
+            choiceLuckButton.addEventListener('click', () => { player.luck += 5; updatePlayerUI(); console.log("Player chose +5% Luck."); hideSkullModal(); });
             
-            const enemies = [
-                // Animal-like
-                { name: 'Wolf', emoji: '🐺', special: null, attack: 2, maxHealth: 13, class: 'animal' },
-                { name: 'Frog', emoji: '🐸', special: '☠️', attack: 1, maxHealth: 9, class: 'animal' },
-                { name: 'Unicorn', emoji: '🦄', special: '❇️', attack: 1, maxHealth: 14, class: 'animal' },
-                { name: 'Dragon', emoji: '🐲', special: null, attack: 3, maxHealth: 18, class: 'animal' },
-                { name: 'Serpent', emoji: '🐍', special: '☠️', attack: 1, maxHealth: 9, class: 'animal' },
-                { name: 'Rat', emoji: '🐀', special: null, attack: 1, maxHealth: 8, class: 'animal' },
-                { name: 'Crow', emoji: '🐦‍⬛', special: '🕯️', attack: 1, maxHealth: 9, class: 'animal' },
-                { name: 'Spider', emoji: '🕷️', special: '☠️', attack: 1, maxHealth: 8, class: 'animal' },
-                { name: 'Scorpion', emoji: '🦂', special: null, attack: 2, maxHealth: 10, class: 'animal' },
-                { name: 'Mosquito', emoji: '🦟', special: '🐌', attack: 5, maxHealth: 5, class: 'animal' },
-                // Human-like
-                { name: 'Ghost', emoji: '👻', special: null, attack: 1, maxHealth: 20, class: 'human' },
-                { name: 'Zombie', emoji: '🧟', special: '🐌', attack: 1, maxHealth: 9, class: 'human' },
-                { name: 'Genie', emoji: '🧞', special: '❇️', attack: 2, maxHealth: 12, class: 'human' },
-                { name: 'Troll', emoji: '🧌', special: null, attack: 3, maxHealth: 12, class: 'human' },
-                { name: 'Ninja', emoji: '🥷', special: '🫳', attack: 2, maxHealth: 10, class: 'human' },
-                { name: 'Vampire', emoji: '🧛', special: '🕯️', attack: 2, maxHealth: 12, class: 'human' },
-                { name: 'Supervillain', emoji: '🦹', special: null, attack: 6, maxHealth: 18, class: 'human' },
-                { name: 'Gift', emoji: '🎁', special: '🎉', attack: 0, maxHealth: 1, class: 'human' }
-            ];
-            
+            const enemies = [ { name: 'Wolf', emoji: '🐺', special: null, attack: 2, maxHealth: 13, class: 'animal' }, { name: 'Frog', emoji: '🐸', special: '☠️', attack: 1, maxHealth: 9, class: 'animal' }, { name: 'Unicorn', emoji: '🦄', special: '❇️', attack: 1, maxHealth: 14, class: 'animal' }, { name: 'Dragon', emoji: '🐲', special: null, attack: 3, maxHealth: 18, class: 'animal' }, { name: 'Serpent', emoji: '🐍', special: '☠️', attack: 1, maxHealth: 9, class: 'animal' }, { name: 'Rat', emoji: '🐀', special: null, attack: 1, maxHealth: 8, class: 'animal' }, { name: 'Crow', emoji: '🐦‍⬛', special: '🕯️', attack: 1, maxHealth: 9, class: 'animal' }, { name: 'Spider', emoji: '🕷️', special: '☠️', attack: 1, maxHealth: 8, class: 'animal' }, { name: 'Scorpion', emoji: '🦂', special: null, attack: 2, maxHealth: 10, class: 'animal' }, { name: 'Mosquito', emoji: '🦟', special: '🐌', attack: 5, maxHealth: 5, class: 'animal' }, { name: 'Ghost', emoji: '👻', special: null, attack: 1, maxHealth: 20, class: 'human' }, { name: 'Zombie', emoji: '🧟', special: '🐌', attack: 1, maxHealth: 9, class: 'human' }, { name: 'Genie', emoji: '🧞', special: '❇️', attack: 2, maxHealth: 12, class: 'human' }, { name: 'Troll', emoji: '🧌', special: null, attack: 3, maxHealth: 12, class: 'human' }, { name: 'Ninja', emoji: '🥷', special: '🫳', attack: 2, maxHealth: 10, class: 'human' }, { name: 'Vampire', emoji: '🧛', special: '🕯️', attack: 2, maxHealth: 12, class: 'human' }, { name: 'Supervillain', emoji: '🦹', special: null, attack: 6, maxHealth: 18, class: 'human' }, { name: 'Gift', emoji: '🎁', special: '🎉', attack: 0, maxHealth: 1, class: 'human' } ];
             let currentEnemies = [];
 
             const displayEnemyInfo = (finalEnemies) => {
                 finalEnemies.forEach((enemy, i) => {
                     let baseHealth = enemy.maxHealth || 10;
-                    if (enemy.name !== 'Gift') {
-                        baseHealth += (wave - 1);
-                    }
+                    if (enemy.name !== 'Gift') baseHealth += (wave - 1);
                     enemy.maxHealth = baseHealth;
                     enemy.currentHealth = enemy.maxHealth;
-
                     enemy.isDefeated = false;
                     enemy.statusEffects = [];
                     enemy.specialUsed = false; 
-
-                    // Exception: If enemy special is Regen, apply it
-                    if (enemy.special === '❇️') {
-                        enemy.statusEffects.push('regen');
-                    }
-
+                    if (enemy.special === '❇️') enemy.statusEffects.push('regen');
                     const enemyInfo = document.getElementById(`enemy-info-${i + 1}`);
                     enemyInfo.style.visibility = 'visible';
-
                     document.getElementById(`enemy-name-${i + 1}`).textContent = enemy.name;
-                    
-                    const healthBar = enemyInfo.querySelector('.health-bar');
-                    healthBar.style.width = '100%';
-                    const healthText = document.getElementById(`health-text-${i + 1}`);
-                    healthText.textContent = `${enemy.currentHealth}/${enemy.maxHealth}`;
-
+                    enemyInfo.querySelector('.health-bar').style.width = '100%';
+                    document.getElementById(`health-text-${i + 1}`).textContent = `${enemy.currentHealth}/${enemy.maxHealth}`;
                     const reel = document.getElementById(`reel${i + 1}`);
                     const attackValueEl = reel.querySelector('.attack-value');
                     const specialValueEl = reel.querySelector('.special-value');
-                    
-                    if (attackValueEl) {
-                        attackValueEl.innerHTML = enemy.attack;
-                        attackValueEl.classList.remove('hidden');
-                    }
-
-                    if (specialValueEl && enemy.special) {
-                        specialValueEl.textContent = enemy.special;
-                        specialValueEl.classList.remove('hidden');
-                    } else if (specialValueEl) {
-                        specialValueEl.classList.add('hidden');
-                    }
+                    if (attackValueEl) { attackValueEl.innerHTML = enemy.attack; attackValueEl.classList.remove('hidden'); }
+                    if (specialValueEl && enemy.special) { specialValueEl.textContent = enemy.special; specialValueEl.classList.remove('hidden'); } else if (specialValueEl) { specialValueEl.classList.add('hidden'); }
                 });
                 enemyInfoArea.classList.remove('hidden');
-                updateAllStatusIcons(); // Update UI for new wave
+                updateAllStatusIcons();
             };
 
             const showRewardModal = (reelIndex) => {
                 isGamePaused = true;
-                const rewards = [
-                    { icon: '❤️', text: '+1 Max HP', type: 'hp', value: 1 },
-                    { icon: '🍀', text: '+3 Luck', type: 'luck', value: 3 },
-                    { icon: '💰', text: '+25 Gold', type: 'gold', value: 25 }
-                ];
-
+                const rewards = [ { icon: '❤️', text: '+1 Max HP', type: 'hp', value: 1 }, { icon: '🍀', text: '+3 Luck', type: 'luck', value: 3 }, { icon: '💰', text: '+25 Gold', type: 'gold', value: 25 } ];
                 const rewardDisplay = document.getElementById('reward-display');
                 const rewardText = document.getElementById('reward-text');
                 const rewardAction = document.getElementById('reward-action');
 
-                // Reset state for new reward
                 rewardModal.classList.remove('hidden');
-                rewardDisplay.innerHTML = `<span>❔</span>`;
-                rewardDisplay.classList.remove('final-reward-pop');
-                rewardText.textContent = '';
-                rewardAction.innerHTML = '';
                 
-                let cycleCount = 0;
-                const maxCycles = 20 + Math.floor(Math.random() * 10); // Randomize duration
+                const finalReward = rewards[Math.floor(Math.random() * rewards.length)];
+                rewardDisplay.innerHTML = `<div class="text-8xl">${finalReward.icon}</div>`;
+                rewardText.textContent = finalReward.text;
+                const claimButton = document.createElement('button');
+                claimButton.id = 'claim-reward-btn';
+                claimButton.className = 'w-full py-2 bg-gray-700 rounded-lg font-bold border border-gray-600';
+                claimButton.textContent = 'Claim';
+                rewardAction.innerHTML = '';
+                rewardAction.appendChild(claimButton);
 
-                const cycleInterval = setInterval(() => {
-                    const randomReward = rewards[Math.floor(Math.random() * rewards.length)];
-                    rewardDisplay.innerHTML = `<span class="reward-cycle-item">${randomReward.icon}</span>`;
-                    cycleCount++;
-
-                    if (cycleCount >= maxCycles) {
-                        clearInterval(cycleInterval);
-                        const finalReward = rewards[Math.floor(Math.random() * rewards.length)];
-                        
-                        // Resolve on the winner and apply animation
-                        rewardDisplay.innerHTML = `<div class="text-8xl">${finalReward.icon}</div>`;
-                        rewardDisplay.classList.add('final-reward-pop');
-                        rewardDisplay.addEventListener('animationend', () => {
-                             rewardDisplay.classList.remove('final-reward-pop');
-                        }, { once: true });
-
-                        // Display the reward text
-                        rewardText.textContent = finalReward.text;
-                        
-                        // Create and display the claim button
-                        const claimButton = document.createElement('button');
-                        claimButton.id = 'claim-reward-btn';
-                        claimButton.className = 'w-full py-2 bg-green-500 rounded-lg font-bold border-2 border-green-400/50 shadow-md shadow-black/30 active:scale-95 transition-all';
-                        claimButton.textContent = 'Claim';
-                        rewardAction.appendChild(claimButton);
-
-
-                        document.getElementById('claim-reward-btn').addEventListener('click', () => {
-                            switch (finalReward.type) {
-                                case 'hp':
-                                    player.maxHp += finalReward.value;
-                                    player.currentHp += finalReward.value;
-                                    break;
-                                case 'luck':
-                                    player.luck += finalReward.value;
-                                    break;
-                                case 'gold':
-                                    player.gold += finalReward.value;
-                                    break;
-                            }
-                            updatePlayerUI();
-                            rewardModal.classList.add('hidden');
-                            isGamePaused = false;
-
-                            const reel = reels[reelIndex];
-                            const reelContent = reel.querySelector('.reel-content');
-                            reelContent.textContent = '❔';
-                            reel.disabled = true;
-                            reel.classList.add('opacity-50', 'cursor-not-allowed');
-                            currentEnemies[reelIndex] = null;
-                            
-                            // Now that the reward is claimed and game is unpaused, continue the turn.
-                            if (player.statusEffects.includes('rush') && actionsTakenThisTurn < 2) {
-                                startPlayerTurn();
-                            } else {
-                                startEnemyTurn();
-                            }
-                        }, { once: true });
-                    }
-                }, 100);
+                document.getElementById('claim-reward-btn').addEventListener('click', () => {
+                    if (finalReward.type === 'hp') { player.maxHp += finalReward.value; player.currentHp += finalReward.value; }
+                    else if (finalReward.type === 'luck') player.luck += finalReward.value;
+                    else if (finalReward.type === 'gold') player.gold += finalReward.value;
+                    updatePlayerUI();
+                    rewardModal.classList.add('hidden');
+                    isGamePaused = false;
+                    const reel = reels[reelIndex];
+                    reel.querySelector('.reel-content').textContent = '❔';
+                    reel.disabled = true;
+                    reel.classList.add('opacity-50', 'cursor-not-allowed');
+                    currentEnemies[reelIndex] = null;
+                    if (player.statusEffects.includes('rush') && actionsTakenThisTurn < 2) startPlayerTurn(); else startEnemyTurn();
+                }, { once: true });
             };
 
             const spinReels = () => {
                 if (spinButton.disabled) return;
-
-                // Restore armor at the start of a spin
                 player.baseArmor = player.maxBaseArmor;
-                player.armorBonus = player.equippedArmorBonus; // Reset armor bonus to its base from equipment
+                player.armorBonus = player.equippedArmorBonus;
                 updatePlayerUI();
-                
                 spinsRemaining--;
-                if (spinsRemaining < 0) {
-                    wave++;
-                    const maxSpins = player.equippedRing === 'infinity' ? 7 : 5;
-                    spinsRemaining = maxSpins - 1;
-                }
+                if (spinsRemaining < 0) { wave++; const maxSpins = player.equippedRing === 'infinity' ? 7 : 5; spinsRemaining = maxSpins - 1; }
                 updateWaveUI();
-
                 spinButton.disabled = true;
-                reels.forEach(reel => {
-                    reel.disabled = true;
-                    reel.classList.remove('opacity-50', 'cursor-not-allowed');
-                    const attackValueEl = reel.querySelector('.attack-value');
-                    const specialValueEl = reel.querySelector('.special-value');
-                    if (attackValueEl) {
-                        attackValueEl.classList.add('hidden');
-                    }
-                    if (specialValueEl) {
-                        specialValueEl.classList.add('hidden');
-                    }
-                });
+                reels.forEach(reel => { reel.disabled = true; reel.classList.remove('opacity-50', 'cursor-not-allowed'); reel.querySelector('.attack-value')?.classList.add('hidden'); reel.querySelector('.special-value')?.classList.add('hidden'); });
                 enemyInfoArea.classList.add('hidden');
-                
                 currentEnemies = [];
-                player.statusEffects = []; // Clear player status effects on new spin
-                updateAllStatusIcons(); // Clear icons from previous wave
-
+                player.statusEffects = [];
+                updateAllStatusIcons();
                 let spinIntervals = [];
-
                 reels.forEach((reel, i) => {
                     const reelContent = reel.querySelector('.reel-content');
-                    spinIntervals[i] = setInterval(() => {
-                        const randomIndex = Math.floor(Math.random() * enemies.length);
-                        reelContent.textContent = enemies[randomIndex].emoji;
-                    }, 100);
-
+                    spinIntervals[i] = setInterval(() => { reelContent.textContent = enemies[Math.floor(Math.random() * enemies.length)].emoji; }, 100);
                     setTimeout(() => {
                         clearInterval(spinIntervals[i]);
-                        const finalIndex = Math.floor(Math.random() * enemies.length);
-                        const finalEnemy = { ...enemies[finalIndex] };
+                        const finalEnemy = { ...enemies[Math.floor(Math.random() * enemies.length)] };
                         currentEnemies[i] = finalEnemy;
                         reelContent.textContent = finalEnemy.emoji;
-                        
-                        if (i === reels.length - 1) {
-                            spinButton.disabled = false;
-                            displayEnemyInfo(currentEnemies);
-                            actionsTakenThisTurn = 0; // Reset for new combat
-                            startPlayerTurn(); // Start the first turn
-                        }
-                    }, 500 + (i * 250)); 
+                        if (i === reels.length - 1) { spinButton.disabled = false; displayEnemyInfo(currentEnemies); actionsTakenThisTurn = 0; startPlayerTurn(); }
+                    }, 100 + (i * 50)); 
                 });
             };
 
@@ -1835,192 +1084,56 @@
             
             function enemyAttack(enemy, reel, index) {
                 if (!enemy || enemy.isDefeated || enemy.attack <= 0) return;
-
-                // --- SLUGGISH EFFECT ---
-                if (enemy.statusEffects.includes('sluggish')) {
-                    const sluggishRoll = Math.random();
-                    console.log(`${enemy.name} sluggish roll: ${sluggishRoll}`);
-                    if (sluggishRoll < 0.5) {
-                        console.log(`${enemy.name} is sluggish and missed its turn.`);
-                        createEffectPopup('Miss!', '#9ca3af', reel); // gray-400
-                        applyPostActionStatusEffects(enemy, false, index); // Still apply post-turn effects
-                        return;
-                    }
-                }
-
-                const reelContent = reel.querySelector('.reel-content');
-                
-                reelContent.classList.add('zoom-attack');
-                reelContent.addEventListener('animationend', () => {
-                    reelContent.classList.remove('zoom-attack');
-                }, { once: true });
+                if (enemy.statusEffects.includes('sluggish') && Math.random() < 0.5) { console.log(`${enemy.name} is sluggish and missed.`); createEffectPopup('Miss!', '#9ca3af', reel); applyPostActionStatusEffects(enemy, false, index); return; }
 
                 setTimeout(() => {
                     const totalArmor = player.baseArmor + player.armorBonus;
-
-                    if (enemy.attack > 0 && totalArmor > 0) {
-                        playerArmorContainer.classList.add('hit-effect');
-                        playerArmorContainer.addEventListener('animationend', () => {
-                            playerArmorContainer.classList.remove('hit-effect');
-                        }, { once: true });
-                    }
-                    if (enemy.attack > totalArmor) {
-                        playerHpContainer.classList.add('hit-effect');
-                        playerHpContainer.addEventListener('animationend', () => {
-                            playerHpContainer.classList.remove('hit-effect');
-                        }, { once: true });
-                    }
-
                     let damageFromEnemy = enemy.attack;
-
-                    // --- Leather Gear (Admirers) Effect ---
-                    if (player.specialArmor === 'admirers' && enemy.class === 'human') {
-                        if (damageFromEnemy === 1) {
-                            // Special case: attack of 1 still does 1.
-                            damageFromEnemy = 1;
-                        } else {
-                            // For all other attacks, half damage and round down.
-                            damageFromEnemy = Math.floor(damageFromEnemy / 2);
-                        }
-                        console.log(`${enemy.name} is an admirer, damage reduced to ${damageFromEnemy}`);
-                    }
-
-
-                    // --- CURSE EFFECT ---
-                    if (enemy.statusEffects.includes('curse')) {
-                        const selfDamage = Math.ceil(damageFromEnemy / 2);
-                        damageFromEnemy = selfDamage; // Both deal and take the same halved (ceiled) damage
-                        console.log(`${enemy.name} is cursed and takes ${selfDamage} damage.`);
-                        applyDamageAndAnimate(index, selfDamage);
-                    }
-                    
+                    if (player.specialArmor === 'admirers' && enemy.class === 'human') damageFromEnemy = damageFromEnemy === 1 ? 1 : Math.floor(damageFromEnemy / 2);
+                    if (enemy.statusEffects.includes('curse')) { const selfDamage = Math.ceil(damageFromEnemy / 2); damageFromEnemy = selfDamage; applyDamageAndAnimate(index, selfDamage); }
                     const damageToBonusArmor = Math.min(damageFromEnemy, player.armorBonus);
                     player.armorBonus -= damageToBonusArmor;
                     damageFromEnemy -= damageToBonusArmor;
-
-                    if (damageFromEnemy > 0) {
-                        const damageToBaseArmor = Math.min(damageFromEnemy, player.baseArmor);
-                        player.baseArmor -= damageToBaseArmor;
-                        damageFromEnemy -= damageToBaseArmor;
-                    }
-
-                    if (damageFromEnemy > 0) {
-                        player.currentHp = Math.max(0, player.currentHp - damageFromEnemy);
-                    }
-                    
+                    if (damageFromEnemy > 0) { const damageToBaseArmor = Math.min(damageFromEnemy, player.baseArmor); player.baseArmor -= damageToBaseArmor; damageFromEnemy -= damageToBaseArmor; }
+                    if (damageFromEnemy > 0) player.currentHp = Math.max(0, player.currentHp - damageFromEnemy);
                     updatePlayerUI();
 
-                    // Apply status effect from enemy special
-                    const debuffSpecials = {
-                        '☠️': 'poison',
-                        '🕯️': 'curse',
-                        '🐌': 'sluggish'
-                    };
-
+                    const debuffSpecials = { '☠️': 'poison', '🕯️': 'curse', '🐌': 'sluggish' };
                     const statusToApply = debuffSpecials[enemy.special];
-
-                    if (statusToApply && !enemy.specialUsed && !player.statusEffects.includes(statusToApply)) {
-                        player.statusEffects.push(statusToApply);
-                        updateAllStatusIcons();
-                        console.log(`Player afflicted with ${statusToApply} by ${enemy.name}`);
-                        enemy.specialUsed = true;
-                        
-                        const specialValueEl = reel.querySelector('.special-value');
-                        if (specialValueEl) {
-                            specialValueEl.classList.add('hidden');
-                        }
-                    }
-                    
-                    // NEW: Handle Ninja gold steal special
-                    if (enemy.special === '🫳' && !enemy.specialUsed) {
-                        const goldStolen = 15;
-                        player.gold = Math.max(0, player.gold - goldStolen);
-                        console.log(`Ninja stole ${goldStolen} gold!`);
-                        createEffectPopup(`-${goldStolen}🪙`, '#facc15', topStatusBar); // yellow-400
-                        updatePlayerUI(); // Update UI immediately after gold change
-                        enemy.specialUsed = true;
-                        const specialValueEl = reel.querySelector('.special-value');
-                        if (specialValueEl) {
-                            specialValueEl.classList.add('hidden');
-                        }
-                    }
-                    
+                    if (statusToApply && !enemy.specialUsed && !player.statusEffects.includes(statusToApply)) { player.statusEffects.push(statusToApply); updateAllStatusIcons(); enemy.specialUsed = true; reel.querySelector('.special-value')?.classList.add('hidden'); }
+                    if (enemy.special === '🫳' && !enemy.specialUsed) { const goldStolen = 15; player.gold = Math.max(0, player.gold - goldStolen); createEffectPopup(`-${goldStolen}🪙`, '#d1d5db', topStatusBar); updatePlayerUI(); enemy.specialUsed = true; reel.querySelector('.special-value')?.classList.add('hidden'); }
                     applyPostActionStatusEffects(enemy, false, index);
-
-                    if (player.currentHp <= 0) {
-                        console.log("PLAYER DEFEATED!");
-                        document.body.style.filter = 'grayscale(100%)';
-                        spinButton.disabled = true;
-                        reels.forEach(r => r.disabled = true);
-                    }
-                }, 160); // UPDATED: Changed from 200 to 160 to match zoom-attack peak
+                    if (player.currentHp <= 0) { document.body.style.filter = 'grayscale(100%)'; spinButton.disabled = true; reels.forEach(r => r.disabled = true); }
+                }, 160);
             }
 
             async function allEnemiesAttack() {
-                for (let i = 0; i < currentEnemies.length; i++) {
-                    const enemy = currentEnemies[i];
-                    const reel = reels[i];
-                    if (enemy && !enemy.isDefeated) {
-                        await new Promise(resolve => setTimeout(resolve, 500));
-                        enemyAttack(enemy, reel, i);
-                    }
-                }
-
-                await new Promise(resolve => setTimeout(resolve, 500));
+                for (let i = 0; i < currentEnemies.length; i++) { if (currentEnemies[i] && !currentEnemies[i].isDefeated) { await new Promise(resolve => setTimeout(resolve, 250)); enemyAttack(currentEnemies[i], reels[i], i); } }
+                await new Promise(resolve => setTimeout(resolve, 250));
                 startPlayerTurn();
             }
 
             function applyDamageAndAnimate(index, damageAmount) {
                 const enemy = currentEnemies[index];
                 if (!enemy || enemy.isDefeated) return false;
-
                 let giftDefeated = false;
-
                 const reel = reels[index];
-                
                 const damagePopup = document.createElement('div');
                 damagePopup.textContent = `${damageAmount}`;
                 damagePopup.className = 'damage-popup';
                 reel.appendChild(damagePopup);
                 damagePopup.addEventListener('animationend', () => damagePopup.remove());
-
-                reel.classList.add('shake');
-                reel.addEventListener('animationend', () => reel.classList.remove('shake'), { once: true });
-                
                 enemy.currentHealth -= damageAmount;
-
                 const enemyInfo = document.getElementById(`enemy-info-${index + 1}`);
                 const healthBar = enemyInfo.querySelector('.health-bar');
                 const healthText = document.getElementById(`health-text-${index + 1}`);
-
                 if (enemy.currentHealth <= 0) {
                     enemy.currentHealth = 0;
                     enemy.isDefeated = true;
                     healthBar.style.width = '0%';
                     healthText.textContent = `0/${enemy.maxHealth}`;
                     updateAllStatusIcons();
-
-                    if (enemy.emoji === '🎁') {
-                        giftDefeated = true;
-                        setTimeout(() => {
-                            enemyInfo.style.visibility = 'hidden';
-                            reel.querySelector('.attack-value')?.classList.add('hidden');
-                            reel.querySelector('.special-value')?.classList.add('hidden');
-                            showRewardModal(index);
-                        }, 300);
-                    } else {
-                        setTimeout(() => {
-                            if (enemy.name === 'Unicorn') {
-                                reel.querySelector('.reel-content').textContent = '👑';
-                            } else {
-                                reel.querySelector('.reel-content').textContent = '💀';
-                            }
-                            reel.classList.remove('opacity-50', 'cursor-not-allowed');
-                            enemyInfo.style.visibility = 'hidden';
-                            reel.querySelector('.attack-value')?.classList.add('hidden');
-                            reel.querySelector('.special-value')?.classList.add('hidden');
-                        }, 300);
-                    }
+                    if (enemy.emoji === '🎁') { giftDefeated = true; setTimeout(() => { enemyInfo.style.visibility = 'hidden'; reel.querySelector('.attack-value')?.classList.add('hidden'); reel.querySelector('.special-value')?.classList.add('hidden'); showRewardModal(index); }, 300); } else { setTimeout(() => { reel.querySelector('.reel-content').textContent = enemy.name === 'Unicorn' ? '👑' : '💀'; reel.classList.remove('opacity-50', 'cursor-not-allowed'); enemyInfo.style.visibility = 'hidden'; reel.querySelector('.attack-value')?.classList.add('hidden'); reel.querySelector('.special-value')?.classList.add('hidden'); }, 300); }
                 } else {
                     const healthPercent = (enemy.currentHealth / enemy.maxHealth) * 100;
                     healthBar.style.width = `${healthPercent}%`;
@@ -2029,277 +1142,64 @@
                 return giftDefeated;
             }
 
-
             function castSpell(spellName) {
                 closeModal();
                 reels.forEach(r => r.disabled = true);
                 let aGiftWasDefeated = false;
-            
-                switch (spellName) {
-                    case 'flameheart':
-                        console.log('Casting Flameheart...');
-                        currentEnemies.forEach((enemy, index) => {
-                            if (enemy && !enemy.isDefeated) {
-                                if (applyDamageAndAnimate(index, 5)) {
-                                    aGiftWasDefeated = true;
-                                }
-                            }
-                        });
-                        player.currentHp = Math.min(player.maxHp, player.currentHp + 5);
-                        updatePlayerUI();
-                        break;
-            
-                    case 'frostbite':
-                        console.log('Casting Frostbite...');
-                        currentEnemies.forEach((enemy, index) => {
-                            if (enemy && !enemy.isDefeated) {
-                                if (applyDamageAndAnimate(index, 5)) {
-                                    aGiftWasDefeated = true;
-                                }
-                                if (!enemy.statusEffects.includes('sluggish')) {
-                                    enemy.statusEffects.push('sluggish');
-                                    checkForTorment(enemy, index); // FORTUNE: Check for Torment
-                                }
-                            }
-                        });
-                        updateAllStatusIcons();
-                        break;
-            
-                    case 'armorheart':
-                        console.log('Casting Armorheart...');
-                        player.armorBonus += player.currentHp;
-                        updatePlayerUI();
-                        playerArmorContainer.classList.add('armor-gain');
-                        playerArmorContainer.addEventListener('animationend', () => {
-                            playerArmorContainer.classList.remove('armor-gain');
-                        }, { once: true });
-                        break;
-                }
-            
-                if (!aGiftWasDefeated) {
-                    startEnemyTurn();
-                }
+                if (spellName === 'flameheart') { currentEnemies.forEach((enemy, index) => { if (enemy && !enemy.isDefeated) if (applyDamageAndAnimate(index, 5)) aGiftWasDefeated = true; }); player.currentHp = Math.min(player.maxHp, player.currentHp + 5); updatePlayerUI(); }
+                else if (spellName === 'frostbite') { currentEnemies.forEach((enemy, index) => { if (enemy && !enemy.isDefeated) { if (applyDamageAndAnimate(index, 5)) aGiftWasDefeated = true; if (!enemy.statusEffects.includes('sluggish')) { enemy.statusEffects.push('sluggish'); checkForTorment(enemy, index); } } }); updateAllStatusIcons(); }
+                else if (spellName === 'armorheart') { player.armorBonus += player.currentHp; updatePlayerUI(); }
+                if (!aGiftWasDefeated) startEnemyTurn();
             }
 
             function applySacrifice(sacrifice) {
                 player.activeSacrifices.push(sacrifice.title);
                 console.log("Applying sacrifice:", sacrifice.title);
-
-                switch (sacrifice.title) {
-                    case 'BLOOD PACT':
-                        player.maxHp = Math.max(1, player.maxHp - 3);
-                        player.currentHp = Math.min(player.currentHp, player.maxHp);
-                        break;
-                    case 'BROKEN ANKLE':
-                        player.luck = Math.max(0, player.luck - 10);
-                        break;
-                    case 'HEARTBREAK':
-                        const spells = ['flameheart', 'armorheart'];
-                        const spellToDisable = spells[Math.floor(Math.random() * spells.length)];
-                        player.disabledSpells.push(spellToDisable);
-                        console.log(`Heartbreak disabled: ${spellToDisable}`);
-                        updateMagicUI(); // Immediately update spell UI
-                        break;
-                    case 'GAMBLING DEBT':
-                        player.gold = Math.max(0, player.gold - 30);
-                        break;
-                    case 'CLUMSY':
-                        player.moons = Math.max(0, player.moons - 1);
-                        updateMoonModalUI(); // Immediately update moon UI
-                        break;
-                    case 'UNSTABLE MIND':
-                        // The effect is handled in useItem, just need to track it.
-                        break;
-                }
-
+                if (sacrifice.title === 'BLOOD PACT') { player.maxHp = Math.max(1, player.maxHp - 3); player.currentHp = Math.min(player.currentHp, player.maxHp); }
+                else if (sacrifice.title === 'BROKEN ANKLE') player.luck = Math.max(0, player.luck - 10);
+                else if (sacrifice.title === 'HEARTBREAK') { const spellToDisable = ['flameheart', 'armorheart'][Math.floor(Math.random() * 2)]; player.disabledSpells.push(spellToDisable); updateMagicUI(); }
+                else if (sacrifice.title === 'GAMBLING DEBT') player.gold = Math.max(0, player.gold - 30);
+                else if (sacrifice.title === 'CLUMSY') { player.moons = Math.max(0, player.moons - 1); updateMoonModalUI(); }
                 updatePlayerUI();
             }
 
             function applyPostActionStatusEffects(character, isPlayer, index = -1) {
                 if (!character || (isPlayer ? player.currentHp <= 0 : character.isDefeated)) return;
-
-                // --- POISON EFFECT ---
-                if (character.statusEffects.includes('poison')) {
-                    if (isPlayer) {
-                        player.currentHp -= 1;
-                        createEffectPopup('☠️1', '#a855f7', playerHpContainer); // purple-500
-                    } else {
-                        // FORTUNE CHANGE: Check for 'Toxic Decay'
-                        const hasToxicDecay = player.activeFortunes.includes('Toxic Decay');
-                        const poisonDamage = hasToxicDecay ? 3 : 1;
-                        applyDamageAndAnimate(index, poisonDamage);
-                    }
-                }
-
-                // --- REGEN EFFECT ---
-                if (character.statusEffects.includes('regen')) {
-                     if (isPlayer) {
-                        if(player.currentHp < player.maxHp) {
-                           player.currentHp += 1;
-                           createEffectPopup('❇️1', '#22c55e', playerHpContainer); // green-500
-                        }
-                    } else {
-                        if (character.currentHealth < character.maxHealth && !character.isDefeated) {
-                            character.currentHealth += 1;
-                            const enemyInfo = document.getElementById(`enemy-info-${index + 1}`);
-                             if (enemyInfo) {
-                                const healthBar = enemyInfo.querySelector('.health-bar');
-                                const healthText = document.getElementById(`health-text-${index + 1}`);
-                                const healthPercent = (character.currentHealth / character.maxHealth) * 100;
-                                healthBar.style.width = `${healthPercent}%`;
-                                healthText.textContent = `${character.currentHealth}/${character.maxHealth}`;
-                                createEffectPopup('❇️1', '#22c55e', reels[index]);
-                            }
-                        }
-                    }
-                }
-
-                if (isPlayer) {
-                    updatePlayerUI();
-                     if (player.currentHp <= 0) {
-                        console.log("PLAYER DEFEATED by status effect!");
-                        document.body.style.filter = 'grayscale(100%)';
-                        spinButton.disabled = true;
-                        reels.forEach(r => r.disabled = true);
-                    }
-                }
+                if (character.statusEffects.includes('poison')) { if (isPlayer) { player.currentHp -= 1; createEffectPopup('☠️1', '#ef4444', playerHpContainer); } else { const poisonDamage = player.activeFortunes.includes('Toxic Decay') ? 3 : 1; applyDamageAndAnimate(index, poisonDamage); } }
+                if (character.statusEffects.includes('regen')) { if (isPlayer) { if(player.currentHp < player.maxHp) { player.currentHp += 1; createEffectPopup('❇️1', '#9ca3af', playerHpContainer); } } else { if (character.currentHealth < character.maxHealth && !character.isDefeated) { character.currentHealth += 1; const enemyInfo = document.getElementById(`enemy-info-${index + 1}`); if (enemyInfo) { const healthBar = enemyInfo.querySelector('.health-bar'); const healthText = document.getElementById(`health-text-${index + 1}`); const healthPercent = (character.currentHealth / character.maxHealth) * 100; healthBar.style.width = `${healthPercent}%`; healthText.textContent = `${character.currentHealth}/${character.maxHealth}`; createEffectPopup('❇️1', '#9ca3af', reels[index]); } } } }
+                if (isPlayer) { updatePlayerUI(); if (player.currentHp <= 0) { document.body.style.filter = 'grayscale(100%)'; spinButton.disabled = true; reels.forEach(r => r.disabled = true); } }
             }
             
-            function startPlayerTurn() {
-                reels.forEach((reel, i) => {
-                    const enemy = currentEnemies[i];
-                    if (enemy && player.currentHp > 0) { // Can attack living enemies or collect skulls
-                        reel.disabled = false;
-                    } else {
-                        reel.disabled = true;
-                    }
-                });
-            }
-
-            function startEnemyTurn() {
-                if (isGamePaused) return; // Don't start enemy turn if game is paused for reward
-                actionsTakenThisTurn = 0;
-                setTimeout(() => {
-                    allEnemiesAttack();
-                }, 300);
-            }
+            function startPlayerTurn() { reels.forEach((reel, i) => { reel.disabled = !(currentEnemies[i] && player.currentHp > 0); }); }
+            function startEnemyTurn() { if (isGamePaused) return; actionsTakenThisTurn = 0; setTimeout(() => allEnemiesAttack(), 300); }
 
             reels.forEach((reel, index) => {
                 reel.addEventListener('click', () => {
                     const enemy = currentEnemies[index];
                     const reelContent = reel.querySelector('.reel-content');
-                    const isRegularSkull = reelContent.textContent === '💀';
-                    const isGoldSkull = reelContent.textContent === '👑';
-
-                    if (enemy && enemy.isDefeated && (isRegularSkull || isGoldSkull)) {
-                        if (isGoldSkull) {
-                            skullCount += 2;
-                        } else {
-                            skullCount++;
-                        }
-                        
-                        const skullPercent = Math.min((skullCount / 10) * 100, 100);
-                        skullMeterBar.style.width = `${skullPercent}%`;
+                    const isSkull = reelContent.textContent === '💀' || reelContent.textContent === '👑';
+                    if (enemy && enemy.isDefeated && isSkull) {
+                        skullCount += (reelContent.textContent === '👑' ? 2 : 1);
+                        skullMeterBar.style.width = `${Math.min((skullCount / 10) * 100, 100)}%`;
                         skullMeterText.textContent = `${skullCount}/10`;
-
-                        reelContent.textContent = '❔';
-                        reel.disabled = true;
-                        reel.classList.add('opacity-50', 'cursor-not-allowed');
-                        currentEnemies[index] = null; 
-
-                        if (skullCount >= 10) {
-                            setTimeout(showSkullModal, 300);
-                        }
+                        reelContent.textContent = '❔'; reel.disabled = true; reel.classList.add('opacity-50', 'cursor-not-allowed'); currentEnemies[index] = null; 
+                        if (skullCount >= 10) setTimeout(showSkullModal, 300);
                         return;
                     }
-                    
-                    if (reel.disabled || !enemy || enemy.isDefeated) {
-                        return;
-                    }
-
+                    if (reel.disabled || !enemy || enemy.isDefeated) return;
                     reels.forEach(r => r.disabled = true);
-                    
-                    // --- SLUGGISH EFFECT ---
-                    if (player.statusEffects.includes('sluggish')) {
-                        const sluggishRoll = Math.random();
-                        console.log(`Player sluggish roll: ${sluggishRoll}`);
-                        if (sluggishRoll < 0.5) {
-                            console.log("Player is sluggish and missed a turn.");
-                            createEffectPopup('Miss!', '#9ca3af', document.getElementById('slot-machine'));
-                            applyPostActionStatusEffects(player, true);
-                            if (player.currentHp > 0) startEnemyTurn();
-                            return;
-                        }
-                    }
-
+                    if (player.statusEffects.includes('sluggish') && Math.random() < 0.5) { createEffectPopup('Miss!', '#9ca3af', document.getElementById('slot-machine')); applyPostActionStatusEffects(player, true); if (player.currentHp > 0) startEnemyTurn(); return; }
                     actionsTakenThisTurn++;
-
-                    // Calculate total attack, applying Blessing
                     let totalPlayerAttack = player.baseAttack + player.attackBonus;
-                    if (player.statusEffects.includes('blessing')) {
-                        totalPlayerAttack += player.baseArmor + player.armorBonus;
-                    }
-                    
-                    // --- CURSE EFFECT ---
-                    if (player.statusEffects.includes('curse')) {
-                        const selfDamage = Math.ceil(totalPlayerAttack / 2);
-                        totalPlayerAttack = selfDamage; // Player deals and takes the same damage
-                        console.log(`Player is cursed and takes ${selfDamage} damage.`);
-                        player.currentHp -= selfDamage;
-                        updatePlayerUI();
-                        if (player.currentHp <= 0) {
-                             console.log("PLAYER DEFEATED by curse!");
-                             document.body.style.filter = 'grayscale(100%)';
-                             spinButton.disabled = true;
-                             reels.forEach(r => r.disabled = true);
-                             return; // Stop action if dead
-                        }
-                    }
-                    
-                    // FORTUNE: 'Archer's Edge' logic
-                    const usingBow = statusWeaponIcon.textContent === '🏹';
-                    const hasArchersEdge = player.activeFortunes.includes("Archer's Edge");
-
-                    if (usingBow && hasArchersEdge) {
-                        console.log("Archer's Edge triggered!");
-                        currentEnemies.forEach((enemy, i) => {
-                            if(enemy && !enemy.isDefeated) {
-                                applyDamageAndAnimate(i, totalPlayerAttack);
-                            }
-                        });
-                    } else {
-                        // Original logic for single target
-                        applyDamageAndAnimate(index, totalPlayerAttack);
-                    }
-
-                    // FORTUNE: 'Thief Strike' logic
-                    const usingDagger = statusWeaponIcon.textContent === '🗡️';
-                    const hasThiefStrike = player.activeFortunes.includes('Thief Strike');
-
-                    if (usingDagger && hasThiefStrike && enemy) {
-                        console.log("Thief Strike triggered!");
-                        player.gold += 5;
-                        createEffectPopup('+5🪙', '#fbbF24', document.getElementById('slot-machine')); // amber-400
-                        updatePlayerUI();
-                    }
-
+                    if (player.statusEffects.includes('blessing')) totalPlayerAttack += player.baseArmor + player.armorBonus;
+                    if (player.statusEffects.includes('curse')) { const selfDamage = Math.ceil(totalPlayerAttack / 2); totalPlayerAttack = selfDamage; player.currentHp -= selfDamage; updatePlayerUI(); if (player.currentHp <= 0) { document.body.style.filter = 'grayscale(100%)'; spinButton.disabled = true; reels.forEach(r => r.disabled = true); return; } }
+                    if (statusWeaponIcon.textContent === '🏹' && player.activeFortunes.includes("Archer's Edge")) { currentEnemies.forEach((e, i) => { if(e && !e.isDefeated) applyDamageAndAnimate(i, totalPlayerAttack); }); } else { applyDamageAndAnimate(index, totalPlayerAttack); }
+                    if (statusWeaponIcon.textContent === '🗡️' && player.activeFortunes.includes('Thief Strike') && enemy) { player.gold += 5; createEffectPopup('+5🪙', '#d1d5db', document.getElementById('slot-machine')); updatePlayerUI(); }
                     applyPostActionStatusEffects(player, true);
-                    
-                    if (player.currentHp <= 0) return; // Stop if dead from poison
-
-                    // --- GIFT PAUSE LOGIC ---
+                    if (player.currentHp <= 0) return;
                     const defeatedEnemy = currentEnemies[index];
-                    if (defeatedEnemy && defeatedEnemy.isDefeated && defeatedEnemy.emoji === '🎁') {
-                        return;
-                    }
-
-                    // --- RUSH EFFECT ---
-                    if (player.statusEffects.includes('rush') && actionsTakenThisTurn < 2) {
-                        console.log("Rush allows another action.");
-                        startPlayerTurn(); // Re-enable reels for second action
-                    } else {
-                        startEnemyTurn(); // End turn normally
-                    }
+                    if (defeatedEnemy && defeatedEnemy.isDefeated && defeatedEnemy.emoji === '🎁') return;
+                    if (player.statusEffects.includes('rush') && actionsTakenThisTurn < 2) startPlayerTurn(); else startEnemyTurn();
                 });
             });
 
@@ -2312,57 +1212,14 @@
 
             function handleEquipChoice(event) {
                 const choiceButton = event.currentTarget;
-                const newEmoji = choiceButton.dataset.emoji;
-                const newTitle = choiceButton.dataset.title;
-                
-                const parentChoices = choiceButton.closest('.equip-choices');
-                const parentChoicesId = parentChoices.id;
+                const newEmoji = choiceButton.dataset.emoji, newTitle = choiceButton.dataset.title;
+                const parentChoicesId = choiceButton.closest('.equip-choices').id;
                 const slotButton = document.querySelector(`.equip-slot-btn[data-target='${parentChoicesId}']`);
-
-                if (slotButton) {
-                    const emojiContainer = slotButton.children[0];
-                    const textContainer = slotButton.children[1];
-                    
-                    emojiContainer.textContent = newEmoji;
-                    textContainer.textContent = newTitle;
-                }
-
-                const statType = choiceButton.dataset.statType;
-                const statValue = choiceButton.dataset.statType === 'special' ? choiceButton.dataset.statValue : parseInt(choiceButton.dataset.statValue, 10);
-
-                if (parentChoicesId === 'weapon-choices') {
-                    statusWeaponIcon.textContent = newEmoji;
-                    player.attackBonus = (statType === 'attack') ? statValue : 0;
-                } else if (parentChoicesId === 'armor-choices') {
-                    statusArmorIcon.textContent = newEmoji;
-                    // Reset persistent bonus and special armor from this slot before applying the new one
-                    player.equippedArmorBonus = 0;
-                    player.specialArmor = null;
-                    
-                    if (statType === 'armor') {
-                        player.equippedArmorBonus = statValue;
-                    } else if (statType === 'special' && statValue === 'admirers') {
-                        player.specialArmor = 'admirers';
-                    }
-                    // TODO: Handle luck from cloak
-                } else if (parentChoicesId === 'ring-choices') {
-                    const wasInfinityEquipped = player.equippedRing === 'infinity';
-                    
-                    let newRingType = null;
-                    if (newTitle === 'Infinity Ring') {
-                        newRingType = 'infinity';
-                    }
-
-                    if (newRingType === 'infinity' && !wasInfinityEquipped) {
-                        spinsRemaining += 2;
-                    } else if (newRingType !== 'infinity' && wasInfinityEquipped) {
-                        spinsRemaining = Math.max(0, spinsRemaining - 2);
-                    }
-
-                    player.equippedRing = newRingType;
-                }
-                
-                // Update the total armor bonus to reflect only the new equipment
+                if (slotButton) { slotButton.children[0].textContent = newEmoji; slotButton.children[1].textContent = newTitle; }
+                const statType = choiceButton.dataset.statType, statValue = statType === 'special' ? choiceButton.dataset.statValue : parseInt(choiceButton.dataset.statValue, 10);
+                if (parentChoicesId === 'weapon-choices') { statusWeaponIcon.textContent = newEmoji; player.attackBonus = (statType === 'attack') ? statValue : 0; }
+                else if (parentChoicesId === 'armor-choices') { statusArmorIcon.textContent = newEmoji; player.equippedArmorBonus = 0; player.specialArmor = null; if (statType === 'armor') player.equippedArmorBonus = statValue; else if (statType === 'special' && statValue === 'admirers') player.specialArmor = 'admirers'; }
+                else if (parentChoicesId === 'ring-choices') { const wasInfinityEquipped = player.equippedRing === 'infinity'; let newRingType = null; if (newTitle === 'Infinity Ring') newRingType = 'infinity'; if (newRingType === 'infinity' && !wasInfinityEquipped) spinsRemaining += 2; else if (newRingType !== 'infinity' && wasInfinityEquipped) spinsRemaining = Math.max(0, spinsRemaining - 2); player.equippedRing = newRingType; }
                 player.armorBonus = player.equippedArmorBonus;
                 updatePlayerUI();
                 updateWaveUI();
@@ -2372,81 +1229,34 @@
                 const ringChoicesContainer = document.getElementById('ring-choices');
                 const placeholderButton = document.getElementById('ring-slot-2');
                 if (!ringChoicesContainer || !placeholderButton) return;
-
                 const newRingButton = document.createElement('button');
-                newRingButton.dataset.emoji = "♾️";
-                newRingButton.dataset.title = "Infinity Ring";
-                newRingButton.dataset.statType = "none";
-                newRingButton.dataset.statValue = "0";
-                newRingButton.className = "w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-cyan-600/50 focus:outline-none transition-colors";
+                newRingButton.dataset.emoji = "♾️"; newRingButton.dataset.title = "Infinity Ring"; newRingButton.dataset.statType = "none"; newRingButton.dataset.statValue = "0";
+                newRingButton.className = "w-full text-center py-1 px-2 bg-gray-800 rounded-lg focus:bg-gray-600 focus:outline-none";
                 newRingButton.innerHTML = `♾️ Infinity Ring (+2 Spins)`;
-                
                 newRingButton.addEventListener('click', handleEquipChoice);
-                
                 ringChoicesContainer.replaceChild(newRingButton, placeholderButton);
             }
-
-            equipSlotButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const targetId = button.dataset.target;
-                    const targetChoices = document.getElementById(targetId);
-
-                    equipChoices.forEach(choiceDiv => {
-                        choiceDiv.classList.add('hidden');
-                    });
-
-                    if (targetChoices) {
-                        targetChoices.classList.remove('hidden');
-                    }
-                });
-            });
-
-            equipChoiceButtons.forEach(button => {
-                button.addEventListener('click', handleEquipChoice);
-            });
-            
-            const equipmentModalButton = document.querySelector('[data-modal-target="system-modal-wrapper"]');
-            equipmentModalButton.addEventListener('click', () => {
-                setTimeout(() => {
-                    const firstSlot = document.querySelector('#system-modal-wrapper .equip-slot-btn');
-                    if(firstSlot) {
-                        firstSlot.focus();
-                        firstSlot.click();
-                    }
-                },0);
-            });
+            equipSlotButtons.forEach(button => button.addEventListener('click', () => { const targetId = button.dataset.target; const targetChoices = document.getElementById(targetId); equipChoices.forEach(div => div.classList.add('hidden')); if (targetChoices) targetChoices.classList.remove('hidden'); }));
+            equipChoiceButtons.forEach(button => button.addEventListener('click', handleEquipChoice));
+            document.querySelector('[data-modal-target="system-modal-wrapper"]').addEventListener('click', () => { setTimeout(() => { const firstSlot = document.querySelector('#system-modal-wrapper .equip-slot-btn'); if(firstSlot) { firstSlot.focus(); firstSlot.click(); } },0); });
 
             // TUTORIAL MODAL LOGIC
             const tutorialOpenBtn = document.getElementById('tutorial-open-btn');
             const tutorialModal = document.getElementById('tutorial-modal-wrapper');
             const tutorialCloseBtn = document.getElementById('tutorial-close-btn');
-
             if (tutorialOpenBtn && tutorialModal && tutorialCloseBtn) {
-                tutorialOpenBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    tutorialModal.classList.remove('hidden');
-                });
-
-                tutorialCloseBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    tutorialModal.classList.add('hidden');
-                });
+                tutorialOpenBtn.addEventListener('click', (e) => { e.stopPropagation(); tutorialModal.classList.remove('hidden'); });
+                tutorialCloseBtn.addEventListener('click', (e) => { e.stopPropagation(); tutorialModal.classList.add('hidden'); });
             }
 
-            // Initialize views on load
             updatePlayerUI();
             updateCollectedFortunesDisplay();
             updateMagicUI();
             updateAllStatusIcons();
             updateWaveUI();
-
         });
     </script>
 </body>
 </html>
-
-
-
-
 
 
