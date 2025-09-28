@@ -110,7 +110,8 @@
         /* Enemy attack zoom animation */
         @keyframes zoom-attack {
             0% { transform: scale(1); }
-            50% { transform: scale(1.3); }
+            /* UPDATED: Made the attack lunge happen faster */
+            40% { transform: scale(1.3); }
             100% { transform: scale(1); }
         }
         .zoom-attack {
@@ -124,7 +125,8 @@
             100% { transform: scale(1); }
         }
         .hit-effect {
-            animation: hit-effect 0.3s ease-in-out;
+            /* UPDATED: Shortened duration for a snappier feel */
+            animation: hit-effect 0.2s ease-in-out;
         }
 
         /* Reward Modal Animations */
@@ -170,8 +172,8 @@
 
         .fun-reel-bg {
             background-color: #000000; /* black */
-            /* UPDATED: A subtle, bubbly SVG pattern with multiple colors */
-            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='5' cy='5' r='2' fill='white' fill-opacity='0.5'/%3E%3Ccircle cx='15' cy='25' r='1' fill='%23fde047' fill-opacity='0.5'/%3E%3Ccircle cx='30' cy='10' r='2' fill='%23ef4444' fill-opacity='0.5'/%3E%3Ccircle cx='25' cy='35' r='1.5' fill='white' fill-opacity='0.5'/%3E%3C/svg%3E");
+            /* UPDATED: A subtle, square SVG pattern with multiple colors */
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='3.5' y='3.5' width='3' height='3' fill='white' fill-opacity='0.5'/%3E%3Crect x='14.25' y='24.25' width='1.5' height='1.5' fill='%23fde047' fill-opacity='0.5'/%3E%3Crect x='28.5' y='8.5' width='3' height='3' fill='%23ef4444' fill-opacity='0.5'/%3E%3Crect x='24' y='34' width='2' height='2' fill='white' fill-opacity='0.5'/%3E%3C/svg%3E");
             background-size: 40px 40px; /* Make the pattern larger */
             animation: pan-bg 20s linear infinite; /* Speed up the animation */
         }
@@ -253,8 +255,10 @@
                         <!-- UPDATED: Refreshed reel styling with a fun, animated background -->
                         <button id="reel1" class="relative reel text-6xl p-4 border-2 border-slate-700 rounded-xl w-24 h-24 flex items-center justify-center transition-all duration-150 transform active:scale-95 hover:border-violet-500 fun-reel-bg" disabled>
                             <span class="reel-content">❔</span>
-                            <!-- UPDATED: Brighter attack badge -->
-                            <div class="attack-value absolute top-1 left-1 bg-rose-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden">💥1</div>
+                            <!-- UPDATED: Brighter attack badge, removed emoji -->
+                            <div class="attack-value absolute top-1 left-1 bg-rose-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden">1</div>
+                            <!-- ADDED: Special ability bubble -->
+                            <div class="special-value absolute top-1 right-1 bg-slate-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden"></div>
                         </button>
                     </div>
                     <!-- Reel 2 Column -->
@@ -267,7 +271,9 @@
                         </div>
                         <button id="reel2" class="relative reel text-6xl p-4 border-2 border-slate-700 rounded-xl w-24 h-24 flex items-center justify-center transition-all duration-150 transform active:scale-95 hover:border-violet-500 fun-reel-bg" disabled>
                             <span class="reel-content">❔</span>
-                            <div class="attack-value absolute top-1 left-1 bg-rose-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden">💥1</div>
+                            <div class="attack-value absolute top-1 left-1 bg-rose-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden">1</div>
+                            <!-- ADDED: Special ability bubble -->
+                            <div class="special-value absolute top-1 right-1 bg-slate-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden"></div>
                         </button>
                     </div>
                     <!-- Reel 3 Column -->
@@ -280,7 +286,9 @@
                         </div>
                         <button id="reel3" class="relative reel text-6xl p-4 border-2 border-slate-700 rounded-xl w-24 h-24 flex items-center justify-center transition-all duration-150 transform active:scale-95 hover:border-violet-500 fun-reel-bg" disabled>
                             <span class="reel-content">❔</span>
-                            <div class="attack-value absolute top-1 left-1 bg-rose-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden">💥1</div>
+                            <div class="attack-value absolute top-1 left-1 bg-rose-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden">1</div>
+                            <!-- ADDED: Special ability bubble -->
+                            <div class="special-value absolute top-1 right-1 bg-slate-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden"></div>
                         </button>
                     </div>
                 </div>
@@ -291,36 +299,33 @@
                     <!-- Enemy 1 Info -->
                     <div id="enemy-info-1" class="text-center w-24">
                         <!-- UPDATED: Refreshed meter styles -->
-                        <div class="relative w-full bg-slate-800 rounded-full h-3 border-2 border-slate-700 mb-1">
+                        <div class="relative w-full bg-slate-800 rounded-full h-4 border-2 border-slate-700 mb-1">
                             <div class="health-bar bg-pink-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <span id="health-text-1" class="text-white font-bold" style="font-size: 0.6rem; line-height: 1;">10/10</span>
+                                <span id="health-text-1" class="text-white font-bold" style="font-size: 0.7rem;">10/10</span>
                             </div>
                         </div>
                         <p id="enemy-name-1" class="text-xs font-bold truncate">-</p>
-                        <p id="enemy-special-1" class="text-lg h-6">-</p>
                     </div>
                     <!-- Enemy 2 Info -->
                     <div id="enemy-info-2" class="text-center w-24">
-                        <div class="relative w-full bg-slate-800 rounded-full h-3 border-2 border-slate-700 mb-1">
+                        <div class="relative w-full bg-slate-800 rounded-full h-4 border-2 border-slate-700 mb-1">
                             <div class="health-bar bg-pink-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <span id="health-text-2" class="text-white font-bold" style="font-size: 0.6rem; line-height: 1;">10/10</span>
+                                <span id="health-text-2" class="text-white font-bold" style="font-size: 0.7rem;">10/10</span>
                             </div>
                         </div>
                         <p id="enemy-name-2" class="text-xs font-bold truncate">-</p>
-                        <p id="enemy-special-2" class="text-lg h-6">-</p>
                     </div>
                     <!-- Enemy 3 Info -->
                     <div id="enemy-info-3" class="text-center w-24">
-                        <div class="relative w-full bg-slate-800 rounded-full h-3 border-2 border-slate-700 mb-1">
+                        <div class="relative w-full bg-slate-800 rounded-full h-4 border-2 border-slate-700 mb-1">
                             <div class="health-bar bg-pink-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <span id="health-text-3" class="text-white font-bold" style="font-size: 0.6rem; line-height: 1;">10/10</span>
+                                <span id="health-text-3" class="text-white font-bold" style="font-size: 0.7rem;">10/10</span>
                             </div>
                         </div>
                         <p id="enemy-name-3" class="text-xs font-bold truncate">-</p>
-                        <p id="enemy-special-3" class="text-lg h-6">-</p>
                     </div>
                 </div>
             </div>
@@ -1655,7 +1660,6 @@
                     enemyInfo.style.visibility = 'visible';
 
                     document.getElementById(`enemy-name-${i + 1}`).textContent = enemy.name;
-                    document.getElementById(`enemy-special-${i + 1}`).textContent = enemy.special || ' ';
                     
                     const healthBar = enemyInfo.querySelector('.health-bar');
                     healthBar.style.width = '100%';
@@ -1664,9 +1668,18 @@
 
                     const reel = document.getElementById(`reel${i + 1}`);
                     const attackValueEl = reel.querySelector('.attack-value');
+                    const specialValueEl = reel.querySelector('.special-value');
+                    
                     if (attackValueEl) {
-                        attackValueEl.innerHTML = `💥${enemy.attack}`;
+                        attackValueEl.innerHTML = enemy.attack;
                         attackValueEl.classList.remove('hidden');
+                    }
+
+                    if (specialValueEl && enemy.special) {
+                        specialValueEl.textContent = enemy.special;
+                        specialValueEl.classList.remove('hidden');
+                    } else if (specialValueEl) {
+                        specialValueEl.classList.add('hidden');
                     }
                 });
                 enemyInfoArea.classList.remove('hidden');
@@ -1778,8 +1791,12 @@
                     reel.disabled = true;
                     reel.classList.remove('opacity-50', 'cursor-not-allowed');
                     const attackValueEl = reel.querySelector('.attack-value');
+                    const specialValueEl = reel.querySelector('.special-value');
                     if (attackValueEl) {
                         attackValueEl.classList.add('hidden');
+                    }
+                    if (specialValueEl) {
+                        specialValueEl.classList.add('hidden');
                     }
                 });
                 enemyInfoArea.classList.add('hidden');
@@ -1908,9 +1925,23 @@
                         console.log(`Player afflicted with ${statusToApply} by ${enemy.name}`);
                         enemy.specialUsed = true;
                         
-                        const enemySpecialEl = document.getElementById(`enemy-special-${index + 1}`);
-                        if (enemySpecialEl) {
-                            enemySpecialEl.textContent = ' '; 
+                        const specialValueEl = reel.querySelector('.special-value');
+                        if (specialValueEl) {
+                            specialValueEl.classList.add('hidden');
+                        }
+                    }
+                    
+                    // NEW: Handle Ninja gold steal special
+                    if (enemy.special === '🫳' && !enemy.specialUsed) {
+                        const goldStolen = 15;
+                        player.gold = Math.max(0, player.gold - goldStolen);
+                        console.log(`Ninja stole ${goldStolen} gold!`);
+                        createEffectPopup(`-${goldStolen}🪙`, '#facc15', topStatusBar); // yellow-400
+                        updatePlayerUI(); // Update UI immediately after gold change
+                        enemy.specialUsed = true;
+                        const specialValueEl = reel.querySelector('.special-value');
+                        if (specialValueEl) {
+                            specialValueEl.classList.add('hidden');
                         }
                     }
                     
@@ -1922,7 +1953,7 @@
                         spinButton.disabled = true;
                         reels.forEach(r => r.disabled = true);
                     }
-                }, 200);
+                }, 160); // UPDATED: Changed from 200 to 160 to match zoom-attack peak
             }
 
             async function allEnemiesAttack() {
@@ -1974,6 +2005,7 @@
                         setTimeout(() => {
                             enemyInfo.style.visibility = 'hidden';
                             reel.querySelector('.attack-value')?.classList.add('hidden');
+                            reel.querySelector('.special-value')?.classList.add('hidden');
                             showRewardModal(index);
                         }, 300);
                     } else {
@@ -1986,6 +2018,7 @@
                             reel.classList.remove('opacity-50', 'cursor-not-allowed');
                             enemyInfo.style.visibility = 'hidden';
                             reel.querySelector('.attack-value')?.classList.add('hidden');
+                            reel.querySelector('.special-value')?.classList.add('hidden');
                         }, 300);
                     }
                 } else {
