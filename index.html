@@ -910,7 +910,7 @@
             const allFortunes = [ { title: 'Double Moon', description: '🌙 Gives 2 uses.', color: 'blue' }, { title: 'Efficient Magic', description: 'Spells use 50% less MP.', color: 'blue' }, { title: 'Bartering Edge', description: '25% shop discount.', color: 'blue' }, { title: 'Archer\'s Edge', description: 'Attacks all with 🏹.', color: 'yellow' }, { title: 'Enchantment', description: 'Using 🧚🏼 grants ❇️.', color: 'yellow' }, { title: 'Battle Grace', description: 'Receive buff = +1 🛡️.', color: 'yellow' }, { title: 'Torment', description: 'Applying debuffs also deals 2 damage.', color: 'pink' }, { title: 'Thief Strike', description: 'Steal 5 🪙 when attacking with 🗡️.', color: 'pink' }, { title: 'Toxic Decay', description: '+2 ☠️ Damage.', color: 'pink' } ];
             function getRandomItems(arr, num) { return [...arr].sort(() => 0.5 - Math.random()).slice(0, num); }
             function getRandomFortuneByWeight(availableFortunes) { const weightedList = []; availableFortunes.forEach(fortune => { if (fortune.color === 'blue') { for (let i = 0; i < 40; i++) weightedList.push(fortune); } else if (fortune.color === 'yellow') { for (let i = 0; i < 30; i++) weightedList.push(fortune); } else if (fortune.color === 'pink') { for (let i = 0; i < 20; i++) weightedList.push(fortune); } }); if (weightedList.length === 0) return null; return weightedList[Math.floor(Math.random() * weightedList.length)]; }
-            function acquireFortune(fortune) { console.log('Acquiring Fortune:', fortune.title); if (!player.activeFortunes.includes(fortune.title)) player.activeFortunes.push(fortune.title); if (collectedFortunes.length < 6) { collectedFortunes.push({ sacrifice: currentSacrifice, fortune: fortune }); usedFortunes.push(fortune.title); currentSacrifice = null; updateCollectedFortunesDisplay(); } else { console.log("Maximum fortunes collected."); } updateShopSelection(); updateMagicUI(); closeModal(); }
+            function acquireFortune(fortune) { console.log('Acquiring Fortune:', fortune.title); if (!player.activeFortunes.includes(fortune.title)) player.activeFortunes.push(fortune.title); if (collectedFortunes.length < 6) { collectedFortunes.push({ sacrifice: currentSacrifice, fortune: fortune }); usedFortunes.push(fortune.title); currentSacrifice = null; updateCollectedFortunesDisplay(); } else { console.log("Maximum fortunes collected."); } renderShop(); updateMagicUI(); closeModal(); }
             function selectSacrifice() {
                 sacrificesContainer.classList.add('hidden');
                 fortunesContainer.classList.remove('hidden');
@@ -1258,5 +1258,4 @@
     </script>
 </body>
 </html>
-
 
