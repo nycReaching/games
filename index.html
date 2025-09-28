@@ -575,9 +575,11 @@
                 currentMp: 10,
                 moons: 3, // Moons for special arts
                 statusEffects: [], // Handles active player buffs/debuffs
+                activeFortunes: [], // FORTUNE: To track acquired fortune titles
                 activeSacrifices: [], // To track which sacrifices are active
                 disabledSpells: [], // To track disabled spells like from Heartbreak
                 specialArmor: null, 
+                equippedRing: null,
             };
 
             // GAME STATE
@@ -649,6 +651,10 @@
                 if (magicBar && magicText) {
                     magicText.textContent = `${player.currentMp}/${player.maxMp}`;
                     magicBar.style.width = `${(player.currentMp / player.maxMp) * 100}%`;
+
+                    // FORTUNE CHANGE: Calculate spell cost based on 'Efficient Magic' fortune
+                    const spellCost = player.activeFortunes.includes('Efficient Magic') ? 2 : 4;
+
                     spellButtons.forEach(button => {
                         // New check for disabled spells
                         if (player.disabledSpells.includes(button.dataset.spell)) {
@@ -657,7 +663,7 @@
                             return; // Use return instead of continue in forEach callback
                         }
 
-                        if (player.currentMp < 5) { // Assuming all spells cost 5 for now
+                        if (player.currentMp < spellCost) { // Use dynamic spellCost
                             button.disabled = true;
                             button.classList.add('opacity-50', 'cursor-not-allowed');
                         } else {
@@ -731,7 +737,7 @@
                 { title: 'Gem', description: 'Gain a buff, give a debuff.', owned: 0, cost: 15 },
                 { title: 'Fairy', description: 'Restores magic meter.', owned: 0, cost: 15 },
                 { title: 'Moonstone', description: 'Grants 1 Moon to spend.', owned: 0, cost: 20 },
-                { title: 'Infinity Ring', description: 'Take damage to reroll.', owned: 0, cost: 25, purchased: false },
+                { title: 'Infinity Ring', description: '+2 Spins.', owned: 0, cost: 25, purchased: false },
             ];
             const carousel = document.getElementById('shop-carousel');
             const carouselItems = carousel.querySelectorAll('.shop-item');
@@ -739,6 +745,20 @@
             const itemDescription = document.getElementById('item-description');
             const itemOwned = document.getElementById('item-owned');
             let currentShopIndex = 0;
+
+            // FORTUNE HELPER: Check for Battle Grace when receiving a buff
+            function checkForBattleGrace() {
+                if (player.activeFortunes.includes('Battle Grace')) {
+                    player.maxBaseArmor++;
+                    player.baseArmor++;
+                    console.log("Battle Grace triggered! +1 Armor.");
+                    playerArmorContainer.classList.add('armor-gain');
+                    playerArmorContainer.addEventListener('animationend', () => {
+                        playerArmorContainer.classList.remove('armor-gain');
+                    }, { once: true });
+                    updatePlayerUI();
+                }
+            }
 
             function useItem(itemIndex) {
                 const itemData = shopItems[itemIndex];
@@ -804,6 +824,7 @@
                         const randomBuff = buffs[Math.floor(Math.random() * buffs.length)];
                         if (!player.statusEffects.includes(randomBuff)) {
                             player.statusEffects.push(randomBuff);
+                            checkForBattleGrace(); // FORTUNE: Check for Battle Grace
                         }
 
                         const livingEnemies = currentEnemies.filter(e => e && !e.isDefeated);
@@ -813,6 +834,8 @@
                             const randomDebuff = debuffs[Math.floor(Math.random() * debuffs.length)];
                             if (!randomEnemy.statusEffects.includes(randomDebuff)) {
                                 randomEnemy.statusEffects.push(randomDebuff);
+                                const enemyIndex = currentEnemies.indexOf(randomEnemy);
+                                checkForTorment(randomEnemy, enemyIndex); // FORTUNE: Check for Torment
                             }
                         }
                         itemUsed = true;
@@ -821,6 +844,14 @@
                         if (player.currentMp < player.maxMp) {
                             player.currentMp = player.maxMp;
                             itemUsed = true;
+                            // --- ENCHANTMENT FORTUNE ---
+                            if (player.activeFortunes.includes('Enchantment')) {
+                                if (!player.statusEffects.includes('regen')) {
+                                    player.statusEffects.push('regen');
+                                    console.log("Enchantment triggered! Gained Regen.");
+                                    checkForBattleGrace(); // A buff was granted
+                                }
+                            }
                         }
                         break;
                     // Moonstone and Infinity Ring are handled elsewhere (on purchase/equip)
@@ -952,15 +983,18 @@
                             closestItem.classList.add('opacity-50');
                         }
                         
-                        // Buy button logic
+                        // FORTUNE CHANGE: Buy button logic with 'Bartering Edge'
+                        const hasBarteringEdge = player.activeFortunes.includes('Bartering Edge');
+                        const currentCost = hasBarteringEdge ? Math.floor(selectedItemData.cost * 0.75) : selectedItemData.cost;
+
                         if (selectedItemData.purchased) {
                             buyItemBtn.innerHTML = `<span>Owned</span>`;
                             buyItemBtn.disabled = true;
                             buyItemBtn.classList.add('opacity-50', 'bg-gray-500', 'cursor-not-allowed');
                             buyItemBtn.classList.remove('bg-green-500');
                         } else {
-                            buyItemBtn.innerHTML = `<span>${selectedItemData.cost}</span><span>🪙</span>`;
-                            if (player.gold >= selectedItemData.cost) {
+                            buyItemBtn.innerHTML = `<span>${currentCost}</span><span>🪙</span>`;
+                            if (player.gold >= currentCost) {
                                 buyItemBtn.disabled = false;
                                 buyItemBtn.classList.remove('opacity-50', 'bg-gray-500', 'cursor-not-allowed');
                                 buyItemBtn.classList.add('bg-green-500');
@@ -982,8 +1016,13 @@
                 if (buyItemBtn.disabled) return;
 
                 const itemToBuy = shopItems[currentShopIndex];
-                if (player.gold >= itemToBuy.cost) {
-                    player.gold -= itemToBuy.cost;
+                
+                // FORTUNE CHANGE: Use discounted cost for 'Bartering Edge'
+                const hasBarteringEdge = player.activeFortunes.includes('Bartering Edge');
+                const currentCost = hasBarteringEdge ? Math.floor(itemToBuy.cost * 0.75) : itemToBuy.cost;
+
+                if (player.gold >= currentCost) {
+                    player.gold -= currentCost;
                     itemToBuy.owned++;
 
                     if (itemToBuy.title === 'Infinity Ring') {
@@ -1006,12 +1045,12 @@
 
             // MAP CAROUSEL LOGIC / STATUS EFFECTS
             const moonArts = [
-                { id: 'poison', title: 'Poison', description: '1 Damage per turn.', owned: 0, type: 'debuff' },
+                { id: 'poison', title: 'Poison', description: 'Deals damage each turn.', owned: 0, type: 'debuff' },
                 { id: 'curse', title: 'Curse', description: 'Share damage.', owned: 0, type: 'debuff' },
-                { id: 'sluggish', title: 'Sluggish', description: '50% Chance no action.', owned: 0, type: 'debuff' },
-                { id: 'regen', title: 'Regen', description: 'Heal 1 per turn.', owned: 0, type: 'buff' },
+                { id: 'sluggish', title: 'Sluggish', description: '50% chance to miss turn.', owned: 0, type: 'debuff' },
+                { id: 'regen', title: 'Regen', description: 'Heal 1 HP per turn.', owned: 0, type: 'buff' },
                 { id: 'blessing', title: 'Blessing', description: 'Add current armor to attack.', owned: 0, type: 'buff' },
-                { id: 'rush', title: 'Rush', description: '2 Actions per turn.', owned: 0, type: 'buff' }
+                { id: 'rush', title: 'Rush', description: '2 actions per turn.', owned: 0, type: 'buff' }
             ];
             const mapCarousel = document.getElementById('map-carousel');
             const mapCarouselItems = mapCarousel.querySelectorAll('.map-item');
@@ -1023,6 +1062,16 @@
             let isMapDown = false;
             let mapStartX;
             let mapScrollLeft;
+
+            // FORTUNE HELPER: Check for Torment when applying a debuff
+            function checkForTorment(enemy, enemyIndex) {
+                if (player.activeFortunes.includes('Torment')) {
+                    if (enemy && !enemy.isDefeated) {
+                        console.log(`Torment triggered on ${enemy.name}!`);
+                        applyDamageAndAnimate(enemyIndex, 2);
+                    }
+                }
+            }
             
             function updateAllStatusIcons() {
                 // --- Player Statuses ---
@@ -1120,19 +1169,20 @@
 
                         selectedArt.owned--; // Consume one
                         
-                        // Add a small visual feedback animation
-                        item.classList.add('transition-transform', 'duration-150', 'scale-110');
-                        setTimeout(() => item.classList.remove('scale-110'), 150);
+                        closeModal(); // Close modal on use
+                        reels.forEach(r => r.disabled = true); // Disable reels to end player action phase
 
                         // Apply the effect
                         if (selectedArt.type === 'buff') {
                             if (!player.statusEffects.includes(selectedArt.id)) {
                                 player.statusEffects.push(selectedArt.id);
+                                checkForBattleGrace(); // FORTUNE: Check for Battle Grace
                             }
                         } else if (selectedArt.type === 'debuff') {
-                            currentEnemies.forEach(enemy => {
+                            currentEnemies.forEach((enemy, index) => {
                                 if (enemy && !enemy.isDefeated && !enemy.statusEffects.includes(selectedArt.id)) {
                                     enemy.statusEffects.push(selectedArt.id);
+                                    checkForTorment(enemy, index); // FORTUNE: Check for Torment
                                 }
                             });
                         }
@@ -1140,8 +1190,9 @@
                         console.log(`Used ${selectedArt.title}. Remaining: ${selectedArt.owned}`);
                         
                         // Refresh ALL UI that might have changed
-                        updateMapSelection(); // Updates the owned count text
                         updateAllStatusIcons(); // Updates the visible icons in the main game screen
+                        
+                        startEnemyTurn(); // Consume turn
                     }
                 });
             });
@@ -1226,8 +1277,12 @@
                     player.moons--;
                     const selectedItemIndex = parseInt(mapCarousel.querySelector('.scale-125').dataset.index);
                     const purchasedArt = moonArts[selectedItemIndex];
-                    purchasedArt.owned++;
+                    
+                    // FORTUNE CHANGE: Check for 'Double Moon'
+                    const hasDoubleMoon = player.activeFortunes.includes('Double Moon');
+                    purchasedArt.owned += hasDoubleMoon ? 2 : 1;
                     console.log(`Purchased ${purchasedArt.title}. You have ${player.moons} moons left.`);
+
                     updateMoonModalUI();
                     updateMapSelection();
                 }
@@ -1244,7 +1299,9 @@
                         return;
                     }
             
-                    const spellCost = 5;
+                    // FORTUNE CHANGE: Use dynamic spell cost
+                    const spellCost = player.activeFortunes.includes('Efficient Magic') ? 2 : 4;
+
                     if (player.currentMp >= spellCost) {
                         player.currentMp -= spellCost;
                         updateMagicUI();
@@ -1274,15 +1331,15 @@
             ];
 
             const allFortunes = [
-                // Common (Blue) - 40% chance
+                // Common (Blue)
                 { title: 'Double Moon', description: '🌙 Gives 2 uses.', color: 'blue' },
                 { title: 'Efficient Magic', description: 'Spells use 50% less MP.', color: 'blue' },
                 { title: 'Bartering Edge', description: '25% shop discount.', color: 'blue' },
-                // Uncommon (Yellow) - 30% chance
+                // Uncommon (Yellow)
                 { title: 'Archer\'s Edge', description: 'Attacks all with 🏹.', color: 'yellow' },
                 { title: 'Enchantment', description: 'Using 🧚🏼 grants ❇️.', color: 'yellow' },
                 { title: 'Battle Grace', description: 'Receive buff = +1 🛡️.', color: 'yellow' },
-                // Rare (Pink) - 20% chance
+                // Rare (Pink)
                 { title: 'Torment', description: 'Applying debuffs also deals 2 damage.', color: 'pink' },
                 { title: 'Thief Strike', description: 'Steal 5 🪙 when attacking with 🗡️.', color: 'pink' },
                 { title: 'Toxic Decay', description: '+2 ☠️ Damage.', color: 'pink' },
@@ -1297,14 +1354,11 @@
                 const weightedList = [];
 
                 availableFortunes.forEach(fortune => {
-                    if (fortune.color === 'blue') {
-                        // Common, weight 40
+                    if (fortune.color === 'blue') { // Common, weight 40
                         for (let i = 0; i < 40; i++) weightedList.push(fortune);
-                    } else if (fortune.color === 'yellow') {
-                        // Uncommon, weight 30
+                    } else if (fortune.color === 'yellow') { // Uncommon, weight 30
                         for (let i = 0; i < 30; i++) weightedList.push(fortune);
-                    } else if (fortune.color === 'pink') {
-                        // Rare, weight 20
+                    } else if (fortune.color === 'pink') { // Rare, weight 20
                         for (let i = 0; i < 20; i++) weightedList.push(fortune);
                     }
                 });
@@ -1315,6 +1369,31 @@
                 return weightedList[randomIndex];
             }
 
+            // FORTUNE: New function to handle acquiring a fortune
+            function acquireFortune(fortune) {
+                console.log('Acquiring Fortune:', fortune.title);
+                
+                // Add to player's active fortunes if not already present
+                if (!player.activeFortunes.includes(fortune.title)) {
+                    player.activeFortunes.push(fortune.title);
+                }
+
+                // Add to the UI collection
+                if (collectedFortunes.length < 6) {
+                    collectedFortunes.push({ sacrifice: currentSacrifice, fortune: fortune });
+                    usedFortunes.push(fortune.title);
+                    currentSacrifice = null; // Reset for next time
+                    updateCollectedFortunesDisplay();
+                } else {
+                    console.log("Maximum fortunes collected.");
+                }
+                
+                // Update any UI that might be affected by the new fortune
+                updateShopSelection(); // For Bartering Edge
+                updateMagicUI(); // For Efficient Magic
+                
+                closeModal();
+            }
 
             function selectSacrifice() {
                 sacrificesContainer.classList.add('hidden');
@@ -1323,10 +1402,8 @@
 
                 const availableFortunes = allFortunes.filter(f => !usedFortunes.includes(f.title));
                 
-                // NEW: Use weighted randomizer
                 const chosenFortunes = new Set();
                 if (availableFortunes.length <= 3) {
-                    // Not enough unique fortunes for weighted logic, just show what's available
                     availableFortunes.forEach(f => chosenFortunes.add(f));
                 } else {
                     while (chosenFortunes.size < 3) {
@@ -1363,16 +1440,7 @@
                         <p class="text-[11px] text-white/80 text-center">${fortune.description}</p>
                     `;
                     fortuneEl.onclick = () => {
-                        console.log('Fortune selected:', fortune.title);
-                        if (collectedFortunes.length < 6) {
-                            collectedFortunes.push({ sacrifice: currentSacrifice, fortune: fortune });
-                            usedFortunes.push(fortune.title);
-                            currentSacrifice = null; // Reset for next time
-                            updateCollectedFortunesDisplay();
-                        } else {
-                            console.log("Maximum fortunes collected.");
-                        }
-                        closeModal();
+                        acquireFortune(fortune); // FORTUNE: Use the helper function
                     };
                     fortunesContainer.appendChild(fortuneEl);
                 });
@@ -1511,10 +1579,6 @@
 
             const displayEnemyInfo = (finalEnemies) => {
                 finalEnemies.forEach((enemy, i) => {
-                    // enemy.maxHealth = enemy.maxHealth || 10;
-                    // enemy.currentHealth = enemy.maxHealth;
-                    
-                    // NEW LOGIC to scale HP with waves
                     let baseHealth = enemy.maxHealth || 10;
                     if (enemy.name !== 'Gift') {
                         baseHealth += (wave - 1);
@@ -1524,7 +1588,7 @@
 
                     enemy.isDefeated = false;
                     enemy.statusEffects = [];
-                    enemy.specialUsed = false; // Add this flag for the new mechanic
+                    enemy.specialUsed = false; 
 
                     // Exception: If enemy special is Regen, apply it
                     if (enemy.special === '❇️') {
@@ -1644,11 +1708,12 @@
                 player.baseArmor = player.maxBaseArmor;
                 player.armorBonus = player.equippedArmorBonus; // Reset armor bonus to its base from equipment
                 updatePlayerUI();
-
+                
                 spinsRemaining--;
                 if (spinsRemaining < 0) {
                     wave++;
-                    spinsRemaining = 4; // 5 spins per wave, this is the 1st of the new wave.
+                    const maxSpins = player.equippedRing === 'infinity' ? 7 : 5;
+                    spinsRemaining = maxSpins - 1;
                 }
                 updateWaveUI();
 
@@ -1900,6 +1965,7 @@
                                 }
                                 if (!enemy.statusEffects.includes('sluggish')) {
                                     enemy.statusEffects.push('sluggish');
+                                    checkForTorment(enemy, index); // FORTUNE: Check for Torment
                                 }
                             }
                         });
@@ -1965,7 +2031,10 @@
                         player.currentHp -= 1;
                         createEffectPopup('☠️1', '#a855f7', playerHpContainer); // purple-500
                     } else {
-                        applyDamageAndAnimate(index, 1);
+                        // FORTUNE CHANGE: Check for 'Toxic Decay'
+                        const hasToxicDecay = player.activeFortunes.includes('Toxic Decay');
+                        const poisonDamage = hasToxicDecay ? 3 : 1;
+                        applyDamageAndAnimate(index, poisonDamage);
                     }
                 }
 
@@ -2087,14 +2156,38 @@
                         }
                     }
                     
-                    applyDamageAndAnimate(index, totalPlayerAttack);
+                    // FORTUNE: 'Archer's Edge' logic
+                    const usingBow = statusWeaponIcon.textContent === '🏹';
+                    const hasArchersEdge = player.activeFortunes.includes("Archer's Edge");
+
+                    if (usingBow && hasArchersEdge) {
+                        console.log("Archer's Edge triggered!");
+                        currentEnemies.forEach((enemy, i) => {
+                            if(enemy && !enemy.isDefeated) {
+                                applyDamageAndAnimate(i, totalPlayerAttack);
+                            }
+                        });
+                    } else {
+                        // Original logic for single target
+                        applyDamageAndAnimate(index, totalPlayerAttack);
+                    }
+
+                    // FORTUNE: 'Thief Strike' logic
+                    const usingDagger = statusWeaponIcon.textContent === '🗡️';
+                    const hasThiefStrike = player.activeFortunes.includes('Thief Strike');
+
+                    if (usingDagger && hasThiefStrike && enemy && !enemy.isDefeated) {
+                        console.log("Thief Strike triggered!");
+                        player.gold += 5;
+                        createEffectPopup('+5🪙', '#fbbF24', document.getElementById('slot-machine')); // amber-400
+                        updatePlayerUI();
+                    }
+
                     applyPostActionStatusEffects(player, true);
                     
                     if (player.currentHp <= 0) return; // Stop if dead from poison
 
                     // --- GIFT PAUSE LOGIC ---
-                    // If a gift was just defeated, the reward modal will handle resuming the turn.
-                    // So we stop the normal turn progression here to prevent enemies from attacking.
                     const defeatedEnemy = currentEnemies[index];
                     if (defeatedEnemy && defeatedEnemy.isDefeated && defeatedEnemy.emoji === '🎁') {
                         return;
@@ -2151,12 +2244,28 @@
                     } else if (statType === 'special' && statValue === 'admirers') {
                         player.specialArmor = 'admirers';
                     }
-                    // Update the total armor bonus to reflect only the new equipment
-                    player.armorBonus = player.equippedArmorBonus;
                     // TODO: Handle luck from cloak
+                } else if (parentChoicesId === 'ring-choices') {
+                    const wasInfinityEquipped = player.equippedRing === 'infinity';
+                    
+                    let newRingType = null;
+                    if (newTitle === 'Infinity Ring') {
+                        newRingType = 'infinity';
+                    }
+
+                    if (newRingType === 'infinity' && !wasInfinityEquipped) {
+                        spinsRemaining += 2;
+                    } else if (newRingType !== 'infinity' && wasInfinityEquipped) {
+                        spinsRemaining = Math.max(0, spinsRemaining - 2);
+                    }
+
+                    player.equippedRing = newRingType;
                 }
                 
+                // Update the total armor bonus to reflect only the new equipment
+                player.armorBonus = player.equippedArmorBonus;
                 updatePlayerUI();
+                updateWaveUI();
             }
 
             function unlockInfinityRing() {
@@ -2170,7 +2279,7 @@
                 newRingButton.dataset.statType = "none";
                 newRingButton.dataset.statValue = "0";
                 newRingButton.className = "w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-900/50 focus:outline-none transition-colors";
-                newRingButton.innerHTML = `♾️ Infinity Ring`;
+                newRingButton.innerHTML = `♾️ Infinity Ring (+2 Spins)`;
                 
                 newRingButton.addEventListener('click', handleEquipChoice);
                 
@@ -2235,7 +2344,4 @@
     </script>
 </body>
 </html>
-
-
-
 
