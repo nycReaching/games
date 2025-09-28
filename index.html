@@ -1922,7 +1922,11 @@
                         }, 300);
                     } else {
                         setTimeout(() => {
-                            reel.querySelector('.reel-content').textContent = '💀';
+                            if (enemy.name === 'Unicorn') {
+                                reel.querySelector('.reel-content').textContent = '👑';
+                            } else {
+                                reel.querySelector('.reel-content').textContent = '💀';
+                            }
                             reel.classList.remove('opacity-50', 'cursor-not-allowed');
                             enemyInfo.style.visibility = 'hidden';
                             reel.querySelector('.attack-value')?.classList.add('hidden');
@@ -2088,16 +2092,23 @@
                 actionsTakenThisTurn = 0;
                 setTimeout(() => {
                     allEnemiesAttack();
-                }, 800);
+                }, 300);
             }
 
             reels.forEach((reel, index) => {
                 reel.addEventListener('click', () => {
                     const enemy = currentEnemies[index];
                     const reelContent = reel.querySelector('.reel-content');
+                    const isRegularSkull = reelContent.textContent === '💀';
+                    const isGoldSkull = reelContent.textContent === '👑';
 
-                    if (enemy && enemy.isDefeated && reelContent.textContent === '💀') {
-                        skullCount++;
+                    if (enemy && enemy.isDefeated && (isRegularSkull || isGoldSkull)) {
+                        if (isGoldSkull) {
+                            skullCount += 2;
+                        } else {
+                            skullCount++;
+                        }
+                        
                         const skullPercent = Math.min((skullCount / 10) * 100, 100);
                         skullMeterBar.style.width = `${skullPercent}%`;
                         skullMeterText.textContent = `${skullCount}/10`;
@@ -2176,7 +2187,7 @@
                     const usingDagger = statusWeaponIcon.textContent === '🗡️';
                     const hasThiefStrike = player.activeFortunes.includes('Thief Strike');
 
-                    if (usingDagger && hasThiefStrike && enemy && !enemy.isDefeated) {
+                    if (usingDagger && hasThiefStrike && enemy) {
                         console.log("Thief Strike triggered!");
                         player.gold += 5;
                         createEffectPopup('+5🪙', '#fbbF24', document.getElementById('slot-machine')); // amber-400
