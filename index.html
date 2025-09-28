@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mobile Game UI</title>
+    <title>Gogo Game</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- UPDATED: Swapped Inter for Poppins for a more fun, rounded feel -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            /* UPDATED: Font changed to Poppins */
+            font-family: 'Poppins', sans-serif;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
@@ -56,10 +58,17 @@
                 transform: translateX(0);
             }
         }
-
-        @keyframes glow-pink {
-            0%, 100% { box-shadow: 0 0 5px #f472b6, 0 0 10px #f472b6; }
-            50% { box-shadow: 0 0 15px #f9a8d4, 0 0 20px #f9a8d4; }
+        
+        /* ADDED: Pulse animation for the main spin button */
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px rgba(168, 85, 247, 0);
+            }
         }
 
         /* ADDED: Animation utility classes */
@@ -68,19 +77,19 @@
             opacity: 0; /* Start hidden */
         }
 
-        .glow-pink {
-            animation: glow-pink 2s infinite ease-in-out;
+        .animate-pulse-spin {
+            animation: pulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
         }
         
-        /* ADDED: Floating damage number animation */
+        /* Floating damage number animation */
         @keyframes float-up {
             from {
                 opacity: 1;
-                transform: translateY(0);
+                transform: translateY(0) scale(1);
             }
             to {
                 opacity: 0;
-                transform: translateY(-50px);
+                transform: translateY(-60px) scale(0.8);
             }
         }
 
@@ -89,15 +98,16 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 2.25rem; /* ~text-4xl */
-            font-weight: bold;
-            color: #FBBF24; /* amber-400 */
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
-            pointer-events: none; /* So it doesn't interfere with clicks */
-            animation: float-up 0.5s ease-out forwards;
+            font-size: 2.5rem; /* ~text-4xl */
+            font-weight: 700; /* bold */
+            /* UPDATED: Brighter color for more pop */
+            color: #FDE047; /* yellow-300 */
+            text-shadow: 0px 2px 4px rgba(0,0,0,0.6);
+            pointer-events: none;
+            animation: float-up 0.6s ease-out forwards;
         }
 
-        /* ADDED: Enemy attack zoom animation */
+        /* Enemy attack zoom animation */
         @keyframes zoom-attack {
             0% { transform: scale(1); }
             50% { transform: scale(1.3); }
@@ -107,7 +117,7 @@
             animation: zoom-attack 0.4s ease-in-out;
         }
 
-        /* ADDED: Player hit effect animation */
+        /* Player hit effect animation */
         @keyframes hit-effect {
             0% { transform: scale(1); }
             50% { transform: scale(1.15); }
@@ -142,7 +152,7 @@
             animation: final-reward-pop 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
         }
 
-        /* ADDED: Armor gain effect animation */
+        /* Armor gain effect animation */
         @keyframes armor-gain {
             0% { transform: scale(1); }
             50% { transform: scale(1.3); text-shadow: 0 0 10px #60a5fa; } /* blue-400 */
@@ -153,13 +163,16 @@
         }
     </style>
 </head>
-<body class="bg-zinc-900 flex items-center justify-center min-h-screen transition-all">
+<!-- UPDATED: Background changed to a cool, dark slate for a modern look -->
+<body class="bg-slate-900 flex items-center justify-center min-h-screen transition-all">
 
     <!-- Mobile Phone Silhouette -->
-    <div class="w-full max-w-sm h-[90vh] max-h-[800px] bg-zinc-950 border border-zinc-800 rounded-[2.5rem] shadow-2xl shadow-black/50 flex flex-col overflow-hidden relative">
+    <!-- UPDATED: Colors refreshed to match the new slate theme -->
+    <div class="w-full max-w-sm h-[90vh] max-h-[800px] bg-slate-950 border-2 border-slate-800 rounded-[2.5rem] shadow-2xl shadow-black/50 flex flex-col overflow-hidden relative">
         
         <!-- Top Status Bar -->
-        <div id="top-status-bar" class="bg-zinc-950/50 p-4 border-b border-zinc-800 flex flex-col justify-center gap-3 text-white backdrop-blur-sm">
+        <!-- UPDATED: Background swapped from solid color to a subtle gradient for depth -->
+        <div id="top-status-bar" class="p-4 border-b-2 border-slate-800 flex flex-col justify-center gap-3 text-white backdrop-blur-sm z-10 bg-gradient-to-b from-slate-900/80 to-indigo-950/80">
             <!-- Counters -->
             <div class="grid grid-cols-4 gap-x-2 text-center items-center">
                 <div id="player-armor-container" class="flex items-center justify-center gap-1.5">
@@ -175,7 +188,8 @@
                     <span id="player-gold" class="font-bold text-lg">99</span>
                 </div>
                 <div class="flex items-center justify-center">
-                    <button data-modal-target="world-map-modal-wrapper" class="text-2xl transition-transform active:scale-90 opacity-75 hover:opacity-100">👨</button>
+                    <!-- UPDATED: Changed emoji for better visual consistency -->
+                    <button data-modal-target="world-map-modal-wrapper" class="text-3xl transition-transform active:scale-90 opacity-75 hover:opacity-100">👤</button>
                 </div>
             </div>
             <!-- Meters -->
@@ -183,8 +197,10 @@
                 <!-- HP Bar -->
                 <div id="player-hp-container" class="flex items-center">
                     <span class="text-xl w-10 text-center opacity-75">❤️</span>
-                    <div class="relative w-full bg-zinc-800 rounded-full h-4 border border-zinc-700">
-                        <div id="hp-bar" class="bg-rose-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
+                    <!-- UPDATED: Meter track color and border -->
+                    <div class="relative w-full bg-slate-800 rounded-full h-4 border-2 border-slate-700">
+                        <!-- UPDATED: More vibrant HP bar color -->
+                        <div id="hp-bar" class="bg-pink-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
                         <div class="absolute inset-0 flex items-center justify-center">
                             <span id="hp-text" class="text-xs font-bold text-white/90">10/10</span>
                         </div>
@@ -193,8 +209,10 @@
                 <!-- Enemy Bar -->
                 <div class="flex items-center">
                     <span class="text-xl w-10 text-center opacity-75">💀</span>
-                    <div class="relative w-full bg-zinc-800 rounded-full h-4 border border-zinc-700">
-                        <div id="skull-meter-bar" class="bg-zinc-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                    <!-- UPDATED: Meter track color and border -->
+                    <div class="relative w-full bg-slate-800 rounded-full h-4 border-2 border-slate-700">
+                        <!-- UPDATED: More vibrant skull meter color -->
+                        <div id="skull-meter-bar" class="bg-violet-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
                         <div class="absolute inset-0 flex items-center justify-center">
                             <span id="skull-meter-text" class="text-xs font-bold text-white/90">0/10</span>
                         </div>
@@ -204,7 +222,8 @@
         </div>
 
         <!-- Game Screen Area (Central Area) -->
-        <div class="flex-grow bg-zinc-900 flex flex-col p-4 relative">
+        <!-- UPDATED: Background changed to a radial gradient for a "spotlight" effect -->
+        <div class="flex-grow flex flex-col p-4 relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 to-slate-900">
             <!-- Top half for slot machine -->
             <div class="h-1/2 flex items-center justify-center">
                 <!-- Slot Machine -->
@@ -217,9 +236,11 @@
                             <span class="enemy-status enemy-1-status-sluggish text-xs" style="display: none;">🐌</span>
                             <span class="enemy-status enemy-1-status-regen text-xs" style="display: none;">❇️</span>
                         </div>
-                        <button id="reel1" class="relative reel text-6xl p-4 bg-zinc-900 border border-zinc-700 rounded-xl w-24 h-24 flex items-center justify-center transition-all duration-150 transform active:scale-95 hover:border-zinc-500" disabled>
+                        <!-- UPDATED: Refreshed reel styling for a polished, inset look -->
+                        <button id="reel1" class="relative reel text-6xl p-4 bg-gradient-to-b from-slate-800 to-slate-900 border-2 border-slate-700 shadow-inner shadow-black/50 rounded-xl w-24 h-24 flex items-center justify-center transition-all duration-150 transform active:scale-95 hover:border-violet-500" disabled>
                             <span class="reel-content">❔</span>
-                            <div class="attack-value absolute top-1 left-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden">💥1</div>
+                            <!-- UPDATED: Brighter attack badge -->
+                            <div class="attack-value absolute top-1 left-1 bg-rose-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden">💥1</div>
                         </button>
                     </div>
                     <!-- Reel 2 Column -->
@@ -230,9 +251,9 @@
                             <span class="enemy-status enemy-2-status-sluggish text-xs" style="display: none;">🐌</span>
                             <span class="enemy-status enemy-2-status-regen text-xs" style="display: none;">❇️</span>
                         </div>
-                        <button id="reel2" class="relative reel text-6xl p-4 bg-zinc-900 border border-zinc-700 rounded-xl w-24 h-24 flex items-center justify-center transition-all duration-150 transform active:scale-95 hover:border-zinc-500" disabled>
+                        <button id="reel2" class="relative reel text-6xl p-4 bg-gradient-to-b from-slate-800 to-slate-900 border-2 border-slate-700 shadow-inner shadow-black/50 rounded-xl w-24 h-24 flex items-center justify-center transition-all duration-150 transform active:scale-95 hover:border-violet-500" disabled>
                             <span class="reel-content">❔</span>
-                            <div class="attack-value absolute top-1 left-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden">💥1</div>
+                            <div class="attack-value absolute top-1 left-1 bg-rose-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden">💥1</div>
                         </button>
                     </div>
                     <!-- Reel 3 Column -->
@@ -243,9 +264,9 @@
                             <span class="enemy-status enemy-3-status-sluggish text-xs" style="display: none;">🐌</span>
                             <span class="enemy-status enemy-3-status-regen text-xs" style="display: none;">❇️</span>
                         </div>
-                        <button id="reel3" class="relative reel text-6xl p-4 bg-zinc-900 border border-zinc-700 rounded-xl w-24 h-24 flex items-center justify-center transition-all duration-150 transform active:scale-95 hover:border-zinc-500" disabled>
+                        <button id="reel3" class="relative reel text-6xl p-4 bg-gradient-to-b from-slate-800 to-slate-900 border-2 border-slate-700 shadow-inner shadow-black/50 rounded-xl w-24 h-24 flex items-center justify-center transition-all duration-150 transform active:scale-95 hover:border-violet-500" disabled>
                             <span class="reel-content">❔</span>
-                            <div class="attack-value absolute top-1 left-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden">💥1</div>
+                            <div class="attack-value absolute top-1 left-1 bg-rose-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-md hidden">💥1</div>
                         </button>
                     </div>
                 </div>
@@ -255,8 +276,9 @@
                 <div id="enemy-info-area" class="flex space-x-4 text-white hidden">
                     <!-- Enemy 1 Info -->
                     <div id="enemy-info-1" class="text-center w-24">
-                        <div class="relative w-full bg-zinc-800 rounded-full h-3 border border-zinc-700 mb-1">
-                            <div class="health-bar bg-rose-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
+                        <!-- UPDATED: Refreshed meter styles -->
+                        <div class="relative w-full bg-slate-800 rounded-full h-3 border-2 border-slate-700 mb-1">
+                            <div class="health-bar bg-pink-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
                             <div class="absolute inset-0 flex items-center justify-center">
                                 <span id="health-text-1" class="text-white font-bold" style="font-size: 0.6rem; line-height: 1;">10/10</span>
                             </div>
@@ -266,8 +288,8 @@
                     </div>
                     <!-- Enemy 2 Info -->
                     <div id="enemy-info-2" class="text-center w-24">
-                        <div class="relative w-full bg-zinc-800 rounded-full h-3 border border-zinc-700 mb-1">
-                            <div class="health-bar bg-rose-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
+                        <div class="relative w-full bg-slate-800 rounded-full h-3 border-2 border-slate-700 mb-1">
+                            <div class="health-bar bg-pink-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
                             <div class="absolute inset-0 flex items-center justify-center">
                                 <span id="health-text-2" class="text-white font-bold" style="font-size: 0.6rem; line-height: 1;">10/10</span>
                             </div>
@@ -277,8 +299,8 @@
                     </div>
                     <!-- Enemy 3 Info -->
                     <div id="enemy-info-3" class="text-center w-24">
-                        <div class="relative w-full bg-zinc-800 rounded-full h-3 border border-zinc-700 mb-1">
-                            <div class="health-bar bg-rose-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
+                        <div class="relative w-full bg-slate-800 rounded-full h-3 border-2 border-slate-700 mb-1">
+                            <div class="health-bar bg-pink-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
                             <div class="absolute inset-0 flex items-center justify-center">
                                 <span id="health-text-3" class="text-white font-bold" style="font-size: 0.6rem; line-height: 1;">10/10</span>
                             </div>
@@ -288,7 +310,8 @@
                     </div>
                 </div>
             </div>
-            <div id="wave-counter" class="absolute bottom-2 left-4 text-cyan-400 text-sm font-medium">Wave <span id="wave-number">1</span> (<span id="spin-counter" class="text-rose-400">5</span>)</div>
+            <!-- UPDATED: Brighter text colors -->
+            <div id="wave-counter" class="absolute bottom-2 left-4 text-sky-400 text-sm font-medium">Wave <span id="wave-number">1</span> (<span id="spin-counter" class="text-pink-400">5</span>)</div>
             <!-- Player Status Effects -->
             <div id="player-status-effects" class="absolute bottom-2 right-4 flex flex-nowrap justify-end items-center gap-0.5 text-lg" style="min-width: 120px;">
                 <span id="player-status-poison" style="display: none;">☠️</span>
@@ -303,39 +326,45 @@
             <div id="skull-meter-modal" class="hidden absolute inset-x-4 top-1/3 flex flex-col items-center text-white z-20 gap-8">
                 <h2 class="text-2xl font-bold text-center">Make a choice.</h2>
                 <div class="w-full flex flex-col gap-4">
-                    <button id="choice-hp" class="w-full py-3 bg-rose-600 hover:bg-rose-500 rounded-lg font-bold border border-rose-500/50 shadow-md shadow-black/30 active:scale-95 transition-all text-lg">+1 Max HP</button>
-                    <button id="choice-luck" class="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-white rounded-lg font-bold border border-emerald-400/50 shadow-md shadow-black/30 active:scale-95 transition-all text-lg">+5% Luck</button>
+                    <!-- UPDATED: Brighter, more vibrant choice buttons -->
+                    <button id="choice-hp" class="w-full py-3 bg-pink-600 hover:bg-pink-500 rounded-lg font-bold border border-pink-500/50 shadow-lg shadow-black/30 active:scale-95 transition-all text-lg">+1 Max HP</button>
+                    <button id="choice-luck" class="w-full py-3 bg-teal-500 hover:bg-teal-400 text-white rounded-lg font-bold border border-teal-400/50 shadow-lg shadow-black/30 active:scale-95 transition-all text-lg">+5% Luck</button>
                 </div>
             </div>
         </div>
 
         <!-- Controls Area -->
-        <div id="controls-area" class="h-[35%] bg-zinc-900 border-t border-zinc-800 relative">
+        <!-- UPDATED: Background swapped from solid to a gradient that matches the top bar -->
+        <div id="controls-area" class="h-[35%] border-t-2 border-slate-800 relative bg-gradient-to-t from-slate-900 to-indigo-950">
             <!-- Button Grid Container -->
             <div id="button-grid" class="p-6 h-full">
                 <div class="grid grid-cols-3 grid-rows-2 gap-4 h-full items-center">
-                    <button data-modal-target="items-modal-wrapper" class="h-16 bg-zinc-800 text-white font-bold rounded-xl border border-zinc-700 hover:bg-zinc-700 active:scale-95 transition-all duration-100 text-4xl">🏪</button>
-                    <button id="spin-button" class="bg-blue-600 text-white font-bold rounded-full aspect-square border-none shadow-lg shadow-blue-600/30 hover:bg-blue-500 active:scale-95 transition-all duration-100 flex items-center justify-center text-xl">Spin</button>
-                    <button data-modal-target="map-modal-wrapper" class="h-16 bg-zinc-800 text-white font-bold rounded-xl border border-zinc-700 hover:bg-zinc-700 active:scale-95 transition-all duration-100 text-4xl">🌙</button>
-                    <button data-modal-target="equip-modal-wrapper" class="h-16 bg-zinc-800 text-white font-bold rounded-xl border border-zinc-700 hover:bg-zinc-700 active:scale-95 transition-all duration-100 text-4xl">🔮</button>
-                    <button data-modal-target="quests-modal-wrapper" class="h-16 bg-zinc-800 text-white font-bold rounded-xl border border-zinc-700 hover:bg-zinc-700 active:scale-95 transition-all duration-100 text-4xl">✨</button>
-                    <button data-modal-target="system-modal-wrapper" class="h-16 bg-zinc-800 text-white font-bold rounded-xl border border-zinc-700 hover:bg-zinc-700 active:scale-95 transition-all duration-100 text-4xl">⚔️</button>
+                    <!-- ENTIRE GRID RE-ORDERED -->
+                    <button data-modal-target="items-modal-wrapper" class="h-16 bg-orange-600 text-white font-bold rounded-xl border-2 border-orange-500/50 hover:bg-orange-500 active:scale-95 transition-all duration-100 text-4xl shadow-lg shadow-black/30">🏪</button>
+                    <!-- MOVED: Magic button (Spells) is now in the top-center position -->
+                    <button data-modal-target="quests-modal-wrapper" class="h-16 bg-rose-600 text-white font-bold rounded-xl border-2 border-rose-500/50 hover:bg-rose-500 active:scale-95 transition-all duration-100 text-4xl shadow-lg shadow-black/30">✨</button>
+                    <button data-modal-target="map-modal-wrapper" class="h-16 bg-sky-600 text-white font-bold rounded-xl border-2 border-sky-500/50 hover:bg-sky-500 active:scale-95 transition-all duration-100 text-4xl shadow-lg shadow-black/30">🌙</button>
+                    <button data-modal-target="equip-modal-wrapper" class="h-16 bg-indigo-600 text-white font-bold rounded-xl border-2 border-indigo-500/50 hover:bg-indigo-500 active:scale-95 transition-all duration-100 text-4xl shadow-lg shadow-black/30">🔮</button>
+                    <!-- MOVED: Spin button is now in the bottom-center position -->
+                    <button id="spin-button" class="bg-gradient-to-br from-pink-500 to-violet-600 text-white font-bold rounded-full aspect-square border-2 border-violet-400/50 shadow-lg shadow-violet-500/40 hover:from-pink-400 hover:to-violet-500 active:scale-95 transition-all duration-100 flex items-center justify-center text-xl animate-pulse-spin">Spin</button>
+                    <button data-modal-target="system-modal-wrapper" class="h-16 bg-cyan-600 text-white font-bold rounded-xl border-2 border-cyan-500/50 hover:bg-cyan-500 active:scale-95 transition-all duration-100 text-4xl shadow-lg shadow-black/30">⚔️</button>
                 </div>
             </div>
             
             <!-- MODALS -->
             <!-- Items Modal -->
             <div id="items-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
-                <div class="h-full w-full bg-zinc-900 flex flex-col">
+                <!-- UPDATED: Themed with the new orange color -->
+                <div class="h-full w-full bg-orange-900 flex flex-col">
                     <!-- Item Info Area -->
                     <div class="h-1/2 w-full flex flex-col items-center justify-center text-center text-white p-4 relative">
                         <div class="flex items-center justify-center gap-2 mb-2">
                             <h3 id="item-title" class="text-xl font-bold text-shadow-lg"></h3>
-                            <span id="item-owned" class="bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-md">x0</span>
+                            <span id="item-owned" class="bg-sky-500 text-white text-xs font-bold px-2 py-1 rounded-md">x0</span>
                         </div>
-                        <p id="item-description" class="text-sm text-zinc-400"></p>
-                        <button id="buy-item-btn" class="absolute top-4 right-4 bg-green-500 text-white font-bold w-auto h-12 px-3 flex items-center justify-center gap-1.5 rounded-md border border-green-400/50 shadow-md shadow-black/30 active:scale-95 transition-all text-lg">
-                            <!-- Content is now set by JS -->
+                        <p id="item-description" class="text-sm text-orange-200/80"></p>
+                        <button id="buy-item-btn" class="absolute top-4 right-4 bg-green-500 text-white font-bold w-auto h-12 px-3 flex items-center justify-center gap-1.5 rounded-md border-2 border-green-400/50 shadow-md shadow-black/30 active:scale-95 transition-all text-lg">
+                            <!-- Content is set by JS -->
                         </button>
                     </div>
                     <!-- Carousel Area -->
@@ -350,20 +379,21 @@
                         </div>
                     </div>
                 </div>
-                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-zinc-900 text-white text-3xl font-bold rounded-full border border-zinc-700 flex items-center justify-center active:bg-zinc-800 transition-colors">&times;</button>
+                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-orange-900 text-white text-3xl font-bold rounded-full border-2 border-orange-700 flex items-center justify-center active:bg-orange-800 transition-colors">&times;</button>
             </div>
 
             <!-- Map Modal -->
             <div id="map-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
-                <div class="h-full w-full bg-zinc-900 flex flex-col">
+                <!-- UPDATED: Themed with the new sky color -->
+                <div class="h-full w-full bg-sky-900 flex flex-col">
                      <!-- Item Info Area -->
                     <div class="h-1/2 w-full flex flex-col items-center justify-center text-center text-white p-4 relative">
                         <div class="flex items-center justify-center gap-2 mb-2">
                             <h3 id="map-item-title" class="text-xl font-bold text-shadow-lg"></h3>
-                            <span id="map-item-owned" class="bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-md">x0</span>
+                            <span id="map-item-owned" class="bg-violet-500 text-white text-xs font-bold px-2 py-1 rounded-md">x0</span>
                         </div>
-                        <p id="map-item-description" class="text-sm text-zinc-400"></p>
-                        <button id="buy-map-item-btn" class="absolute top-4 right-4 bg-zinc-800 text-white font-bold w-auto h-12 px-4 flex items-center justify-center rounded-md border border-zinc-700 shadow-md shadow-black/30 active:scale-95 transition-all text-lg">
+                        <p id="map-item-description" class="text-sm text-sky-200/80"></p>
+                        <button id="buy-map-item-btn" class="absolute top-4 right-4 bg-slate-800 text-white font-bold w-auto h-12 px-4 flex items-center justify-center rounded-md border-2 border-slate-700 shadow-md shadow-black/30 active:scale-95 transition-all text-lg">
                             0🌙
                         </button>
                     </div>
@@ -379,12 +409,13 @@
                         </div>
                     </div>
                 </div>
-                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-zinc-900 text-white text-3xl font-bold rounded-full border border-zinc-700 flex items-center justify-center active:bg-zinc-800 transition-colors">&times;</button>
+                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-sky-900 text-white text-3xl font-bold rounded-full border-2 border-sky-700 flex items-center justify-center active:bg-sky-800 transition-colors">&times;</button>
             </div>
 
             <!-- Fortunes Modal (Previously Magic) -->
             <div id="equip-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
-                <div class="h-full w-full bg-zinc-900 p-4 text-white flex flex-col justify-center">
+                <!-- UPDATED: Themed with the new indigo color -->
+                <div class="h-full w-full bg-indigo-900 p-4 text-white flex flex-col justify-center">
                     <h2 id="fortune-modal-title" class="text-xl font-bold mb-4 text-center">Choose a Sacrifice</h2>
             
                     <!-- Sacrifices Container -->
@@ -397,17 +428,19 @@
                          <!-- JS will inject 3 random fortunes here -->
                     </div>
                 </div>
-                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-zinc-900 text-white text-3xl font-bold rounded-full border border-zinc-700 flex items-center justify-center active:bg-zinc-800 transition-colors">&times;</button>
+                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-indigo-900 text-white text-3xl font-bold rounded-full border-2 border-indigo-700 flex items-center justify-center active:bg-indigo-800 transition-colors">&times;</button>
             </div>
 
             <!-- Spells Modal -->
             <div id="quests-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
-                <div class="h-full w-full bg-zinc-900 p-4 text-white flex flex-col justify-around">
+                <!-- UPDATED: Themed with the new rose color -->
+                <div class="h-full w-full bg-rose-900 p-4 text-white flex flex-col justify-around">
                     <!-- Magic Meter -->
                     <div class="flex items-center gap-2 px-4">
                         <span class="text-2xl w-10 text-center">✨</span>
-                        <div class="relative w-full bg-zinc-800 rounded-full h-4 border border-zinc-700">
-                            <div id="magic-bar" class="bg-gradient-to-r from-purple-500 to-indigo-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
+                        <!-- UPDATED: Refreshed meter style -->
+                        <div class="relative w-full bg-slate-800 rounded-full h-4 border-2 border-slate-700">
+                            <div id="magic-bar" class="bg-gradient-to-r from-fuchsia-500 to-pink-500 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
                             <div class="absolute inset-0 flex items-center justify-center">
                                 <span id="magic-text" class="text-xs font-bold text-white">10/10</span>
                             </div>
@@ -415,47 +448,49 @@
                     </div>
                     <div class="flex justify-around items-start text-center">
                         <!-- Spell 1: Flameheart -->
-                        <button data-spell="flameheart" class="w-1/3 flex flex-col items-center gap-1 transition-transform active:scale-95 p-2 rounded-lg hover:bg-white/5">
+                        <button data-spell="flameheart" class="w-1/3 flex flex-col items-center gap-1 transition-transform active:scale-95 p-2 rounded-lg hover:bg-white/10">
                             <div class="text-6xl">❤️‍🔥</div>
                             <h3 class="font-bold text-base">Flameheart</h3>
-                            <p class="text-[11px] text-zinc-400">Deal 5 damage and heal 5 HP.</p>
+                            <p class="text-[11px] text-rose-200/80">Deal 5 damage and heal 5 HP.</p>
                         </button>
                         <!-- Spell 2: Frostbite -->
-                        <button data-spell="frostbite" class="w-1/3 flex flex-col items-center gap-1 transition-transform active:scale-95 p-2 rounded-lg hover:bg-white/5">
+                        <button data-spell="frostbite" class="w-1/3 flex flex-col items-center gap-1 transition-transform active:scale-95 p-2 rounded-lg hover:bg-white/10">
                             <div class="text-6xl">❄️</div>
                             <h3 class="font-bold text-base">Frostbite</h3>
-                            <p class="text-[11px] text-zinc-400">Deal 5 damage & inflict 🐌 Sluggish.</p>
+                            <p class="text-[11px] text-rose-200/80">Deal 5 damage & inflict 🐌 Sluggish.</p>
                         </button>
                         <!-- Spell 3: Armorheart -->
-                        <button data-spell="armorheart" class="w-1/3 flex flex-col items-center gap-1 transition-transform active:scale-95 p-2 rounded-lg hover:bg-white/5">
+                        <button data-spell="armorheart" class="w-1/3 flex flex-col items-center gap-1 transition-transform active:scale-95 p-2 rounded-lg hover:bg-white/10">
                             <div class="text-6xl">🩶</div>
                             <h3 class="font-bold text-base">Armorheart</h3>
-                            <p class="text-[11px] text-zinc-400">Add current health to armor.</p>
+                            <p class="text-[11px] text-rose-200/80">Add current health to armor.</p>
                         </button>
                     </div>
                 </div>
-                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-zinc-900 text-white text-3xl font-bold rounded-full border border-zinc-700 flex items-center justify-center active:bg-zinc-800 transition-colors">&times;</button>
+                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-rose-900 text-white text-3xl font-bold rounded-full border-2 border-rose-700 flex items-center justify-center active:bg-rose-800 transition-colors">&times;</button>
             </div>
 
             <!-- Equipment Modal -->
             <div id="system-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
-                <div class="h-full w-full bg-zinc-900 p-4 text-white flex flex-col text-center">
+                <!-- UPDATED: Themed with the new cyan color -->
+                <div class="h-full w-full bg-cyan-900 p-4 text-white flex flex-col text-center">
                     
                     <div class="flex-grow flex flex-col justify-around">
     
                         <!-- Equipment Slots -->
                         <div class="grid grid-cols-3 gap-4 items-center">
+                            <!-- UPDATED: Brighter focus states for clarity -->
                             <button data-target="weapon-choices" class="equip-slot-btn focus:outline-none transition-all group p-2 rounded-lg focus:bg-white/10">
                                 <div class="text-5xl group-focus:scale-110 transition-transform truncate">⚔️</div>
-                                <div class="font-bold group-focus:text-yellow-400 transition-colors text-sm truncate">Weapon</div>
+                                <div class="font-bold group-focus:text-yellow-300 transition-colors text-sm truncate">Weapon</div>
                             </button>
                             <button data-target="armor-choices" class="equip-slot-btn focus:outline-none transition-all group p-2 rounded-lg focus:bg-white/10">
                                 <div class="text-5xl group-focus:scale-110 transition-transform truncate">🛡️</div>
-                                <div class="font-bold group-focus:text-yellow-400 transition-colors text-sm truncate">Armor</div>
+                                <div class="font-bold group-focus:text-yellow-300 transition-colors text-sm truncate">Armor</div>
                             </button>
                             <button data-target="ring-choices" class="equip-slot-btn focus:outline-none transition-all group p-2 rounded-lg focus:bg-white/10">
                                 <div class="text-5xl group-focus:scale-110 transition-transform truncate">💍</div>
-                                <div class="font-bold group-focus:text-yellow-400 transition-colors text-sm truncate">Ring</div>
+                                <div class="font-bold group-focus:text-yellow-300 transition-colors text-sm truncate">Ring</div>
                             </button>
                         </div>
     
@@ -463,19 +498,19 @@
                         <div class="relative min-h-[84px]">
                             <!-- Weapon Choices -->
                             <div id="weapon-choices" class="equip-choices flex flex-col space-y-1 hidden">
-                                <button data-emoji="🏹" data-title="Bow" data-stat-type="attack" data-stat-value="1" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-600/50 focus:outline-none transition-colors">🏹 Bow (+1 💥)</button>
-                                <button data-emoji="🗡️" data-title="Dagger" data-stat-type="attack" data-stat-value="2" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-600/50 focus:outline-none transition-colors">🗡️ Dagger (+2 💥)</button>
-                                <button data-emoji="🔨" data-title="Hammer" data-stat-type="attack" data-stat-value="5" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-600/50 focus:outline-none transition-colors">🔨 Hammer (+5 💥)</button>
+                                <button data-emoji="🏹" data-title="Bow" data-stat-type="attack" data-stat-value="1" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-cyan-600/50 focus:outline-none transition-colors">🏹 Bow (+1 💥)</button>
+                                <button data-emoji="🗡️" data-title="Dagger" data-stat-type="attack" data-stat-value="2" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-cyan-600/50 focus:outline-none transition-colors">🗡️ Dagger (+2 💥)</button>
+                                <button data-emoji="🔨" data-title="Hammer" data-stat-type="attack" data-stat-value="5" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-cyan-600/50 focus:outline-none transition-colors">🔨 Hammer (+5 💥)</button>
                             </div>
                             <!-- Armor Choices -->
                             <div id="armor-choices" class="equip-choices flex flex-col space-y-1 hidden">
-                                <button data-emoji="🧥" data-title="Leather Gear" data-stat-type="special" data-stat-value="admirers" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-600/50 focus:outline-none transition-colors">🧥 Leather Gear (Gain Admirers)</button>
-                                <button data-emoji="🪨" data-title="Rock Bracer" data-stat-type="armor" data-stat-value="4" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-600/50 focus:outline-none transition-colors">🪨 Rock Bracer (+4 🛡️)</button>
-                                <button data-emoji="🕸️" data-title="Cloak" data-stat-type="luck" data-stat-value="15" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-600/50 focus:outline-none transition-colors">🕸️ Cloak (+15% 🍀)</button>
+                                <button data-emoji="🧥" data-title="Leather Gear" data-stat-type="special" data-stat-value="admirers" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-cyan-600/50 focus:outline-none transition-colors">🧥 Leather Gear (Gain Admirers)</button>
+                                <button data-emoji="🪨" data-title="Rock Bracer" data-stat-type="armor" data-stat-value="4" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-cyan-600/50 focus:outline-none transition-colors">🪨 Rock Bracer (+4 🛡️)</button>
+                                <button data-emoji="🕸️" data-title="Cloak" data-stat-type="luck" data-stat-value="15" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-cyan-600/50 focus:outline-none transition-colors">🕸️ Cloak (+15% 🍀)</button>
                             </div>
                             <!-- Ring Choices -->
                             <div id="ring-choices" class="equip-choices flex flex-col space-y-1 hidden">
-                                 <button data-emoji="💍" data-title="Eccentric Jewel" data-stat-type="none" data-stat-value="0" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-600/50 focus:outline-none transition-colors">💍 Eccentric Jewel</button>
+                                 <button data-emoji="💍" data-title="Eccentric Jewel" data-stat-type="none" data-stat-value="0" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-cyan-600/50 focus:outline-none transition-colors">💍 Eccentric Jewel</button>
                                  <button id="ring-slot-2" class="w-full text-center py-1 px-2 bg-black/20 rounded-lg opacity-50 cursor-not-allowed">-</button>
                                  <button class="w-full text-center py-1 px-2 bg-black/20 rounded-lg opacity-50 cursor-not-allowed">-</button>
                             </div>
@@ -483,7 +518,7 @@
                     </div>
     
                 </div>
-                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-zinc-900 text-white text-3xl font-bold rounded-full border border-zinc-700 flex items-center justify-center active:bg-zinc-800 transition-colors">&times;</button>
+                <button class="close-modal-btn absolute left-1/2 -translate-x-1/2 -top-20 w-14 h-14 bg-cyan-900 text-white text-3xl font-bold rounded-full border-2 border-cyan-700 flex items-center justify-center active:bg-cyan-800 transition-colors">&times;</button>
             </div>
 
             
@@ -491,31 +526,34 @@
 
         <!-- Tutorial Modal -->
         <div id="tutorial-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-[60] p-4">
-            <div class="h-full w-full bg-zinc-900 rounded-lg border border-zinc-700 flex flex-col items-center justify-center text-white relative">
+            <!-- UPDATED: Background and border colors -->
+            <div class="h-full w-full bg-sky-950 rounded-lg border-2 border-sky-800 flex flex-col items-center justify-center text-white relative">
                 <h2 class="text-3xl font-bold mb-4">How to Play</h2>
                 <!-- Tutorial content will go here -->
                 <div class="p-4 text-center">
                     <h3 class="font-bold text-xl mb-2 text-yellow-300">Notes</h3>
-                    <p class="text-base text-zinc-300">Enemies are either animal-like or human-like.</p>
+                    <p class="text-base text-slate-300">Enemies are either animal-like or human-like.</p>
                 </div>
-                 <button id="tutorial-close-btn" class="absolute top-4 right-4 text-zinc-400 hover:text-white text-4xl font-bold transition-colors">&times;</button>
+                 <button id="tutorial-close-btn" class="absolute top-4 right-4 text-slate-400 hover:text-white text-4xl font-bold transition-colors">&times;</button>
             </div>
         </div>
 
         <!-- Character Modal (Previously World Map) -->
         <div id="world-map-modal-wrapper" class="modal-wrapper hidden absolute inset-0 z-50">
-            <div class="h-full w-full flex flex-col text-white bg-zinc-900">
+            <!-- UPDATED: Background changed to match main theme -->
+            <div class="h-full w-full flex flex-col text-white bg-slate-950">
                 <!-- Character section with stats -->
-                <div class="h-1/2 w-full p-4 relative flex flex-col justify-center">
+                <!-- UPDATED: Gradient updated to match new theme -->
+                <div class="h-1/2 w-full bg-gradient-to-b from-slate-900 to-teal-950 p-4 relative flex flex-col justify-center">
                     <div class="space-y-4 text-lg">
                         <!-- Luck Stat -->
                         <div class="flex items-center gap-2">
-                            <span class="font-bold text-emerald-400 w-28">Luck:</span>
+                            <span class="font-bold text-teal-400 w-28">Luck:</span>
                             <span id="player-luck-stat" class="font-medium">🍀 0%</span>
                         </div>
                         <!-- Record Wave -->
                         <div class="flex items-center gap-2">
-                            <span class="font-bold text-cyan-400 w-28">Wave Record:</span>
+                            <span class="font-bold text-sky-400 w-28">Wave Record:</span>
                             <span class="font-medium">0</span>
                         </div>
                         <!-- Unlocks -->
@@ -529,22 +567,25 @@
                             </div>
                         </div>
                     </div>
-                    <button id="tutorial-open-btn" class="absolute bottom-4 right-4 text-3xl bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-95">❔</button>
+                    <!-- UPDATED: Button colors -->
+                    <button id="tutorial-open-btn" class="absolute bottom-4 right-4 text-3xl bg-slate-800 border-2 border-slate-700 hover:bg-slate-700 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-95">❔</button>
                 </div>
-                 <!-- UPDATED: Redesigned fortunes section -->
-                 <div class="h-1/2 w-full border-t border-zinc-800 flex flex-col justify-start items-center text-center p-4">
+                 <!-- Redesigned fortunes section -->
+                 <!-- UPDATED: Gradient and borders updated to match new theme -->
+                 <div class="h-1/2 w-full border-t-2 border-purple-800/50 bg-gradient-to-b from-slate-900 to-purple-950 flex flex-col justify-start items-center text-center p-4">
                     <h3 class="text-xl font-bold mb-4 text-purple-400">Collected Fortunes</h3>
                     <div id="collected-fortunes-container" class="grid grid-cols-3 gap-2 w-full">
                         <!-- JS will populate this with fortune slots -->
                     </div>
                 </div>
             </div>
-            <button class="close-modal-btn absolute top-4 right-6 text-zinc-400 hover:text-white text-5xl font-bold transition-colors">&times;</button>
+            <button class="close-modal-btn absolute top-4 right-6 text-slate-400 hover:text-white text-5xl font-bold transition-colors">&times;</button>
         </div>
 
         <!-- REWARD MODAL -->
         <div id="reward-modal" class="hidden absolute inset-0 bg-black/70 z-50 flex items-center justify-center p-8 backdrop-blur-sm">
-            <div id="reward-container" class="bg-zinc-900 border border-yellow-400/50 rounded-2xl shadow-2xl shadow-black/50 p-6 w-full max-w-xs text-center text-white flex flex-col items-center gap-4">
+            <!-- UPDATED: Refreshed reward modal styling -->
+            <div id="reward-container" class="bg-slate-800 border-2 border-yellow-400/50 rounded-2xl shadow-2xl shadow-black/50 p-6 w-full max-w-xs text-center text-white flex flex-col items-center gap-4">
                 <h2 class="text-2xl font-bold text-yellow-300">You got a reward!</h2>
                 <div id="reward-display" class="text-7xl h-24 w-24 flex items-center justify-center overflow-hidden">
                     <span>❔</span>
@@ -991,17 +1032,17 @@
                         if (selectedItemData.purchased) {
                             buyItemBtn.innerHTML = `<span>Owned</span>`;
                             buyItemBtn.disabled = true;
-                            buyItemBtn.classList.add('opacity-50', 'bg-zinc-700', 'cursor-not-allowed', 'border-transparent');
+                            buyItemBtn.classList.add('opacity-50', 'bg-slate-700', 'cursor-not-allowed', 'border-transparent');
                             buyItemBtn.classList.remove('bg-green-500');
                         } else {
                             buyItemBtn.innerHTML = `<span>${currentCost}</span><span class="opacity-75">🪙</span>`;
                             if (player.gold >= currentCost) {
                                 buyItemBtn.disabled = false;
-                                buyItemBtn.classList.remove('opacity-50', 'bg-zinc-700', 'cursor-not-allowed', 'border-transparent');
+                                buyItemBtn.classList.remove('opacity-50', 'bg-slate-700', 'cursor-not-allowed', 'border-transparent');
                                 buyItemBtn.classList.add('bg-green-500');
                             } else {
                                 buyItemBtn.disabled = true;
-                                buyItemBtn.classList.add('opacity-50', 'bg-zinc-700', 'cursor-not-allowed', 'border-transparent');
+                                buyItemBtn.classList.add('opacity-50', 'bg-slate-700', 'cursor-not-allowed', 'border-transparent');
                                 buyItemBtn.classList.remove('bg-green-500');
                             }
                         }
@@ -1423,7 +1464,7 @@
                     let bgColorClass = '';
                     
                     switch (fortune.color) {
-                        case 'blue': bgColorClass = 'bg-blue-600/20 hover:bg-blue-600/40'; break;
+                        case 'blue': bgColorClass = 'bg-sky-600/20 hover:bg-sky-600/40'; break;
                         case 'yellow': bgColorClass = 'bg-yellow-500/20 hover:bg-yellow-500/40'; break;
                         case 'pink': bgColorClass = 'bg-pink-600/20 hover:bg-pink-600/40'; break;
                     }
@@ -1438,7 +1479,7 @@
                     fortuneEl.innerHTML = `
                         ${rareHTML}
                         <h3 class="font-bold text-sm text-center">${fortune.title}</h3>
-                        <p class="text-[11px] text-zinc-400 text-center">${fortune.description}</p>
+                        <p class="text-[11px] text-slate-400 text-center">${fortune.description}</p>
                     `;
                     fortuneEl.onclick = () => {
                         acquireFortune(fortune); // FORTUNE: Use the helper function
@@ -1459,12 +1500,12 @@
                 
                 randomSacrifices.forEach((sacrifice, index) => {
                     const sacrificeEl = document.createElement('button');
-                    sacrificeEl.className = 'w-1/3 flex flex-col items-center gap-1 transition-transform active:scale-95 animate-fade-in p-2 rounded-lg hover:bg-white/5';
+                    sacrificeEl.className = 'w-1/3 flex flex-col items-center gap-1 transition-transform active:scale-95 animate-fade-in p-2 rounded-lg hover:bg-white/10';
                     sacrificeEl.style.animationDelay = `${index * 250}ms`;
                     sacrificeEl.innerHTML = `
                         <div class="text-5xl">${sacrifice.emoji}</div>
                         <h3 class="font-bold text-sm">${sacrifice.title}</h3>
-                        <p class="text-[11px] text-zinc-400">${sacrifice.description}</p>
+                        <p class="text-[11px] text-slate-400">${sacrifice.description}</p>
                     `;
                     sacrificeEl.onclick = () => {
                         console.log('Sacrifice selected:', sacrifice.title);
@@ -1508,20 +1549,20 @@
                         const sacrifice = collection.sacrifice;
                         let borderColorClass = 'border-purple-700/50';
                         switch (fortune.color) {
-                            case 'blue': borderColorClass = 'border-blue-500/50'; break;
-                            case 'yellow': borderColorClass = 'border-yellow-500/50'; break;
+                            case 'blue': borderColorClass = 'border-sky-500/50'; break;
+                            case 'yellow': borderColorClass = 'border-yellow-400/50'; break;
                             case 'pink': borderColorClass = 'border-pink-500/50'; break;
                         }
             
-                        slotEl.className = `relative h-20 bg-black/30 rounded-lg flex flex-col items-center justify-center text-center p-1 border ${borderColorClass} shadow-inner`;
+                        slotEl.className = `relative h-20 bg-black/30 rounded-lg flex flex-col items-center justify-center text-center p-1 border-2 ${borderColorClass} shadow-inner shadow-black/40`;
                         slotEl.innerHTML = `
                             <span class="font-bold text-[11px] leading-tight">${fortune.title}</span>
-                            <span class="text-[10px] text-zinc-400 leading-tight mt-1">${sacrifice.title}</span>
+                            <span class="text-[10px] text-slate-400 leading-tight mt-1">${sacrifice.title}</span>
                         `;
             
                     } else {
-                        slotEl.className = 'h-20 bg-black/30 rounded-lg flex items-center justify-center text-center p-1 border border-dashed border-zinc-700';
-                        slotEl.innerHTML = `<span class="text-3xl text-zinc-700/50">?</span>`;
+                        slotEl.className = 'h-20 bg-black/30 rounded-lg flex items-center justify-center text-center p-1 border-2 border-dashed border-slate-700';
+                        slotEl.innerHTML = `<span class="text-3xl text-slate-700/50">?</span>`;
                     }
                     collectedFortunesContainer.appendChild(slotEl);
                 }
@@ -1662,7 +1703,7 @@
                         // Create and display the claim button
                         const claimButton = document.createElement('button');
                         claimButton.id = 'claim-reward-btn';
-                        claimButton.className = 'w-full py-2 bg-green-500 rounded-lg font-bold border border-green-400/50 shadow-md shadow-black/30 active:scale-95 transition-all';
+                        claimButton.className = 'w-full py-2 bg-green-500 rounded-lg font-bold border-2 border-green-400/50 shadow-md shadow-black/30 active:scale-95 transition-all';
                         claimButton.textContent = 'Claim';
                         rewardAction.appendChild(claimButton);
 
@@ -2290,7 +2331,7 @@
                 newRingButton.dataset.title = "Infinity Ring";
                 newRingButton.dataset.statType = "none";
                 newRingButton.dataset.statValue = "0";
-                newRingButton.className = "w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-blue-600/50 focus:outline-none transition-colors";
+                newRingButton.className = "w-full text-center py-1 px-2 bg-black/20 rounded-lg focus:bg-cyan-600/50 focus:outline-none transition-colors";
                 newRingButton.innerHTML = `♾️ Infinity Ring (+2 Spins)`;
                 
                 newRingButton.addEventListener('click', handleEquipChoice);
@@ -2356,3 +2397,4 @@
     </script>
 </body>
 </html>
+
