@@ -196,6 +196,7 @@
 
             const fruits = ['🍓', '🍎', '🍊', '🍋', '🍌', '🍉', '🍇', '🍒', '🍍', '🍑'];
             const vegetables = ['🥕', '🥦', '🌽', '🥒', '🌶️', '🍅', '🍆', '🥑', '🥬', '🧅'];
+            const symbols = ['💠', '🌀', '🔰', '🔱', '💮', '⚜️', '🔅', '🔆', '⭕️', '♨️', '📛', '💢', '❗️', '❓', '❕', '❔', '⚫️', '⚪️', '🔴', '🔵', '🔶', '🔷', '🔸', '🔹', '🔺', '🔻', '🔚', '🔙', '🔛', '🔜', '🔝'];
             
             // Game state variables
             let timeLeft = 60;
@@ -324,15 +325,17 @@
             }
 
             /**
-             * Populates the travel route with numbers from 100 down to 0.
+             * Populates the travel route with 101 random symbol emojis.
              */
             function populateRoute() {
-                // Loop backwards to place 100 at the top and 0 at the bottom
-                for (let i = 100; i >= 0; i--) {
-                    const numberEl = document.createElement('div');
-                    numberEl.textContent = i;
-                    numberEl.classList.add('text-lg', 'py-10'); // Added more padding for a longer scroll
-                    routeContent.appendChild(numberEl);
+                // Loop 101 times to create the route
+                for (let i = 0; i <= 100; i++) {
+                    const emojiEl = document.createElement('div');
+                    const randomEmoji = symbols[Math.floor(Math.random() * symbols.length)];
+                    emojiEl.textContent = randomEmoji;
+                    // Larger font size for emojis and maintain padding for a long scroll
+                    emojiEl.classList.add('text-3xl', 'py-10');
+                    routeContent.appendChild(emojiEl);
                 }
             }
             
@@ -381,4 +384,5 @@
 
 </body>
 </html>
+
 
