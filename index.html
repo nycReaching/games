@@ -28,6 +28,25 @@
         .font-anton {
             font-family: 'Anton', sans-serif;
         }
+        
+        /* Utility to hide scrollbars for a cleaner look */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        
+        /* Styles for click-and-drag scrolling */
+        .draggable {
+            cursor: grab;
+            user-select: none; /* Prevents text selection during drag */
+        }
+        .draggable.active {
+            cursor: grabbing;
+        }
+
 
         /* Styles for the moving emojis */
         .emoji {
@@ -73,7 +92,8 @@
 </head>
 <body class="font-sans">
 
-    <div id="game-ui" class="mobile-container flex flex-col h-screen bg-gray-800 text-white">
+    <!-- Screen 1: Market -->
+    <div id="market-screen" class="mobile-container flex flex-col h-screen bg-gray-800 text-white">
 
         <!-- Top Section -->
         <header class="h-32 bg-gray-900 shadow-lg flex-shrink-0 flex items-center justify-center">
@@ -123,34 +143,123 @@
 
     </div>
 
+    <!-- Screen 2: Travel -->
+    <div id="travel-screen" class="mobile-container flex-col h-screen bg-gray-800 text-white hidden">
+        <!-- Top Section -->
+        <header class="h-32 bg-gray-900 shadow-lg flex-shrink-0">
+            <!-- No content here -->
+        </header>
+
+        <!-- Middle Section -->
+        <main class="flex-grow bg-gray-700 flex flex-row overflow-hidden">
+            <!-- Left Column -->
+            <div class="w-1/3 bg-gray-800"></div>
+            <!-- Middle Column (Swipable) -->
+            <div id="scrollable-route" class="w-1/3 bg-gray-700 overflow-y-auto no-scrollbar draggable">
+                <!-- Route content with numbers will be generated here -->
+                <div id="route-content" class="flex flex-col items-center text-gray-400">
+                </div>
+            </div>
+            <!-- Right Column -->
+            <div class="w-1/3 bg-gray-800"></div>
+        </main>
+
+        <!-- Bottom Section -->
+        <footer class="h-36 bg-gray-900 shadow-lg flex-shrink-0 flex items-center justify-between p-6">
+            <!-- Travel Text -->
+            <div class="font-anton text-5xl tracking-widest">TRAVEL</div>
+            <!-- Tappable Button -->
+            <button class="bg-green-600 hover:bg-green-700 active:bg-green-800 text-white text-xl font-bold py-4 px-6 rounded-lg shadow-md transition-transform transform active:scale-95">
+                Action
+            </button>
+        </footer>
+    </div>
+
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Screen elements
+            const marketScreen = document.getElementById('market-screen');
+            const travelScreen = document.getElementById('travel-screen');
+            
+            // Market screen elements
             const fruitConveyor = document.getElementById('fruit-conveyor');
             const vegetableConveyor = document.getElementById('vegetable-conveyor');
             const fruitSquares = document.querySelectorAll('#fruit-grid .grid-square');
             const vegSquares = document.querySelectorAll('#veg-grid .grid-square');
+            const allSquares = document.querySelectorAll('.grid-square');
             const countdownElement = document.getElementById('countdown-timer');
+
+            // Travel screen elements
+            const routeContent = document.getElementById('route-content');
+            const scrollableRoute = document.getElementById('scrollable-route');
 
             const fruits = ['🍓', '🍎', '🍊', '🍋', '🍌', '🍉', '🍇', '🍒', '🍍', '🍑'];
             const vegetables = ['🥕', '🥦', '🌽', '🥒', '🌶️', '🍅', '🍆', '🥑', '🥬', '🧅'];
             
+            // Game state variables
             let timeLeft = 60;
+            let timerInterval;
+            let fruitSpawnInterval;
+            let vegSpawnInterval;
+            let gameEnded = false;
+
+            /**
+             * Transitions the game from the Market to the Travel screen.
+             */
+            function endMarketPhase() {
+                if (gameEnded) return; // Prevent this from running multiple times
+                gameEnded = true;
+
+                // Stop all intervals
+                clearInterval(timerInterval);
+                clearInterval(fruitSpawnInterval);
+                clearInterval(vegSpawnInterval);
+
+                // Clear any remaining emojis on the conveyor belts
+                fruitConveyor.innerHTML = '';
+                vegetableConveyor.innerHTML = '';
+                
+                // Hide market screen and show travel screen
+                marketScreen.classList.add('hidden');
+                travelScreen.classList.remove('hidden');
+                travelScreen.classList.add('flex');
+
+                // Start the scroll at the very bottom of the route
+                scrollableRoute.scrollTop = scrollableRoute.scrollHeight;
+            }
 
             /**
              * Starts the countdown timer.
              */
             function startTimer() {
-                const timerInterval = setInterval(() => {
+                timerInterval = setInterval(() => {
                     timeLeft--;
                     countdownElement.textContent = timeLeft;
 
                     if (timeLeft <= 0) {
-                        clearInterval(timerInterval);
                         countdownElement.textContent = "0";
-                        // You can add logic here for when the game ends
+                        endMarketPhase(); // End game when timer hits zero
                     }
                 }, 1000);
             }
+
+            /**
+             * Checks if all grid squares are filled.
+             */
+            function checkAllSquaresFilled() {
+                let filledCount = 0;
+                allSquares.forEach(square => {
+                    if (square.innerText !== '') {
+                        filledCount++;
+                    }
+                });
+
+                if (filledCount === allSquares.length) {
+                    endMarketPhase(); // End game when all squares are full
+                }
+            }
+
 
             /**
              * Handles the logic when a conveyor belt emoji is clicked.
@@ -162,18 +271,17 @@
                 const emojiText = emojiElement.innerText;
 
                 let equipped = false;
-                // Find the first empty square and place the emoji in it.
                 for (const square of squares) {
                     if (square.innerText === '') {
                         square.innerText = emojiText;
                         equipped = true;
-                        break; // Stop after equipping to the first available slot.
+                        break; 
                     }
                 }
 
-                // If the emoji was successfully placed in a square, remove it from the conveyor.
                 if (equipped) {
                     emojiElement.remove();
+                    checkAllSquaresFilled(); // Check if the game should end
                 }
             }
 
@@ -200,12 +308,8 @@
                     emojiEl.style.animationName = 'move-up';
                 }
                 
-                // Add the click listener to handle equipping.
                 emojiEl.addEventListener('click', () => handleEmojiClick(emojiEl, type));
-                
-                emojiEl.addEventListener('animationend', () => {
-                    emojiEl.remove();
-                });
+                emojiEl.addEventListener('animationend', () => emojiEl.remove());
 
                 conveyor.appendChild(emojiEl);
             }
@@ -215,16 +319,66 @@
              */
             function startSpawning() {
                 const spawnInterval = 1200; 
+                fruitSpawnInterval = setInterval(() => createEmoji('fruit'), spawnInterval);
+                vegSpawnInterval = setInterval(() => createEmoji('vegetable'), spawnInterval + 200); // Offset spawn times slightly
+            }
 
-                setInterval(() => createEmoji('fruit'), spawnInterval);
-                setInterval(() => createEmoji('vegetable'), spawnInterval);
+            /**
+             * Populates the travel route with numbers from 100 down to 0.
+             */
+            function populateRoute() {
+                // Loop backwards to place 100 at the top and 0 at the bottom
+                for (let i = 100; i >= 0; i--) {
+                    const numberEl = document.createElement('div');
+                    numberEl.textContent = i;
+                    numberEl.classList.add('text-lg', 'py-10'); // Added more padding for a longer scroll
+                    routeContent.appendChild(numberEl);
+                }
             }
             
+            /**
+             * Adds click-and-drag scrolling for desktop testing.
+             */
+            function setupDesktopScrolling() {
+                let isDown = false;
+                let startY;
+                let scrollTop;
+
+                scrollableRoute.addEventListener('mousedown', (e) => {
+                    isDown = true;
+                    scrollableRoute.classList.add('active');
+                    startY = e.pageY - scrollableRoute.offsetTop;
+                    scrollTop = scrollableRoute.scrollTop;
+                });
+
+                scrollableRoute.addEventListener('mouseleave', () => {
+                    isDown = false;
+                    scrollableRoute.classList.remove('active');
+                });
+
+                scrollableRoute.addEventListener('mouseup', () => {
+                    isDown = false;
+                    scrollableRoute.classList.remove('active');
+                });
+
+                scrollableRoute.addEventListener('mousemove', (e) => {
+                    if (!isDown) return;
+                    e.preventDefault();
+                    const y = e.pageY - scrollableRoute.offsetTop;
+                    const walk = (y - startY) * 2; // The '2' is a scroll multiplier
+                    // Invert the scroll direction for upward progression
+                    scrollableRoute.scrollTop = scrollTop + walk;
+                });
+            }
+
             // Initialize the game
             startTimer();
             startSpawning();
+            populateRoute();
+            setupDesktopScrolling();
         });
     </script>
 
 </body>
 </html>
+
