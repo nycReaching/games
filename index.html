@@ -67,6 +67,7 @@
             font-size: 2.25rem; /* Slightly smaller font for equipped emojis */
             background-color: #4a5568; /* bg-gray-600 */
             border-radius: 0.375rem; /* rounded-md */
+            transition: background-color 0.3s ease;
         }
         
         .grid-square:before {
@@ -203,7 +204,7 @@
         <!-- Middle Section -->
         <main class="flex-grow bg-gray-700 flex flex-row overflow-hidden">
             <!-- Left Column -->
-            <div class="w-1/3 bg-gray-800 flex flex-col items-center justify-center p-4 space-y-4">
+            <div id="sell-column" class="w-1/3 bg-gray-800 flex flex-col items-center justify-center p-4 space-y-4">
                 <h2 class="font-anton text-4xl text-red-400 tracking-widest mb-2">SELL</h2>
                 <div class="w-20 h-20 md:w-24 md:h-24 bg-blue-500 rounded-lg shadow-lg travel-square flex items-center justify-center text-4xl"></div>
                 <div class="w-20 h-20 md:w-24 md:h-24 bg-yellow-400 rounded-lg shadow-lg travel-square flex items-center justify-center text-4xl"></div>
@@ -216,7 +217,7 @@
                 </div>
             </div>
             <!-- Right Column -->
-            <div class="w-1/3 bg-gray-800 flex flex-col items-center justify-center p-4 space-y-4">
+            <div id="keep-column" class="w-1/3 bg-gray-800 flex flex-col items-center justify-center p-4 space-y-4">
                 <h2 class="font-anton text-4xl text-green-400 tracking-widest mb-2">KEEP</h2>
                 <div class="w-20 h-20 md:w-24 md:h-24 bg-blue-500 rounded-lg shadow-lg travel-square flex items-center justify-center text-4xl"></div>
                 <div class="w-20 h-20 md:w-24 md:h-24 bg-yellow-400 rounded-lg shadow-lg travel-square flex items-center justify-center text-4xl"></div>
@@ -244,9 +245,19 @@
         </header>
 
         <!-- Middle Section -->
-        <main class="flex-grow bg-gray-700 flex flex-col items-center justify-center space-y-8">
+        <main class="flex-grow bg-gray-700 flex flex-col items-center justify-center space-y-6">
+            <!-- Gamble Mode Toggle -->
+            <div id="gamble-mode-selector" class="flex items-center justify-center space-x-3 text-sm font-semibold">
+                <span id="one-win-label" class="text-gray-400 transition-colors">ONE 2X WIN</span>
+                <label for="gamble-toggle" class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" value="" id="gamble-toggle" class="sr-only peer" checked>
+                    <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                </label>
+                <span id="unlimited-wins-label" class="text-white transition-colors">UNLIMITED WINS</span>
+            </div>
+            
             <!-- Win Tracker -->
-            <div id="win-tracker" class="font-anton text-5xl text-yellow-300 tracking-wider transition-all duration-300">$0</div>
+            <div id="win-tracker" class="font-anton text-4xl text-yellow-300 tracking-wider transition-all duration-300">$0</div>
             
             <!-- Slot Machine Reels -->
             <div id="reels-container" class="reel-container">
@@ -272,6 +283,67 @@
         </footer>
     </div>
 
+    <!-- Screen 4: Prepare -->
+    <div id="prepare-screen" class="mobile-container flex-col h-screen bg-gray-800 text-white hidden">
+        <!-- Top Section -->
+        <header class="h-32 bg-gray-900 shadow-lg flex-shrink-0 flex items-center justify-center">
+            <div class="font-anton text-6xl tracking-wider">RESULTS</div>
+        </header>
+
+        <!-- Middle Section -->
+        <main class="flex-grow bg-gray-700 p-6 flex flex-col justify-around">
+            <!-- Market Summary -->
+            <div>
+                <h3 class="font-anton text-2xl tracking-wider text-indigo-300 mb-3 text-center">MARKET ITEMS</h3>
+                <div id="market-summary" class="grid grid-cols-4 gap-3 w-max mx-auto">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+            
+            <!-- Divider -->
+            <div class="border-t-2 border-gray-600 my-2"></div>
+
+            <!-- Travel & Gamble Summary Container -->
+            <div>
+                 <h3 class="font-anton text-2xl tracking-wider text-green-300 mb-3 text-center">TRAVEL & GAMBLE</h3>
+                <div class="flex items-center justify-between">
+                    <!-- Travel Summary -->
+                    <div class="space-y-3">
+                         <!-- Sell Row -->
+                        <div class="flex items-center">
+                            <h4 class="font-anton text-xl text-red-400 mr-4 w-14 text-right">SELL</h4>
+                            <div id="sell-summary" class="flex flex-row space-x-2">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                        <!-- Keep Row -->
+                        <div class="flex items-center">
+                            <h4 class="font-anton text-xl text-green-400 mr-4 w-14 text-right">KEEP</h4>
+                            <div id="keep-summary" class="flex flex-row space-x-2">
+                               <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Gamble Summary -->
+                    <div class="text-center pr-4">
+                        <h4 class="font-anton text-xl text-yellow-300 mb-1">WINNINGS</h4>
+                        <div id="gamble-summary" class="font-anton text-5xl text-yellow-300">
+                            $0
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Section -->
+        <footer class="h-36 bg-gray-900 shadow-lg flex-shrink-0 flex items-center justify-between p-6">
+            <div class="font-anton text-5xl tracking-widest">PREPARE</div>
+            <button class="bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white text-xl font-bold py-4 px-6 rounded-lg shadow-md transition-transform transform active:scale-95">
+                Next
+            </button>
+        </footer>
+    </div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -279,6 +351,7 @@
             const marketScreen = document.getElementById('market-screen');
             const travelScreen = document.getElementById('travel-screen');
             const gambleScreen = document.getElementById('gamble-screen');
+            const prepareScreen = document.getElementById('prepare-screen');
             
             // Market screen elements
             const fruitConveyor = document.getElementById('fruit-conveyor');
@@ -292,13 +365,25 @@
             const routeContent = document.getElementById('route-content');
             const scrollableRoute = document.getElementById('scrollable-route');
             const travelCountdownElement = document.getElementById('travel-countdown-timer');
-            const travelSquares = document.querySelectorAll('.travel-square');
-            
+            const sellSquares = document.querySelectorAll('#sell-column .travel-square');
+            const keepSquares = document.querySelectorAll('#keep-column .travel-square');
+            const allTravelSquares = document.querySelectorAll('.travel-square');
+
             // Gamble screen elements
             const gambleCountdownElement = document.getElementById('gamble-countdown-timer');
             const reels = document.querySelectorAll('#reels-container .reel');
             const spinButton = document.getElementById('spin-button');
             const winTracker = document.getElementById('win-tracker');
+            const gambleToggle = document.getElementById('gamble-toggle');
+            const oneWinLabel = document.getElementById('one-win-label');
+            const unlimitedWinsLabel = document.getElementById('unlimited-wins-label');
+
+            // Prepare screen elements
+            const marketSummaryContainer = document.getElementById('market-summary');
+            const sellSummaryContainer = document.getElementById('sell-summary');
+            const keepSummaryContainer = document.getElementById('keep-summary');
+            const gambleSummaryContainer = document.getElementById('gamble-summary');
+
 
             const fruits = ['🍓', '🍎', '🍊', '🍋', '🍌', '🍉', '🍇', '🍒', '🍍', '🍑'];
             const vegetables = ['🥕', '🥦', '🌽', '🥒', '🌶️', '🍅', '🍆', '🥑', '🥬', '🧅'];
@@ -315,7 +400,13 @@
             let fruitSpawnInterval;
             let vegSpawnInterval;
             let currentPhase = 'market';
+            let isUnlimitedWinsMode = true; // Default to unlimited wins
             let totalWinnings = 0;
+            let collectedMarketItems = [];
+            let collectedSellItems = [];
+            let collectedKeepItems = [];
+            let hasWonGamble = false;
+
 
             // Drag-and-drop state
             let isDraggingEmoji = false;
@@ -323,14 +414,66 @@
             let originalDraggedElement = null;
             
             /**
+             * Populates the prepare screen with collected items and winnings.
+             */
+            function populatePrepareScreen() {
+                // Clear previous summary data
+                marketSummaryContainer.innerHTML = '';
+                sellSummaryContainer.innerHTML = '';
+                keepSummaryContainer.innerHTML = '';
+
+                // Helper to create small summary squares
+                const createSmallSquare = (item, sizeClasses) => {
+                    const square = document.createElement('div');
+                    square.className = `${sizeClasses} flex items-center justify-center rounded-md`;
+                    square.textContent = item.emoji;
+                    // Use the captured color, or a default gray if empty/transparent
+                    square.style.backgroundColor = (item.color && item.color !== 'rgba(0, 0, 0, 0)') ? item.color : '#4a5568';
+                    return square;
+                };
+
+                // Populate market items
+                collectedMarketItems.forEach(item => {
+                    const square = createSmallSquare(item, 'w-16 h-16 text-4xl');
+                    marketSummaryContainer.appendChild(square);
+                });
+
+                // Populate sell items
+                collectedSellItems.forEach(item => {
+                    const square = createSmallSquare(item, 'w-12 h-12 text-3xl');
+                    sellSummaryContainer.appendChild(square);
+                });
+
+                // Populate keep items
+                collectedKeepItems.forEach(item => {
+                    const square = createSmallSquare(item, 'w-12 h-12 text-3xl');
+                    keepSummaryContainer.appendChild(square);
+                });
+
+                // Populate gamble winnings
+                gambleSummaryContainer.textContent = `$${totalWinnings}`;
+            }
+
+            /**
              * Ends the gamble phase.
              */
             function endGamblePhase() {
                 if (currentPhase !== 'gamble') return;
-                currentPhase = 'end'; // Game is over
+                currentPhase = 'prepare'; 
+                
                 clearInterval(gambleTimerInterval);
+                gambleTimeLeft = 0;
+                gambleCountdownElement.textContent = "0";
                 spinButton.disabled = true;
+                gambleToggle.disabled = true;
+                
                 console.log("Gamble phase over. Final winnings: $" + totalWinnings);
+                
+                // Transition to Prepare Screen
+                populatePrepareScreen();
+                gambleScreen.classList.add('hidden');
+                prepareScreen.classList.remove('hidden');
+                prepareScreen.classList.add('flex');
             }
 
             /**
@@ -343,7 +486,6 @@
                     gambleCountdownElement.textContent = gambleTimeLeft;
 
                     if (gambleTimeLeft <= 0) {
-                        gambleCountdownElement.textContent = "0";
                         clearInterval(gambleTimerInterval);
                         endGamblePhase();
                     }
@@ -355,8 +497,19 @@
              */
             function endTravelPhase() {
                 if (currentPhase !== 'travel') return;
-                currentPhase = 'gamble';
+                
+                // Store collected travel items
+                collectedSellItems = Array.from(sellSquares).map(sq => ({
+                    emoji: sq.textContent,
+                    color: window.getComputedStyle(sq).backgroundColor
+                }));
+                collectedKeepItems = Array.from(keepSquares).map(sq => ({
+                    emoji: sq.textContent,
+                    color: window.getComputedStyle(sq).backgroundColor
+                }));
 
+
+                currentPhase = 'gamble';
                 clearInterval(travelTimerInterval);
 
                 travelScreen.classList.add('hidden');
@@ -376,13 +529,13 @@
              */
             function checkAllTravelSquaresFilled() {
                 let filledCount = 0;
-                travelSquares.forEach(square => {
+                allTravelSquares.forEach(square => {
                     if (square.innerText.trim() !== '') {
                         filledCount++;
                     }
                 });
 
-                if (filledCount === travelSquares.length) {
+                if (filledCount === allTravelSquares.length) {
                     endTravelPhase();
                 }
             }
@@ -398,7 +551,6 @@
                     travelCountdownElement.textContent = travelTimeLeft;
 
                     if (travelTimeLeft <= 0) {
-                        travelCountdownElement.textContent = "0";
                         clearInterval(travelTimerInterval);
                         endTravelPhase(); // End travel phase when time runs out
                     }
@@ -410,6 +562,13 @@
              */
             function endMarketPhase() {
                 if (currentPhase !== 'market') return;
+                
+                // Store collected market items
+                collectedMarketItems = Array.from(allSquares).map(square => ({
+                    emoji: square.textContent,
+                    color: square.style.backgroundColor
+                }));
+                
                 currentPhase = 'travel';
 
                 // Stop all market-phase intervals
@@ -440,6 +599,18 @@
                 marketTimerInterval = setInterval(() => {
                     marketTimeLeft--;
                     countdownElement.textContent = marketTimeLeft;
+                    
+                    // After 15 seconds (at 45s left), color random squares
+                    if (marketTimeLeft === 45) {
+                        // Turn a random fruit square yellow
+                        const randomFruitSquare = fruitSquares[Math.floor(Math.random() * fruitSquares.length)];
+                        randomFruitSquare.style.backgroundColor = 'rgb(253, 224, 71)'; // Tailwind yellow-300
+
+                        // Turn a random vegetable square pink
+                        const randomVegSquare = vegSquares[Math.floor(Math.random() * vegSquares.length)];
+                        randomVegSquare.style.backgroundColor = 'rgb(236, 72, 153)'; // Tailwind pink-500
+                    }
+
 
                     if (marketTimeLeft <= 0) {
                         countdownElement.textContent = "0";
@@ -559,7 +730,7 @@
                     }, 1000); // Glow lasts for 1 second
                 };
 
-                // Check for wins, from longest to shortest sequence to ensure highest payout
+                // Check for wins, from longest to shortest to ensure highest payout
                 if (finalReels.every(s => s === finalReels[0])) { // 5 of a kind
                     win = 50;
                     winningIndices = [0, 1, 2, 3, 4];
@@ -581,16 +752,37 @@
                 }
 
                 if (win > 0) {
-                    totalWinnings += win;
-                    winTracker.textContent = `$${totalWinnings}`;
-                    applyGlow(winningIndices); // Apply the glow effect to the winning reels
+                    hasWonGamble = true;
+                    gambleToggle.disabled = true; // Lock the toggle after the first win
+                    
+                    if (!isUnlimitedWinsMode) {
+                        // ONE 2X WIN MODE
+                        win = win * 2;
+                        totalWinnings += win;
+                        winTracker.textContent = `$${totalWinnings}`;
+                        applyGlow(winningIndices);
+                        
+                        winTracker.classList.add('scale-125', 'text-green-400');
+                        // End the phase immediately after the win animation
+                        setTimeout(() => {
+                            endGamblePhase(); 
+                        }, 1100); 
 
-                    // Add a visual effect for winning on the tracker text
-                    winTracker.classList.add('scale-125', 'text-green-400');
-                    setTimeout(() => {
-                        winTracker.classList.remove('scale-125', 'text-green-400');
-                    }, 500);
+                    } else {
+                        // UNLIMITED WINS MODE (original logic)
+                        totalWinnings += win;
+                        winTracker.textContent = `$${totalWinnings}`;
+                        applyGlow(winningIndices);
+
+                        winTracker.classList.add('scale-125', 'text-green-400');
+                        setTimeout(() => {
+                            winTracker.classList.remove('scale-125', 'text-green-400');
+                        }, 500);
+                    }
+                    return true; // Indicate a win occurred
                 }
+
+                return false; // No win
             }
 
             /**
@@ -598,6 +790,8 @@
              */
             function spinReels() {
                 spinButton.disabled = true;
+                if (!hasWonGamble) gambleToggle.disabled = true; // Also disable on first spin
+
                 let finalReels = [];
 
                 reels.forEach((reel, index) => {
@@ -616,10 +810,16 @@
 
                         // If this is the last reel to stop, calculate winnings and re-enable button
                         if (index === reels.length - 1) {
-                            calculateWinnings(finalReels);
-                            // Only re-enable if there's time left
-                            if (gambleTimeLeft > 0) {
-                                spinButton.disabled = false;
+                            const hasWon = calculateWinnings(finalReels);
+                            
+                            // Do not re-enable button if game has ended or will end
+                            if (isUnlimitedWinsMode || !hasWon) {
+                                const reenableDelay = hasWon ? 1000 : 0; 
+                                setTimeout(() => {
+                                    if (gambleTimeLeft > 0) {
+                                        spinButton.disabled = false;
+                                    }
+                                }, reenableDelay);
                             }
                         }
                     }, spinDuration);
@@ -653,7 +853,7 @@
                     }
                 });
 
-                travelSquares.forEach(square => {
+                allTravelSquares.forEach(square => {
                     square.addEventListener('dragover', (e) => {
                         e.preventDefault();
                         if (square.innerText.trim() === '') {
@@ -713,7 +913,7 @@
                         const touch = e.touches[0];
                         moveClone(touch.clientX, touch.clientY);
 
-                        travelSquares.forEach(square => {
+                        allTravelSquares.forEach(square => {
                             const rect = square.getBoundingClientRect();
                             if (touch.clientX > rect.left && touch.clientX < rect.right &&
                                 touch.clientY > rect.top && touch.clientY < rect.bottom &&
@@ -732,7 +932,7 @@
                     const touch = e.changedTouches[0];
                     let droppedSuccessfully = false;
 
-                    for (const square of travelSquares) {
+                    for (const square of allTravelSquares) {
                         const rect = square.getBoundingClientRect();
                         if (touch.clientX > rect.left && touch.clientX < rect.right &&
                             touch.clientY > rect.top && touch.clientY < rect.bottom) {
@@ -756,7 +956,7 @@
                     draggedClone = null;
                     originalDraggedElement = null;
                     isDraggingEmoji = false;
-                    travelSquares.forEach(square => square.style.border = 'none');
+                    allTravelSquares.forEach(square => square.style.border = 'none');
                 });
             }
             
@@ -796,6 +996,26 @@
                 });
             }
 
+            /**
+             * Sets up the event listener for the gamble mode toggle switch.
+             */
+            function setupGambleToggle() {
+                gambleToggle.addEventListener('change', () => {
+                    isUnlimitedWinsMode = gambleToggle.checked;
+                    if (isUnlimitedWinsMode) {
+                        unlimitedWinsLabel.classList.remove('text-gray-400');
+                        unlimitedWinsLabel.classList.add('text-white');
+                        oneWinLabel.classList.add('text-gray-400');
+                        oneWinLabel.classList.remove('text-white');
+                    } else {
+                        oneWinLabel.classList.remove('text-gray-400');
+                        oneWinLabel.classList.add('text-white');
+                        unlimitedWinsLabel.classList.add('text-gray-400');
+                        unlimitedWinsLabel.classList.remove('text-white');
+                    }
+                });
+            }
+
             // Initialize the game
             spinButton.addEventListener('click', spinReels);
             startMarketTimer();
@@ -803,11 +1023,10 @@
             populateRoute();
             setupDesktopScrolling();
             setupDragAndDrop();
+            setupGambleToggle();
         });
     </script>
 
 </body>
 </html>
-
-
 
