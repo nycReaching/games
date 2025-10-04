@@ -396,7 +396,8 @@
                         e.dataTransfer.effectAllowed = 'move';
                         // Use a timeout to hide the original element, creating a "gap"
                         setTimeout(() => {
-                            e.target.style.visibility = 'hidden';
+                            // Instead of visibility, make it transparent to hold its space
+                            e.target.style.color = 'transparent';
                         }, 0);
                     }
                 });
@@ -405,7 +406,7 @@
                     if (e.target.classList.contains('route-emoji')) {
                          // Always make the element visible again after drag ends, if it wasn't successfully dropped
                         if (e.dataTransfer.dropEffect === 'none') {
-                           e.target.style.visibility = 'visible';
+                           e.target.style.color = ''; // Reset color
                         }
                         isDraggingEmoji = false;
                     }
@@ -430,11 +431,9 @@
                             const elementId = e.dataTransfer.getData('elementId');
                             const draggedElement = document.getElementById(elementId);
                             if (draggedElement) {
-                                // Instead of removing, clear it to leave a gap.
-                                draggedElement.textContent = '';
+                                // The element's color is already transparent, just make it non-interactive
                                 draggedElement.draggable = false;
                                 draggedElement.classList.remove('route-emoji');
-                                draggedElement.style.visibility = 'visible'; // Make the new empty slot visible
                             }
                         }
                     });
@@ -461,7 +460,7 @@
                         const touch = e.touches[0];
                         moveClone(touch.clientX, touch.clientY);
                         
-                        originalDraggedElement.style.visibility = 'hidden';
+                        originalDraggedElement.style.color = 'transparent';
                     }
                 }, { passive: false }); // Set passive to false to allow preventDefault in touchmove
 
@@ -487,27 +486,32 @@
                     if (!draggedClone) return;
 
                     const touch = e.changedTouches[0];
-                    draggedClone.style.display = 'none';
-                    const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-                    draggedClone.remove(); // Clean up clone immediately
-
                     let droppedSuccessfully = false;
-                    if (dropTarget && dropTarget.classList.contains('travel-square') && dropTarget.innerText === '') {
-                        dropTarget.innerText = originalDraggedElement.innerText;
-                        
-                        // Instead of removing, clear it to leave a gap.
-                        originalDraggedElement.textContent = '';
-                        originalDraggedElement.draggable = false;
-                        originalDraggedElement.classList.remove('route-emoji');
-                        originalDraggedElement.style.visibility = 'visible'; // Make the new empty slot visible
-                        
-                        droppedSuccessfully = true;
+
+                    // Iterate over squares to find a drop target manually
+                    for (const square of travelSquares) {
+                        const rect = square.getBoundingClientRect();
+                        if (touch.clientX > rect.left && touch.clientX < rect.right &&
+                            touch.clientY > rect.top && touch.clientY < rect.bottom) {
+                            
+                            if (square.innerText === '') {
+                                square.innerText = originalDraggedElement.innerText;
+                                // Make original element a permanent, non-interactive gap
+                                originalDraggedElement.draggable = false;
+                                originalDraggedElement.classList.remove('route-emoji');
+                                droppedSuccessfully = true;
+                            }
+                            break; // Stop checking once we find the square under the touch
+                        }
                     }
 
                     if (!droppedSuccessfully) {
-                        originalDraggedElement.style.visibility = 'visible';
+                        // If not dropped, restore the original element's appearance
+                        originalDraggedElement.style.color = '';
                     }
                     
+                    // Cleanup
+                    draggedClone.remove();
                     draggedClone = null;
                     originalDraggedElement = null;
                     isDraggingEmoji = false;
