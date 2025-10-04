@@ -22,38 +22,123 @@
             height: 100vh;   /* Full viewport height */
             margin: 0 auto;   /* Center horizontally */
         }
+
+        /* Styles for the moving emojis */
+        .emoji {
+            position: absolute;
+            font-size: 2.5rem; /* Emojis are a bit larger for visibility */
+            user-select: none; /* Prevents users from accidentally selecting them */
+            text-shadow: 0 0 5px rgba(0,0,0,0.5); /* Adds a subtle shadow for depth */
+            /* New styles for perfect centering */
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Animation keyframes for moving down (fruits) */
+        @keyframes move-down {
+            from { top: -50px; } /* Start just above the screen */
+            to { top: 100%; }   /* End just below the screen */
+        }
+
+        /* Animation keyframes for moving up (vegetables) */
+        @keyframes move-up {
+            from { bottom: -50px; } /* Start just below the screen */
+            to { bottom: 100%; }    /* End just above the screen */
+        }
+
     </style>
 </head>
 <body class="font-sans">
 
-    <!-- 
-        Main container for the game UI.
-        - `mobile-container`: Custom class to constrain width on desktop.
-        - `flex flex-col`: Arranges children (top, middle, bottom) vertically.
-        - `h-screen`: Makes the container take the full height of the screen.
-        - `bg-gray-800`: Sets a base background color for the UI.
-    -->
     <div id="game-ui" class="mobile-container flex flex-col h-screen bg-gray-800 text-white">
 
         <!-- Top Section -->
-        <header class="h-20 bg-gray-900 shadow-lg flex-shrink-0">
+        <header class="h-32 bg-gray-900 shadow-lg flex-shrink-0">
             <!-- Content for the top section (e.g., score, settings) goes here -->
         </header>
 
         <!-- Middle Section (Game Area) -->
         <main class="flex-grow bg-gray-700 relative">
-            <!-- The vertical line down the middle -->
-            <div class="absolute top-0 left-1/2 w-px h-full bg-gray-500 transform -translate-x-1/2"></div>
+            <!-- The vertical divider lines -->
+            <div class="absolute top-0 left-1/3 w-px h-full bg-gray-500 transform -translate-x-1/2 z-10"></div>
+            <div class="absolute top-0 left-1/2 w-px h-full bg-gray-500 transform -translate-x-1/2 z-10"></div>
+            <div class="absolute top-0 left-2/3 w-px h-full bg-gray-500 transform -translate-x-1/2 z-10"></div>
             
-            <!-- Game content will go in this section -->
+            <!-- Conveyor belt containers -->
+            <div id="fruit-conveyor" class="absolute top-0 left-1/3 h-full overflow-hidden" style="width: 16.6667%;"></div>
+            <div id="vegetable-conveyor" class="absolute top-0 left-1/2 h-full overflow-hidden" style="width: 16.6667%;"></div>
         </main>
 
         <!-- Bottom Section -->
-        <footer class="h-24 bg-gray-900 shadow-lg flex-shrink-0">
+        <footer class="h-36 bg-gray-900 shadow-lg flex-shrink-0">
             <!-- Content for the bottom section (e.g., controls, actions) goes here -->
         </footer>
 
     </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const fruitConveyor = document.getElementById('fruit-conveyor');
+            const vegetableConveyor = document.getElementById('vegetable-conveyor');
+
+            const fruits = ['🍓', '🍎', '🍊', '🍋', '🍌', '🍉', '🍇', '🍒', '🍍', '🍑'];
+            const vegetables = ['🥕', '🥦', '🌽', '🥒', '🌶️', '🍅', '🍆', '🥑', '🥬', '🧅'];
+
+            /**
+             * Creates and animates a single emoji on a conveyor belt.
+             * @param {string} type - Either 'fruit' or 'vegetable'.
+             */
+            function createEmoji(type) {
+                const emojiEl = document.createElement('span');
+                emojiEl.classList.add('emoji');
+
+                const conveyor = type === 'fruit' ? fruitConveyor : vegetableConveyor;
+                const emojiArray = type === 'fruit' ? fruits : vegetables;
+                
+                // 1. Pick a random emoji from the correct list.
+                emojiEl.innerText = emojiArray[Math.floor(Math.random() * emojiArray.length)];
+
+                // 2. The horizontal position is now handled by CSS for perfect centering.
+
+                // 3. Set a consistent, slow animation speed.
+                const duration = 10; // All emojis will take 10 seconds to cross the screen.
+                emojiEl.style.animationDuration = `${duration}s`;
+                emojiEl.style.animationTimingFunction = 'linear';
+                
+                // 4. Apply the correct up/down animation.
+                if (type === 'fruit') {
+                    emojiEl.style.animationName = 'move-down';
+                } else {
+                    emojiEl.style.animationName = 'move-up';
+                }
+                
+                // 5. IMPORTANT: Remove the emoji from the page after its animation finishes.
+                emojiEl.addEventListener('animationend', () => {
+                    emojiEl.remove();
+                });
+
+                // 6. Add the new emoji to the conveyor belt.
+                conveyor.appendChild(emojiEl);
+            }
+            
+            // Generate emojis at a fixed interval to create a single file line.
+            function startSpawning() {
+                const spawnInterval = 1200; // Spawn a new item every 1.2 seconds.
+
+                setInterval(() => {
+                    createEmoji('fruit');
+                }, spawnInterval);
+
+                setInterval(() => {
+                    createEmoji('vegetable');
+                }, spawnInterval);
+            }
+            
+            startSpawning();
+        });
+    </script>
+
 </body>
 </html>
+
+
