@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Mobile Game UI</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Import Anton font from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
     <style>
         /* Ensures the layout takes up the full screen height and prevents scrolling */
         html, body {
@@ -13,14 +17,16 @@
             background-color: #1a1a1a; /* Dark background for the whole page */
         }
 
-        /* * This custom class helps constrain the layout on larger screens (like desktop)
-         * to maintain the mobile appearance for consistent playtesting.
-         * It also centers the layout on the page.
-         */
+        /* This custom class helps constrain the layout on larger screens */
         .mobile-container {
             max-width: 480px; /* A common width for mobile design */
             height: 100vh;   /* Full viewport height */
             margin: 0 auto;   /* Center horizontally */
+        }
+        
+        /* Custom class to apply the Anton font */
+        .font-anton {
+            font-family: 'Anton', sans-serif;
         }
 
         /* Styles for the moving emojis */
@@ -70,8 +76,9 @@
     <div id="game-ui" class="mobile-container flex flex-col h-screen bg-gray-800 text-white">
 
         <!-- Top Section -->
-        <header class="h-32 bg-gray-900 shadow-lg flex-shrink-0">
-            <!-- Content for the top section (e.g., score, settings) goes here -->
+        <header class="h-32 bg-gray-900 shadow-lg flex-shrink-0 flex items-center justify-center">
+            <!-- Countdown Timer -->
+            <div id="countdown-timer" class="font-anton text-6xl tracking-wider">60</div>
         </header>
 
         <!-- Middle Section (Game Area) -->
@@ -105,8 +112,13 @@
         </main>
 
         <!-- Bottom Section -->
-        <footer class="h-36 bg-gray-900 shadow-lg flex-shrink-0">
-            <!-- Content for the bottom section (e.g., controls, actions) goes here -->
+        <footer class="h-36 bg-gray-900 shadow-lg flex-shrink-0 flex items-center justify-between p-6">
+            <!-- Market Text -->
+            <div class="font-anton text-5xl tracking-widest">MARKET</div>
+            <!-- Tappable Button -->
+            <button class="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-xl font-bold py-4 px-6 rounded-lg shadow-md transition-transform transform active:scale-95">
+                Action
+            </button>
         </footer>
 
     </div>
@@ -117,9 +129,28 @@
             const vegetableConveyor = document.getElementById('vegetable-conveyor');
             const fruitSquares = document.querySelectorAll('#fruit-grid .grid-square');
             const vegSquares = document.querySelectorAll('#veg-grid .grid-square');
+            const countdownElement = document.getElementById('countdown-timer');
 
             const fruits = ['🍓', '🍎', '🍊', '🍋', '🍌', '🍉', '🍇', '🍒', '🍍', '🍑'];
             const vegetables = ['🥕', '🥦', '🌽', '🥒', '🌶️', '🍅', '🍆', '🥑', '🥬', '🧅'];
+            
+            let timeLeft = 60;
+
+            /**
+             * Starts the countdown timer.
+             */
+            function startTimer() {
+                const timerInterval = setInterval(() => {
+                    timeLeft--;
+                    countdownElement.textContent = timeLeft;
+
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        countdownElement.textContent = "0";
+                        // You can add logic here for when the game ends
+                    }
+                }, 1000);
+            }
 
             /**
              * Handles the logic when a conveyor belt emoji is clicked.
@@ -179,6 +210,9 @@
                 conveyor.appendChild(emojiEl);
             }
             
+            /**
+             * Starts spawning emojis on the conveyor belts.
+             */
             function startSpawning() {
                 const spawnInterval = 1200; 
 
@@ -186,10 +220,11 @@
                 setInterval(() => createEmoji('vegetable'), spawnInterval);
             }
             
+            // Initialize the game
+            startTimer();
             startSpawning();
         });
     </script>
 
 </body>
 </html>
-
