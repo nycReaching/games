@@ -225,7 +225,8 @@
             let vegSpawnInterval;
             let gameEnded = false;
 
-            // Drag-and-drop state for touch events
+            // Drag-and-drop state
+            let isDraggingEmoji = false;
             let draggedClone = null;
             let originalDraggedElement = null;
 
@@ -308,8 +309,6 @@
 
             /**
              * Handles the logic when a conveyor belt emoji is clicked.
-             * @param {HTMLElement} emojiElement - The emoji element that was clicked.
-             * @param {string} type - 'fruit' or 'vegetable'.
              */
             function handleEmojiClick(emojiElement, type) {
                 const squares = (type === 'fruit') ? fruitSquares : vegSquares;
@@ -376,7 +375,6 @@
                     const randomEmoji = symbols[Math.floor(Math.random() * symbols.length)];
                     emojiEl.textContent = randomEmoji;
                     
-                    // Add classes and attributes for styling and dragging
                     emojiEl.classList.add('text-3xl', 'py-10', 'route-emoji');
                     emojiEl.draggable = true;
                     emojiEl.id = `route-emoji-${i}`;
@@ -392,19 +390,34 @@
                 // --- Desktop Drag Events ---
                 routeContent.addEventListener('dragstart', (e) => {
                     if (e.target.classList.contains('route-emoji')) {
+                        isDraggingEmoji = true;
                         e.dataTransfer.setData('text/plain', e.target.textContent);
                         e.dataTransfer.setData('elementId', e.target.id);
                         e.dataTransfer.effectAllowed = 'move';
+                        // Use a timeout to hide the original element, creating a "gap"
+                        setTimeout(() => {
+                            e.target.style.visibility = 'hidden';
+                        }, 0);
+                    }
+                });
+
+                routeContent.addEventListener('dragend', (e) => {
+                    if (e.target.classList.contains('route-emoji')) {
+                         // Always make the element visible again after drag ends, if it wasn't successfully dropped
+                        if (e.dataTransfer.dropEffect === 'none') {
+                           e.target.style.visibility = 'visible';
+                        }
+                        isDraggingEmoji = false;
                     }
                 });
 
                 travelSquares.forEach(square => {
                     square.addEventListener('dragover', (e) => {
-                        e.preventDefault(); // Necessary to allow dropping
+                        e.preventDefault();
                         square.style.border = '2px dashed white';
                     });
 
-                    square.addEventListener('dragleave', (e) => {
+                    square.addEventListener('dragleave', () => {
                         square.style.border = 'none';
                     });
 
@@ -412,12 +425,16 @@
                         e.preventDefault();
                         square.style.border = 'none';
                         const emoji = e.dataTransfer.getData('text/plain');
-                        if (square.innerText === '') { // Only drop if square is empty
+                        if (square.innerText === '') {
                             square.innerText = emoji;
                             const elementId = e.dataTransfer.getData('elementId');
                             const draggedElement = document.getElementById(elementId);
                             if (draggedElement) {
-                                draggedElement.remove();
+                                // Instead of removing, clear it to leave a gap.
+                                draggedElement.textContent = '';
+                                draggedElement.draggable = false;
+                                draggedElement.classList.remove('route-emoji');
+                                draggedElement.style.visibility = 'visible'; // Make the new empty slot visible
                             }
                         }
                     });
@@ -433,24 +450,27 @@
 
                 routeContent.addEventListener('touchstart', (e) => {
                     if (e.target.classList.contains('route-emoji')) {
+                        isDraggingEmoji = true;
                         originalDraggedElement = e.target;
                         draggedClone = originalDraggedElement.cloneNode(true);
                         draggedClone.style.position = 'absolute';
                         draggedClone.style.zIndex = '1000';
-                        draggedClone.style.pointerEvents = 'none'; // So it doesn't block underlying elements
+                        draggedClone.style.pointerEvents = 'none';
                         document.body.appendChild(draggedClone);
-
+                        
                         const touch = e.touches[0];
                         moveClone(touch.clientX, touch.clientY);
+                        
+                        originalDraggedElement.style.visibility = 'hidden';
                     }
-                }, { passive: true });
+                }, { passive: false }); // Set passive to false to allow preventDefault in touchmove
 
                 document.addEventListener('touchmove', (e) => {
                     if (draggedClone) {
+                        e.preventDefault(); // This prevents the screen from scrolling while dragging
                         const touch = e.touches[0];
                         moveClone(touch.clientX, touch.clientY);
 
-                        // Highlight drop zone under the finger
                         travelSquares.forEach(square => {
                             const rect = square.getBoundingClientRect();
                             if (touch.clientX > rect.left && touch.clientX < rect.right &&
@@ -461,26 +481,36 @@
                             }
                         });
                     }
-                });
+                }, { passive: false });
 
                 document.addEventListener('touchend', (e) => {
                     if (!draggedClone) return;
 
                     const touch = e.changedTouches[0];
-                    // Hide the clone to correctly identify the element underneath
                     draggedClone.style.display = 'none';
                     const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-                    draggedClone.style.display = ''; // Show it again briefly
+                    draggedClone.remove(); // Clean up clone immediately
 
+                    let droppedSuccessfully = false;
                     if (dropTarget && dropTarget.classList.contains('travel-square') && dropTarget.innerText === '') {
                         dropTarget.innerText = originalDraggedElement.innerText;
-                        originalDraggedElement.remove();
+                        
+                        // Instead of removing, clear it to leave a gap.
+                        originalDraggedElement.textContent = '';
+                        originalDraggedElement.draggable = false;
+                        originalDraggedElement.classList.remove('route-emoji');
+                        originalDraggedElement.style.visibility = 'visible'; // Make the new empty slot visible
+                        
+                        droppedSuccessfully = true;
                     }
 
-                    // Cleanup
-                    draggedClone.remove();
+                    if (!droppedSuccessfully) {
+                        originalDraggedElement.style.visibility = 'visible';
+                    }
+                    
                     draggedClone = null;
                     originalDraggedElement = null;
+                    isDraggingEmoji = false;
                     travelSquares.forEach(square => square.style.border = 'none');
                 });
             }
@@ -494,8 +524,7 @@
                 let scrollTop;
 
                 scrollableRoute.addEventListener('mousedown', (e) => {
-                    // Don't start scrolling if dragging an emoji
-                    if (e.target.classList.contains('route-emoji')) return;
+                    if (isDraggingEmoji || e.target.classList.contains('route-emoji')) return;
 
                     isDown = true;
                     scrollableRoute.classList.add('active');
@@ -514,11 +543,11 @@
                 });
 
                 scrollableRoute.addEventListener('mousemove', (e) => {
-                    if (!isDown) return;
+                    if (!isDown || isDraggingEmoji) return;
                     e.preventDefault();
                     const y = e.pageY - scrollableRoute.offsetTop;
-                    const walk = (y - startY) * 2; // The '2' is a scroll multiplier
-                    scrollableRoute.scrollTop = scrollTop - walk; // Inverted scroll
+                    const walk = (y - startY) * 2;
+                    scrollableRoute.scrollTop = scrollTop - walk;
                 });
             }
 
