@@ -79,6 +79,50 @@
         .route-emoji {
             cursor: grab;
         }
+        
+        /* Styles for Gamble Phase Slot Machine */
+        .reel-container {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem; /* Reduced gap */
+            padding: 1rem;
+        }
+        .reel {
+            width: 55px; /* Reduced width */
+            height: 75px; /* Reduced height */
+            background-color: #1f2937; /* bg-gray-800 */
+            border: 2px solid #9ca3af; /* bg-gray-400 */
+            border-radius: 0.5rem; /* rounded-lg */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.25rem; /* Reduced font size */
+            overflow: hidden;
+            transition: all 0.2s ease-in-out; /* Smooth transition for glow */
+        }
+        .reel-win {
+            border-color: #fde047; /* yellow-300 */
+            box-shadow: 0 0 15px #fde047;
+        }
+        .spin-button {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #f59e0b; /* bg-yellow-500 */
+            border: 4px solid #fcd34d; /* bg-yellow-300 */
+            box-shadow: 0 5px #b45309; /* shadow */
+            transition: all 0.1s ease;
+            cursor: pointer;
+        }
+        .spin-button:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px #b45309;
+        }
+        .spin-button:disabled {
+            background-color: #a1a1aa; /* bg-zinc-400 */
+            box-shadow: 0 5px #71717a; /* bg-zinc-500 */
+            cursor: not-allowed;
+        }
 
 
         /* Animation keyframes for moving down (fruits) */
@@ -191,12 +235,50 @@
         </footer>
     </div>
 
+    <!-- Screen 3: Gamble -->
+    <div id="gamble-screen" class="mobile-container flex-col h-screen bg-gray-800 text-white hidden">
+        <!-- Top Section -->
+        <header class="h-32 bg-gray-900 shadow-lg flex-shrink-0 flex items-center justify-center">
+             <!-- Gamble Timer -->
+            <div id="gamble-countdown-timer" class="font-anton text-6xl tracking-wider">60</div>
+        </header>
+
+        <!-- Middle Section -->
+        <main class="flex-grow bg-gray-700 flex flex-col items-center justify-center space-y-8">
+            <!-- Win Tracker -->
+            <div id="win-tracker" class="font-anton text-5xl text-yellow-300 tracking-wider transition-all duration-300">$0</div>
+            
+            <!-- Slot Machine Reels -->
+            <div id="reels-container" class="reel-container">
+                <div class="reel"></div>
+                <div class="reel"></div>
+                <div class="reel"></div>
+                <div class="reel"></div>
+                <div class="reel"></div>
+            </div>
+
+            <!-- Spin Button -->
+            <button id="spin-button" class="spin-button"></button>
+        </main>
+
+        <!-- Bottom Section -->
+        <footer class="h-36 bg-gray-900 shadow-lg flex-shrink-0 flex items-center justify-between p-6">
+            <!-- Gamble Text -->
+            <div class="font-anton text-5xl tracking-widest">GAMBLE</div>
+            <!-- Tappable Button -->
+            <button class="bg-red-600 hover:bg-red-700 active:bg-red-800 text-white text-xl font-bold py-4 px-6 rounded-lg shadow-md transition-transform transform active:scale-95">
+                Action
+            </button>
+        </footer>
+    </div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Screen elements
             const marketScreen = document.getElementById('market-screen');
             const travelScreen = document.getElementById('travel-screen');
+            const gambleScreen = document.getElementById('gamble-screen');
             
             // Market screen elements
             const fruitConveyor = document.getElementById('fruit-conveyor');
@@ -211,24 +293,100 @@
             const scrollableRoute = document.getElementById('scrollable-route');
             const travelCountdownElement = document.getElementById('travel-countdown-timer');
             const travelSquares = document.querySelectorAll('.travel-square');
+            
+            // Gamble screen elements
+            const gambleCountdownElement = document.getElementById('gamble-countdown-timer');
+            const reels = document.querySelectorAll('#reels-container .reel');
+            const spinButton = document.getElementById('spin-button');
+            const winTracker = document.getElementById('win-tracker');
 
             const fruits = ['🍓', '🍎', '🍊', '🍋', '🍌', '🍉', '🍇', '🍒', '🍍', '🍑'];
             const vegetables = ['🥕', '🥦', '🌽', '🥒', '🌶️', '🍅', '🍆', '🥑', '🥬', '🧅'];
             const symbols = ['💠', '🌀', '🔰', '🔱', '💮', '⚜️', '🔅', '🔆', '⭕️', '♨️', '📛', '💢', '❗️', '❓', '❕', '❔', '⚫️', '⚪️', '🔴', '🔵', '🔶', '🔷', '🔸', '🔹', '🔺', '🔻', '🔚', '🔙', '🔛', '🔜', '🔝'];
+            const slotSymbols = ['🦓', '🫎', '🦄', '🦧', '🦎'];
             
             // Game state variables
             let marketTimeLeft = 60;
             let travelTimeLeft = 60;
+            let gambleTimeLeft = 60;
             let marketTimerInterval;
             let travelTimerInterval;
+            let gambleTimerInterval;
             let fruitSpawnInterval;
             let vegSpawnInterval;
-            let gameEnded = false;
+            let currentPhase = 'market';
+            let totalWinnings = 0;
 
             // Drag-and-drop state
             let isDraggingEmoji = false;
             let draggedClone = null;
             let originalDraggedElement = null;
+            
+            /**
+             * Ends the gamble phase.
+             */
+            function endGamblePhase() {
+                if (currentPhase !== 'gamble') return;
+                currentPhase = 'end'; // Game is over
+                clearInterval(gambleTimerInterval);
+                spinButton.disabled = true;
+                console.log("Gamble phase over. Final winnings: $" + totalWinnings);
+            }
+
+            /**
+             * Starts the countdown timer for the gamble phase.
+             */
+            function startGambleTimer() {
+                gambleCountdownElement.textContent = gambleTimeLeft;
+                gambleTimerInterval = setInterval(() => {
+                    gambleTimeLeft--;
+                    gambleCountdownElement.textContent = gambleTimeLeft;
+
+                    if (gambleTimeLeft <= 0) {
+                        gambleCountdownElement.textContent = "0";
+                        clearInterval(gambleTimerInterval);
+                        endGamblePhase();
+                    }
+                }, 1000);
+            }
+
+             /**
+             * Transitions the game from the Travel to the Gamble screen.
+             */
+            function endTravelPhase() {
+                if (currentPhase !== 'travel') return;
+                currentPhase = 'gamble';
+
+                clearInterval(travelTimerInterval);
+
+                travelScreen.classList.add('hidden');
+                gambleScreen.classList.remove('hidden');
+                gambleScreen.classList.add('flex');
+                
+                // Initialize reels with random symbols
+                reels.forEach(reel => {
+                    reel.textContent = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
+                });
+
+                startGambleTimer();
+            }
+            
+            /**
+             * Checks if all 6 travel squares are filled.
+             */
+            function checkAllTravelSquaresFilled() {
+                let filledCount = 0;
+                travelSquares.forEach(square => {
+                    if (square.innerText.trim() !== '') {
+                        filledCount++;
+                    }
+                });
+
+                if (filledCount === travelSquares.length) {
+                    endTravelPhase();
+                }
+            }
+
 
             /**
              * Starts the countdown timer for the travel phase.
@@ -242,7 +400,7 @@
                     if (travelTimeLeft <= 0) {
                         travelCountdownElement.textContent = "0";
                         clearInterval(travelTimerInterval);
-                        // Optional: Add logic for when travel time runs out
+                        endTravelPhase(); // End travel phase when time runs out
                     }
                 }, 1000);
             }
@@ -251,8 +409,8 @@
              * Transitions the game from the Market to the Travel screen.
              */
             function endMarketPhase() {
-                if (gameEnded) return; // Prevent this from running multiple times
-                gameEnded = true;
+                if (currentPhase !== 'market') return;
+                currentPhase = 'travel';
 
                 // Stop all market-phase intervals
                 clearInterval(marketTimerInterval);
@@ -384,6 +542,92 @@
             }
 
             /**
+             * Calculates winnings from the slot machine spin.
+             */
+            function calculateWinnings(finalReels) {
+                // Clear previous glows from all reels
+                reels.forEach(r => r.classList.remove('reel-win'));
+
+                let win = 0;
+                let winningIndices = [];
+
+                // Helper to apply glow effect
+                const applyGlow = (indices) => {
+                    indices.forEach(index => reels[index].classList.add('reel-win'));
+                    setTimeout(() => {
+                        indices.forEach(index => reels[index].classList.remove('reel-win'));
+                    }, 1000); // Glow lasts for 1 second
+                };
+
+                // Check for wins, from longest to shortest sequence to ensure highest payout
+                if (finalReels.every(s => s === finalReels[0])) { // 5 of a kind
+                    win = 50;
+                    winningIndices = [0, 1, 2, 3, 4];
+                } else if (finalReels.slice(0, 4).every(s => s === finalReels[0])) { // 4 of a kind from reel 1
+                    win = 20;
+                    winningIndices = [0, 1, 2, 3];
+                } else if (finalReels.slice(1, 5).every(s => s === finalReels[1])) { // 4 of a kind from reel 2
+                    win = 20;
+                    winningIndices = [1, 2, 3, 4];
+                } else if (finalReels.slice(0, 3).every(s => s === finalReels[0])) { // 3 of a kind from reel 1
+                    win = 10;
+                    winningIndices = [0, 1, 2];
+                } else if (finalReels.slice(1, 4).every(s => s === finalReels[1])) { // 3 of a kind from reel 2
+                    win = 10;
+                    winningIndices = [1, 2, 3];
+                } else if (finalReels.slice(2, 5).every(s => s === finalReels[2])) { // 3 of a kind from reel 3
+                    win = 10;
+                    winningIndices = [2, 3, 4];
+                }
+
+                if (win > 0) {
+                    totalWinnings += win;
+                    winTracker.textContent = `$${totalWinnings}`;
+                    applyGlow(winningIndices); // Apply the glow effect to the winning reels
+
+                    // Add a visual effect for winning on the tracker text
+                    winTracker.classList.add('scale-125', 'text-green-400');
+                    setTimeout(() => {
+                        winTracker.classList.remove('scale-125', 'text-green-400');
+                    }, 500);
+                }
+            }
+
+            /**
+             * Handles the spinning of the slot machine reels.
+             */
+            function spinReels() {
+                spinButton.disabled = true;
+                let finalReels = [];
+
+                reels.forEach((reel, index) => {
+                    const spinDuration = 1000 + (index * 300); // Staggered stop time
+                    const spinInterval = 50; // How fast the symbols flash
+
+                    const intervalId = setInterval(() => {
+                        reel.textContent = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
+                    }, spinInterval);
+
+                    setTimeout(() => {
+                        clearInterval(intervalId);
+                        const finalSymbol = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
+                        reel.textContent = finalSymbol;
+                        finalReels[index] = finalSymbol;
+
+                        // If this is the last reel to stop, calculate winnings and re-enable button
+                        if (index === reels.length - 1) {
+                            calculateWinnings(finalReels);
+                            // Only re-enable if there's time left
+                            if (gambleTimeLeft > 0) {
+                                spinButton.disabled = false;
+                            }
+                        }
+                    }, spinDuration);
+                });
+            }
+
+
+            /**
              * Sets up both desktop and mobile drag-and-drop functionality.
              */
             function setupDragAndDrop() {
@@ -394,28 +638,27 @@
                         e.dataTransfer.setData('text/plain', e.target.textContent);
                         e.dataTransfer.setData('elementId', e.target.id);
                         e.dataTransfer.effectAllowed = 'move';
-                        // Use a timeout to hide the original element, creating a "gap"
                         setTimeout(() => {
-                            // Instead of visibility, make it transparent to hold its space
                             e.target.style.color = 'transparent';
                         }, 0);
                     }
                 });
 
                 routeContent.addEventListener('dragend', (e) => {
+                    isDraggingEmoji = false;
                     if (e.target.classList.contains('route-emoji')) {
-                         // Always make the element visible again after drag ends, if it wasn't successfully dropped
                         if (e.dataTransfer.dropEffect === 'none') {
-                           e.target.style.color = ''; // Reset color
+                           e.target.style.color = '';
                         }
-                        isDraggingEmoji = false;
                     }
                 });
 
                 travelSquares.forEach(square => {
                     square.addEventListener('dragover', (e) => {
                         e.preventDefault();
-                        square.style.border = '2px dashed white';
+                        if (square.innerText.trim() === '') {
+                             square.style.border = '2px dashed white';
+                        }
                     });
 
                     square.addEventListener('dragleave', () => {
@@ -431,10 +674,10 @@
                             const elementId = e.dataTransfer.getData('elementId');
                             const draggedElement = document.getElementById(elementId);
                             if (draggedElement) {
-                                // The element's color is already transparent, just make it non-interactive
                                 draggedElement.draggable = false;
                                 draggedElement.classList.remove('route-emoji');
                             }
+                            checkAllTravelSquaresFilled();
                         }
                     });
                 });
@@ -462,18 +705,19 @@
                         
                         originalDraggedElement.style.color = 'transparent';
                     }
-                }, { passive: false }); // Set passive to false to allow preventDefault in touchmove
+                }, { passive: false });
 
                 document.addEventListener('touchmove', (e) => {
                     if (draggedClone) {
-                        e.preventDefault(); // This prevents the screen from scrolling while dragging
+                        e.preventDefault();
                         const touch = e.touches[0];
                         moveClone(touch.clientX, touch.clientY);
 
                         travelSquares.forEach(square => {
                             const rect = square.getBoundingClientRect();
                             if (touch.clientX > rect.left && touch.clientX < rect.right &&
-                                touch.clientY > rect.top && touch.clientY < rect.bottom) {
+                                touch.clientY > rect.top && touch.clientY < rect.bottom &&
+                                square.innerText.trim() === '') {
                                 square.style.border = '2px solid white';
                             } else {
                                 square.style.border = 'none';
@@ -488,7 +732,6 @@
                     const touch = e.changedTouches[0];
                     let droppedSuccessfully = false;
 
-                    // Iterate over squares to find a drop target manually
                     for (const square of travelSquares) {
                         const rect = square.getBoundingClientRect();
                         if (touch.clientX > rect.left && touch.clientX < rect.right &&
@@ -496,21 +739,19 @@
                             
                             if (square.innerText === '') {
                                 square.innerText = originalDraggedElement.innerText;
-                                // Make original element a permanent, non-interactive gap
                                 originalDraggedElement.draggable = false;
                                 originalDraggedElement.classList.remove('route-emoji');
                                 droppedSuccessfully = true;
+                                checkAllTravelSquaresFilled();
                             }
-                            break; // Stop checking once we find the square under the touch
+                            break;
                         }
                     }
 
                     if (!droppedSuccessfully) {
-                        // If not dropped, restore the original element's appearance
                         originalDraggedElement.style.color = '';
                     }
                     
-                    // Cleanup
                     draggedClone.remove();
                     draggedClone = null;
                     originalDraggedElement = null;
@@ -556,6 +797,7 @@
             }
 
             // Initialize the game
+            spinButton.addEventListener('click', spinReels);
             startMarketTimer();
             startSpawning();
             populateRoute();
@@ -566,4 +808,6 @@
 
 </body>
 </html>
+
+
 
