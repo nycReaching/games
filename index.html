@@ -266,6 +266,16 @@
             animation: blink 0.5s linear infinite;
         }
 
+        .convert-item {
+            transition: all 0.2s ease;
+            position: relative; /* For the count indicator */
+        }
+        .convert-item.selected {
+            outline: 2px solid #2dd4bf; /* teal-400 */
+            box-shadow: 0 0 10px #2dd4bf;
+            transform: scale(1.05);
+        }
+
     </style>
 </head>
 <body class="font-sans">
@@ -760,12 +770,64 @@
 
     <!-- Shop Modal (for Gold Nodes) -->
     <div id="shop-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
-        <div class="bg-gray-800 rounded-lg p-6 max-w-sm w-full text-center">
-            <h3 class="font-anton text-3xl text-yellow-400 mb-6">SHOP</h3>
-            <div class="h-40 flex items-center justify-center bg-gray-900 rounded-lg text-white">
-                <!-- Shop content will go here -->
-                <p>Shop coming soon!</p>
+        <div class="bg-gray-800 rounded-lg p-4 max-w-sm w-full text-white font-inter">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-anton text-3xl text-yellow-400">SHOP</h3>
+                <div class="text-right">
+                    <div id="shop-money" class="font-anton text-xl text-yellow-300">$0</div>
+                    <div id="shop-materials" class="font-anton text-xl text-gray-300">Materials: 0</div>
+                </div>
             </div>
+            
+            <!-- Items for Sale -->
+            <div class="bg-gray-900 rounded-lg p-3 mb-4">
+                <h4 class="font-anton text-lg tracking-wider text-center mb-2">FOR SALE</h4>
+                <div class="space-y-2">
+                    <!-- Item 1 -->
+                    <div class="flex items-center justify-between p-2 bg-gray-700 rounded-md">
+                        <div class="flex items-center">
+                            <span class="text-4xl mr-3">🎻</span>
+                            <div>
+                                <p class="font-bold">Violin</p>
+                                <p class="text-sm text-gray-400">-10 Materials</p>
+                            </div>
+                        </div>
+                        <button data-item="violin" class="shop-buy-button bg-green-600 text-white font-bold py-1 px-3 rounded-lg text-sm hover:bg-green-700 disabled:bg-gray-500 disabled:cursor-not-allowed">$50</button>
+                    </div>
+                    <!-- Item 2 -->
+                    <div class="flex items-center justify-between p-2 bg-gray-700 rounded-md">
+                        <div class="flex items-center">
+                            <span class="text-4xl mr-3">🪝</span>
+                            <div>
+                                <p class="font-bold">Hook</p>
+                                <p class="text-sm text-gray-400">-5 Materials</p>
+                            </div>
+                        </div>
+                        <button data-item="hook" class="shop-buy-button bg-green-600 text-white font-bold py-1 px-3 rounded-lg text-sm hover:bg-green-700 disabled:bg-gray-500 disabled:cursor-not-allowed">$20</button>
+                    </div>
+                    <!-- Item 3 -->
+                    <div class="flex items-center justify-between p-2 bg-gray-700 rounded-md">
+                        <div class="flex items-center">
+                            <span class="text-4xl mr-3">⌛</span>
+                            <div>
+                                <p class="font-bold">Hourglass</p>
+                                <p class="text-sm text-gray-400">-5 Materials</p>
+                            </div>
+                        </div>
+                        <button data-item="hourglass" class="shop-buy-button bg-green-600 text-white font-bold py-1 px-3 rounded-lg text-sm hover:bg-green-700 disabled:bg-gray-500 disabled:cursor-not-allowed">$20</button>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Convert Section -->
+            <div class="bg-gray-900 rounded-lg p-3">
+                <h4 class="font-anton text-lg tracking-wider text-center mb-2">CONVERT</h4>
+                <div id="shop-convert-items" class="grid grid-cols-5 gap-2 mb-3 min-h-[4rem]">
+                    <!-- Unequipped items will be populated here -->
+                </div>
+                <button id="shop-convert-button" class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-not-allowed">Convert</button>
+            </div>
+    
             <button id="close-shop-modal" class="mt-4 w-full bg-red-600 text-white font-bold py-2 rounded-lg">Leave</button>
         </div>
     </div>
@@ -774,9 +836,8 @@
     <div id="pink-reward-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
         <div class="bg-gray-800 rounded-lg p-6 max-w-sm w-full text-center">
             <h3 class="font-anton text-3xl text-pink-400 mb-6">REWARD</h3>
-             <div class="h-40 flex items-center justify-center bg-gray-900 rounded-lg text-white">
-                <!-- Reward content will go here -->
-                <p>Reward content coming soon!</p>
+            <div id="pink-reward-options" class="h-40 flex items-center justify-around bg-gray-900 rounded-lg text-white text-6xl">
+                <!-- JS will populate this -->
             </div>
             <button id="close-pink-reward-modal" class="mt-4 w-full bg-green-600 text-white font-bold py-2 rounded-lg">Claim</button>
         </div>
@@ -877,6 +938,7 @@
                 '🧥': { name: 'Coat', description: 'Armor: A simple piece of armor.', type: 'equipment' },
                 '🏹': { name: 'Bow', description: 'Weapon: A ranged weapon.', type: 'equipment' },
                 '🗡️': { name: 'Dagger', description: 'Weapon: A short-bladed weapon.', type: 'equipment' },
+                '📙': { name: 'Tome of Knowledge', description: 'Equipment: +1 M. Atk.', type: 'equipment' },
                 // Default / Sellable
                 'default': { name: 'Valuable', description: 'An item to be sold for materials.', type: 'sellable' }
             };
@@ -931,6 +993,7 @@
             let marketCounts = {};
             let inventoryCounts = {};
             let rewardBonus = 0;
+            let shopConvertSelection = {}; // Using an object to track counts: { '💍': 2, '👑': 1 }
             
             const baseStats = {
                 hp: 15, maxHp: 15,
@@ -1110,6 +1173,7 @@
                 if (equippedItems.ring === '💍') currentStats.grace += 1;
                 if (equippedItems.accessory === '👑') currentStats.fear -= 1;
                 if (equippedItems.accessory === '📿') currentStats.grace += 1;
+                if (equippedItems.accessory === '📙') currentStats.magic += 1;
 
                 // Update the DOM
                 document.getElementById('hp-stat-value').textContent = `${currentStats.hp}/${currentStats.maxHp}`;
@@ -1120,7 +1184,7 @@
                 document.getElementById('magic-stat-value').textContent = currentStats.magic;
                 document.getElementById('grace-stat-value').textContent = currentStats.grace;
                 document.getElementById('fear-stat-value').textContent = currentStats.fear;
-                document.getElementById('materials-stat-value').textContent = 0; // Set to 0 per request
+                document.getElementById('materials-stat-value').textContent = playerStats.materials;
             }
 
             /**
@@ -1166,7 +1230,7 @@
                 weapon: { emojis: ['🏹', '🗡️', '🦴', '🪈'], title: 'Choose a Weapon' },
                 armor: { emojis: ['🧥'], title: 'Choose Armor' },
                 ring: { emojis: ['💍'], title: 'Choose a Ring' },
-                accessory: { emojis: ['👑', '📿'], title: 'Choose an Accessory' }
+                accessory: { emojis: ['👑', '📿', '📙'], title: 'Choose an Accessory' }
             };
 
             /**
@@ -2245,7 +2309,7 @@
                 // Populate with base stats that don't change in combat
                 document.getElementById('combat-modal-grace-stat-value').textContent = playerStats.grace;
                 document.getElementById('combat-modal-fear-stat-value').textContent = playerStats.fear;
-                document.getElementById('combat-modal-materials-stat-value').textContent = 0; // Set to 0 per request
+                document.getElementById('combat-modal-materials-stat-value').textContent = playerStats.materials;
 
                 modal.classList.remove('hidden');
             }
@@ -2384,8 +2448,9 @@
                 if (classList.contains('gold') || classList.contains('pink') || classList.contains('black')) {
                     console.log("Special node encountered:", currentNodeId);
                     if (classList.contains('gold')) {
-                        document.getElementById('shop-modal').classList.remove('hidden');
+                        openShop();
                     } else if (classList.contains('pink')) {
+                        setupPinkRewardScreen();
                         document.getElementById('pink-reward-modal').classList.remove('hidden');
                     } else if (classList.contains('black')) {
                         document.getElementById('crypt-modal').classList.remove('hidden');
@@ -2427,6 +2492,7 @@
                 if (equippedItems.ring === '💍') currentStats.grace += 1;
                 if (equippedItems.accessory === '👑') currentStats.fear -= 1;
                 if (equippedItems.accessory === '📿') currentStats.grace += 1;
+                if (equippedItems.accessory === '📙') currentStats.magic += 1;
                 
                 // Initialize combat state
                 combatState = {
@@ -2795,7 +2861,265 @@
                     console.error("Item effect applied, but could not find item to consume.");
                 }
             }
+            
+            // --- SHOP LOGIC ---
 
+            // Prices and values for shop items
+            const SHOP_ITEMS = {
+                violin: { cost: 50, materials: 10 },
+                hook: { cost: 20, materials: 5 },
+                hourglass: { cost: 20, materials: 5 }
+            };
+
+            /**
+             * Updates the conversion button UI based on the current selection.
+             */
+            function updateShopConversionUI() {
+                const convertButton = document.getElementById('shop-convert-button');
+                let totalMaterials = 0;
+                let totalItems = 0;
+
+                for (const count of Object.values(shopConvertSelection)) {
+                    totalItems += count;
+                }
+                totalMaterials = totalItems * 3;
+                
+                if (totalItems > 0) {
+                    convertButton.disabled = false;
+                    convertButton.textContent = `Convert for ${totalMaterials} Materials`;
+                } else {
+                    convertButton.disabled = true;
+                    convertButton.textContent = 'Convert';
+                }
+            }
+
+            /**
+             * Handles clicking on an item in the conversion list.
+             */
+            function handleConvertItemClick(e) {
+                const itemDiv = e.currentTarget;
+                const emoji = itemDiv.dataset.emoji;
+                const totalCount = inventoryCounts[emoji] || 0;
+                let selectedCount = shopConvertSelection[emoji] || 0;
+
+                selectedCount++;
+
+                if (selectedCount > totalCount) {
+                    // Cycle back to zero (deselect all)
+                    selectedCount = 0;
+                    delete shopConvertSelection[emoji];
+                } else {
+                    shopConvertSelection[emoji] = selectedCount;
+                }
+
+                // Update UI for this one item
+                itemDiv.classList.toggle('selected', selectedCount > 0);
+                let countIndicator = itemDiv.querySelector('.selected-count');
+
+                if (selectedCount > 0) {
+                    if (!countIndicator) {
+                        countIndicator = document.createElement('div');
+                        countIndicator.className = 'selected-count absolute -top-1 -right-1 bg-teal-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold';
+                        itemDiv.appendChild(countIndicator);
+                    }
+                    countIndicator.textContent = selectedCount;
+                } else {
+                    if (countIndicator) {
+                        countIndicator.remove();
+                    }
+                }
+                
+                updateShopConversionUI();
+            }
+
+            /**
+             * Populates and displays the shop modal.
+             */
+            function openShop() {
+                const modal = document.getElementById('shop-modal');
+                const moneyDisplay = document.getElementById('shop-money');
+                const materialsDisplay = document.getElementById('shop-materials');
+                const convertItemsContainer = document.getElementById('shop-convert-items');
+                const buyButtons = document.querySelectorAll('.shop-buy-button');
+
+                // Reset selection when opening the shop
+                shopConvertSelection = {};
+
+                // Update displays
+                moneyDisplay.textContent = `$${totalWinnings}`;
+                materialsDisplay.textContent = `Materials: ${playerStats.materials}`;
+
+                // Update buy button states
+                buyButtons.forEach(button => {
+                    const itemKey = button.dataset.item;
+                    const item = SHOP_ITEMS[itemKey];
+                    button.disabled = totalWinnings < item.cost;
+                });
+
+                // Populate convert section
+                convertItemsContainer.innerHTML = '';
+                const equippedSet = new Set(Object.values(equippedItems));
+                let hasConvertibleItems = false;
+                
+                // inventoryCounts is the source of truth for scavenged items
+                for (const [emoji, count] of Object.entries(inventoryCounts)) {
+                    if (!equippedSet.has(emoji) && count > 0) {
+                        hasConvertibleItems = true;
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'convert-item flex flex-col items-center p-1 bg-gray-700 rounded-md cursor-pointer';
+                        itemDiv.dataset.emoji = emoji;
+
+                        itemDiv.innerHTML = `
+                            <div class="text-3xl">${emoji}</div>
+                            <span class="text-xs font-bold">x${count}</span>
+                        `;
+                        itemDiv.addEventListener('click', handleConvertItemClick);
+                        convertItemsContainer.appendChild(itemDiv);
+                    }
+                }
+
+                if (!hasConvertibleItems) {
+                    convertItemsContainer.innerHTML = '<p class="text-gray-500 text-center col-span-5 text-sm">No items to convert.</p>';
+                }
+
+                // Set initial state of convert button
+                updateShopConversionUI();
+                modal.classList.remove('hidden');
+            }
+
+            /**
+             * Handles buying an item from the shop.
+             */
+            function buyShopItem(itemKey) {
+                const item = SHOP_ITEMS[itemKey];
+                if (totalWinnings >= item.cost) {
+                    // Update state
+                    totalWinnings -= item.cost;
+                    playerStats.materials += item.materials;
+
+                    // Update UI by re-opening the shop to refresh everything
+                    openShop(); 
+                    // Also update the prepare screen stats in the background
+                    updateStatsUI();
+                } else {
+                    console.log("Not enough money.");
+                }
+            }
+
+            /**
+             * Converts all unequipped scavenged items into materials.
+             */
+            function convertScavengedItems() {
+                let materialsGained = 0;
+
+                for (const [emoji, countToConvert] of Object.entries(shopConvertSelection)) {
+                    materialsGained += countToConvert * 3;
+
+                    // Decrement from main inventory
+                    inventoryCounts[emoji] -= countToConvert;
+                    if (inventoryCounts[emoji] <= 0) {
+                        delete inventoryCounts[emoji];
+                    }
+                }
+
+                // Update player stats
+                playerStats.materials += materialsGained;
+
+                // Reset selection and refresh the shop UI
+                openShop(); 
+                updateStatsUI(); // Update stats on prepare screen
+                document.getElementById('inventory-content').innerHTML = createItemHTML(inventoryCounts); // Refresh inventory on prepare screen
+            }
+
+            /**
+             * Sets up event listeners for the shop modal.
+             */
+            function setupShopModal() {
+                document.querySelectorAll('.shop-buy-button').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        buyShopItem(e.currentTarget.dataset.item);
+                    });
+                });
+
+                document.getElementById('shop-convert-button').addEventListener('click', convertScavengedItems);
+            }
+            
+            // --- PINK NODE REWARD LOGIC ---
+
+            /**
+             * Sets up the pink reward screen, making boxes clickable.
+             */
+            function setupPinkRewardScreen() {
+                const rewardContainer = document.getElementById('pink-reward-options');
+                const claimButton = document.getElementById('close-pink-reward-modal');
+
+                // Reset UI to its initial state
+                rewardContainer.innerHTML = `
+                    <span data-position="left" class="pink-reward-box cursor-pointer transition-transform transform hover:scale-110">🎁</span>
+                    <span data-position="middle" class="pink-reward-box cursor-pointer transition-transform transform hover:scale-110">🎁</span>
+                    <span data-position="right" class="pink-reward-box cursor-pointer transition-transform transform hover:scale-110">🎁</span>
+                `;
+                
+                // Reset and disable the button
+                claimButton.disabled = true;
+                claimButton.textContent = 'Choose a Reward';
+                claimButton.classList.add('bg-gray-500', 'cursor-not-allowed');
+                claimButton.classList.remove('bg-green-600');
+
+                // Add new listeners to the freshly created boxes
+                document.querySelectorAll('.pink-reward-box').forEach(box => {
+                    box.addEventListener('click', handlePinkRewardClick, { once: true });
+                });
+            }
+
+            /**
+             * Handles the player's choice on the pink reward screen.
+             */
+            function handlePinkRewardClick(e) {
+                const chosenBox = e.currentTarget;
+                const position = chosenBox.dataset.position;
+                const allBoxes = document.querySelectorAll('.pink-reward-box');
+                const claimButton = document.getElementById('close-pink-reward-modal');
+
+                const rewards = {
+                    left: { emoji: '$15', apply: () => { totalWinnings += 15; } },
+                    middle: { emoji: '🍷', apply: () => { marketCounts['🍷'] = (marketCounts['🍷'] || 0) + 1; } },
+                    right: { emoji: '📙', apply: () => { inventoryCounts['📙'] = (inventoryCounts['📙'] || 0) + 1; } }
+                };
+
+                // Apply the chosen reward
+                rewards[position].apply();
+                console.log(`Player received: ${rewards[position].emoji}`);
+
+                // Reveal all prizes and highlight the chosen one
+                allBoxes.forEach(box => {
+                    const boxPos = box.dataset.position;
+                    const rewardEmoji = rewards[boxPos].emoji;
+                    box.textContent = rewardEmoji;
+                    // Make text smaller for the money prize
+                    if (rewardEmoji === '$15') {
+                        box.classList.add('text-4xl', 'font-anton');
+                        box.classList.remove('text-6xl');
+                    }
+                    box.classList.remove('cursor-pointer', 'hover:scale-110');
+                    
+                    if (box !== chosenBox) {
+                        box.classList.add('opacity-50');
+                    } else {
+                        box.classList.add('scale-110');
+                    }
+
+                    // Remove any remaining event listeners to prevent multiple clicks
+                    const newBox = box.cloneNode(true);
+                    box.parentNode.replaceChild(newBox, box);
+                });
+                
+                // Enable the claim/close button
+                claimButton.disabled = false;
+                claimButton.textContent = 'Claim';
+                claimButton.classList.remove('bg-gray-500', 'cursor-not-allowed');
+                claimButton.classList.add('bg-green-600');
+            }
 
             startMarketTimer();
             startSpawning();
@@ -2803,16 +3127,11 @@
             setupDesktopScrolling();
             setupDragAndDrop();
             setupGambleToggle();
-            setupCombatInventoryListeners(); // Set up new listeners
+            setupCombatInventoryListeners();
+            setupShopModal(); // Set up new shop listeners
         });
     </script>
 
 </body>
 </html>
-
-
-
-
-
-
 
