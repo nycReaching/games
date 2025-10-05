@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-device-width, initial-scale=1.0, user-scalable=no">
     <title>Mobile Game UI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Import Google Fonts -->
@@ -403,40 +403,63 @@
         <main class="flex-grow bg-gray-700 p-4 grid grid-cols-2 grid-rows-2 gap-4">
             <!-- Food Window -->
             <div id="food-window" class="bg-gray-900 rounded-lg p-3 overflow-y-auto no-scrollbar">
-                <h3 class="font-anton text-xl tracking-wider text-center mb-2">FOOD</h3>
+                <h3 class="font-anton text-lg tracking-wider text-center mb-1">FOOD</h3>
                 <div id="food-content">
                     <!-- JS will populate this -->
                 </div>
             </div>
             <!-- Inventory Window -->
             <div id="inventory-window" class="bg-gray-900 rounded-lg p-3 overflow-y-auto no-scrollbar">
-                <h3 class="font-anton text-xl tracking-wider text-center mb-2">INVENTORY</h3>
+                <h3 class="font-anton text-lg tracking-wider text-center mb-1">INVENTORY</h3>
                 <div id="inventory-content">
                     <!-- JS will populate this -->
                 </div>
             </div>
-            <!-- Shop Window -->
-            <div id="shop-window" class="bg-gray-900 rounded-lg p-3 flex items-center justify-center">
-                <h3 class="font-anton text-xl tracking-wider">SHOP</h3>
+            <!-- Equipment Window -->
+            <div id="equipment-window" class="bg-gray-900 rounded-lg p-3">
+                <h3 class="font-anton text-lg tracking-wider text-center mb-2">EQUIPMENT</h3>
+                <div class="space-y-1">
+                    <!-- Weapon Slot -->
+                    <div class="flex items-center justify-between">
+                        <span class="font-inter font-bold text-xs">Weapon</span>
+                        <div id="weapon-slot" class="w-8 h-8 bg-gray-700 rounded-md flex items-center justify-center text-xl cursor-pointer"></div>
+                    </div>
+                    <!-- Armor Slot -->
+                    <div class="flex items-center justify-between">
+                        <span class="font-inter font-bold text-xs">Armor</span>
+                        <div id="armor-slot" class="w-8 h-8 bg-gray-700 rounded-md flex items-center justify-center text-xl cursor-pointer"></div>
+                    </div>
+                    <!-- Ring Slot -->
+                    <div class="flex items-center justify-between">
+                        <span class="font-inter font-bold text-xs">Ring</span>
+                        <div id="ring-slot" class="w-8 h-8 bg-gray-700 rounded-md flex items-center justify-center text-xl cursor-pointer"></div>
+                    </div>
+                    <!-- Accessory Slot -->
+                    <div class="flex items-center justify-between">
+                        <span class="font-inter font-bold text-xs">Accessory</span>
+                        <div id="accessory-slot" class="w-8 h-8 bg-gray-700 rounded-md flex items-center justify-center text-xl cursor-pointer"></div>
+                    </div>
+                </div>
             </div>
             <!-- Stats Window -->
-            <div id="stats-window" class="bg-gray-900 rounded-lg p-3 font-inter">
-                <h3 class="font-anton text-xl tracking-wider text-center">STATS</h3>
-                <div class="grid grid-cols-4 gap-x-2 gap-y-1 text-sm mt-2">
-                    <span class="font-bold text-green-500 text-left">HP</span><span class="text-right">15</span>
-                    <span class="font-bold text-purple-500 text-left">MP</span><span class="text-right">15</span>
+            <div id="stats-window" class="bg-gray-900 rounded-lg p-3 font-inter flex flex-col">
+                <h3 class="font-anton text-lg tracking-wider text-center">STATS</h3>
+                <div class="grid grid-cols-4 gap-x-2 gap-y-1 text-sm mt-1 flex-grow">
+                    <span class="font-bold text-green-500 text-left">HP</span><span class="text-right" id="hp-stat-value">15</span>
+                    <span class="font-bold text-purple-500 text-left">MP</span><span class="text-right" id="mp-stat-value">15</span>
 
-                    <span class="font-bold text-blue-500 text-left">Armor</span><span class="text-right">3</span>
-                    <span class="font-bold text-orange-500 text-left">Spirit</span><span class="text-right">3</span>
+                    <span class="font-bold text-blue-500 text-left">Armor</span><span class="text-right" id="armor-stat-value">3</span>
+                    <span class="font-bold text-orange-500 text-left">Spirit</span><span class="text-right" id="spirit-stat-value">3</span>
 
-                    <span class="font-bold text-red-500 text-left">Attack</span><span class="text-right">1</span>
-                    <span class="font-bold text-teal-500 text-left">Magic</span><span class="text-right">2</span>
+                    <span class="font-bold text-red-500 text-left">Attack</span><span class="text-right" id="attack-stat-value">1</span>
+                    <span class="font-bold text-teal-500 text-left">Magic</span><span class="text-right" id="magic-stat-value">2</span>
 
-                    <span class="font-bold text-white text-left">Grace</span><span class="text-right">0</span>
-                    <span class="font-bold text-red-800 text-left">Fear</span><span class="text-right">0</span>
-
-                    <span class="col-span-2 font-bold text-gray-300 text-left">Materials</span>
-                    <span class="col-span-2 text-right">0</span>
+                    <span class="font-bold text-white text-left">Grace</span><span class="text-right" id="grace-stat-value">0</span>
+                    <span class="font-bold text-red-800 text-left">Fear</span><span class="text-right" id="fear-stat-value">0</span>
+                </div>
+                <div class="text-center mt-auto">
+                    <span class="font-bold text-gray-300 text-sm">Materials</span>
+                    <span class="text-sm" id="materials-stat-value">0</span>
                 </div>
             </div>
         </main>
@@ -447,6 +470,17 @@
                 BEGIN
             </button>
         </footer>
+    </div>
+
+    <!-- Generic Equipment Selection Modal -->
+    <div id="equipment-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
+        <div class="bg-gray-800 rounded-lg p-4 max-w-sm w-full">
+            <h3 id="equipment-modal-title" class="font-anton text-2xl text-center mb-4">Choose Equipment</h3>
+            <div id="equipment-options" class="grid grid-cols-4 gap-4">
+                <!-- JS will populate this -->
+            </div>
+            <button id="close-equipment-modal" class="mt-4 w-full bg-red-600 text-white font-bold py-2 rounded-lg">Cancel</button>
+        </div>
     </div>
 
 
@@ -545,6 +579,19 @@
             let marketVegColorPattern = [];
             let scavengeSellColorPattern = [];
             let scavengeKeepColorPattern = [];
+            let inventoryCounts = {};
+            
+            const baseStats = {
+                hp: 15, mp: 15, armor: 3, spirit: 3, 
+                attack: 1, magic: 2, grace: 0, fear: 0, materials: 0
+            };
+            
+            let equippedItems = {
+                weapon: null,
+                armor: null,
+                ring: null,
+                accessory: null
+            };
 
 
             // Drag-and-drop state
@@ -668,6 +715,48 @@
                     });
                 }, 2000); // Wait 2 seconds before starting
             }
+            
+            /**
+             * Helper to render a section of items without square borders and more compactly.
+             */
+            const createItemHTML = (counts) => {
+                if (Object.keys(counts).length === 0) return '<p class="text-gray-500 text-center text-sm">Empty</p>';
+                // Using 5 columns to make it more compact
+                let html = `<div class="grid grid-cols-5 gap-1">`;
+                for (const [emoji, count] of Object.entries(counts)) {
+                    html += `
+                        <div class="flex flex-col items-center">
+                            <div class="w-8 h-8 flex items-center justify-center text-xl">${emoji}</div>
+                            <span class="text-xs font-bold">x${count}</span>
+                        </div>
+                    `;
+                }
+                html += `</div>`;
+                return html;
+            };
+
+            /**
+             * Updates the stats display based on base stats and equipped items.
+             */
+            function updateStatsUI() {
+                let currentStats = { ...baseStats };
+
+                // Add bonuses from equipment
+                if (equippedItems.weapon) currentStats.attack += 1;
+                if (equippedItems.armor === '🧥') currentStats.armor += 1;
+                if (equippedItems.ring === '💍') currentStats.grace += 1;
+
+                // Update the DOM
+                document.getElementById('hp-stat-value').textContent = currentStats.hp;
+                document.getElementById('mp-stat-value').textContent = currentStats.mp;
+                document.getElementById('armor-stat-value').textContent = currentStats.armor;
+                document.getElementById('spirit-stat-value').textContent = currentStats.spirit;
+                document.getElementById('attack-stat-value').textContent = currentStats.attack;
+                document.getElementById('magic-stat-value').textContent = currentStats.magic;
+                document.getElementById('grace-stat-value').textContent = currentStats.grace;
+                document.getElementById('fear-stat-value').textContent = currentStats.fear;
+                document.getElementById('materials-stat-value').textContent = currentStats.materials;
+            }
 
             /**
              * Populates the inventory on the prepare screen.
@@ -675,10 +764,10 @@
             function populatePrepareScreen() {
                 const foodContent = document.getElementById('food-content');
                 const inventoryContent = document.getElementById('inventory-content');
-                foodContent.innerHTML = ''; // Clear previous content
-                inventoryContent.innerHTML = ''; // Clear previous content
+                foodContent.innerHTML = ''; 
+                inventoryContent.innerHTML = '';
 
-                // Helper to count item occurrences, now with multiplier logic
+                // Helper to count item occurrences
                 const countItems = (items) => {
                     const yellowColor = 'rgb(253, 224, 71)';
                     return items.reduce((acc, item) => {
@@ -691,29 +780,96 @@
                 };
 
                 const marketCounts = countItems(collectedMarketItems);
-                const keepCounts = countItems(collectedKeepItems);
-
-                // Helper to render a section of items
-                const createItemHTML = (counts) => {
-                    if (Object.keys(counts).length === 0) return '<p class="text-gray-500 text-center text-sm">Empty</p>';
-                    let html = `<div class="grid grid-cols-4 gap-2">`;
-                    for (const [emoji, count] of Object.entries(counts)) {
-                        html += `
-                            <div class="flex flex-col items-center">
-                                <div class="w-10 h-10 bg-gray-700 rounded-md flex items-center justify-center text-2xl">${emoji}</div>
-                                <span class="text-xs font-bold mt-1">x${count}</span>
-                            </div>
-                        `;
-                    }
-                    html += `</div>`;
-                    return html;
-                };
+                inventoryCounts = countItems(collectedKeepItems); // Store globally for this screen
                 
                 // Populate Food window with market items
                 foodContent.innerHTML = createItemHTML(marketCounts);
 
                 // Populate Inventory window with kept items
-                inventoryContent.innerHTML = createItemHTML(keepCounts);
+                inventoryContent.innerHTML = createItemHTML(inventoryCounts);
+
+                // Set up equipment listeners and initial stats
+                setupEquipmentScreen();
+                updateStatsUI();
+            }
+
+            const EQUIPMENT_MAP = {
+                weapon: { emojis: ['🏹', '🗡️', '🦴', '🪈'], title: 'Choose a Weapon' },
+                armor: { emojis: ['🧥'], title: 'Choose Armor' },
+                ring: { emojis: ['💍'], title: 'Choose a Ring' },
+                accessory: { emojis: [], title: 'Choose an Accessory' }
+            };
+
+            /**
+             * Handles the logic of equipping an item.
+             */
+            function equipItem(itemEmoji, itemType) {
+                const slot = document.getElementById(`${itemType}-slot`);
+                const inventoryContent = document.getElementById('inventory-content');
+
+                // If an item of the same type is already equipped, return it to the inventory count
+                if (equippedItems[itemType]) {
+                    inventoryCounts[equippedItems[itemType]] = (inventoryCounts[equippedItems[itemType]] || 0) + 1;
+                }
+
+                // Equip the new item
+                equippedItems[itemType] = itemEmoji;
+                inventoryCounts[itemEmoji]--; // Decrement from inventory
+                if (inventoryCounts[itemEmoji] === 0) {
+                    delete inventoryCounts[itemEmoji]; // Remove if count is zero
+                }
+
+                // Update the UI
+                slot.textContent = equippedItems[itemType];
+                inventoryContent.innerHTML = createItemHTML(inventoryCounts); // Refresh inventory display
+                updateStatsUI();
+            }
+
+            /**
+             * Sets up the equipment window and its interactions.
+             */
+            function setupEquipmentScreen() {
+                const modal = document.getElementById('equipment-modal');
+                const modalTitle = document.getElementById('equipment-modal-title');
+                const optionsContainer = document.getElementById('equipment-options');
+                const closeModalButton = document.getElementById('close-equipment-modal');
+
+                const openEquipModal = (itemType) => {
+                    const config = EQUIPMENT_MAP[itemType];
+                    const availableItems = config.emojis.filter(emoji => inventoryCounts[emoji] > 0);
+
+                    if (availableItems.length > 0) {
+                        modalTitle.textContent = config.title;
+                        optionsContainer.innerHTML = ''; // Clear old options
+                        
+                        availableItems.forEach(emoji => {
+                            const itemDiv = document.createElement('div');
+                            itemDiv.className = 'flex flex-col items-center cursor-pointer p-2 bg-gray-700 rounded-md hover:bg-gray-600 transition-colors';
+                            itemDiv.innerHTML = `
+                                <div class="text-3xl">${emoji}</div>
+                                <span class="text-xs font-bold mt-1">x${inventoryCounts[emoji]}</span>
+                            `;
+                            itemDiv.addEventListener('click', () => {
+                                equipItem(emoji, itemType);
+                                modal.classList.add('hidden');
+                            });
+                            optionsContainer.appendChild(itemDiv);
+                        });
+                        
+                        modal.classList.remove('hidden');
+                    } else {
+                        console.log(`No items available for slot: ${itemType}`);
+                    }
+                };
+                
+                document.getElementById('weapon-slot').addEventListener('click', () => openEquipModal('weapon'));
+                document.getElementById('armor-slot').addEventListener('click', () => openEquipModal('armor'));
+                document.getElementById('ring-slot').addEventListener('click', () => openEquipModal('ring'));
+                // document.getElementById('accessory-slot').addEventListener('click', () => openEquipModal('accessory'));
+
+                closeModalButton.addEventListener('click', () => {
+                    modal.classList.add('hidden');
+                });
             }
 
 
@@ -1463,6 +1619,4 @@
 
 </body>
 </html>
-
-
 
