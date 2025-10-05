@@ -212,6 +212,32 @@
             fill: #b91c1c; /* darker red, was red-500 (#ef4444) */
         }
 
+        /* Combat Animations */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .shake-animation {
+            animation: shake 0.3s ease-in-out;
+        }
+
+        @keyframes enemy-attack {
+            50% { transform: scale(1.2) translateY(10px); }
+            100% { transform: scale(1) translateY(0); }
+        }
+        .enemy-attack-animation {
+            animation: enemy-attack 0.4s ease-out;
+        }
+
+        @keyframes stat-zoom {
+            50% { transform: scale(1.25); }
+            100% { transform: scale(1); }
+        }
+        .stat-zoom-animation {
+            animation: stat-zoom 0.3s ease-in-out;
+        }
+
     </style>
 </head>
 <body class="font-sans">
@@ -472,7 +498,7 @@
             <!-- Stats Window -->
             <div id="stats-window" class="bg-gray-900 rounded-lg p-3 font-inter flex flex-col">
                 <h3 class="font-anton text-lg tracking-wider text-center">STATS</h3>
-                <div class="grid grid-cols-4 gap-x-2 gap-y-1 text-sm mt-1 flex-grow">
+                <div class="grid grid-cols-4 gap-x-1 gap-y-1 text-sm mt-1 flex-grow">
                     <span class="font-bold text-green-500 text-left">HP</span><span class="text-right" id="hp-stat-value">15</span>
                     <span class="font-bold text-purple-500 text-left">MP</span><span class="text-right" id="mp-stat-value">15</span>
 
@@ -480,7 +506,7 @@
                     <span class="font-bold text-orange-500 text-left">Spirit</span><span class="text-right" id="spirit-stat-value">3</span>
 
                     <span class="font-bold text-red-500 text-left">Attack</span><span class="text-right" id="attack-stat-value">1</span>
-                    <span class="font-bold text-teal-500 text-left">M. Attack</span><span class="text-right" id="magic-stat-value">2</span>
+                    <span class="font-bold text-teal-500 text-left">Magic Atk</span><span class="text-right" id="magic-stat-value">2</span>
 
                     <span class="font-bold text-white text-left">Grace</span><span class="text-right" id="grace-stat-value">0</span>
                     <span class="font-bold text-gray-500 text-left">Fear</span><span class="text-right" id="fear-stat-value">0</span>
@@ -593,12 +619,12 @@
                     <!-- Player will be populated by JS -->
                 </div>
                 <div class="absolute bottom-0 w-full flex justify-between items-center px-4">
-                    <div class="flex items-center space-x-2">
+                    <div class="flex flex-col items-center">
+                        <span class="font-inter text-xs font-bold mb-1">Magic Strike</span>
                         <label for="magic-strike-toggle" class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" value="" id="magic-strike-toggle" class="sr-only peer">
                             <div class="w-9 h-5 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600"></div>
                         </label>
-                        <span class="font-inter text-xs font-bold">Magic Strike</span>
                     </div>
                     <button id="combat-inventory-button" class="text-4xl active:scale-90 transition-transform">🎒</button>
                 </div>
@@ -685,6 +711,9 @@
                 '👛': 3, '💍': 3, '💎': 4, '👑': 4, '📿': 5, '⚖️': 5, '🪞': 6, '🖼️': 6, '⚱️': 10
             };
             const defaultSellValue = 2;
+            
+            // Combat state
+            let combatState = {};
 
             function getEmojiSellValue(emoji) {
                 return emojiSellValues[emoji] || defaultSellValue;
@@ -1717,6 +1746,83 @@
                 });
             }
 
+            const sleep = ms => new Promise(res => setTimeout(res, ms));
+            
+            /**
+             * Handles the combat logic when an enemy is tapped.
+             */
+            async function handleAttack(targetEnemyState) {
+                if (!targetEnemyState || targetEnemyState.hp <= 0 || combatState.isAnimating) return;
+
+                combatState.isAnimating = true;
+
+                // 1. Player attack animation
+                targetEnemyState.element.classList.add('shake-animation');
+                await sleep(300);
+                targetEnemyState.element.classList.remove('shake-animation');
+
+                // 2. Player attack logic
+                targetEnemyState.hp -= combatState.player.attack;
+                targetEnemyState.hpElement.textContent = Math.max(0, targetEnemyState.hp);
+
+                if (targetEnemyState.hp <= 0) {
+                    targetEnemyState.element.classList.add('transition-opacity', 'duration-500', 'opacity-0');
+                    await sleep(500);
+                    targetEnemyState.element.style.visibility = 'hidden';
+
+                    const allEnemiesDefeated = combatState.enemies.every(e => e.hp <= 0);
+                    if (allEnemiesDefeated) {
+                        endCombat();
+                    }
+                    combatState.isAnimating = false;
+                    return; // Dead enemy doesn't retaliate
+                }
+
+                // 3. Enemy retaliation animation
+                await sleep(200); // Pause before retaliation
+                const healthStatsEl = document.getElementById('combat-health-stats');
+                targetEnemyState.element.classList.add('enemy-attack-animation');
+                healthStatsEl.classList.add('stat-zoom-animation');
+
+                // 4. Enemy retaliation logic
+                const enemyAttack = targetEnemyState.attack;
+                const damageToArmor = Math.min(combatState.player.armor, enemyAttack);
+                combatState.player.armor -= damageToArmor;
+
+                const remainingDamage = enemyAttack - damageToArmor;
+                combatState.player.hp -= remainingDamage;
+
+                // Update UI
+                document.getElementById('combat-hp').textContent = combatState.player.hp;
+                document.getElementById('combat-armor').textContent = combatState.player.armor;
+
+                await sleep(400); // Wait for animation to finish
+                targetEnemyState.element.classList.remove('enemy-attack-animation');
+                healthStatsEl.classList.remove('stat-zoom-animation');
+
+                if (combatState.player.hp <= 0) {
+                    console.log("Player has been defeated!");
+                    endCombat();
+                }
+                
+                combatState.isAnimating = false;
+            }
+            
+            /**
+             * Ends the current combat encounter.
+             */
+            function endCombat() {
+                console.log("Combat ended.");
+                // Persist HP damage
+                document.getElementById('hp-stat-value').textContent = combatState.player.hp;
+                
+                // Hide the combat screen after a delay
+                setTimeout(() => {
+                    combatScreen.classList.add('hidden');
+                }, 1000); // Wait 1 second after last enemy fades
+            }
+
+
             /**
              * Opens the combat screen and populates it with enemies for the given node.
              */
@@ -1733,50 +1839,61 @@
                 // Define enemies based on node ID
                 const enemies = {
                     'start': [
-                        { name: 'DARK WOLF', emoji: '🐺', hp: 3, attack: 1 },
-                        { name: 'POISON FROG', emoji: '🐸', hp: 3, attack: 1 }
+                        { id: 0, name: 'DARK WOLF', emoji: '🐺', hp: 3, attack: 1 },
+                        { id: 1, name: 'POISON FROG', emoji: '🐸', hp: 3, attack: 1 }
                     ]
-                    // Other nodes can be added here in the future
+                    // Other nodes can be added here
                 };
 
                 const currentEnemies = enemies[nodeId] || [];
+                
+                // Initialize combat state
+                combatState = {
+                    isAnimating: false,
+                    player: {
+                        hp: parseInt(document.getElementById('hp-stat-value').textContent),
+                        armor: parseInt(document.getElementById('armor-stat-value').textContent),
+                        attack: parseInt(document.getElementById('attack-stat-value').textContent)
+                    },
+                    enemies: []
+                };
 
                 // Populate enemies and their info
-                currentEnemies.forEach(enemy => {
-                    // Create enemy display with stats
+                currentEnemies.forEach(enemyData => {
                     const enemyContainer = document.createElement('div');
-                    enemyContainer.className = 'flex flex-col items-center';
+                    enemyContainer.className = 'flex flex-col items-center cursor-pointer';
                     enemyContainer.innerHTML = `
                         <div class="flex justify-between w-full px-2 text-lg font-bold">
-                            <span class="text-green-500">${enemy.hp}</span>
-                            <span class="text-red-500">${enemy.attack}</span>
+                            <span class="text-green-500">${enemyData.hp}</span>
+                            <span class="text-red-500">${enemyData.attack}</span>
                         </div>
-                        <div class="text-6xl">${enemy.emoji}</div>
+                        <div class="text-6xl">${enemyData.emoji}</div>
                     `;
                     enemyDisplay.appendChild(enemyContainer);
+                    
+                    const enemyState = {
+                        ...enemyData,
+                        element: enemyContainer,
+                        hpElement: enemyContainer.querySelector('.text-green-500')
+                    };
+                    combatState.enemies.push(enemyState);
+                    
+                    enemyContainer.addEventListener('click', () => handleAttack(enemyState));
 
-                    // Create enemy name display
                     const nameSpan = document.createElement('span');
-                    nameSpan.textContent = enemy.name;
+                    nameSpan.textContent = enemyData.name;
                     enemyInfoSection.appendChild(nameSpan);
                 });
 
                 // Populate player
                 playerDisplay.textContent = '👤';
 
-                // Populate player stats
-                const hp = document.getElementById('hp-stat-value').textContent;
-                const armor = document.getElementById('armor-stat-value').textContent;
-                const attack = document.getElementById('attack-stat-value').textContent;
-                const mp = document.getElementById('mp-stat-value').textContent;
-                const spirit = document.getElementById('spirit-stat-value').textContent;
-                
-                document.getElementById('combat-hp').textContent = hp;
-                document.getElementById('combat-armor').textContent = armor;
-                document.getElementById('combat-attack').textContent = attack;
-                document.getElementById('combat-mp').textContent = mp;
-                document.getElementById('combat-spirit').textContent = spirit;
-
+                // Populate player stats UI
+                document.getElementById('combat-hp').textContent = combatState.player.hp;
+                document.getElementById('combat-armor').textContent = combatState.player.armor;
+                document.getElementById('combat-attack').textContent = combatState.player.attack;
+                document.getElementById('combat-mp').textContent = document.getElementById('mp-stat-value').textContent;
+                document.getElementById('combat-spirit').textContent = document.getElementById('spirit-stat-value').textContent;
 
                 // Show the combat screen
                 combatScreen.classList.remove('hidden');
@@ -1904,7 +2021,7 @@
             // Listener to close the combat modal when clicking the background
             combatScreen.addEventListener('click', (e) => {
                 if (e.target === combatScreen) {
-                    combatScreen.classList.add('hidden');
+                    endCombat();
                 }
             });
 
