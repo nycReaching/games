@@ -53,7 +53,6 @@
             position: absolute;
             font-size: 2.5rem; /* Emojis are a bit larger for visibility */
             user-select: none; /* Prevents users from accidentally selecting them */
-            text-shadow: 0 0 5px rgba(0,0,0,0.5); /* Adds a subtle shadow for depth */
             left: 50%;
             transform: translateX(-50%);
             cursor: pointer; /* Indicates the emoji is tappable */
@@ -65,7 +64,6 @@
             font-size: 4rem;
             cursor: pointer;
             z-index: 25;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
             top: 60%;
             transform: translate(-50%, -50%);
             transition: transform 0.2s ease;
@@ -83,10 +81,12 @@
             background-color: #4a5568; /* bg-gray-600 */
             border-radius: 0.375rem; /* rounded-md */
             transition: background-color 0.3s ease;
+            isolation: isolate; /* Creates a new stacking context */
         }
         
         .travel-square {
             position: relative; /* For positioning the indicator */
+            isolation: isolate; /* Creates a new stacking context */
         }
 
         .yellow-multiplier::after {
@@ -97,9 +97,9 @@
             transform: translate(-50%, -50%);
             font-family: 'Anton', sans-serif;
             font-size: 3rem;
-            color: rgba(255, 255, 255, 0.3); /* Transparent white */
+            color: white; /* Solid white text */
             pointer-events: none; /* Prevents it from interfering with clicks */
-            z-index: 1;
+            z-index: -1; /* Places the '2x' behind the emoji content */
         }
 
         .grid-square:before {
@@ -155,6 +155,15 @@
             background-color: #a1a1aa; /* bg-zinc-400 */
             box-shadow: 0 5px #71717a; /* bg-zinc-500 */
             cursor: not-allowed;
+        }
+
+        /* Resize 2x multiplier for summary screen */
+        #market-summary .yellow-multiplier::after {
+            font-size: 2.25rem;
+        }
+        #sell-summary .yellow-multiplier::after,
+        #keep-summary .yellow-multiplier::after {
+            font-size: 1.75rem;
         }
 
 
@@ -337,9 +346,6 @@
                 </div>
             </div>
             
-            <!-- Divider -->
-            <div class="border-t-2 border-gray-600 my-2"></div>
-
             <!-- Scavenge & Gamble Summary Container -->
             <div>
                  <h3 class="font-anton text-2xl tracking-wider text-green-300 mb-3 text-center">SCAVENGE & GAMBLE</h3>
@@ -519,10 +525,18 @@
                 // Helper to create small summary squares
                 const createSmallSquare = (item, sizeClasses) => {
                     const square = document.createElement('div');
-                    square.className = `${sizeClasses} flex items-center justify-center rounded-md`;
+                    // Added 'isolate' to create a stacking context so z-index works as expected.
+                    square.className = `${sizeClasses} isolate relative flex-shrink-0 flex items-center justify-center rounded-md`;
                     square.textContent = item.emoji;
-                    // Use the captured color, or a default gray if empty/transparent
-                    square.style.backgroundColor = (item.color && item.color !== 'rgba(0, 0, 0, 0)') ? item.color : '#4a5568';
+                    
+                    const bgColor = (item.color && item.color !== 'rgba(0, 0, 0, 0)') ? item.color : '#4a5568';
+                    square.style.backgroundColor = bgColor;
+
+                    // If the color is yellow, add the class for the 2x indicator
+                    if (bgColor === 'rgb(253, 224, 71)') { // Corresponds to yellow-300
+                        square.classList.add('yellow-multiplier');
+                    }
+
                     return square;
                 };
 
@@ -589,7 +603,7 @@
 
                                 // Change the square to display the value and fade it back in, preserving its size
                                 square.textContent = `+$${finalSellValue}`;
-                                square.classList.remove('text-3xl', 'scale-125'); // Keep w-12 h-12
+                                square.classList.remove('text-3xl', 'scale-125'); // Keep w-12 h-12 and other size classes
                                 square.classList.add('font-anton', 'text-lg', 'text-yellow-300', 'opacity-100');
                                 square.style.backgroundColor = 'transparent';
 
@@ -913,7 +927,7 @@
                     marketTimeLeft--;
                     countdownElement.textContent = marketTimeLeft;
 
-                    if (marketTimeLeft === 20) {
+                    if (marketTimeLeft === 30) {
                         spawnSpecialItems();
                     }
 
@@ -1345,6 +1359,5 @@
 
 </body>
 </html>
-
 
 
