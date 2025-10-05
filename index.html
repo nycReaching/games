@@ -587,10 +587,10 @@
                                     gambleSummaryContainer.classList.remove('transform', 'scale-110');
                                 }, 200);
 
-                                // Change the square to display the value and fade it in
+                                // Change the square to display the value and fade it back in, preserving its size
                                 square.textContent = `+$${finalSellValue}`;
-                                square.classList.remove('w-12', 'h-12', 'text-3xl', 'scale-125');
-                                square.classList.add('font-anton', 'text-xl', 'text-yellow-300', 'opacity-100');
+                                square.classList.remove('text-3xl', 'scale-125'); // Keep w-12 h-12
+                                square.classList.add('font-anton', 'text-lg', 'text-yellow-300', 'opacity-100');
                                 square.style.backgroundColor = 'transparent';
 
 
@@ -1345,5 +1345,6 @@
 
 </body>
 </html>
+
 
 
