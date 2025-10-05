@@ -190,17 +190,19 @@
             stroke-width: 4;
         }
         .node {
-            fill: #4b5563; /* gray-600 */
+            fill: #581c87; /* dark purple */
             stroke: #9ca3af; /* gray-400 */
             stroke-width: 3;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            transition: fill 0.2s ease;
         }
-        .node:hover, .node.active {
-            fill: #facc15; /* yellow-400 */
-            stroke: #fff;
-            transform: scale(1.1);
-            transform-origin: center;
+        .node.gold {
+            fill: #fde047; /* yellow-300 */
+        }
+        .node.pink {
+            fill: #f472b6; /* pink-400 */
+        }
+        .node.black {
+            fill: #1f2937; /* bg-gray-800 */
         }
         .node.start {
             fill: #10b981; /* emerald-500 */
@@ -534,29 +536,29 @@
                 <line x1="310" y1="200" x2="250" y2="80" class="path-line"/>
 
                 <!-- Nodes -->
-                <circle cx="200" cy="480" r="12" class="node start"/> <!-- Start -->
+                <circle cx="200" cy="480" r="12" class="node start" data-id="start"/>
                 <!-- Tier 1 -->
-                <circle cx="100" cy="410" r="12" class="node"/>
-                <circle cx="300" cy="410" r="12" class="node"/>
+                <circle cx="100" cy="410" r="12" class="node" data-id="t1_0"/>
+                <circle cx="300" cy="410" r="12" class="node" data-id="t1_1"/>
                 <!-- Tier 2 -->
-                <circle cx="50" cy="340" r="12" class="node"/>
-                <circle cx="150" cy="340" r="12" class="node"/>
-                <circle cx="250" cy="340" r="12" class="node"/>
-                <circle cx="350" cy="340" r="12" class="node"/>
+                <circle cx="50" cy="340" r="12" class="node" data-id="t2_0"/>
+                <circle cx="150" cy="340" r="12" class="node" data-id="t2_1"/>
+                <circle cx="250" cy="340" r="12" class="node" data-id="t2_2"/>
+                <circle cx="350" cy="340" r="12" class="node" data-id="t2_3"/>
                 <!-- Tier 3 -->
-                <circle cx="50" cy="270" r="12" class="node"/>
-                <circle cx="125" cy="270" r="12" class="node"/>
-                <circle cx="175" cy="270" r="12" class="node"/>
-                <circle cx="225" cy="270" r="12" class="node"/>
-                <circle cx="275" cy="270" r="12" class="node"/>
-                <circle cx="350" cy="270" r="12" class="node"/>
+                <circle cx="50" cy="270" r="12" class="node" data-id="t3_0"/>
+                <circle cx="125" cy="270" r="12" class="node" data-id="t3_1"/>
+                <circle cx="175" cy="270" r="12" class="node" data-id="t3_2"/>
+                <circle cx="225" cy="270" r="12" class="node" data-id="t3_3"/>
+                <circle cx="275" cy="270" r="12" class="node" data-id="t3_4"/>
+                <circle cx="350" cy="270" r="12" class="node" data-id="t3_5"/>
                 <!-- Tier 4 -->
-                <circle cx="90" cy="200" r="12" class="node"/>
-                <circle cx="200" cy="200" r="12" class="node"/>
-                <circle cx="310" cy="200" r="12" class="node"/>
+                <circle cx="90" cy="200" r="12" class="node" data-id="t4_0"/>
+                <circle cx="200" cy="200" r="12" class="node" data-id="t4_1"/>
+                <circle cx="310" cy="200" r="12" class="node" data-id="t4_2"/>
                 <!-- End -->
-                <circle cx="150" cy="80" r="12" class="node end"/>
-                <circle cx="250" cy="80" r="12" class="node end"/>
+                <circle cx="150" cy="80" r="12" class="node end" data-id="end_0"/>
+                <circle cx="250" cy="80" r="12" class="node end" data-id="end_1"/>
             </svg>
         </main>
     </div>
@@ -1708,6 +1710,71 @@
                 prepareScreen.classList.add('hidden');
                 choiceScreen.classList.remove('hidden');
                 choiceScreen.classList.add('flex');
+
+                // Define the graph structure based on node data-id attributes
+                const graph = {
+                    'start': ['t1_0', 't1_1'], 't1_0': ['t2_0', 't2_1'], 't1_1': ['t2_2', 't2_3'],
+                    't2_0': ['t3_0'], 't2_1': ['t3_1', 't3_2'], 't2_2': ['t3_3', 't3_4'], 't2_3': ['t3_5'],
+                    't3_0': ['t4_0'], 't3_1': ['t4_0'], 't3_2': ['t4_1'], 't3_3': ['t4_1'],
+                    't3_4': ['t4_2'], 't3_5': ['t4_2'], 't4_0': ['end_0'], 't4_1': ['end_0', 'end_1'],
+                    't4_2': ['end_1'], 'end_0': [], 'end_1': []
+                };
+
+                // Recursive function to find all paths from a start to an end node
+                const findPathsRecursive = (graph, start, end, path = []) => {
+                    path = path.concat(start);
+                    if (start === end) return [path];
+                    if (!graph[start]) return [];
+                    let paths = [];
+                    for (let node of graph[start]) {
+                        if (!path.includes(node)) {
+                            let newPaths = findPathsRecursive(graph, node, end, path);
+                            paths.push(...newPaths);
+                        }
+                    }
+                    return paths;
+                };
+
+                // Find all possible paths from the start to either end node
+                const pathsToEnd0 = findPathsRecursive(graph, 'start', 'end_0');
+                const pathsToEnd1 = findPathsRecursive(graph, 'start', 'end_1');
+                const allPossiblePaths = [...pathsToEnd0, ...pathsToEnd1];
+                
+                // Shuffle the paths to randomize which ones get colored
+                const shuffledPaths = shuffle(allPossiblePaths);
+                const colors = ['gold', 'pink', 'black'];
+                const selectedPaths = shuffledPaths.slice(0, 3);
+
+                // Reset all nodes to their default state first
+                const allNodes = document.querySelectorAll('#choice-graph .node');
+                allNodes.forEach(node => {
+                    node.classList.remove('gold', 'pink', 'black');
+                });
+
+                // To ensure we color unique nodes
+                const coloredNodeIds = new Set();
+
+                // Assign one unique colored node for each selected path
+                selectedPaths.forEach((path, index) => {
+                    const color = colors[index];
+                    if (!color) return;
+
+                    // Find nodes on this path that can be colored (not start/end and not already colored)
+                    const availableNodes = path.filter(nodeId => 
+                        !nodeId.startsWith('start') && !nodeId.startsWith('end_') && !coloredNodeIds.has(nodeId)
+                    );
+
+                    if (availableNodes.length > 0) {
+                        // Pick a random available node from the path to color
+                        const nodeToColorId = availableNodes[Math.floor(Math.random() * availableNodes.length)];
+                        const nodeElement = document.querySelector(`.node[data-id="${nodeToColorId}"]`);
+                        
+                        if (nodeElement) {
+                            nodeElement.classList.add(color);
+                            coloredNodeIds.add(nodeToColorId); // Mark this node as colored
+                        }
+                    }
+                });
             });
 
             // Add listeners for skip buttons
@@ -1726,5 +1793,8 @@
 
 </body>
 </html>
+
+
+
 
 
