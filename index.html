@@ -69,7 +69,7 @@
             font-size: 4rem;
             cursor: pointer;
             z-index: 25;
-            top: 60%;
+            top: 45%;
             transform: translate(-50%, -50%);
             transition: transform 0.2s ease;
         }
@@ -279,6 +279,42 @@
             <!-- Conveyor belt containers -->
             <div id="fruit-conveyor" class="absolute top-0 left-1/3 h-full overflow-hidden" style="width: 16.6667%;"></div>
             <div id="vegetable-conveyor" class="absolute top-0 left-1/2 h-full overflow-hidden" style="width: 16.6667%;"></div>
+
+            <!-- Fruit and Vegetable Legends -->
+            <div id="fruit-legend" class="absolute bottom-2 left-2 w-[30%] bg-black bg-opacity-40 rounded-lg p-2 font-inter text-xs text-gray-200 space-y-1">
+                <div class="grid grid-cols-[auto,1fr] items-center gap-x-2">
+                    <span class="text-lg">🍎</span><span>+10 ❤️</span>
+                </div>
+                <div class="grid grid-cols-[auto,1fr] items-center gap-x-2">
+                    <span class="text-lg">🍊</span><span>+10 💜</span>
+                </div>
+                <div class="grid grid-cols-[auto,1fr] items-center gap-x-2">
+                    <span class="text-lg">🍇</span><span>+5❤️, +5💜</span>
+                </div>
+                <div class="grid grid-cols-[auto,1fr] items-center gap-x-2">
+                    <span class="text-lg">🥥</span><span>Heal 🛡️, +1 Max</span>
+                </div>
+                <div class="grid grid-cols-[auto,1fr] items-center gap-x-2">
+                    <span class="text-lg">🍌</span><span>Heal ✨, +1 Max</span>
+                </div>
+            </div>
+            <div id="veg-legend" class="absolute bottom-2 right-2 w-[30%] bg-black bg-opacity-40 rounded-lg p-2 font-inter text-xs text-gray-200 space-y-1">
+                <div class="grid grid-cols-[auto,1fr] items-center gap-x-2">
+                    <span class="text-lg">🥦</span><span>+1 Max ❤️</span>
+                </div>
+                <div class="grid grid-cols-[auto,1fr] items-center gap-x-2">
+                    <span class="text-lg">🌶️</span><span>+1 Max 💜</span>
+                </div>
+                <div class="grid grid-cols-[auto,1fr] items-center gap-x-2">
+                    <span class="text-lg">🥔</span><span>⚔️ & 🛡️ x2 (Battle)</span>
+                </div>
+                <div class="grid grid-cols-[auto,1fr] items-center gap-x-2">
+                    <span class="text-lg">🥕</span><span>✨ x2 (Battle)</span>
+                </div>
+                <div class="grid grid-cols-[auto,1fr] items-center gap-x-2">
+                    <span class="text-lg">🌽</span><span>Better Rewards ⭐</span>
+                </div>
+            </div>
         </main>
 
         <!-- Bottom Section -->
@@ -1408,7 +1444,7 @@
                     marketTimeLeft--;
                     countdownElement.textContent = marketTimeLeft;
 
-                    if (marketTimeLeft === 30) {
+                    if (marketTimeLeft === 35) {
                         spawnSpecialItems();
                     }
 
@@ -2338,19 +2374,6 @@
                 });
             });
             
-            // Listener to close the combat modal when clicking the background
-            combatScreen.addEventListener('click', (e) => {
-                 if (e.target === combatScreen) {
-                    console.log("Fled from combat.");
-                    combatScreen.classList.add('hidden');
-                    if (combatState) {
-                        combatState.isAnimating = false;
-                        combatState.isEnding = false;
-                    }
-                    currentNodeId = null;
-                }
-            });
-
             // Add listeners for combat inventory
             document.getElementById('combat-inventory-button').addEventListener('click', populateAndShowCombatInventory);
             document.getElementById('close-combat-inventory-modal').addEventListener('click', () => {
@@ -2373,4 +2396,6 @@
 
 </body>
 </html>
+
+
 
