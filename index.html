@@ -367,27 +367,29 @@
             <!-- Travel & Gamble Summary Container -->
             <div>
                  <h3 class="font-anton text-2xl tracking-wider text-green-300 mb-3 text-center">TRAVEL & GAMBLE</h3>
-                <div class="flex items-center justify-between">
+                <div class="flex flex-col gap-4">
                     <!-- Travel Summary -->
-                    <div class="space-y-3">
+                    <div class="space-y-3 bg-gray-900/50 p-3 rounded-lg">
                          <!-- Sell Row -->
-                        <div class="flex items-center">
-                            <h4 class="font-anton text-lg text-red-400 mr-2 w-12 text-right">SELL</h4>
-                            <div id="sell-summary" class="flex flex-row space-x-2">
-                                <!-- Populated by JS -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <h4 class="font-anton text-lg text-red-400 mr-3 w-12 text-right">SELL</h4>
+                                <div id="sell-summary" class="flex flex-row space-x-2">
+                                    <!-- Populated by JS -->
+                                </div>
                             </div>
-                            <div id="sell-calculation" class="font-anton text-xl text-yellow-300 ml-4 w-24 text-left transition-opacity duration-300"></div>
+                            <div id="sell-calculation" class="font-anton text-xl text-yellow-300 text-right transition-opacity duration-300 min-w-[6rem]"></div>
                         </div>
                         <!-- Keep Row -->
                         <div class="flex items-center">
-                            <h4 class="font-anton text-lg text-green-400 mr-2 w-12 text-right">KEEP</h4>
+                            <h4 class="font-anton text-lg text-green-400 mr-3 w-12 text-right">KEEP</h4>
                             <div id="keep-summary" class="flex flex-row space-x-2">
                                <!-- Populated by JS -->
                             </div>
                         </div>
                     </div>
                     <!-- Gamble Summary -->
-                    <div class="text-center">
+                    <div class="text-center bg-gray-900/50 p-3 rounded-lg">
                         <h4 class="font-anton text-lg text-yellow-300">WINNINGS</h4>
                         <div id="gamble-summary" class="font-anton text-5xl text-yellow-300">
                             $0
@@ -1301,5 +1303,6 @@
 
 </body>
 </html>
+
 
 
