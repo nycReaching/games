@@ -59,6 +59,20 @@
             cursor: pointer; /* Indicates the emoji is tappable */
             z-index: 20; /* Ensure emojis are above the dividers */
         }
+        
+        .special-item {
+            position: absolute;
+            font-size: 4rem;
+            cursor: pointer;
+            z-index: 25;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+            top: 60%;
+            transform: translate(-50%, -50%);
+            transition: transform 0.2s ease;
+        }
+        .special-item:active {
+            transform: translate(-50%, -50%) scale(0.95);
+        }
 
         .grid-square {
             position: relative; /* For positioning the indicator */
@@ -127,66 +141,22 @@
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            background-color: #ef4444; /* bg-red-500 */
-            border: 4px solid #f87171; /* bg-red-400 */
-            box-shadow: 0 5px #b91c1c; /* dark red shadow */
+            background-color: #dc2626; /* bg-red-600 */
+            border: 4px solid #ef4444; /* bg-red-500 */
+            box-shadow: 0 5px #991b1b; /* shadow */
             transition: all 0.1s ease;
             cursor: pointer;
         }
         .spin-button:active {
             transform: translateY(3px);
-            box-shadow: 0 2px #b91c1c; /* dark red shadow */
+            box-shadow: 0 2px #991b1b;
         }
         .spin-button:disabled {
             background-color: #a1a1aa; /* bg-zinc-400 */
             box-shadow: 0 5px #71717a; /* bg-zinc-500 */
             cursor: not-allowed;
         }
-        
-        /* New styles for the custom gamble toggle */
-        .gamble-toggle-container {
-            position: relative;
-            width: 150px;
-            height: 30px;
-            background-color: #374151; /* bg-gray-700 */
-            border: 2px solid #4b5563; /* border-gray-600 */
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            user-select: none;
-            transition: background-color 0.3s ease;
-        }
-        .gamble-toggle-container.disabled {
-             cursor: not-allowed;
-             opacity: 0.6;
-        }
-        
-        .gamble-toggle-thumb {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            background-color: #9ca3af; /* bg-gray-400 */
-            border-radius: 50%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            border: 3px solid #374151;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
 
-        .gamble-toggle-container.left .gamble-toggle-thumb {
-            left: 20px; /* Position for left selection */
-            background-color: #facc15; /* yellow-400 */
-            border-color: #fde047; /* yellow-300 */
-        }
-
-        .gamble-toggle-container.right .gamble-toggle-thumb {
-            left: calc(100% - 20px); /* Position for right selection */
-            background-color: #3b82f6; /* blue-500 */
-            border-color: #60a5fa; /* blue-400 */
-        }
 
         /* Animation keyframes for moving down (fruits) */
         @keyframes move-down {
@@ -255,12 +225,12 @@
 
     </div>
 
-    <!-- Screen 2: Travel -->
-    <div id="travel-screen" class="mobile-container flex-col h-screen bg-gray-800 text-white hidden">
+    <!-- Screen 2: Scavenge -->
+    <div id="scavenge-screen" class="mobile-container flex-col h-screen bg-gray-800 text-white hidden">
         <!-- Top Section -->
         <header class="h-32 bg-gray-900 shadow-lg flex-shrink-0 flex items-center justify-center">
-             <!-- Countdown Timer for Travel Phase -->
-            <div id="travel-countdown-timer" class="font-anton text-6xl tracking-wider">45</div>
+             <!-- Countdown Timer for Scavenge Phase -->
+            <div id="scavenge-countdown-timer" class="font-anton text-6xl tracking-wider">45</div>
         </header>
 
         <!-- Middle Section -->
@@ -289,8 +259,8 @@
 
         <!-- Bottom Section -->
         <footer class="h-36 bg-gray-900 shadow-lg flex-shrink-0 flex items-center justify-between p-6">
-            <!-- Travel Text -->
-            <div class="font-anton text-5xl tracking-widest">TRAVEL</div>
+            <!-- Scavenge Text -->
+            <div class="font-anton text-5xl tracking-widest">SCAVENGE</div>
             <!-- Tappable Button -->
             <button class="bg-green-600 hover:bg-green-700 active:bg-green-800 text-white text-xl font-bold py-4 px-6 rounded-lg shadow-md transition-transform transform active:scale-95">
                 Action
@@ -308,13 +278,14 @@
 
         <!-- Middle Section -->
         <main class="flex-grow bg-gray-700 flex flex-col items-center justify-center space-y-6">
-            <!-- NEW Gamble Mode Toggle -->
-            <div id="gamble-mode-selector" class="flex items-center justify-center space-x-4 text-sm font-semibold w-full px-4">
-                <span id="two-x-label" class="text-gray-400 transition-colors duration-300 w-24 text-center">2X WIN</span>
-                <div id="gamble-toggle-container" class="gamble-toggle-container">
-                    <div id="gamble-toggle-thumb" class="gamble-toggle-thumb"></div>
-                </div>
-                <span id="unlimited-label" class="text-gray-400 transition-colors duration-300 w-24 text-center">UNLIMITED</span>
+            <!-- Gamble Mode Toggle -->
+            <div id="gamble-mode-selector" class="flex items-center justify-center space-x-3 text-sm font-semibold">
+                <span id="one-win-label" class="text-gray-400 transition-colors">ONE 2X WIN</span>
+                <label for="gamble-toggle" class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" value="" id="gamble-toggle" class="sr-only peer" checked>
+                    <div class="w-11 h-6 bg-yellow-500 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                </label>
+                <span id="unlimited-wins-label" class="text-white transition-colors">UNLIMITED WINS</span>
             </div>
             
             <!-- Win Tracker -->
@@ -344,7 +315,7 @@
         </footer>
     </div>
 
-    <!-- Screen 4: Prepare -->
+    <!-- Screen 4: Results -->
     <div id="prepare-screen" class="mobile-container flex-col h-screen bg-gray-800 text-white hidden">
         <!-- Top Section -->
         <header class="h-32 bg-gray-900 shadow-lg flex-shrink-0 flex items-center justify-center">
@@ -356,40 +327,43 @@
             <!-- Market Summary -->
             <div>
                 <h3 class="font-anton text-2xl tracking-wider text-indigo-300 mb-3 text-center">MARKET ITEMS</h3>
-                <div id="market-summary" class="grid grid-cols-4 gap-3 w-max mx-auto">
-                    <!-- Populated by JS -->
+                <div class="flex items-center justify-center">
+                    <div id="market-summary" class="grid grid-cols-4 gap-3">
+                        <!-- Populated by JS -->
+                    </div>
+                    <div id="special-item-summary" class="ml-4 text-5xl">
+                        <!-- Populated by JS -->
+                    </div>
                 </div>
             </div>
             
             <!-- Divider -->
             <div class="border-t-2 border-gray-600 my-2"></div>
 
-            <!-- Travel & Gamble Summary Container -->
+            <!-- Scavenge & Gamble Summary Container -->
             <div>
-                 <h3 class="font-anton text-2xl tracking-wider text-green-300 mb-3 text-center">TRAVEL & GAMBLE</h3>
-                <div class="flex flex-col gap-4">
-                    <!-- Travel Summary -->
-                    <div class="space-y-3 bg-gray-900/50 p-3 rounded-lg">
+                 <h3 class="font-anton text-2xl tracking-wider text-green-300 mb-3 text-center">SCAVENGE & GAMBLE</h3>
+                <div class="flex items-center justify-between">
+                    <!-- Scavenge Summary -->
+                    <div class="space-y-3">
                          <!-- Sell Row -->
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <h4 class="font-anton text-lg text-red-400 mr-3 w-12 text-right">SELL</h4>
-                                <div id="sell-summary" class="flex flex-row space-x-2">
-                                    <!-- Populated by JS -->
-                                </div>
+                        <div class="flex items-center">
+                            <h4 class="font-anton text-lg text-red-400 mr-2 w-12 text-right">SELL</h4>
+                            <div id="sell-summary" class="flex flex-row space-x-2">
+                                <!-- Populated by JS -->
                             </div>
-                            <div id="sell-calculation" class="font-anton text-xl text-yellow-300 text-right transition-opacity duration-300 min-w-[6rem]"></div>
+                            <div id="sell-calculation" class="font-anton text-xl text-yellow-300 ml-4 w-24 text-left transition-opacity duration-300"></div>
                         </div>
                         <!-- Keep Row -->
                         <div class="flex items-center">
-                            <h4 class="font-anton text-lg text-green-400 mr-3 w-12 text-right">KEEP</h4>
+                            <h4 class="font-anton text-lg text-green-400 mr-2 w-12 text-right">KEEP</h4>
                             <div id="keep-summary" class="flex flex-row space-x-2">
                                <!-- Populated by JS -->
                             </div>
                         </div>
                     </div>
                     <!-- Gamble Summary -->
-                    <div class="text-center bg-gray-900/50 p-3 rounded-lg">
+                    <div class="text-center">
                         <h4 class="font-anton text-lg text-yellow-300">WINNINGS</h4>
                         <div id="gamble-summary" class="font-anton text-5xl text-yellow-300">
                             $0
@@ -401,10 +375,28 @@
 
         <!-- Bottom Section -->
         <footer class="h-36 bg-gray-900 shadow-lg flex-shrink-0 flex items-center justify-between p-6">
-            <div class="font-anton text-5xl tracking-widest">PREPARE</div>
-            <button class="bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white text-xl font-bold py-4 px-6 rounded-lg shadow-md transition-transform transform active:scale-95">
+            <div class="font-anton text-5xl tracking-widest"></div>
+             <button id="next-button" class="bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white text-xl font-bold py-4 px-6 rounded-lg shadow-md transition-transform transform active:scale-95">
                 Next
             </button>
+        </footer>
+    </div>
+
+    <!-- Screen 5: Next Screen (Blank) -->
+    <div id="next-screen" class="mobile-container flex-col h-screen bg-gray-800 text-white hidden">
+        <!-- Top Section -->
+        <header class="h-32 bg-gray-900 shadow-lg flex-shrink-0 flex items-center justify-center">
+            <div class="font-anton text-6xl tracking-wider"></div>
+        </header>
+
+        <!-- Middle Section -->
+        <main class="flex-grow bg-gray-700 p-4 sm:p-6 flex flex-col justify-around">
+            <!-- Blank content -->
+        </main>
+
+        <!-- Bottom Section -->
+        <footer class="h-36 bg-gray-900 shadow-lg flex-shrink-0 flex items-center justify-center p-6">
+            <div class="font-anton text-5xl tracking-widest"></div>
         </footer>
     </div>
 
@@ -413,9 +405,10 @@
         document.addEventListener('DOMContentLoaded', () => {
             // Screen elements
             const marketScreen = document.getElementById('market-screen');
-            const travelScreen = document.getElementById('travel-screen');
+            const scavengeScreen = document.getElementById('scavenge-screen');
             const gambleScreen = document.getElementById('gamble-screen');
             const prepareScreen = document.getElementById('prepare-screen');
+            const nextScreen = document.getElementById('next-screen');
             
             // Market screen elements
             const fruitConveyor = document.getElementById('fruit-conveyor');
@@ -425,10 +418,10 @@
             const allSquares = document.querySelectorAll('.grid-square');
             const countdownElement = document.getElementById('countdown-timer');
 
-            // Travel screen elements
+            // Scavenge screen elements
             const routeContent = document.getElementById('route-content');
             const scrollableRoute = document.getElementById('scrollable-route');
-            const travelCountdownElement = document.getElementById('travel-countdown-timer');
+            const scavengeCountdownElement = document.getElementById('scavenge-countdown-timer');
             const sellSquares = document.querySelectorAll('#sell-column .travel-square');
             const keepSquares = document.querySelectorAll('#keep-column .travel-square');
             const allTravelSquares = document.querySelectorAll('.travel-square');
@@ -438,10 +431,9 @@
             const reels = document.querySelectorAll('#reels-container .reel');
             const spinButton = document.getElementById('spin-button');
             const winTracker = document.getElementById('win-tracker');
-            const gambleToggleContainer = document.getElementById('gamble-toggle-container');
-            const twoXLabel = document.getElementById('two-x-label');
-            const unlimitedLabel = document.getElementById('unlimited-label');
-
+            const gambleToggle = document.getElementById('gamble-toggle');
+            const oneWinLabel = document.getElementById('one-win-label');
+            const unlimitedWinsLabel = document.getElementById('unlimited-wins-label');
 
             // Prepare screen elements
             const marketSummaryContainer = document.getElementById('market-summary');
@@ -449,6 +441,8 @@
             const keepSummaryContainer = document.getElementById('keep-summary');
             const gambleSummaryContainer = document.getElementById('gamble-summary');
             const sellCalculationContainer = document.getElementById('sell-calculation');
+            const specialItemSummaryContainer = document.getElementById('special-item-summary');
+            const nextButton = document.getElementById('next-button');
 
 
             const fruits = ['🍎', '🍊', '🍇', '🥥', '🍌'];
@@ -479,20 +473,25 @@
 
             // Game state variables
             let marketTimeLeft = 45;
-            let travelTimeLeft = 45;
+            let scavengeTimeLeft = 45;
             let gambleTimeLeft = 60;
             let marketTimerInterval;
-            let travelTimerInterval;
+            let scavengeTimerInterval;
             let gambleTimerInterval;
             let fruitSpawnInterval;
             let vegSpawnInterval;
             let currentPhase = 'market';
-            let gambleSelection = null; // Can be '2x', 'unlimited', or null
+            let isUnlimitedWinsMode = true; // Default to unlimited wins
             let totalWinnings = 0;
             let collectedMarketItems = [];
             let collectedSellItems = [];
             let collectedKeepItems = [];
-            let hasSpunGamble = false;
+            let hasWonGamble = false;
+            let chosenSpecialItem = null;
+            let marketFruitColorPattern = [];
+            let marketVegColorPattern = [];
+            let scavengeSellColorPattern = [];
+            let scavengeKeepColorPattern = [];
 
 
             // Drag-and-drop state
@@ -517,6 +516,7 @@
                 marketSummaryContainer.innerHTML = '';
                 sellSummaryContainer.innerHTML = '';
                 keepSummaryContainer.innerHTML = '';
+                specialItemSummaryContainer.innerHTML = '';
 
                 // Helper to create small summary squares
                 const createSmallSquare = (item, sizeClasses) => {
@@ -533,6 +533,11 @@
                     const square = createSmallSquare(item, 'w-16 h-16 text-4xl');
                     marketSummaryContainer.appendChild(square);
                 });
+
+                // Populate chosen special item
+                if (chosenSpecialItem) {
+                    specialItemSummaryContainer.textContent = chosenSpecialItem;
+                }
 
                 // Populate sell items
                 collectedSellItems.forEach(item => {
@@ -622,7 +627,7 @@
                 gambleTimeLeft = 0;
                 gambleCountdownElement.textContent = "0";
                 spinButton.disabled = true;
-                gambleToggleContainer.classList.add('disabled');
+                gambleToggle.disabled = true;
                 
                 console.log("Gamble phase over. Gambling winnings: $" + totalWinnings);
                 
@@ -653,34 +658,27 @@
             }
 
             /**
-             * Reveals the colors of the travel squares sequentially.
+             * Reveals the colors of the scavenge squares sequentially.
              */
-            function startTravelColorReveal() {
-                const blueClass = 'bg-blue-500';
-                const yellowClass = 'bg-yellow-300';
-                const grayClass = 'bg-gray-600';
-
-                const sellPattern = shuffle([blueClass, yellowClass, blueClass]);
-                const keepPattern = shuffle([blueClass, yellowClass, blueClass]);
+            function startScavengeColorReveal() {
+                const yellowColor = 'rgb(253, 224, 71)'; // yellow-300
 
                 let revealIndex = 0;
                 const colorRevealInterval = setInterval(() => {
                     if (revealIndex < 3) {
                         // Reveal one sell square
                         const sellSquareToColor = sellSquares[revealIndex];
-                        const sellColorClass = sellPattern[revealIndex];
-                        sellSquareToColor.classList.remove(grayClass);
-                        sellSquareToColor.classList.add(sellColorClass);
-                        if (sellColorClass === yellowClass) {
+                        const sellColor = scavengeSellColorPattern[revealIndex];
+                        sellSquareToColor.style.backgroundColor = sellColor;
+                        if (sellColor === yellowColor) {
                             sellSquareToColor.classList.add('yellow-multiplier');
                         }
                         
                         // Reveal one keep square
                         const keepSquareToColor = keepSquares[revealIndex];
-                        const keepColorClass = keepPattern[revealIndex];
-                        keepSquareToColor.classList.remove(grayClass);
-                        keepSquareToColor.classList.add(keepColorClass);
-                        if (keepColorClass === yellowClass) {
+                        const keepColor = scavengeKeepColorPattern[revealIndex];
+                        keepSquareToColor.style.backgroundColor = keepColor;
+                        if (keepColor === yellowColor) {
                             keepSquareToColor.classList.add('yellow-multiplier');
                         }
 
@@ -692,12 +690,29 @@
             }
 
              /**
-             * Transitions the game from the Travel to the Gamble screen.
+             * Transitions the game from the Scavenge to the Gamble screen.
              */
-            function endTravelPhase() {
-                if (currentPhase !== 'travel') return;
+            function endScavengePhase() {
+                if (currentPhase !== 'scavenge') return;
                 
-                // Store collected travel items, filtering out any empty slots
+                // Force apply all scavenge colors to ensure they are set before proceeding.
+                const yellowColor = 'rgb(253, 224, 71)'; // yellow-300
+                sellSquares.forEach((square, index) => {
+                    const finalColor = scavengeSellColorPattern[index];
+                    square.style.backgroundColor = finalColor;
+                    if (finalColor === yellowColor) {
+                        square.classList.add('yellow-multiplier');
+                    }
+                });
+                keepSquares.forEach((square, index) => {
+                    const finalColor = scavengeKeepColorPattern[index];
+                    square.style.backgroundColor = finalColor;
+                    if (finalColor === yellowColor) {
+                        square.classList.add('yellow-multiplier');
+                    }
+                });
+                
+                // Store collected scavenge items, filtering out any empty slots
                 collectedSellItems = Array.from(sellSquares).map(sq => ({
                     emoji: sq.textContent,
                     color: window.getComputedStyle(sq).backgroundColor
@@ -710,9 +725,9 @@
 
 
                 currentPhase = 'gamble';
-                clearInterval(travelTimerInterval);
+                clearInterval(scavengeTimerInterval);
 
-                travelScreen.classList.add('hidden');
+                scavengeScreen.classList.add('hidden');
                 gambleScreen.classList.remove('hidden');
                 gambleScreen.classList.add('flex');
                 
@@ -720,14 +735,12 @@
                 reels.forEach(reel => {
                     reel.textContent = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
                 });
-                
-                spinButton.disabled = true; // Spin button is disabled until a choice is made
 
                 startGambleTimer();
             }
             
             /**
-             * Checks if all 6 travel squares are filled.
+             * Checks if all 6 scavenge squares are filled.
              */
             function checkAllTravelSquaresFilled() {
                 let filledCount = 0;
@@ -738,32 +751,53 @@
                 });
 
                 if (filledCount === allTravelSquares.length) {
-                    endTravelPhase();
+                    endScavengePhase();
                 }
             }
 
 
             /**
-             * Starts the countdown timer for the travel phase.
+             * Starts the countdown timer for the scavenge phase.
              */
-            function startTravelTimer() {
-                travelCountdownElement.textContent = travelTimeLeft;
-                travelTimerInterval = setInterval(() => {
-                    travelTimeLeft--;
-                    travelCountdownElement.textContent = travelTimeLeft;
+            function startScavengeTimer() {
+                scavengeCountdownElement.textContent = scavengeTimeLeft;
+                scavengeTimerInterval = setInterval(() => {
+                    scavengeTimeLeft--;
+                    scavengeCountdownElement.textContent = scavengeTimeLeft;
 
-                    if (travelTimeLeft <= 0) {
-                        clearInterval(travelTimerInterval);
-                        endTravelPhase(); // End travel phase when time runs out
+                    if (scavengeTimeLeft <= 0) {
+                        clearInterval(scavengeTimerInterval);
+                        endScavengePhase(); // End scavenge phase when time runs out
                     }
                 }, 1000);
             }
 
             /**
-             * Transitions the game from the Market to the Travel screen.
+             * Transitions the game from the Market to the Scavenge screen.
              */
             function endMarketPhase() {
                 if (currentPhase !== 'market') return;
+
+                // Clear any remaining special items if player didn't choose
+                const specialItems = document.querySelectorAll('.special-item');
+                specialItems.forEach(item => item.remove());
+                
+                // Force apply all market colors to ensure they are set before proceeding.
+                const yellowColor = 'rgb(253, 224, 71)';
+                fruitSquares.forEach((square, index) => {
+                    const finalColor = marketFruitColorPattern[index];
+                    square.style.backgroundColor = finalColor;
+                    if (finalColor === yellowColor) {
+                        square.classList.add('yellow-multiplier');
+                    }
+                });
+                vegSquares.forEach((square, index) => {
+                    const finalColor = marketVegColorPattern[index];
+                    square.style.backgroundColor = finalColor;
+                    if (finalColor === yellowColor) {
+                        square.classList.add('yellow-multiplier');
+                    }
+                });
                 
                 // Store collected market items
                 collectedMarketItems = Array.from(allSquares).map(square => ({
@@ -771,7 +805,7 @@
                     color: square.style.backgroundColor
                 }));
                 
-                currentPhase = 'travel';
+                currentPhase = 'scavenge';
 
                 // Stop all market-phase intervals
                 clearInterval(marketTimerInterval);
@@ -782,56 +816,86 @@
                 fruitConveyor.innerHTML = '';
                 vegetableConveyor.innerHTML = '';
                 
-                // Hide market screen and show travel screen
+                // Hide market screen and show scavenge screen
                 marketScreen.classList.add('hidden');
-                travelScreen.classList.remove('hidden');
-                travelScreen.classList.add('flex');
+                scavengeScreen.classList.remove('hidden');
+                scavengeScreen.classList.add('flex');
+                
+                // Generate and store the final color patterns for the scavenge squares
+                const blueColor = 'rgb(59, 130, 246)'; // blue-500
+                scavengeSellColorPattern = shuffle([blueColor, yellowColor, blueColor]);
+                scavengeKeepColorPattern = shuffle([blueColor, yellowColor, blueColor]);
 
-                // Start revealing travel square colors
-                startTravelColorReveal();
+                // Start revealing scavenge square colors
+                startScavengeColorReveal();
 
                 // Start the scroll at the very bottom of the route
                 scrollableRoute.scrollTop = scrollableRoute.scrollHeight;
 
-                // Start the travel phase timer
-                startTravelTimer();
+                // Start the scavenge phase timer
+                startScavengeTimer();
+            }
+
+             /**
+             * Spawns the special choice emojis (wine and bread).
+             */
+            function spawnSpecialItems() {
+                const gameArea = marketScreen.querySelector('main');
+                
+                const wineEmoji = document.createElement('div');
+                wineEmoji.textContent = '🍷';
+                wineEmoji.className = 'special-item';
+                wineEmoji.style.left = '16.67%';
+
+                const breadEmoji = document.createElement('div');
+                breadEmoji.textContent = '🍞';
+                breadEmoji.className = 'special-item';
+                breadEmoji.style.left = '83.33%';
+
+                const handleSpecialItemClick = (e) => {
+                    chosenSpecialItem = e.target.textContent;
+                    console.log(`Player chose: ${chosenSpecialItem}`);
+                    wineEmoji.remove();
+                    breadEmoji.remove();
+                };
+
+                wineEmoji.addEventListener('click', handleSpecialItemClick);
+                breadEmoji.addEventListener('click', handleSpecialItemClick);
+
+                gameArea.appendChild(wineEmoji);
+                gameArea.appendChild(breadEmoji);
             }
 
             /**
              * Reveals the colors of the market squares sequentially.
              */
             function startColorReveal() {
-                let uncoloredFruitSquares = Array.from(fruitSquares);
-                let uncoloredVegSquares = Array.from(vegSquares);
+                // Create shuffled lists of square indices to determine reveal order
+                const fruitRevealOrder = shuffle([0, 1, 2, 3]);
+                const vegRevealOrder = shuffle([0, 1, 2, 3]);
+                const yellowColor = 'rgb(253, 224, 71)';
 
-                const blue = 'rgb(59, 130, 246)';
-                const yellow = 'rgb(253, 224, 71)';
-
-                const fruitColorPattern = shuffle([yellow, blue, blue, blue]);
-                const vegColorPattern = shuffle([yellow, blue, blue, blue]);
-                
                 let revealIndex = 0;
                 const colorRevealInterval = setInterval(() => {
                     if (revealIndex < 4) {
-                        // Reveal one fruit square
-                        if (uncoloredFruitSquares.length > 0) {
-                            const randomFruitIndex = Math.floor(Math.random() * uncoloredFruitSquares.length);
-                            const fruitSquareToColor = uncoloredFruitSquares.splice(randomFruitIndex, 1)[0];
-                            const fruitColor = fruitColorPattern[revealIndex];
-                            fruitSquareToColor.style.backgroundColor = fruitColor;
-                            if (fruitColor === yellow) {
-                                fruitSquareToColor.classList.add('yellow-multiplier');
-                            }
+                        // Reveal one fruit square based on the randomized reveal order
+                        const fruitSquareIndex = fruitRevealOrder[revealIndex];
+                        const fruitSquareToColor = fruitSquares[fruitSquareIndex];
+                        const fruitColor = marketFruitColorPattern[fruitSquareIndex];
+                        
+                        fruitSquareToColor.style.backgroundColor = fruitColor;
+                        if (fruitColor === yellowColor) {
+                            fruitSquareToColor.classList.add('yellow-multiplier');
                         }
-                        // Reveal one vegetable square
-                        if (uncoloredVegSquares.length > 0) {
-                             const randomVegIndex = Math.floor(Math.random() * uncoloredVegSquares.length);
-                             const vegSquareToColor = uncoloredVegSquares.splice(randomVegIndex, 1)[0];
-                             const vegColor = vegColorPattern[revealIndex];
-                             vegSquareToColor.style.backgroundColor = vegColor;
-                             if (vegColor === yellow) {
-                                 vegSquareToColor.classList.add('yellow-multiplier');
-                             }
+
+                        // Reveal one vegetable square based on the randomized reveal order
+                        const vegSquareIndex = vegRevealOrder[revealIndex];
+                        const vegSquareToColor = vegSquares[vegSquareIndex];
+                        const vegColor = marketVegColorPattern[vegSquareIndex];
+                        
+                        vegSquareToColor.style.backgroundColor = vegColor;
+                        if (vegColor === yellowColor) {
+                            vegSquareToColor.classList.add('yellow-multiplier');
                         }
                         
                         revealIndex++;
@@ -845,12 +909,23 @@
              * Starts the countdown timer for the market phase.
              */
             function startMarketTimer() {
+                const blue = 'rgb(59, 130, 246)';
+                const yellow = 'rgb(253, 224, 71)';
+
+                // Generate and store the final color patterns for the market squares
+                marketFruitColorPattern = shuffle([yellow, blue, blue, blue]);
+                marketVegColorPattern = shuffle([yellow, blue, blue, blue]);
+
                 // Start the staggered color reveal for market squares
                 startColorReveal();
 
                 marketTimerInterval = setInterval(() => {
                     marketTimeLeft--;
                     countdownElement.textContent = marketTimeLeft;
+
+                    if (marketTimeLeft === 20) {
+                        spawnSpecialItems();
+                    }
 
                     if (marketTimeLeft <= 0) {
                         countdownElement.textContent = "0";
@@ -992,8 +1067,10 @@
                 }
 
                 if (win > 0) {
-                    if (gambleSelection === '2x') {
-                        // 2X WIN MODE
+                    hasWonGamble = true;
+                    
+                    if (!isUnlimitedWinsMode) {
+                        // ONE 2X WIN MODE
                         win = win * 2;
                         totalWinnings += win;
                         winTracker.textContent = `$${totalWinnings}`;
@@ -1005,8 +1082,8 @@
                             endGamblePhase(); 
                         }, 1100); 
 
-                    } else if (gambleSelection === 'unlimited') {
-                        // UNLIMITED WINS MODE
+                    } else {
+                        // UNLIMITED WINS MODE (original logic)
                         totalWinnings += win;
                         winTracker.textContent = `$${totalWinnings}`;
                         applyGlow(winningIndices);
@@ -1026,11 +1103,8 @@
              * Handles the spinning of the slot machine reels.
              */
             function spinReels() {
-                if (!gambleSelection) return; // Can't spin if no selection is made
-
-                hasSpunGamble = true;
                 spinButton.disabled = true;
-                gambleToggleContainer.classList.add('disabled'); // Lock the toggle
+                gambleToggle.disabled = true; // Lock the gamble mode on the first spin
 
                 let finalReels = [];
 
@@ -1052,11 +1126,9 @@
                         if (index === reels.length - 1) {
                             const hasWon = calculateWinnings(finalReels);
                             
-                            // Re-enable the spin button if the game isn't over.
-                            // In '2x' mode, the game ends on a win.
-                            // In 'unlimited' mode, it continues.
-                            if ((gambleSelection === 'unlimited') || (gambleSelection === '2x' && !hasWon)) {
-                                const reenableDelay = (gambleSelection === 'unlimited' && hasWon) ? 1000 : 0; 
+                            // Do not re-enable button if game has ended or will end
+                            if (isUnlimitedWinsMode || !hasWon) {
+                                const reenableDelay = hasWon ? 1000 : 0; 
                                 setTimeout(() => {
                                     if (gambleTimeLeft > 0) {
                                         spinButton.disabled = false;
@@ -1239,59 +1311,39 @@
             }
 
             /**
-             * Sets up the event listener for the new sliding gamble mode toggle.
+             * Sets up the event listener for the gamble mode toggle switch.
              */
             function setupGambleToggle() {
-                gambleToggleContainer.addEventListener('click', (e) => {
-                    if (hasSpunGamble) return; // Don't allow changes after first spin
-
-                    const rect = gambleToggleContainer.getBoundingClientRect();
-                    const clickX = e.clientX - rect.left;
-                    
-                    // Determine if click was on the left or right half
-                    if (clickX < rect.width / 2) {
-                        setGambleSelection('2x');
+                const updateToggleUI = () => {
+                    isUnlimitedWinsMode = gambleToggle.checked;
+                    if (isUnlimitedWinsMode) {
+                        // Style for "UNLIMITED WINS" (checked) - Indigo toggle
+                        unlimitedWinsLabel.classList.remove('text-gray-400');
+                        unlimitedWinsLabel.classList.add('text-white');
+                        oneWinLabel.classList.add('text-gray-400');
+                        oneWinLabel.classList.remove('text-yellow-300');
                     } else {
-                        setGambleSelection('unlimited');
+                        // Style for "ONE 2X WIN" (unchecked) - Yellow toggle
+                        oneWinLabel.classList.remove('text-gray-400');
+                        oneWinLabel.classList.add('text-yellow-300');
+                        unlimitedWinsLabel.classList.add('text-gray-400');
+                        unlimitedWinsLabel.classList.remove('text-white');
                     }
-                });
-            }
-            
-            /**
-             * Sets the gamble selection state and updates the UI.
-             * @param {'2x' | 'unlimited'} selection The chosen gamble mode.
-             */
-            function setGambleSelection(selection) {
-                if (hasSpunGamble) return;
-                
-                gambleSelection = selection;
-                
-                // Update UI based on selection
-                if (selection === '2x') {
-                    gambleToggleContainer.classList.add('left');
-                    gambleToggleContainer.classList.remove('right');
-                    twoXLabel.classList.remove('text-gray-400');
-                    twoXLabel.classList.add('text-yellow-300');
-                    unlimitedLabel.classList.add('text-gray-400');
-                    unlimitedLabel.classList.remove('text-blue-400');
-                } else { // 'unlimited'
-                    gambleToggleContainer.classList.add('right');
-                    gambleToggleContainer.classList.remove('left');
-                    unlimitedLabel.classList.remove('text-gray-400');
-                    unlimitedLabel.classList.add('text-blue-400');
-                    twoXLabel.classList.add('text-gray-400');
-                    twoXLabel.classList.remove('text-yellow-300');
-                }
-                
-                // Enable the spin button once a selection has been made
-                if (spinButton.disabled) {
-                    spinButton.disabled = false;
-                }
-            }
+                };
 
+                gambleToggle.addEventListener('change', updateToggleUI);
+                
+                // Initialize UI based on default state when the script loads
+                updateToggleUI();
+            }
 
             // Initialize the game
             spinButton.addEventListener('click', spinReels);
+            nextButton.addEventListener('click', () => {
+                prepareScreen.classList.add('hidden');
+                nextScreen.classList.remove('hidden');
+                nextScreen.classList.add('flex');
+            });
             startMarketTimer();
             startSpawning();
             populateRoute();
@@ -1303,6 +1355,4 @@
 
 </body>
 </html>
-
-
 
