@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Mobile Game UI</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Import Anton font from Google Fonts -->
+    <!-- Import Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
         /* Ensures the layout takes up the full screen height and prevents scrolling */
         html, body {
@@ -27,6 +27,11 @@
         /* Custom class to apply the Anton font */
         .font-anton {
             font-family: 'Anton', sans-serif;
+        }
+
+        /* Custom class to apply the Inter font */
+        .font-inter {
+            font-family: 'Inter', sans-serif;
         }
         
         /* Utility to hide scrollbars for a cleaner look */
@@ -227,8 +232,8 @@
             <!-- Market Text -->
             <div class="font-anton text-5xl tracking-widest">MARKET</div>
             <!-- Tappable Button -->
-            <button class="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-xl font-bold py-4 px-6 rounded-lg shadow-md transition-transform transform active:scale-95">
-                Action
+            <button id="skip-market-button" class="bg-gray-600 hover:bg-gray-700 active:bg-gray-800 text-white text-xl font-bold py-4 px-6 rounded-lg shadow-md transition-transform transform active:scale-95">
+                Skip
             </button>
         </footer>
 
@@ -271,8 +276,8 @@
             <!-- Scavenge Text -->
             <div class="font-anton text-5xl tracking-widest">SCAVENGE</div>
             <!-- Tappable Button -->
-            <button class="bg-green-600 hover:bg-green-700 active:bg-green-800 text-white text-xl font-bold py-4 px-6 rounded-lg shadow-md transition-transform transform active:scale-95">
-                Action
+            <button id="skip-scavenge-button" class="bg-gray-600 hover:bg-gray-700 active:bg-gray-800 text-white text-xl font-bold py-4 px-6 rounded-lg shadow-md transition-transform transform active:scale-95">
+                Skip
             </button>
         </footer>
     </div>
@@ -318,14 +323,14 @@
             <!-- Gamble Text -->
             <div class="font-anton text-5xl tracking-widest">GAMBLE</div>
             <!-- Tappable Button -->
-            <button class="bg-red-600 hover:bg-red-700 active:bg-red-800 text-white text-xl font-bold py-4 px-6 rounded-lg shadow-md transition-transform transform active:scale-95">
-                Action
+            <button id="skip-gamble-button" class="bg-gray-600 hover:bg-gray-700 active:bg-gray-800 text-white text-xl font-bold py-4 px-6 rounded-lg shadow-md transition-transform transform active:scale-95">
+                Skip
             </button>
         </footer>
     </div>
 
     <!-- Screen 4: Results -->
-    <div id="prepare-screen" class="mobile-container flex-col h-screen bg-gray-800 text-white hidden">
+    <div id="results-screen" class="mobile-container flex-col h-screen bg-gray-800 text-white hidden">
         <!-- Top Section -->
         <header class="h-32 bg-gray-900 shadow-lg flex-shrink-0 flex items-center justify-center">
             <div class="font-anton text-6xl tracking-wider">RESULTS</div>
@@ -387,21 +392,60 @@
         </footer>
     </div>
 
-    <!-- Screen 5: Next Screen (Blank) -->
-    <div id="next-screen" class="mobile-container flex-col h-screen bg-gray-800 text-white hidden">
+    <!-- Screen 5: Prepare -->
+    <div id="prepare-screen" class="mobile-container flex-col h-screen bg-gray-800 text-white hidden">
         <!-- Top Section -->
         <header class="h-32 bg-gray-900 shadow-lg flex-shrink-0 flex items-center justify-center">
-            <div class="font-anton text-6xl tracking-wider"></div>
+            <div class="font-anton text-6xl tracking-wider">PREPARE</div>
         </header>
 
         <!-- Middle Section -->
-        <main class="flex-grow bg-gray-700 p-4 sm:p-6 flex flex-col justify-around">
-            <!-- Blank content -->
+        <main class="flex-grow bg-gray-700 p-4 grid grid-cols-2 grid-rows-2 gap-4">
+            <!-- Food Window -->
+            <div id="food-window" class="bg-gray-900 rounded-lg p-3 overflow-y-auto no-scrollbar">
+                <h3 class="font-anton text-xl tracking-wider text-center mb-2">FOOD</h3>
+                <div id="food-content">
+                    <!-- JS will populate this -->
+                </div>
+            </div>
+            <!-- Inventory Window -->
+            <div id="inventory-window" class="bg-gray-900 rounded-lg p-3 overflow-y-auto no-scrollbar">
+                <h3 class="font-anton text-xl tracking-wider text-center mb-2">INVENTORY</h3>
+                <div id="inventory-content">
+                    <!-- JS will populate this -->
+                </div>
+            </div>
+            <!-- Shop Window -->
+            <div id="shop-window" class="bg-gray-900 rounded-lg p-3 flex items-center justify-center">
+                <h3 class="font-anton text-xl tracking-wider">SHOP</h3>
+            </div>
+            <!-- Stats Window -->
+            <div id="stats-window" class="bg-gray-900 rounded-lg p-3 font-inter">
+                <h3 class="font-anton text-xl tracking-wider text-center">STATS</h3>
+                <div class="grid grid-cols-4 gap-x-2 gap-y-1 text-sm mt-2">
+                    <span class="font-bold text-green-500 text-left">HP</span><span class="text-right">15</span>
+                    <span class="font-bold text-purple-500 text-left">MP</span><span class="text-right">15</span>
+
+                    <span class="font-bold text-blue-500 text-left">Armor</span><span class="text-right">3</span>
+                    <span class="font-bold text-orange-500 text-left">Spirit</span><span class="text-right">3</span>
+
+                    <span class="font-bold text-red-500 text-left">Attack</span><span class="text-right">1</span>
+                    <span class="font-bold text-teal-500 text-left">Magic</span><span class="text-right">2</span>
+
+                    <span class="font-bold text-white text-left">Grace</span><span class="text-right">0</span>
+                    <span class="font-bold text-red-800 text-left">Fear</span><span class="text-right">0</span>
+
+                    <span class="col-span-2 font-bold text-gray-300 text-left">Materials</span>
+                    <span class="col-span-2 text-right">0</span>
+                </div>
+            </div>
         </main>
 
         <!-- Bottom Section -->
         <footer class="h-36 bg-gray-900 shadow-lg flex-shrink-0 flex items-center justify-center p-6">
-            <div class="font-anton text-5xl tracking-widest"></div>
+            <button id="begin-button" class="bg-green-600 hover:bg-green-700 active:bg-green-800 text-white text-xl font-bold py-4 px-8 rounded-lg shadow-md transition-transform transform active:scale-95">
+                BEGIN
+            </button>
         </footer>
     </div>
 
@@ -412,8 +456,8 @@
             const marketScreen = document.getElementById('market-screen');
             const scavengeScreen = document.getElementById('scavenge-screen');
             const gambleScreen = document.getElementById('gamble-screen');
+            const resultsScreen = document.getElementById('results-screen');
             const prepareScreen = document.getElementById('prepare-screen');
-            const nextScreen = document.getElementById('next-screen');
             
             // Market screen elements
             const fruitConveyor = document.getElementById('fruit-conveyor');
@@ -440,13 +484,18 @@
             const oneWinLabel = document.getElementById('one-win-label');
             const unlimitedWinsLabel = document.getElementById('unlimited-wins-label');
 
-            // Prepare screen elements
+            // Results screen elements
             const marketSummaryContainer = document.getElementById('market-summary');
             const sellSummaryContainer = document.getElementById('sell-summary');
             const keepSummaryContainer = document.getElementById('keep-summary');
             const gambleSummaryContainer = document.getElementById('gamble-summary');
             const specialItemSummaryContainer = document.getElementById('special-item-summary');
             const nextButton = document.getElementById('next-button');
+
+            // Skip buttons
+            const skipMarketButton = document.getElementById('skip-market-button');
+            const skipScavengeButton = document.getElementById('skip-scavenge-button');
+            const skipGambleButton = document.getElementById('skip-gamble-button');
 
 
             const fruits = ['🍎', '🍊', '🍇', '🥥', '🍌'];
@@ -513,9 +562,9 @@
             };
 
             /**
-             * Populates the prepare screen with collected items and winnings.
+             * Populates the results screen with collected items and winnings.
              */
-            function populatePrepareScreen() {
+            function populateResultsScreen() {
                 // Clear previous summary data
                 marketSummaryContainer.innerHTML = '';
                 sellSummaryContainer.innerHTML = '';
@@ -568,9 +617,9 @@
             }
 
             /**
-             * Animates the selling of items on the prepare screen.
+             * Animates the selling of items on the results screen.
              */
-            function startPreparePhaseAnimations() {
+            function startResultsPhaseAnimations() {
                 setTimeout(() => {
                     const sellSummarySquares = sellSummaryContainer.children;
                     let displayedWinnings = totalWinnings;
@@ -621,11 +670,59 @@
             }
 
             /**
+             * Populates the inventory on the prepare screen.
+             */
+            function populatePrepareScreen() {
+                const foodContent = document.getElementById('food-content');
+                const inventoryContent = document.getElementById('inventory-content');
+                foodContent.innerHTML = ''; // Clear previous content
+                inventoryContent.innerHTML = ''; // Clear previous content
+
+                // Helper to count item occurrences, now with multiplier logic
+                const countItems = (items) => {
+                    const yellowColor = 'rgb(253, 224, 71)';
+                    return items.reduce((acc, item) => {
+                        if (item.emoji && item.emoji.trim() !== '') {
+                            const quantity = item.color === yellowColor ? 2 : 1;
+                            acc[item.emoji] = (acc[item.emoji] || 0) + quantity;
+                        }
+                        return acc;
+                    }, {});
+                };
+
+                const marketCounts = countItems(collectedMarketItems);
+                const keepCounts = countItems(collectedKeepItems);
+
+                // Helper to render a section of items
+                const createItemHTML = (counts) => {
+                    if (Object.keys(counts).length === 0) return '<p class="text-gray-500 text-center text-sm">Empty</p>';
+                    let html = `<div class="grid grid-cols-4 gap-2">`;
+                    for (const [emoji, count] of Object.entries(counts)) {
+                        html += `
+                            <div class="flex flex-col items-center">
+                                <div class="w-10 h-10 bg-gray-700 rounded-md flex items-center justify-center text-2xl">${emoji}</div>
+                                <span class="text-xs font-bold mt-1">x${count}</span>
+                            </div>
+                        `;
+                    }
+                    html += `</div>`;
+                    return html;
+                };
+                
+                // Populate Food window with market items
+                foodContent.innerHTML = createItemHTML(marketCounts);
+
+                // Populate Inventory window with kept items
+                inventoryContent.innerHTML = createItemHTML(keepCounts);
+            }
+
+
+            /**
              * Ends the gamble phase.
              */
             function endGamblePhase() {
                 if (currentPhase !== 'gamble') return;
-                currentPhase = 'prepare'; 
+                currentPhase = 'results'; 
                 
                 clearInterval(gambleTimerInterval);
                 gambleTimeLeft = 0;
@@ -635,14 +732,14 @@
                 
                 console.log("Gamble phase over. Gambling winnings: $" + totalWinnings);
                 
-                // Transition to Prepare Screen
-                populatePrepareScreen();
+                // Transition to Results Screen
+                populateResultsScreen();
                 gambleScreen.classList.add('hidden');
-                prepareScreen.classList.remove('hidden');
-                prepareScreen.classList.add('flex');
+                resultsScreen.classList.remove('hidden');
+                resultsScreen.classList.add('flex');
                 
-                // Start the animations for the prepare phase
-                startPreparePhaseAnimations();
+                // Start the animations for the results phase
+                startResultsPhaseAnimations();
             }
 
             /**
@@ -1344,10 +1441,17 @@
             // Initialize the game
             spinButton.addEventListener('click', spinReels);
             nextButton.addEventListener('click', () => {
-                prepareScreen.classList.add('hidden');
-                nextScreen.classList.remove('hidden');
-                nextScreen.classList.add('flex');
+                resultsScreen.classList.add('hidden');
+                prepareScreen.classList.remove('hidden');
+                prepareScreen.classList.add('flex');
+                populatePrepareScreen();
             });
+
+            // Add listeners for skip buttons
+            skipMarketButton.addEventListener('click', endMarketPhase);
+            skipScavengeButton.addEventListener('click', endScavengePhase);
+            skipGambleButton.addEventListener('click', endGamblePhase);
+
             startMarketTimer();
             startSpawning();
             populateRoute();
@@ -1359,5 +1463,6 @@
 
 </body>
 </html>
+
 
 
