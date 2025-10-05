@@ -309,38 +309,38 @@
             <div id="vegetable-conveyor" class="absolute top-0 left-1/2 h-full overflow-hidden" style="width: 16.6667%;"></div>
 
             <!-- Fruit and Vegetable Legends -->
-            <div id="fruit-legend" class="absolute bottom-2 left-2 w-[30%] bg-black bg-opacity-40 rounded-lg p-2 font-inter text-xs text-gray-200 space-y-1 min-h-[140px]">
-                <div class="grid grid-cols-[auto,1fr] items-center gap-x-2">
-                    <span class="text-lg">🍎</span><span>+10 ❤️</span>
+            <div id="fruit-legend" class="absolute bottom-2 left-2 w-[30%] bg-black bg-opacity-40 rounded-lg p-2 font-inter text-lg text-gray-200 space-y-2 min-h-[140px]">
+                <div class="grid grid-cols-[auto,1fr] items-center gap-x-3">
+                    <span>🍎</span><span>❤️</span>
                 </div>
-                <div class="grid grid-cols-[auto,1fr] items-center gap-x-2">
-                    <span class="text-lg">🍊</span><span>+10 💜</span>
+                <div class="grid grid-cols-[auto,1fr] items-center gap-x-3">
+                    <span>🍊</span><span>💜</span>
                 </div>
-                <div class="grid grid-cols-[auto,1fr] items-center gap-x-2">
-                    <span class="text-lg">🍇</span><span>+5❤️, +5💜</span>
+                <div class="grid grid-cols-[auto,1fr] items-center gap-x-3">
+                    <span>🍇</span><span>❤️💜</span>
                 </div>
-                <div class="grid grid-cols-[auto,1fr] items-center gap-x-2">
-                    <span class="text-lg">🥥</span><span>Heal 🛡️, +1 Max</span>
+                <div class="grid grid-cols-[auto,1fr] items-center gap-x-3">
+                    <span>🥥</span><span>🛡️</span>
                 </div>
-                <div class="grid grid-cols-[auto,1fr] items-center gap-x-2">
-                    <span class="text-lg">🍌</span><span>Heal ✨, +1 Max</span>
+                <div class="grid grid-cols-[auto,1fr] items-center gap-x-3">
+                    <span>🍌</span><span>✨</span>
                 </div>
             </div>
-            <div id="veg-legend" class="absolute bottom-2 right-2 w-[30%] bg-black bg-opacity-40 rounded-lg p-2 font-inter text-xs text-gray-200 space-y-1 min-h-[140px]">
-                <div class="grid grid-cols-[auto,1fr] items-center gap-x-2">
-                    <span class="text-lg">🥦</span><span>+1 Max ❤️</span>
+            <div id="veg-legend" class="absolute bottom-2 right-2 w-[30%] bg-black bg-opacity-40 rounded-lg p-2 font-inter text-lg text-gray-200 space-y-2 min-h-[140px]">
+                <div class="grid grid-cols-[auto,1fr] items-center gap-x-3">
+                    <span>🥦</span><span>❤️</span>
                 </div>
-                <div class="grid grid-cols-[auto,1fr] items-center gap-x-2">
-                    <span class="text-lg">🌶️</span><span>+1 Max 💜</span>
+                <div class="grid grid-cols-[auto,1fr] items-center gap-x-3">
+                    <span>🌶️</span><span>💜</span>
                 </div>
-                <div class="grid grid-cols-[auto,1fr] items-center gap-x-2">
-                    <span class="text-lg">🥔</span><span>⚔️ & 🛡️ x2</span>
+                <div class="grid grid-cols-[auto,1fr] items-center gap-x-3">
+                    <span>🥔</span><span>⚔️🛡️</span>
                 </div>
-                <div class="grid grid-cols-[auto,1fr] items-center gap-x-2">
-                    <span class="text-lg">🥕</span><span>✨ x2</span>
+                <div class="grid grid-cols-[auto,1fr] items-center gap-x-3">
+                    <span>🥕</span><span>✨</span>
                 </div>
-                <div class="grid grid-cols-[auto,1fr] items-center gap-x-2">
-                    <span class="text-lg">🌽</span><span>Better Rewards</span>
+                <div class="grid grid-cols-[auto,1fr] items-center gap-x-3">
+                    <span>🌽</span><span>🎁</span>
                 </div>
             </div>
         </main>
@@ -572,8 +572,8 @@
                     <div class="flex justify-between items-center"><span class="font-bold text-white">Grace</span><span id="grace-stat-value">0</span></div>
                     <div class="flex justify-between items-center"><span class="font-bold text-gray-500">Fear</span><span id="fear-stat-value">0</span></div>
                 </div>
-                <div class="text-center mt-auto pt-2 border-t border-gray-700">
-                    <div class="flex justify-between items-center w-1/2 mx-auto">
+                <div class="mt-auto pt-2 border-t border-gray-700">
+                    <div class="flex justify-between items-center w-full">
                         <span class="font-bold text-gray-300">Materials</span>
                         <span id="materials-stat-value">0</span>
                     </div>
@@ -771,8 +771,8 @@
                 <div class="flex justify-between items-center"><span class="font-bold text-white">Grace</span><span id="combat-modal-grace-stat-value" class="text-white"></span></div>
                 <div class="flex justify-between items-center"><span class="font-bold text-gray-500">Fear</span><span id="combat-modal-fear-stat-value" class="text-white"></span></div>
             </div>
-            <div class="text-center mt-4 pt-2 border-t border-gray-700">
-                <div class="flex justify-between items-center w-1/2 mx-auto">
+            <div class="mt-4 pt-2 border-t border-gray-700">
+                <div class="flex justify-between items-center w-full">
                     <span class="font-bold text-gray-300">Materials</span>
                     <span id="combat-modal-materials-stat-value" class="text-white">0</span>
                 </div>
@@ -885,7 +885,7 @@
             const fruits = ['🍎', '🍊', '🍇', '🥥', '🍌'];
             const vegetables = ['🥦', '🌶️', '🥔', '🥕', '🌽'];
             const symbols = ['👛','💍','💎','👑','📿','⚖️','🪞','🖼️','⚱️','🦴','🧥','🪑','⛓️','🪚','📯','🎣','🔮','🃏','🪈','🗝️','🪓','🔨','🏹','🗡️'];
-            const slotSymbols = ['🦓', '🫎', '🦄', '🦧', '🦎'];
+            const slotSymbols = ['📿', '⚖️', '🪞', '🖼️', '⚱️'];
 
             const ITEM_LEGEND = {
                 // Consumable Items
@@ -901,7 +901,7 @@
                 '🌶️': { name: 'Chili Pepper', description: '+1 Max MP.', type: 'consumable' },
                 '🥔': { name: 'Potato', description: 'Doubles Attack, Magic Attack, & Armor for one battle.', type: 'consumable' },
                 '🥕': { name: 'Carrot', description: 'Doubles Spirit for one battle.', type: 'consumable' },
-                '🌽': { name: 'Corn', description: 'Improves battle rewards.', type: 'passive' }, // Corn remains passive for now
+                '🌽': { name: 'Corn', description: 'Improves after-battle rewards.', type: 'consumable' },
                 // Equipment Items
                 '💍': { name: 'Ring', description: 'Equipment: +1 Grace.', type: 'equipment' },
                 '👑': { name: 'Crown', description: 'Equipment: -1 Fear.', type: 'equipment' },
@@ -963,6 +963,7 @@
             let scavengeKeepColorPattern = [];
             let marketCounts = {};
             let inventoryCounts = {};
+            let rewardBonus = 0;
             
             const baseStats = {
                 hp: 15, maxHp: 15,
@@ -1152,7 +1153,7 @@
                 document.getElementById('magic-stat-value').textContent = currentStats.magic;
                 document.getElementById('grace-stat-value').textContent = currentStats.grace;
                 document.getElementById('fear-stat-value').textContent = currentStats.fear;
-                document.getElementById('materials-stat-value').textContent = currentStats.materials;
+                document.getElementById('materials-stat-value').textContent = 0; // Set to 0 per request
             }
 
             /**
@@ -2204,10 +2205,12 @@
                 return new Promise(resolve => {
                     const rewardModal = document.getElementById('reward-modal');
                     const rewardDisplay = document.getElementById('reward-display');
+                    
+                    const bonus = rewardBonus;
                     const rewards = [
-                        { text: '$2', type: 'money', value: 2 },
-                        { text: 'Heal 1 HP', type: 'hp', value: 1 },
-                        { text: 'Heal 1 MP', type: 'mp', value: 1 }
+                        { text: `$${2 + bonus}`, type: 'money', value: 2 + bonus },
+                        { text: `Heal ${1 + bonus} HP`, type: 'hp', value: 1 + bonus },
+                        { text: `Heal ${1 + bonus} MP`, type: 'mp', value: 1 + bonus }
                     ];
                     
                     rewardModal.classList.remove('hidden');
@@ -2269,7 +2272,7 @@
                 // Populate with base stats that don't change in combat
                 document.getElementById('combat-modal-grace-stat-value').textContent = playerStats.grace;
                 document.getElementById('combat-modal-fear-stat-value').textContent = playerStats.fear;
-                document.getElementById('combat-modal-materials-stat-value').textContent = totalWinnings; // Use totalWinnings for materials
+                document.getElementById('combat-modal-materials-stat-value').textContent = 0; // Set to 0 per request
 
                 modal.classList.remove('hidden');
             }
@@ -2448,9 +2451,9 @@
                 let currentCombatStats = { ...playerStats };
                 if (equippedItems.weapon) currentCombatStats.attack += 1;
                 if (equippedItems.armor === '🧥') currentCombatStats.armor += 1;
-                if (equippedItems.ring === '💍') currentCombatStats.grace += 1;
+                if (equippedItems.ring === '💍') currentStats.grace += 1;
                 if (equippedItems.accessory === '👑') currentCombatStats.fear -= 1;
-                if (equippedItems.accessory === '📿') currentCombatStats.grace += 1;
+                if (equippedItems.accessory === '📿') currentStats.grace += 1;
                 
                 // Initialize combat state
                 combatState = {
@@ -2753,15 +2756,19 @@
                         itemUsed = true;
                         break;
                     case '🥥':
-                        combatState.player.armor = combatState.player.maxArmor; // Restore to combat-start max
-                        playerStats.armor += 1; // Permanent stat boost
+                        playerStats.armor += 1; // Permanent max stat increase
+                        combatState.player.maxArmor += 1; // Increase max for current combat
+                        combatState.player.armor = combatState.player.maxArmor; // Heal to new max
+                        
                         document.getElementById('combat-armor').textContent = combatState.player.armor;
                         updateStatsUI(); // Update prepare screen stats in background
                         itemUsed = true;
                         break;
                     case '🍌':
-                        combatState.player.spirit = combatState.player.maxSpirit; // Restore
-                        playerStats.spirit += 1; // Permanent
+                        playerStats.spirit += 1; // Permanent max stat increase
+                        combatState.player.maxSpirit += 1; // Increase max for current combat
+                        combatState.player.spirit = combatState.player.maxSpirit; // Heal to new max
+                        
                         document.getElementById('combat-spirit').textContent = combatState.player.spirit;
                         updateStatsUI();
                         itemUsed = true;
@@ -2793,6 +2800,10 @@
                         combatState.player.maxMp += 1;
                         combatState.player.mp += 1;
                         updateStatsUI();
+                        itemUsed = true;
+                        break;
+                    case '🌽':
+                        rewardBonus += 1;
                         itemUsed = true;
                         break;
                 }
