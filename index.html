@@ -343,19 +343,18 @@
             <!-- Scavenge & Gamble Summary Container -->
             <div>
                  <h3 class="font-anton text-2xl tracking-wider text-green-300 mb-3 text-center">SCAVENGE & GAMBLE</h3>
-                <div class="flex items-center justify-between">
+                <div class="flex items-start justify-between w-full">
                     <!-- Scavenge Summary -->
-                    <div class="space-y-3">
+                    <div class="space-y-3 flex-1">
                          <!-- Sell Row -->
                         <div class="flex items-center">
                             <h4 class="font-anton text-lg text-red-400 mr-2 w-12 text-right">SELL</h4>
                             <div id="sell-summary" class="flex flex-row space-x-2">
                                 <!-- Populated by JS -->
                             </div>
-                            <div id="sell-calculation" class="font-anton text-xl text-yellow-300 ml-4 w-24 text-left transition-opacity duration-300"></div>
                         </div>
                         <!-- Keep Row -->
-                        <div class="flex items-center">
+                        <div class="flex items-center mt-3">
                             <h4 class="font-anton text-lg text-green-400 mr-2 w-12 text-right">KEEP</h4>
                             <div id="keep-summary" class="flex flex-row space-x-2">
                                <!-- Populated by JS -->
@@ -363,7 +362,7 @@
                         </div>
                     </div>
                     <!-- Gamble Summary -->
-                    <div class="text-center">
+                    <div class="text-center flex-shrink-0">
                         <h4 class="font-anton text-lg text-yellow-300">WINNINGS</h4>
                         <div id="gamble-summary" class="font-anton text-5xl text-yellow-300">
                             $0
@@ -440,7 +439,6 @@
             const sellSummaryContainer = document.getElementById('sell-summary');
             const keepSummaryContainer = document.getElementById('keep-summary');
             const gambleSummaryContainer = document.getElementById('gamble-summary');
-            const sellCalculationContainer = document.getElementById('sell-calculation');
             const specialItemSummaryContainer = document.getElementById('special-item-summary');
             const nextButton = document.getElementById('next-button');
 
@@ -562,8 +560,6 @@
                 setTimeout(() => {
                     const sellSummarySquares = sellSummaryContainer.children;
                     let displayedWinnings = totalWinnings;
-                    sellCalculationContainer.textContent = ''; // Clear at the start
-
 
                     // Animate each square
                     Array.from(sellSummarySquares).forEach((square, index) => {
@@ -576,42 +572,36 @@
                             const multiplier = getMultiplierFromColor(item.color);
                             const finalSellValue = baseSellValue * multiplier;
 
-                            // Set calculation text
-                            let calculationText = '';
-                            if (multiplier > 1) {
-                                calculationText = `${multiplier}x $${baseSellValue}`;
-                            } else {
-                                // For 1x, just show the base value for simplicity
-                                calculationText = `$${baseSellValue}`;
-                            }
-                            sellCalculationContainer.textContent = calculationText;
-                            sellCalculationContainer.classList.remove('opacity-0');
+                            // Animate the emoji fading out
+                            square.classList.add('transition-all', 'duration-500', 'transform', 'scale-125', 'opacity-0');
 
-
-                            // Add animation classes for zoom and fade
-                            square.classList.add('transition-all', 'duration-[1500ms]', 'transform', 'scale-150', 'opacity-0');
-
-                            // Update displayed winnings
-                            displayedWinnings += finalSellValue;
-                            gambleSummaryContainer.textContent = `$${displayedWinnings}`;
-                            
-                            // Add a little pop to the winnings text
-                            gambleSummaryContainer.classList.add('transform', 'scale-110', 'transition-transform', 'duration-200');
+                            // After the emoji fades out, update winnings and show the value
                             setTimeout(() => {
-                                gambleSummaryContainer.classList.remove('transform', 'scale-110');
-                            }, 200);
-
-                            // After the last animation, update the master winnings variable
-                            if (index === sellSummarySquares.length - 1) {
-                                totalWinnings = displayedWinnings;
-                                console.log("Final total after selling:", totalWinnings);
-                                // Fade out the calculation text after the last item is done
+                                // Update displayed winnings total
+                                displayedWinnings += finalSellValue;
+                                gambleSummaryContainer.textContent = `$${displayedWinnings}`;
+                                
+                                // Add a little pop to the winnings text
+                                gambleSummaryContainer.classList.add('transform', 'scale-110', 'transition-transform', 'duration-200');
                                 setTimeout(() => {
-                                    sellCalculationContainer.classList.add('opacity-0');
-                                }, 1800);
-                            }
+                                    gambleSummaryContainer.classList.remove('transform', 'scale-110');
+                                }, 200);
 
-                        }, index * 1800); // Stagger the animation
+                                // Change the square to display the value and fade it in
+                                square.textContent = `+$${finalSellValue}`;
+                                square.classList.remove('w-12', 'h-12', 'text-3xl', 'scale-125');
+                                square.classList.add('font-anton', 'text-xl', 'text-yellow-300', 'opacity-100');
+                                square.style.backgroundColor = 'transparent';
+
+
+                                // After the last animation, update the master winnings variable
+                                if (index === sellSummarySquares.length - 1) {
+                                    totalWinnings = displayedWinnings;
+                                    console.log("Final total after selling:", totalWinnings);
+                                }
+                            }, 500);
+
+                        }, index * 1000); // Stagger the animation
                     });
                 }, 2000); // Wait 2 seconds before starting
             }
@@ -1355,4 +1345,5 @@
 
 </body>
 </html>
+
 
