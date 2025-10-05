@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Mobile Game UI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Import Google Fonts -->
@@ -521,7 +521,7 @@
             </div>
             <!-- Inventory Window -->
             <div id="inventory-window" class="bg-gray-900 rounded-lg p-3 overflow-y-auto no-scrollbar">
-                <h3 class="font-anton text-lg tracking-wider text-center mb-1">INVENTORY</h3>
+                <h3 class="font-anton text-lg tracking-wider text-center mb-1 text-white">INVENTORY</h3>
                 <div id="inventory-content">
                     <!-- JS will populate this -->
                 </div>
@@ -552,25 +552,24 @@
                     </div>
                 </div>
             </div>
-            <!-- Stats Window -->
+            <!-- Stats Window (IMPROVED) -->
             <div id="stats-window" class="bg-gray-900 rounded-lg p-3 font-inter flex flex-col">
-                <h3 class="font-anton text-lg tracking-wider text-center">STATS</h3>
-                <div class="grid grid-cols-4 gap-x-1 gap-y-1 text-sm mt-1 flex-grow">
-                    <span class="font-bold text-green-500 text-left">HP</span><span class="text-right" id="hp-stat-value">15</span>
-                    <span class="font-bold text-purple-500 text-left">MP</span><span class="text-right" id="mp-stat-value">15</span>
-
-                    <span class="font-bold text-blue-500 text-left">Armor</span><span class="text-right" id="armor-stat-value">3</span>
-                    <span class="font-bold text-orange-500 text-left">Spirit</span><span class="text-right" id="spirit-stat-value">3</span>
-
-                    <span class="font-bold text-red-500 text-left">Attack</span><span class="text-right" id="attack-stat-value">1</span>
-                    <span class="font-bold text-teal-500 text-left">M. Atk</span><span class="text-right" id="magic-stat-value">2</span>
-
-                    <span class="font-bold text-white text-left">Grace</span><span class="text-right" id="grace-stat-value">0</span>
-                    <span class="font-bold text-gray-500 text-left">Fear</span><span class="text-right" id="fear-stat-value">0</span>
+                <h3 class="font-anton text-lg tracking-wider text-center mb-2">STATS</h3>
+                <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm flex-grow">
+                    <div class="flex justify-between items-center"><span class="font-bold text-green-500">HP</span><span id="hp-stat-value">15/15</span></div>
+                    <div class="flex justify-between items-center"><span class="font-bold text-purple-500">MP</span><span id="mp-stat-value">15/15</span></div>
+                    <div class="flex justify-between items-center"><span class="font-bold text-blue-500">Armor</span><span id="armor-stat-value">3</span></div>
+                    <div class="flex justify-between items-center"><span class="font-bold text-orange-500">Spirit</span><span id="spirit-stat-value">3</span></div>
+                    <div class="flex justify-between items-center"><span class="font-bold text-red-500">Attack</span><span id="attack-stat-value">1</span></div>
+                    <div class="flex justify-between items-center"><span class="font-bold text-teal-500">M. Atk</span><span id="magic-stat-value">2</span></div>
+                    <div class="flex justify-between items-center"><span class="font-bold text-white">Grace</span><span id="grace-stat-value">0</span></div>
+                    <div class="flex justify-between items-center"><span class="font-bold text-gray-500">Fear</span><span id="fear-stat-value">0</span></div>
                 </div>
-                <div class="text-center mt-auto">
-                    <span class="font-bold text-gray-300 text-sm">Materials</span>
-                    <span class="text-sm" id="materials-stat-value">0</span>
+                <div class="text-center mt-auto pt-2 border-t border-gray-700">
+                    <div class="flex justify-between items-center w-1/2 mx-auto">
+                        <span class="font-bold text-gray-300">Materials</span>
+                        <span id="materials-stat-value">0</span>
+                    </div>
                 </div>
             </div>
         </main>
@@ -723,17 +722,55 @@
         </div>
     </div>
 
-    <!-- Combat Inventory Modal -->
+    <!-- Combat Inventory Modal (IMPROVED) -->
     <div id="combat-inventory-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
         <div class="bg-gray-800 rounded-lg p-4 max-w-sm w-full">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="font-anton text-2xl">Inventory</h3>
+                <h3 id="combat-inventory-title" class="font-anton text-2xl text-white uppercase">INVENTORY</h3>
                 <div id="combat-inventory-money" class="font-anton text-2xl text-yellow-300">$0</div>
             </div>
+
+            <!-- Item Grid (Visible by default) -->
             <div id="combat-inventory-options" class="grid grid-cols-4 gap-4 max-h-64 overflow-y-auto no-scrollbar">
                 <!-- JS will populate this -->
             </div>
+
+            <!-- Item Description View (Initially Hidden) -->
+            <div id="combat-item-description-view" class="hidden flex-col items-center justify-center text-center p-4">
+                 <div id="item-description-emoji" class="text-6xl mb-2"></div>
+                 <h4 id="item-description-name" class="font-anton text-xl mb-2 text-white">Item Name</h4>
+                 <p id="item-description-text" class="text-gray-300 mb-6 h-12">Item description goes here.</p>
+                 <div class="flex justify-center space-x-4">
+                     <button id="use-item-button" class="bg-green-600 text-white font-bold py-2 px-8 rounded-lg hover:bg-green-700 active:bg-green-800 transition-colors">Use</button>
+                     <button id="back-to-inventory-button" class="bg-gray-600 text-white font-bold py-2 px-8 rounded-lg hover:bg-gray-700 active:bg-gray-800 transition-colors">Back</button>
+                 </div>
+            </div>
+
             <button id="close-combat-inventory-modal" class="mt-4 w-full bg-red-600 text-white font-bold py-2 rounded-lg">Close</button>
+        </div>
+    </div>
+
+    <!-- Combat Player Stats Modal (NEW) -->
+    <div id="combat-stats-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
+        <div class="bg-gray-800 rounded-lg p-4 max-w-sm w-full font-inter">
+            <h3 class="font-anton text-2xl tracking-wider text-center mb-4">PLAYER STATS</h3>
+            <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                <div class="flex justify-between items-center"><span class="font-bold text-green-500">HP</span><span id="combat-modal-hp-stat-value"></span></div>
+                <div class="flex justify-between items-center"><span class="font-bold text-purple-500">MP</span><span id="combat-modal-mp-stat-value"></span></div>
+                <div class="flex justify-between items-center"><span class="font-bold text-blue-500">Armor</span><span id="combat-modal-armor-stat-value"></span></div>
+                <div class="flex justify-between items-center"><span class="font-bold text-orange-500">Spirit</span><span id="combat-modal-spirit-stat-value"></span></div>
+                <div class="flex justify-between items-center"><span class="font-bold text-red-500">Attack</span><span id="combat-modal-attack-stat-value"></span></div>
+                <div class="flex justify-between items-center"><span class="font-bold text-teal-500">M. Atk</span><span id="combat-modal-magic-stat-value"></span></div>
+                <div class="flex justify-between items-center"><span class="font-bold text-white">Grace</span><span id="combat-modal-grace-stat-value"></span></div>
+                <div class="flex justify-between items-center"><span class="font-bold text-gray-500">Fear</span><span id="combat-modal-fear-stat-value"></span></div>
+            </div>
+            <div class="text-center mt-4 pt-2 border-t border-gray-700">
+                <div class="flex justify-between items-center w-1/2 mx-auto">
+                    <span class="font-bold text-gray-300">Materials</span>
+                    <span id="combat-modal-materials-stat-value">0</span>
+                </div>
+            </div>
+            <button id="close-combat-stats-modal" class="mt-4 w-full bg-red-600 text-white font-bold py-2 rounded-lg">Close</button>
         </div>
     </div>
 
@@ -806,6 +843,33 @@
             const vegetables = ['🥦', '🌶️', '🥔', '🥕', '🌽'];
             const symbols = ['👛','💍','💎','👑','📿','⚖️','🪞','🖼️','⚱️','🦴','🧥','🪑','⛓️','🪚','📯','🎣','🔮','🃏','🪈','🗝️','🪓','🔨','🏹','🗡️'];
             const slotSymbols = ['🦓', '🫎', '🦄', '🦧', '🦎'];
+
+            const ITEM_LEGEND = {
+                // Consumable Items
+                '🍎': { name: 'Apple', description: 'Restores 10 HP.', type: 'consumable' },
+                '🍊': { name: 'Orange', description: 'Restores 10 MP.', type: 'consumable' },
+                '🍇': { name: 'Grapes', description: 'Restores 5 HP & 5 MP.', type: 'consumable' },
+                '🥥': { name: 'Coconut', description: 'Restore Armor & +1 Max Armor.', type: 'consumable' },
+                '🍌': { name: 'Banana', description: 'Restore Spirit & +1 Max Spirit.', type: 'consumable' },
+                '🍞': { name: 'Bread', description: '???', type: 'consumable' },
+                '🍷': { name: 'Wine', description: '???', type: 'consumable' },
+                // Passive Items are now Consumable
+                '🥦': { name: 'Broccoli', description: '+1 Max HP.', type: 'consumable' },
+                '🌶️': { name: 'Chili Pepper', description: '+1 Max MP.', type: 'consumable' },
+                '🥔': { name: 'Potato', description: 'Doubles Attack & Armor for one battle.', type: 'consumable' },
+                '🥕': { name: 'Carrot', description: 'Doubles Spirit for one battle.', type: 'consumable' },
+                '🌽': { name: 'Corn', description: 'Improves battle rewards.', type: 'passive' }, // Corn remains passive for now
+                // Equipment Items
+                '💍': { name: 'Ring', description: 'Equipment: +1 Grace.', type: 'equipment' },
+                '👑': { name: 'Crown', description: 'Equipment: -1 Fear.', type: 'equipment' },
+                '📿': { name: 'Necklace', description: 'Equipment: +1 Grace.', type: 'equipment' },
+                '🦴': { name: 'Bone', description: 'Weapon: A simple, blunt weapon.', type: 'equipment' },
+                '🧥': { name: 'Coat', description: 'Armor: A simple piece of armor.', type: 'equipment' },
+                '🏹': { name: 'Bow', description: 'Weapon: A ranged weapon.', type: 'equipment' },
+                '🗡️': { name: 'Dagger', description: 'Weapon: A short-bladed weapon.', type: 'equipment' },
+                // Default / Sellable
+                'default': { name: 'Valuable', description: 'An item to be sold for materials.', type: 'sellable' }
+            };
             
             // Sell values for emojis
             const emojiSellValues = {
@@ -1956,7 +2020,8 @@
 
                 // 2. Player attack logic
                 targetEnemyState.hp -= totalAttack;
-                targetEnemyState.hpElement.textContent = Math.max(0, targetEnemyState.hp);
+                targetEnemyState.hpTextElement.textContent = Math.max(0, targetEnemyState.hp);
+                targetEnemyState.hpBarElement.style.width = `${Math.max(0, (targetEnemyState.hp / targetEnemyState.maxHp)) * 100}%`;
 
                 if (targetEnemyState.hp <= 0) {
                     targetEnemyState.element.classList.add('transition-opacity', 'duration-500', 'opacity-0');
@@ -2134,6 +2199,93 @@
             }
 
             /**
+             * Populates and shows the combat stats modal.
+             */
+            function populateAndShowCombatStats() {
+                const modal = document.getElementById('combat-stats-modal');
+                
+                // Populate with current in-combat stats
+                document.getElementById('combat-modal-hp-stat-value').textContent = `${combatState.player.hp}/${combatState.player.maxHp}`;
+                document.getElementById('combat-modal-mp-stat-value').textContent = `${combatState.player.mp}/${combatState.player.maxMp}`;
+                document.getElementById('combat-modal-armor-stat-value').textContent = combatState.player.armor;
+                document.getElementById('combat-modal-spirit-stat-value').textContent = combatState.player.spirit;
+                document.getElementById('combat-modal-attack-stat-value').textContent = combatState.player.attack;
+                document.getElementById('combat-modal-magic-stat-value').textContent = combatState.player.magicAtk;
+
+                // Populate with base stats that don't change in combat
+                document.getElementById('combat-modal-grace-stat-value').textContent = playerStats.grace;
+                document.getElementById('combat-modal-fear-stat-value').textContent = playerStats.fear;
+                document.getElementById('combat-modal-materials-stat-value').textContent = playerStats.materials;
+
+                modal.classList.remove('hidden');
+            }
+
+
+            /**
+              * Displays the description view for a selected item in the combat inventory.
+              */
+            function showItemDescription(emoji) {
+                const itemData = Object.keys(ITEM_LEGEND).includes(emoji) ? ITEM_LEGEND[emoji] : ITEM_LEGEND['default'];
+
+                const gridView = document.getElementById('combat-inventory-options');
+                const descriptionView = document.getElementById('combat-item-description-view');
+                const modalTitle = document.getElementById('combat-inventory-title');
+                const closeButton = document.getElementById('close-combat-inventory-modal');
+                const useButton = document.getElementById('use-item-button');
+
+                // Populate description view
+                document.getElementById('item-description-emoji').textContent = emoji;
+                document.getElementById('item-description-name').textContent = itemData.name;
+                document.getElementById('item-description-text').textContent = itemData.description;
+
+                // Enable or disable "Use" button based on item type
+                if (itemData.type === 'consumable') {
+                    useButton.disabled = false;
+                    useButton.classList.remove('bg-gray-500', 'cursor-not-allowed');
+                    useButton.classList.add('bg-green-600', 'hover:bg-green-700', 'active:bg-green-800');
+                } else {
+                    useButton.disabled = true;
+                    useButton.classList.add('bg-gray-500', 'cursor-not-allowed');
+                    useButton.classList.remove('bg-green-600', 'hover:bg-green-700', 'active:bg-green-800');
+                }
+                
+                // Toggle visibility
+                gridView.classList.add('hidden');
+                closeButton.classList.add('hidden');
+                descriptionView.classList.remove('hidden');
+                descriptionView.classList.add('flex');
+                modalTitle.textContent = "Item Info";
+            }
+            
+            /**
+             * Sets up listeners for the combat inventory description view.
+             */
+            function setupCombatInventoryListeners() {
+                const backButton = document.getElementById('back-to-inventory-button');
+                const useButton = document.getElementById('use-item-button');
+                
+                const goBackToGrid = () => {
+                    const gridView = document.getElementById('combat-inventory-options');
+                    const descriptionView = document.getElementById('combat-item-description-view');
+                    const modalTitle = document.getElementById('combat-inventory-title');
+                    const closeButton = document.getElementById('close-combat-inventory-modal');
+
+                    descriptionView.classList.add('hidden');
+                    descriptionView.classList.remove('flex');
+                    gridView.classList.remove('hidden');
+                    closeButton.classList.remove('hidden');
+                    modalTitle.textContent = "INVENTORY";
+                };
+
+                backButton.addEventListener('click', goBackToGrid);
+
+                useButton.addEventListener('click', () => {
+                    const emoji = document.getElementById('item-description-emoji').textContent;
+                    useItem(emoji);
+                });
+            }
+
+            /**
              * Populates and displays the combat inventory modal.
              */
             function populateAndShowCombatInventory() {
@@ -2158,10 +2310,8 @@
                                 <div class="text-3xl">${emoji}</div>
                                 <span class="text-xs font-bold mt-1 text-white">x${count}</span>
                             `;
-                            // Tappable, but no action yet as per instructions
                             itemDiv.addEventListener('click', () => {
-                                console.log(`Tapped on ${emoji}`);
-                                // Future implementation for using items in combat
+                                showItemDescription(emoji);
                             });
                             optionsContainer.appendChild(itemDiv);
                         }
@@ -2223,7 +2373,7 @@
                 let currentCombatStats = { ...playerStats };
                 if (equippedItems.weapon) currentCombatStats.attack += 1;
                 if (equippedItems.armor === '🧥') currentCombatStats.armor += 1;
-                if (equippedItems.ring === '💍') currentCombatStats.grace += 1;
+                if (equippedItems.ring === '💍') currentStats.grace += 1;
                 if (equippedItems.accessory === '👑') currentCombatStats.fear -= 1;
                 if (equippedItems.accessory === '📿') currentCombatStats.grace += 1;
                 
@@ -2244,23 +2394,37 @@
                     enemies: []
                 };
 
+                // Store initial max values for restoration effects
+                combatState.player.maxArmor = combatState.player.armor;
+                combatState.player.maxSpirit = combatState.player.spirit;
+
                 // Populate enemies and their info
                 currentEnemies.forEach(enemyData => {
                     const enemyContainer = document.createElement('div');
                     enemyContainer.className = 'flex flex-col items-center cursor-pointer';
                     enemyContainer.innerHTML = `
-                        <div class="flex justify-between w-full px-2 text-lg font-bold">
-                            <span class="text-green-500">${enemyData.hp}</span>
-                            <span class="text-red-500">${enemyData.attack}</span>
+                        <div class="w-20">
+                            <div class="flex justify-center items-center mb-1">
+                                <span class="text-green-400 text-sm font-bold mr-1">${enemyData.hp}</span>
+                                <div class="w-full bg-gray-700 rounded-full h-2.5">
+                                    <div class="bg-green-500 h-2.5 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            <div class="text-6xl text-center">${enemyData.emoji}</div>
+                            <div class="flex items-center justify-center mt-1">
+                                <span class="text-red-500 text-xl">⚔️</span>
+                                <span class="text-red-500 text-lg font-bold ml-1">${enemyData.attack}</span>
+                            </div>
                         </div>
-                        <div class="text-6xl">${enemyData.emoji}</div>
                     `;
                     enemyDisplay.appendChild(enemyContainer);
                     
                     const enemyState = {
                         ...enemyData,
                         element: enemyContainer,
-                        hpElement: enemyContainer.querySelector('.text-green-500')
+                        hpTextElement: enemyContainer.querySelector('.text-green-400'),
+                        hpBarElement: enemyContainer.querySelector('.bg-green-500'),
+                        maxHp: enemyData.hp // Store initial HP as maxHP
                     };
                     combatState.enemies.push(enemyState);
                     
@@ -2273,6 +2437,8 @@
 
                 // Populate player
                 playerDisplay.textContent = '👤';
+                playerDisplay.classList.add('cursor-pointer');
+                playerDisplay.addEventListener('click', populateAndShowCombatStats);
 
                 // Set up Magic Strike toggle
                 magicStrikeToggle.checked = true; // Default ON
@@ -2296,7 +2462,7 @@
                 mpText.textContent = `${combatState.player.mp}/${combatState.player.maxMp}`;
                 mpBar.style.width = `${(combatState.player.mp / combatState.player.maxMp) * 100}%`;
                 
-                // Update the displayed attack value based on the initial toggle state
+                // Update the displayed attack value based on the initial toggle state and any buffs
                 updateDisplayedAttack();
 
                 // Show the combat screen
@@ -2340,6 +2506,7 @@
             });
 
             beginButton.addEventListener('click', () => {
+                // All item consumption is now manual. This button just starts the journey.
                 prepareScreen.classList.add('hidden');
                 choiceScreen.classList.remove('hidden');
                 choiceScreen.classList.add('flex');
@@ -2435,6 +2602,13 @@
             document.getElementById('combat-inventory-button').addEventListener('click', populateAndShowCombatInventory);
             document.getElementById('close-combat-inventory-modal').addEventListener('click', () => {
                 document.getElementById('combat-inventory-modal').classList.add('hidden');
+                // Also ensure the description view is hidden when re-opening
+                document.getElementById('back-to-inventory-button').click();
+            });
+
+            // Add listener for new combat stats modal
+            document.getElementById('close-combat-stats-modal').addEventListener('click', () => {
+                document.getElementById('combat-stats-modal').classList.add('hidden');
             });
 
             // Add listeners for skip buttons
@@ -2442,17 +2616,124 @@
             skipScavengeButton.addEventListener('click', endScavengePhase);
             skipGambleButton.addEventListener('click', endGamblePhase);
 
+            // --- NEW HELPER FUNCTIONS FOR ITEM MANAGEMENT ---
+            
+            /**
+             * Consumes an item from the player's inventory counts.
+             */
+            function consumeItem(emoji) {
+                let consumed = false;
+                if (marketCounts[emoji] && marketCounts[emoji] > 0) {
+                    marketCounts[emoji]--;
+                    if (marketCounts[emoji] === 0) delete marketCounts[emoji];
+                    consumed = true;
+                } else if (inventoryCounts[emoji] && inventoryCounts[emoji] > 0) {
+                    inventoryCounts[emoji]--;
+                    if (inventoryCounts[emoji] === 0) delete inventoryCounts[emoji];
+                    consumed = true;
+                }
+                return consumed;
+            }
+
+            /**
+             * Applies the effect of a used item during combat.
+             */
+            function useItem(emoji) {
+                const hpBar = document.getElementById('combat-hp-bar');
+                const hpText = document.getElementById('combat-hp-text');
+                const mpBar = document.getElementById('combat-mp-bar');
+                const mpText = document.getElementById('combat-mp-text');
+                
+                let itemUsed = false;
+                
+                switch (emoji) {
+                    case '🍎':
+                        combatState.player.hp = Math.min(combatState.player.maxHp, combatState.player.hp + 10);
+                        itemUsed = true;
+                        break;
+                    case '🍊':
+                        combatState.player.mp = Math.min(combatState.player.maxMp, combatState.player.mp + 10);
+                        itemUsed = true;
+                        break;
+                    case '🍇':
+                        combatState.player.hp = Math.min(combatState.player.maxHp, combatState.player.hp + 5);
+                        combatState.player.mp = Math.min(combatState.player.maxMp, combatState.player.mp + 5);
+                        itemUsed = true;
+                        break;
+                    case '🥥':
+                        combatState.player.armor = combatState.player.maxArmor; // Restore to combat-start max
+                        playerStats.armor += 1; // Permanent stat boost
+                        document.getElementById('combat-armor').textContent = combatState.player.armor;
+                        updateStatsUI(); // Update prepare screen stats in background
+                        itemUsed = true;
+                        break;
+                    case '🍌':
+                        combatState.player.spirit = combatState.player.maxSpirit; // Restore
+                        playerStats.spirit += 1; // Permanent
+                        document.getElementById('combat-spirit').textContent = combatState.player.spirit;
+                        updateStatsUI();
+                        itemUsed = true;
+                        break;
+                    case '🥔':
+                        combatState.player.attack *= 2;
+                        combatState.player.armor *= 2;
+                        document.getElementById('combat-attack').textContent = combatState.player.attack;
+                        document.getElementById('combat-armor').textContent = combatState.player.armor;
+                        itemUsed = true;
+                        break;
+                    case '🥕':
+                        combatState.player.spirit *= 2;
+                        document.getElementById('combat-spirit').textContent = combatState.player.spirit;
+                        itemUsed = true;
+                        break;
+                    case '🥦':
+                        playerStats.maxHp += 1;
+                        playerStats.hp += 1; 
+                        combatState.player.maxHp += 1;
+                        combatState.player.hp += 1;
+                        updateStatsUI();
+                        itemUsed = true;
+                        break;
+                    case '🌶️':
+                        playerStats.maxMp += 1;
+                        playerStats.mp += 1;
+                        combatState.player.maxMp += 1;
+                        combatState.player.mp += 1;
+                        updateStatsUI();
+                        itemUsed = true;
+                        break;
+                }
+
+                if (itemUsed && consumeItem(emoji)) {
+                    // Update HP/MP meters
+                    hpText.textContent = `${combatState.player.hp}/${combatState.player.maxHp}`;
+                    hpBar.style.width = `${(combatState.player.hp / combatState.player.maxHp) * 100}%`;
+                    mpText.textContent = `${combatState.player.mp}/${combatState.player.maxMp}`;
+                    mpBar.style.width = `${(combatState.player.mp / combatState.player.maxMp) * 100}%`;
+                    
+                    // Go back to inventory and refresh it to show the new count
+                    document.getElementById('back-to-inventory-button').click();
+                    populateAndShowCombatInventory();
+                } else if (itemUsed) {
+                    console.error("Item effect applied, but could not find item to consume.");
+                }
+            }
+
+
             startMarketTimer();
             startSpawning();
             populateRoute();
             setupDesktopScrolling();
             setupDragAndDrop();
             setupGambleToggle();
+            setupCombatInventoryListeners(); // Set up new listeners
         });
     </script>
 
 </body>
 </html>
+
+
 
 
 
