@@ -106,6 +106,19 @@
             pointer-events: none; /* Prevents it from interfering with clicks */
             z-index: -1; /* Places the '2x' behind the emoji content */
         }
+        
+        .pink-multiplier::after {
+            content: '3x';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Anton', sans-serif;
+            font-size: 3rem;
+            color: white; /* Solid white text */
+            pointer-events: none; /* Prevents it from interfering with clicks */
+            z-index: -1; /* Places the '3x' behind the emoji content */
+        }
 
         .grid-square:before {
             content: "";
@@ -162,12 +175,15 @@
             cursor: not-allowed;
         }
 
-        /* Resize 2x multiplier for summary screen */
-        #market-summary .yellow-multiplier::after {
+        /* Resize multipliers for summary screen */
+        #market-summary .yellow-multiplier::after,
+        #market-summary .pink-multiplier::after {
             font-size: 2.25rem;
         }
         #sell-summary .yellow-multiplier::after,
-        #keep-summary .yellow-multiplier::after {
+        #keep-summary .yellow-multiplier::after,
+        #sell-summary .pink-multiplier::after,
+        #keep-summary .pink-multiplier::after {
             font-size: 1.75rem;
         }
 
@@ -212,7 +228,7 @@
             fill: #b91c1c; /* darker red, was red-500 (#ef4444) */
         }
 
-        /* Combat Animations */
+        /* Combat Animations & Styles */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-5px); }
@@ -236,6 +252,11 @@
         }
         .stat-zoom-animation {
             animation: stat-zoom 0.3s ease-in-out;
+        }
+        
+        .teal-glow {
+            color: #2dd4bf; /* teal-400 */
+            text-shadow: 0 0 10px #2dd4bf, 0 0 20px #2dd4bf;
         }
 
     </style>
@@ -281,7 +302,7 @@
             <div id="vegetable-conveyor" class="absolute top-0 left-1/2 h-full overflow-hidden" style="width: 16.6667%;"></div>
 
             <!-- Fruit and Vegetable Legends -->
-            <div id="fruit-legend" class="absolute bottom-2 left-2 w-[30%] bg-black bg-opacity-40 rounded-lg p-2 font-inter text-xs text-gray-200 space-y-1">
+            <div id="fruit-legend" class="absolute bottom-2 left-2 w-[30%] bg-black bg-opacity-40 rounded-lg p-2 font-inter text-xs text-gray-200 space-y-1 min-h-[140px]">
                 <div class="grid grid-cols-[auto,1fr] items-center gap-x-2">
                     <span class="text-lg">🍎</span><span>+10 ❤️</span>
                 </div>
@@ -298,7 +319,7 @@
                     <span class="text-lg">🍌</span><span>Heal ✨, +1 Max</span>
                 </div>
             </div>
-            <div id="veg-legend" class="absolute bottom-2 right-2 w-[30%] bg-black bg-opacity-40 rounded-lg p-2 font-inter text-xs text-gray-200 space-y-1">
+            <div id="veg-legend" class="absolute bottom-2 right-2 w-[30%] bg-black bg-opacity-40 rounded-lg p-2 font-inter text-xs text-gray-200 space-y-1 min-h-[140px]">
                 <div class="grid grid-cols-[auto,1fr] items-center gap-x-2">
                     <span class="text-lg">🥦</span><span>+1 Max ❤️</span>
                 </div>
@@ -306,13 +327,13 @@
                     <span class="text-lg">🌶️</span><span>+1 Max 💜</span>
                 </div>
                 <div class="grid grid-cols-[auto,1fr] items-center gap-x-2">
-                    <span class="text-lg">🥔</span><span>⚔️ & 🛡️ x2 (Battle)</span>
+                    <span class="text-lg">🥔</span><span>⚔️ & 🛡️ x2</span>
                 </div>
                 <div class="grid grid-cols-[auto,1fr] items-center gap-x-2">
-                    <span class="text-lg">🥕</span><span>✨ x2 (Battle)</span>
+                    <span class="text-lg">🥕</span><span>✨ x2</span>
                 </div>
                 <div class="grid grid-cols-[auto,1fr] items-center gap-x-2">
-                    <span class="text-lg">🌽</span><span>Better Rewards ⭐</span>
+                    <span class="text-lg">🌽</span><span>Better Rewards</span>
                 </div>
             </div>
         </main>
@@ -659,7 +680,7 @@
                         <span class="font-inter text-xs font-bold mb-1">Magic Strike</span>
                         <label for="magic-strike-toggle" class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" value="" id="magic-strike-toggle" class="sr-only peer">
-                            <div class="w-9 h-5 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600"></div>
+                            <div class="w-9 h-5 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-teal-500"></div>
                         </label>
                     </div>
                     <button id="combat-inventory-button" class="text-4xl active:scale-90 transition-transform">🎒</button>
@@ -705,7 +726,10 @@
     <!-- Combat Inventory Modal -->
     <div id="combat-inventory-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
         <div class="bg-gray-800 rounded-lg p-4 max-w-sm w-full">
-            <h3 class="font-anton text-2xl text-center mb-4">Inventory</h3>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-anton text-2xl">Inventory</h3>
+                <div id="combat-inventory-money" class="font-anton text-2xl text-yellow-300">$0</div>
+            </div>
             <div id="combat-inventory-options" class="grid grid-cols-4 gap-4 max-h-64 overflow-y-auto no-scrollbar">
                 <!-- JS will populate this -->
             </div>
@@ -800,6 +824,8 @@
                 switch (colorString) {
                     case 'rgb(253, 224, 71)': // yellow-300
                         return 2;
+                    case 'rgb(244, 114, 182)': // pink-400
+                        return 3;
                     case 'rgb(59, 130, 246)':  // blue-500
                         return 1;
                     default:
@@ -832,7 +858,9 @@
             let inventoryCounts = {};
             
             const baseStats = {
-                hp: 15, mp: 15, armor: 3, spirit: 3, 
+                hp: 15, maxHp: 15,
+                mp: 15, maxMp: 15,
+                armor: 3, spirit: 3, 
                 attack: 1, magic: 2, grace: 0, fear: 0, materials: 0
             };
             
@@ -847,9 +875,9 @@
 
             // Journey / Choice Graph state
             let graph = {};
-            let unlockedNodes = new Set(['start']);
             let completedNodes = new Set();
-            let currentNodeId = null;
+            let currentNodeId = null; // The node currently in combat
+            let currentPlayerNodeId = 'start'; // The player's current position on the graph
 
             // Drag-and-drop state
             let isDraggingEmoji = false;
@@ -885,10 +913,13 @@
                     const bgColor = (item.color && item.color !== 'rgba(0, 0, 0, 0)') ? item.color : '#4a5568';
                     square.style.backgroundColor = bgColor;
 
-                    // If the color is yellow, add the class for the 2x indicator
+                    // Add multiplier classes based on color
                     if (bgColor === 'rgb(253, 224, 71)') { // Corresponds to yellow-300
                         square.classList.add('yellow-multiplier');
+                    } else if (bgColor === 'rgb(244, 114, 182)') { // Corresponds to pink-400
+                        square.classList.add('pink-multiplier');
                     }
+
 
                     return square;
                 };
@@ -1006,8 +1037,8 @@
                 if (equippedItems.accessory === '📿') currentStats.grace += 1;
 
                 // Update the DOM
-                document.getElementById('hp-stat-value').textContent = currentStats.hp;
-                document.getElementById('mp-stat-value').textContent = currentStats.mp;
+                document.getElementById('hp-stat-value').textContent = `${currentStats.hp}/${currentStats.maxHp}`;
+                document.getElementById('mp-stat-value').textContent = `${currentStats.mp}/${currentStats.maxMp}`;
                 document.getElementById('armor-stat-value').textContent = currentStats.armor;
                 document.getElementById('spirit-stat-value').textContent = currentStats.spirit;
                 document.getElementById('attack-stat-value').textContent = currentStats.attack;
@@ -1028,10 +1059,9 @@
 
                 // Helper to count item occurrences
                 const countItems = (items) => {
-                    const yellowColor = 'rgb(253, 224, 71)';
                     return items.reduce((acc, item) => {
                         if (item.emoji && item.emoji.trim() !== '') {
-                            const quantity = item.color === yellowColor ? 2 : 1;
+                            const quantity = getMultiplierFromColor(item.color);
                             acc[item.emoji] = (acc[item.emoji] || 0) + quantity;
                         }
                         return acc;
@@ -1305,11 +1335,14 @@
                 
                 // Force apply all market colors to ensure they are set before proceeding.
                 const yellowColor = 'rgb(253, 224, 71)';
+                const pinkColor = 'rgb(244, 114, 182)';
                 fruitSquares.forEach((square, index) => {
                     const finalColor = marketFruitColorPattern[index];
                     square.style.backgroundColor = finalColor;
                     if (finalColor === yellowColor) {
                         square.classList.add('yellow-multiplier');
+                    } else if (finalColor === pinkColor) {
+                        square.classList.add('pink-multiplier');
                     }
                 });
                 vegSquares.forEach((square, index) => {
@@ -1317,6 +1350,8 @@
                     square.style.backgroundColor = finalColor;
                     if (finalColor === yellowColor) {
                         square.classList.add('yellow-multiplier');
+                    } else if (finalColor === pinkColor) {
+                        square.classList.add('pink-multiplier');
                     }
                 });
                 
@@ -1395,6 +1430,7 @@
                 const fruitRevealOrder = shuffle([0, 1, 2, 3]);
                 const vegRevealOrder = shuffle([0, 1, 2, 3]);
                 const yellowColor = 'rgb(253, 224, 71)';
+                const pinkColor = 'rgb(244, 114, 182)';
 
                 let revealIndex = 0;
                 const colorRevealInterval = setInterval(() => {
@@ -1407,6 +1443,8 @@
                         fruitSquareToColor.style.backgroundColor = fruitColor;
                         if (fruitColor === yellowColor) {
                             fruitSquareToColor.classList.add('yellow-multiplier');
+                        } else if (fruitColor === pinkColor) {
+                            fruitSquareToColor.classList.add('pink-multiplier');
                         }
 
                         // Reveal one vegetable square based on the randomized reveal order
@@ -1417,6 +1455,8 @@
                         vegSquareToColor.style.backgroundColor = vegColor;
                         if (vegColor === yellowColor) {
                             vegSquareToColor.classList.add('yellow-multiplier');
+                        } else if (vegColor === pinkColor) {
+                            vegSquareToColor.classList.add('pink-multiplier');
                         }
                         
                         revealIndex++;
@@ -1432,10 +1472,11 @@
             function startMarketTimer() {
                 const blue = 'rgb(59, 130, 246)';
                 const yellow = 'rgb(253, 224, 71)';
+                const pink = 'rgb(244, 114, 182)';
 
                 // Generate and store the final color patterns for the market squares
-                marketFruitColorPattern = shuffle([yellow, blue, blue, blue]);
-                marketVegColorPattern = shuffle([yellow, blue, blue, blue]);
+                marketFruitColorPattern = shuffle([pink, yellow, blue, blue]);
+                marketVegColorPattern = shuffle([pink, yellow, blue, blue]);
 
                 // Start the staggered color reveal for market squares
                 startColorReveal();
@@ -1840,16 +1881,25 @@
                 if (!combatState.player) return;
                 const magicStrikeToggle = document.getElementById('magic-strike-toggle');
                 const combatAttackEl = document.getElementById('combat-attack');
+                const combatAttackStatsEl = document.getElementById('combat-attack-stats');
                 
                 let displayedAttack = combatState.player.attack;
-                if (magicStrikeToggle.checked) {
+
+                if (magicStrikeToggle.checked && (combatState.player.spirit > 0 || combatState.player.mp > 0)) {
                     displayedAttack += combatState.player.magicAtk;
+                    combatAttackStatsEl.classList.add('teal-glow');
+                } else {
+                    combatAttackStatsEl.classList.remove('teal-glow');
                 }
+                
                 combatAttackEl.textContent = displayedAttack;
 
                 // Disable toggle if no magic resources are left
                 if (combatState.player.spirit <= 0 && combatState.player.mp <= 0) {
                     magicStrikeToggle.disabled = true;
+                    magicStrikeToggle.checked = false; // Uncheck if no resources
+                    combatAttackStatsEl.classList.remove('teal-glow');
+                    combatAttackEl.textContent = combatState.player.attack;
                 } else {
                     magicStrikeToggle.disabled = false;
                 }
@@ -1870,12 +1920,15 @@
                 if (magicStrikeToggle.checked) {
                     if (combatState.player.spirit > 0 || combatState.player.mp > 0) {
                         totalAttack += combatState.player.magicAtk;
-                        const oldSpirit = combatState.player.spirit;
-
+                        
                         // Consume magic resource (spirit first, then MP)
                         if (combatState.player.spirit > 0) {
                             combatState.player.spirit--;
                             document.getElementById('combat-spirit').textContent = combatState.player.spirit;
+                            // If spirit is now depleted, turn off the toggle.
+                            if (combatState.player.spirit === 0) {
+                                magicStrikeToggle.checked = false;
+                            }
                         } else {
                             combatState.player.mp--;
                              // MP Meter Update
@@ -1884,15 +1937,12 @@
                             mpText.textContent = `${combatState.player.mp}/${combatState.player.maxMp}`;
                             mpBar.style.width = `${Math.max(0, (combatState.player.mp / combatState.player.maxMp)) * 100}%`;
                         }
-
-                        // Auto-toggle off if spirit is depleted
-                        if (oldSpirit > 0 && combatState.player.spirit === 0) {
-                            magicStrikeToggle.checked = false;
-                            magicStrikeToggle.dispatchEvent(new Event('change')); // Update UI
-                        }
+                        
+                        // Update UI after consuming a resource
+                        updateDisplayedAttack();
 
                     } else {
-                        // No resources left, turn it off
+                        // This case is handled by updateDisplayedAttack, but as a fallback:
                         magicStrikeToggle.checked = false;
                         magicStrikeToggle.dispatchEvent(new Event('change')); // Update UI
                     }
@@ -2014,12 +2064,10 @@
                     completedNodes.add(currentNodeId);
                     markNodeAsCompleted(currentNodeId);
                     
-                    // Unlock next nodes
-                    const nextNodeIds = graph[currentNodeId] || [];
-                    nextNodeIds.forEach(id => unlockedNodes.add(id));
+                    // Update player's position to the node they just cleared
+                    currentPlayerNodeId = currentNodeId;
+                    console.log("Player moved to:", currentPlayerNodeId);
                     
-                    console.log("Unlocked nodes:", ...unlockedNodes);
-
                     await showRewardPopup();
                 }
                 
@@ -2064,10 +2112,10 @@
                                     totalWinnings += finalReward.value;
                                     break;
                                 case 'hp':
-                                    playerStats.hp = Math.min(playerStats.hp + finalReward.value, baseStats.hp);
+                                    playerStats.hp = Math.min(playerStats.hp + finalReward.value, playerStats.maxHp);
                                     break;
                                 case 'mp':
-                                    playerStats.mp = Math.min(playerStats.mp + finalReward.value, baseStats.mp);
+                                    playerStats.mp = Math.min(playerStats.mp + finalReward.value, playerStats.maxMp);
                                     break;
                             }
                             
@@ -2091,6 +2139,9 @@
             function populateAndShowCombatInventory() {
                 const modal = document.getElementById('combat-inventory-modal');
                 const optionsContainer = document.getElementById('combat-inventory-options');
+                const moneyTracker = document.getElementById('combat-inventory-money');
+                
+                moneyTracker.textContent = `$${totalWinnings}`;
                 optionsContainer.innerHTML = ''; // Clear old options
 
                 // Combine food and other inventory items
@@ -2105,7 +2156,7 @@
                             itemDiv.className = 'flex flex-col items-center cursor-pointer p-2 bg-gray-700 rounded-md hover:bg-gray-600 transition-colors';
                             itemDiv.innerHTML = `
                                 <div class="text-3xl">${emoji}</div>
-                                <span class="text-xs font-bold mt-1">x${count}</span>
+                                <span class="text-xs font-bold mt-1 text-white">x${count}</span>
                             `;
                             // Tappable, but no action yet as per instructions
                             itemDiv.addEventListener('click', () => {
@@ -2182,9 +2233,9 @@
                     isEnding: false, // Flag to prevent multiple endCombat calls
                     player: {
                         hp: currentCombatStats.hp,
-                        maxHp: playerStats.hp,
+                        maxHp: currentCombatStats.maxHp,
                         mp: currentCombatStats.mp,
-                        maxMp: playerStats.mp,
+                        maxMp: currentCombatStats.maxMp,
                         armor: currentCombatStats.armor,
                         spirit: currentCombatStats.spirit,
                         attack: currentCombatStats.attack,
@@ -2363,12 +2414,18 @@
                 allGraphNodes.forEach(node => {
                     node.addEventListener('click', (e) => {
                         const nodeId = e.target.dataset.id;
-                        if (unlockedNodes.has(nodeId) && !completedNodes.has(nodeId)) {
+                        const availableMoves = graph[currentPlayerNodeId] || [];
+
+                        // Special case for the very first click on the start node
+                        if (nodeId === 'start' && !completedNodes.has('start')) {
                              startCombat(e.target);
+                        } else if (availableMoves.includes(nodeId) && !completedNodes.has(nodeId)) {
+                            // This is a valid upward move
+                            startCombat(e.target);
                         } else if (completedNodes.has(nodeId)) {
                             console.log(`Node ${nodeId} already completed.`);
                         } else {
-                             console.log(`Node ${nodeId} is locked.`);
+                             console.log(`Invalid move. Player is at ${currentPlayerNodeId}. Cannot move to ${nodeId}.`);
                         }
                     });
                 });
