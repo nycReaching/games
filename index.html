@@ -61,6 +61,7 @@
         }
 
         .grid-square {
+            position: relative; /* For positioning the indicator */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -70,6 +71,23 @@
             transition: background-color 0.3s ease;
         }
         
+        .travel-square {
+            position: relative; /* For positioning the indicator */
+        }
+
+        .yellow-multiplier::after {
+            content: '2x';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Anton', sans-serif;
+            font-size: 3rem;
+            color: rgba(255, 255, 255, 0.3); /* Transparent white */
+            pointer-events: none; /* Prevents it from interfering with clicks */
+            z-index: 1;
+        }
+
         .grid-square:before {
             content: "";
             display: block;
@@ -109,15 +127,15 @@
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            background-color: #f59e0b; /* bg-yellow-500 */
-            border: 4px solid #fcd34d; /* bg-yellow-300 */
-            box-shadow: 0 5px #b45309; /* shadow */
+            background-color: #facc15; /* bg-yellow-400 */
+            border: 4px solid #fde047; /* bg-yellow-300 */
+            box-shadow: 0 5px #ca8a04; /* shadow */
             transition: all 0.1s ease;
             cursor: pointer;
         }
         .spin-button:active {
             transform: translateY(3px);
-            box-shadow: 0 2px #b45309;
+            box-shadow: 0 2px #ca8a04;
         }
         .spin-button:disabled {
             background-color: #a1a1aa; /* bg-zinc-400 */
@@ -148,7 +166,7 @@
         <!-- Top Section -->
         <header class="h-32 bg-gray-900 shadow-lg flex-shrink-0 flex items-center justify-center">
             <!-- Countdown Timer -->
-            <div id="countdown-timer" class="font-anton text-6xl tracking-wider">60</div>
+            <div id="countdown-timer" class="font-anton text-6xl tracking-wider">45</div>
         </header>
 
         <!-- Middle Section (Game Area) -->
@@ -198,7 +216,7 @@
         <!-- Top Section -->
         <header class="h-32 bg-gray-900 shadow-lg flex-shrink-0 flex items-center justify-center">
              <!-- Countdown Timer for Travel Phase -->
-            <div id="travel-countdown-timer" class="font-anton text-6xl tracking-wider">60</div>
+            <div id="travel-countdown-timer" class="font-anton text-6xl tracking-wider">45</div>
         </header>
 
         <!-- Middle Section -->
@@ -206,9 +224,9 @@
             <!-- Left Column -->
             <div id="sell-column" class="w-1/3 bg-gray-800 flex flex-col items-center justify-center p-4 space-y-4">
                 <h2 class="font-anton text-4xl text-red-400 tracking-widest mb-2">SELL</h2>
-                <div class="w-20 h-20 md:w-24 md:h-24 bg-blue-500 rounded-lg shadow-lg travel-square flex items-center justify-center text-4xl"></div>
-                <div class="w-20 h-20 md:w-24 md:h-24 bg-yellow-400 rounded-lg shadow-lg travel-square flex items-center justify-center text-4xl"></div>
-                <div class="w-20 h-20 md:w-24 md:h-24 bg-pink-500 rounded-lg shadow-lg travel-square flex items-center justify-center text-4xl"></div>
+                <div class="w-20 h-20 md:w-24 md:h-24 bg-gray-600 rounded-lg shadow-lg travel-square flex items-center justify-center text-4xl"></div>
+                <div class="w-20 h-20 md:w-24 md:h-24 bg-gray-600 rounded-lg shadow-lg travel-square flex items-center justify-center text-4xl"></div>
+                <div class="w-20 h-20 md:w-24 md:h-24 bg-gray-600 rounded-lg shadow-lg travel-square flex items-center justify-center text-4xl"></div>
             </div>
             <!-- Middle Column (Swipable) -->
             <div id="scrollable-route" class="w-1/3 bg-gray-700 overflow-y-auto no-scrollbar draggable">
@@ -219,9 +237,9 @@
             <!-- Right Column -->
             <div id="keep-column" class="w-1/3 bg-gray-800 flex flex-col items-center justify-center p-4 space-y-4">
                 <h2 class="font-anton text-4xl text-green-400 tracking-widest mb-2">KEEP</h2>
-                <div class="w-20 h-20 md:w-24 md:h-24 bg-blue-500 rounded-lg shadow-lg travel-square flex items-center justify-center text-4xl"></div>
-                <div class="w-20 h-20 md:w-24 md:h-24 bg-yellow-400 rounded-lg shadow-lg travel-square flex items-center justify-center text-4xl"></div>
-                <div class="w-20 h-20 md:w-24 md:h-24 bg-pink-500 rounded-lg shadow-lg travel-square flex items-center justify-center text-4xl"></div>
+                <div class="w-20 h-20 md:w-24 md:h-24 bg-gray-600 rounded-lg shadow-lg travel-square flex items-center justify-center text-4xl"></div>
+                <div class="w-20 h-20 md:w-24 md:h-24 bg-gray-600 rounded-lg shadow-lg travel-square flex items-center justify-center text-4xl"></div>
+                <div class="w-20 h-20 md:w-24 md:h-24 bg-gray-600 rounded-lg shadow-lg travel-square flex items-center justify-center text-4xl"></div>
             </div>
         </main>
 
@@ -315,6 +333,7 @@
                             <div id="sell-summary" class="flex flex-row space-x-2">
                                 <!-- Populated by JS -->
                             </div>
+                            <div id="sell-calculation" class="font-anton text-xl text-yellow-300 ml-4 w-24 text-left transition-opacity duration-300"></div>
                         </div>
                         <!-- Keep Row -->
                         <div class="flex items-center">
@@ -327,7 +346,7 @@
                     <!-- Gamble Summary -->
                     <div class="text-center">
                         <h4 class="font-anton text-lg text-yellow-300">WINNINGS</h4>
-                        <div id="gamble-summary" class="font-anton text-4xl text-yellow-300">
+                        <div id="gamble-summary" class="font-anton text-5xl text-yellow-300">
                             $0
                         </div>
                     </div>
@@ -383,16 +402,38 @@
             const sellSummaryContainer = document.getElementById('sell-summary');
             const keepSummaryContainer = document.getElementById('keep-summary');
             const gambleSummaryContainer = document.getElementById('gamble-summary');
+            const sellCalculationContainer = document.getElementById('sell-calculation');
 
 
-            const fruits = ['🍓', '🍎', '🍊', '🍋', '🍌', '🍉', '🍇', '🍒', '🍍', '🍑'];
-            const vegetables = ['🥕', '🥦', '🌽', '🥒', '🌶️', '🍅', '🍆', '🥑', '🥬', '🧅'];
-            const symbols = ['💠', '🌀', '🔰', '🔱', '💮', '⚜️', '🔅', '🔆', '⭕️', '♨️', '📛', '💢', '❗️', '❓', '❕', '❔', '⚫️', '⚪️', '🔴', '🔵', '🔶', '🔷', '🔸', '🔹', '🔺', '🔻', '🔚', '🔙', '🔛', '🔜', '🔝'];
+            const fruits = ['🍎', '🍊', '🍇', '🥥', '🍌'];
+            const vegetables = ['🥦', '🌶️', '🥔', '🥕', '🌽'];
+            const symbols = ['👛','💍','💎','👑','📿','⚖️','🪞','🖼️','⚱️','🦴','🧥','🪑','⛓️','🪚','📯','🎣','🔮','🃏','🪈','🗝️','🪓','🔨','🏹','🗡️'];
             const slotSymbols = ['🦓', '🫎', '🦄', '🦧', '🦎'];
             
+            // Sell values for emojis
+            const emojiSellValues = {
+                '👛': 3, '💍': 3, '💎': 4, '👑': 4, '📿': 5, '⚖️': 5, '🪞': 6, '🖼️': 6, '⚱️': 10
+            };
+            const defaultSellValue = 2;
+
+            function getEmojiSellValue(emoji) {
+                return emojiSellValues[emoji] || defaultSellValue;
+            }
+
+            function getMultiplierFromColor(colorString) {
+                switch (colorString) {
+                    case 'rgb(253, 224, 71)': // yellow-300
+                        return 2;
+                    case 'rgb(59, 130, 246)':  // blue-500
+                        return 1;
+                    default:
+                        return 1; // Default to 1x if color is unknown or not set
+                }
+            }
+
             // Game state variables
-            let marketTimeLeft = 60;
-            let travelTimeLeft = 60;
+            let marketTimeLeft = 45;
+            let travelTimeLeft = 45;
             let gambleTimeLeft = 60;
             let marketTimerInterval;
             let travelTimerInterval;
@@ -413,6 +454,15 @@
             let draggedClone = null;
             let originalDraggedElement = null;
             
+            // Helper function to shuffle an array
+            const shuffle = (array) => {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            };
+
             /**
              * Populates the prepare screen with collected items and winnings.
              */
@@ -455,6 +505,67 @@
             }
 
             /**
+             * Animates the selling of items on the prepare screen.
+             */
+            function startPreparePhaseAnimations() {
+                setTimeout(() => {
+                    const sellSummarySquares = sellSummaryContainer.children;
+                    let displayedWinnings = totalWinnings;
+                    sellCalculationContainer.textContent = ''; // Clear at the start
+
+
+                    // Animate each square
+                    Array.from(sellSummarySquares).forEach((square, index) => {
+                        setTimeout(() => {
+                            // Find the corresponding item from our data array
+                            const item = collectedSellItems[index];
+                            if (!item) return;
+
+                            const baseSellValue = getEmojiSellValue(item.emoji);
+                            const multiplier = getMultiplierFromColor(item.color);
+                            const finalSellValue = baseSellValue * multiplier;
+
+                            // Set calculation text
+                            let calculationText = '';
+                            if (multiplier > 1) {
+                                calculationText = `${multiplier}x $${baseSellValue}`;
+                            } else {
+                                // For 1x, just show the base value for simplicity
+                                calculationText = `$${baseSellValue}`;
+                            }
+                            sellCalculationContainer.textContent = calculationText;
+                            sellCalculationContainer.classList.remove('opacity-0');
+
+
+                            // Add animation classes for zoom and fade
+                            square.classList.add('transition-all', 'duration-[1500ms]', 'transform', 'scale-150', 'opacity-0');
+
+                            // Update displayed winnings
+                            displayedWinnings += finalSellValue;
+                            gambleSummaryContainer.textContent = `$${displayedWinnings}`;
+                            
+                            // Add a little pop to the winnings text
+                            gambleSummaryContainer.classList.add('transform', 'scale-110', 'transition-transform', 'duration-200');
+                            setTimeout(() => {
+                                gambleSummaryContainer.classList.remove('transform', 'scale-110');
+                            }, 200);
+
+                            // After the last animation, update the master winnings variable
+                            if (index === sellSummarySquares.length - 1) {
+                                totalWinnings = displayedWinnings;
+                                console.log("Final total after selling:", totalWinnings);
+                                // Fade out the calculation text after the last item is done
+                                setTimeout(() => {
+                                    sellCalculationContainer.classList.add('opacity-0');
+                                }, 1800);
+                            }
+
+                        }, index * 1800); // Stagger the animation
+                    });
+                }, 2000); // Wait 2 seconds before starting
+            }
+
+            /**
              * Ends the gamble phase.
              */
             function endGamblePhase() {
@@ -467,13 +578,16 @@
                 spinButton.disabled = true;
                 gambleToggle.disabled = true;
                 
-                console.log("Gamble phase over. Final winnings: $" + totalWinnings);
+                console.log("Gamble phase over. Gambling winnings: $" + totalWinnings);
                 
                 // Transition to Prepare Screen
                 populatePrepareScreen();
                 gambleScreen.classList.add('hidden');
                 prepareScreen.classList.remove('hidden');
                 prepareScreen.classList.add('flex');
+                
+                // Start the animations for the prepare phase
+                startPreparePhaseAnimations();
             }
 
             /**
@@ -492,21 +606,61 @@
                 }, 1000);
             }
 
+            /**
+             * Reveals the colors of the travel squares sequentially.
+             */
+            function startTravelColorReveal() {
+                const blueClass = 'bg-blue-500';
+                const yellowClass = 'bg-yellow-300';
+                const grayClass = 'bg-gray-600';
+
+                const sellPattern = shuffle([blueClass, yellowClass, blueClass]);
+                const keepPattern = shuffle([blueClass, yellowClass, blueClass]);
+
+                let revealIndex = 0;
+                const colorRevealInterval = setInterval(() => {
+                    if (revealIndex < 3) {
+                        // Reveal one sell square
+                        const sellSquareToColor = sellSquares[revealIndex];
+                        const sellColorClass = sellPattern[revealIndex];
+                        sellSquareToColor.classList.remove(grayClass);
+                        sellSquareToColor.classList.add(sellColorClass);
+                        if (sellColorClass === yellowClass) {
+                            sellSquareToColor.classList.add('yellow-multiplier');
+                        }
+                        
+                        // Reveal one keep square
+                        const keepSquareToColor = keepSquares[revealIndex];
+                        const keepColorClass = keepPattern[revealIndex];
+                        keepSquareToColor.classList.remove(grayClass);
+                        keepSquareToColor.classList.add(keepColorClass);
+                        if (keepColorClass === yellowClass) {
+                            keepSquareToColor.classList.add('yellow-multiplier');
+                        }
+
+                        revealIndex++;
+                    } else {
+                        clearInterval(colorRevealInterval);
+                    }
+                }, 4000); // Reveal every 4 seconds
+            }
+
              /**
              * Transitions the game from the Travel to the Gamble screen.
              */
             function endTravelPhase() {
                 if (currentPhase !== 'travel') return;
                 
-                // Store collected travel items
+                // Store collected travel items, filtering out any empty slots
                 collectedSellItems = Array.from(sellSquares).map(sq => ({
                     emoji: sq.textContent,
                     color: window.getComputedStyle(sq).backgroundColor
-                }));
+                })).filter(item => item.emoji.trim() !== '');
+
                 collectedKeepItems = Array.from(keepSquares).map(sq => ({
                     emoji: sq.textContent,
                     color: window.getComputedStyle(sq).backgroundColor
-                }));
+                })).filter(item => item.emoji.trim() !== '');
 
 
                 currentPhase = 'gamble';
@@ -585,6 +739,9 @@
                 travelScreen.classList.remove('hidden');
                 travelScreen.classList.add('flex');
 
+                // Start revealing travel square colors
+                startTravelColorReveal();
+
                 // Start the scroll at the very bottom of the route
                 scrollableRoute.scrollTop = scrollableRoute.scrollHeight;
 
@@ -593,24 +750,59 @@
             }
 
             /**
+             * Reveals the colors of the market squares sequentially.
+             */
+            function startColorReveal() {
+                let uncoloredFruitSquares = Array.from(fruitSquares);
+                let uncoloredVegSquares = Array.from(vegSquares);
+
+                const blue = 'rgb(59, 130, 246)';
+                const yellow = 'rgb(253, 224, 71)';
+
+                const fruitColorPattern = shuffle([yellow, blue, blue, blue]);
+                const vegColorPattern = shuffle([yellow, blue, blue, blue]);
+                
+                let revealIndex = 0;
+                const colorRevealInterval = setInterval(() => {
+                    if (revealIndex < 4) {
+                        // Reveal one fruit square
+                        if (uncoloredFruitSquares.length > 0) {
+                            const randomFruitIndex = Math.floor(Math.random() * uncoloredFruitSquares.length);
+                            const fruitSquareToColor = uncoloredFruitSquares.splice(randomFruitIndex, 1)[0];
+                            const fruitColor = fruitColorPattern[revealIndex];
+                            fruitSquareToColor.style.backgroundColor = fruitColor;
+                            if (fruitColor === yellow) {
+                                fruitSquareToColor.classList.add('yellow-multiplier');
+                            }
+                        }
+                        // Reveal one vegetable square
+                        if (uncoloredVegSquares.length > 0) {
+                             const randomVegIndex = Math.floor(Math.random() * uncoloredVegSquares.length);
+                             const vegSquareToColor = uncoloredVegSquares.splice(randomVegIndex, 1)[0];
+                             const vegColor = vegColorPattern[revealIndex];
+                             vegSquareToColor.style.backgroundColor = vegColor;
+                             if (vegColor === yellow) {
+                                 vegSquareToColor.classList.add('yellow-multiplier');
+                             }
+                        }
+                        
+                        revealIndex++;
+                    } else {
+                        clearInterval(colorRevealInterval);
+                    }
+                }, 3000);
+            }
+
+            /**
              * Starts the countdown timer for the market phase.
              */
             function startMarketTimer() {
+                // Start the staggered color reveal for market squares
+                startColorReveal();
+
                 marketTimerInterval = setInterval(() => {
                     marketTimeLeft--;
                     countdownElement.textContent = marketTimeLeft;
-                    
-                    // After 15 seconds (at 45s left), color random squares
-                    if (marketTimeLeft === 45) {
-                        // Turn a random fruit square yellow
-                        const randomFruitSquare = fruitSquares[Math.floor(Math.random() * fruitSquares.length)];
-                        randomFruitSquare.style.backgroundColor = 'rgb(253, 224, 71)'; // Tailwind yellow-300
-
-                        // Turn a random vegetable square pink
-                        const randomVegSquare = vegSquares[Math.floor(Math.random() * vegSquares.length)];
-                        randomVegSquare.style.backgroundColor = 'rgb(236, 72, 153)'; // Tailwind pink-500
-                    }
-
 
                     if (marketTimeLeft <= 0) {
                         countdownElement.textContent = "0";
@@ -935,7 +1127,7 @@
                     for (const square of allTravelSquares) {
                         const rect = square.getBoundingClientRect();
                         if (touch.clientX > rect.left && touch.clientX < rect.right &&
-                            touch.clientY > rect.top && touch.clientY < rect.bottom) {
+                            touch.clientY > rect.top && rect.clientY < rect.bottom) {
                             
                             if (square.innerText === '') {
                                 square.innerText = originalDraggedElement.innerText;
@@ -1029,4 +1221,13 @@
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
 
