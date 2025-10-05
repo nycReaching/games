@@ -259,6 +259,13 @@
             text-shadow: 0 0 10px #2dd4bf, 0 0 20px #2dd4bf;
         }
 
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+        .blinking {
+            animation: blink 0.5s linear infinite;
+        }
+
     </style>
 </head>
 <body class="font-sans">
@@ -753,21 +760,21 @@
     <!-- Combat Player Stats Modal (NEW) -->
     <div id="combat-stats-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
         <div class="bg-gray-800 rounded-lg p-4 max-w-sm w-full font-inter">
-            <h3 class="font-anton text-2xl tracking-wider text-center mb-4">PLAYER STATS</h3>
+            <h3 class="font-anton text-2xl tracking-wider text-center mb-4 text-white">PLAYER STATS</h3>
             <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                <div class="flex justify-between items-center"><span class="font-bold text-green-500">HP</span><span id="combat-modal-hp-stat-value"></span></div>
-                <div class="flex justify-between items-center"><span class="font-bold text-purple-500">MP</span><span id="combat-modal-mp-stat-value"></span></div>
-                <div class="flex justify-between items-center"><span class="font-bold text-blue-500">Armor</span><span id="combat-modal-armor-stat-value"></span></div>
-                <div class="flex justify-between items-center"><span class="font-bold text-orange-500">Spirit</span><span id="combat-modal-spirit-stat-value"></span></div>
-                <div class="flex justify-between items-center"><span class="font-bold text-red-500">Attack</span><span id="combat-modal-attack-stat-value"></span></div>
-                <div class="flex justify-between items-center"><span class="font-bold text-teal-500">M. Atk</span><span id="combat-modal-magic-stat-value"></span></div>
-                <div class="flex justify-between items-center"><span class="font-bold text-white">Grace</span><span id="combat-modal-grace-stat-value"></span></div>
-                <div class="flex justify-between items-center"><span class="font-bold text-gray-500">Fear</span><span id="combat-modal-fear-stat-value"></span></div>
+                <div class="flex justify-between items-center"><span class="font-bold text-green-500">HP</span><span id="combat-modal-hp-stat-value" class="text-white"></span></div>
+                <div class="flex justify-between items-center"><span class="font-bold text-purple-500">MP</span><span id="combat-modal-mp-stat-value" class="text-white"></span></div>
+                <div class="flex justify-between items-center"><span class="font-bold text-blue-500">Armor</span><span id="combat-modal-armor-stat-value" class="text-white"></span></div>
+                <div class="flex justify-between items-center"><span class="font-bold text-orange-500">Spirit</span><span id="combat-modal-spirit-stat-value" class="text-white"></span></div>
+                <div class="flex justify-between items-center"><span class="font-bold text-red-500">Attack</span><span id="combat-modal-attack-stat-value" class="text-white"></span></div>
+                <div class="flex justify-between items-center"><span class="font-bold text-teal-500">M. Atk</span><span id="combat-modal-magic-stat-value" class="text-white"></span></div>
+                <div class="flex justify-between items-center"><span class="font-bold text-white">Grace</span><span id="combat-modal-grace-stat-value" class="text-white"></span></div>
+                <div class="flex justify-between items-center"><span class="font-bold text-gray-500">Fear</span><span id="combat-modal-fear-stat-value" class="text-white"></span></div>
             </div>
             <div class="text-center mt-4 pt-2 border-t border-gray-700">
                 <div class="flex justify-between items-center w-1/2 mx-auto">
                     <span class="font-bold text-gray-300">Materials</span>
-                    <span id="combat-modal-materials-stat-value">0</span>
+                    <span id="combat-modal-materials-stat-value" class="text-white">0</span>
                 </div>
             </div>
             <button id="close-combat-stats-modal" class="mt-4 w-full bg-red-600 text-white font-bold py-2 rounded-lg">Close</button>
@@ -781,6 +788,42 @@
             <div id="reward-display" class="font-anton text-5xl h-20 flex items-center justify-center bg-gray-900 rounded-lg text-white">
                 <!-- JS will populate this -->
             </div>
+        </div>
+    </div>
+
+    <!-- Shop Modal (for Gold Nodes) -->
+    <div id="shop-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
+        <div class="bg-gray-800 rounded-lg p-6 max-w-sm w-full text-center">
+            <h3 class="font-anton text-3xl text-yellow-400 mb-6">SHOP</h3>
+            <div class="h-40 flex items-center justify-center bg-gray-900 rounded-lg text-white">
+                <!-- Shop content will go here -->
+                <p>Shop coming soon!</p>
+            </div>
+            <button id="close-shop-modal" class="mt-4 w-full bg-red-600 text-white font-bold py-2 rounded-lg">Leave</button>
+        </div>
+    </div>
+
+    <!-- Pink Node Reward Modal -->
+    <div id="pink-reward-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
+        <div class="bg-gray-800 rounded-lg p-6 max-w-sm w-full text-center">
+            <h3 class="font-anton text-3xl text-pink-400 mb-6">REWARD</h3>
+             <div class="h-40 flex items-center justify-center bg-gray-900 rounded-lg text-white">
+                <!-- Reward content will go here -->
+                <p>Reward content coming soon!</p>
+            </div>
+            <button id="close-pink-reward-modal" class="mt-4 w-full bg-green-600 text-white font-bold py-2 rounded-lg">Claim</button>
+        </div>
+    </div>
+
+    <!-- Crypt Modal (for Black Nodes) -->
+    <div id="crypt-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
+        <div class="bg-gray-800 rounded-lg p-6 max-w-sm w-full text-center">
+            <h3 class="font-anton text-3xl text-gray-400 mb-6">CRYPT</h3>
+             <div class="h-40 flex items-center justify-center bg-gray-900 rounded-lg text-white">
+                <!-- Crypt content will go here -->
+                <p>Crypt content coming soon!</p>
+            </div>
+            <button id="close-crypt-modal" class="mt-4 w-full bg-red-600 text-white font-bold py-2 rounded-lg">Leave</button>
         </div>
     </div>
 
@@ -856,7 +899,7 @@
                 // Passive Items are now Consumable
                 '🥦': { name: 'Broccoli', description: '+1 Max HP.', type: 'consumable' },
                 '🌶️': { name: 'Chili Pepper', description: '+1 Max MP.', type: 'consumable' },
-                '🥔': { name: 'Potato', description: 'Doubles Attack & Armor for one battle.', type: 'consumable' },
+                '🥔': { name: 'Potato', description: 'Doubles Attack, Magic Attack, & Armor for one battle.', type: 'consumable' },
                 '🥕': { name: 'Carrot', description: 'Doubles Spirit for one battle.', type: 'consumable' },
                 '🌽': { name: 'Corn', description: 'Improves battle rewards.', type: 'passive' }, // Corn remains passive for now
                 // Equipment Items
@@ -1553,6 +1596,16 @@
                         spawnSpecialItems();
                     }
 
+                    if (marketTimeLeft === 30) {
+                        const specialItems = document.querySelectorAll('.special-item');
+                        specialItems.forEach(item => item.classList.add('blinking'));
+                    }
+
+                    if (marketTimeLeft === 28) {
+                        const specialItems = document.querySelectorAll('.special-item');
+                        specialItems.forEach(item => item.remove());
+                    }
+
                     if (marketTimeLeft <= 0) {
                         countdownElement.textContent = "0";
                         endMarketPhase(); // End game when timer hits zero
@@ -2140,6 +2193,7 @@
                 
                 // Hide the combat screen
                 combatScreen.classList.add('hidden');
+                document.getElementById('combat-window').style.backgroundColor = ''; // Reset background
                 currentNodeId = null; // Clear current node
             }
 
@@ -2215,7 +2269,7 @@
                 // Populate with base stats that don't change in combat
                 document.getElementById('combat-modal-grace-stat-value').textContent = playerStats.grace;
                 document.getElementById('combat-modal-fear-stat-value').textContent = playerStats.fear;
-                document.getElementById('combat-modal-materials-stat-value').textContent = playerStats.materials;
+                document.getElementById('combat-modal-materials-stat-value').textContent = totalWinnings; // Use totalWinnings for materials
 
                 modal.classList.remove('hidden');
             }
@@ -2338,42 +2392,63 @@
                 const enemyInfoSection = document.getElementById('enemy-info-section');
                 const playerDisplay = document.getElementById('player-display');
                 const magicStrikeToggle = document.getElementById('magic-strike-toggle');
+                const combatWindow = document.getElementById('combat-window');
 
-                // Clear previous combatants
+                // Clear previous combatants and styles
                 enemyDisplay.innerHTML = '';
                 enemyInfoSection.innerHTML = '';
                 playerDisplay.innerHTML = '';
-                
+                combatWindow.style.backgroundColor = ''; // Reset background to default
+
                 currentNodeId = nodeElement.dataset.id;
                 let currentEnemies = [];
                 const classList = nodeElement.classList;
-                
-                // Determine if a battle should happen
-                const isBattleNode = classList.contains('start') || !(classList.contains('end') || classList.contains('gold') || classList.contains('pink') || classList.contains('black'));
 
-                if (isBattleNode) {
-                    // Start node has a fixed encounter for now, others are random
-                    if (classList.contains('start')) {
-                         currentEnemies = [
-                            { ...enemyPool[0], id: 0 }, // Wolf
-                            { ...enemyPool[1], id: 1 }  // Frog
-                         ];
-                    } else {
-                        const enemy1 = { ...enemyPool[Math.floor(Math.random() * enemyPool.length)], id: 0 };
-                        const enemy2 = { ...enemyPool[Math.floor(Math.random() * enemyPool.length)], id: 1 };
-                        currentEnemies = [enemy1, enemy2];
+                // Handle non-combat special nodes first
+                if (classList.contains('gold') || classList.contains('pink') || classList.contains('black')) {
+                    console.log("Special node encountered:", currentNodeId);
+                    if (classList.contains('gold')) {
+                        document.getElementById('shop-modal').classList.remove('hidden');
+                    } else if (classList.contains('pink')) {
+                        document.getElementById('pink-reward-modal').classList.remove('hidden');
+                    } else if (classList.contains('black')) {
+                        document.getElementById('crypt-modal').classList.remove('hidden');
                     }
-                } else {
-                    console.log("No combat for special node:", currentNodeId);
+                    
+                    // Mark node as completed and update player position without a battle
+                    completedNodes.add(currentNodeId);
+                    markNodeAsCompleted(currentNodeId);
+                    currentPlayerNodeId = currentNodeId;
+
                     currentNodeId = null; // Clear current node as no action is taken
                     return;
+                }
+                
+                // Handle all combat nodes (start, regular, and end/boss)
+                if (classList.contains('end')) {
+                    // Boss Battle
+                    combatWindow.style.backgroundColor = '#450a0a'; // Dark red for boss battle
+                    if (currentNodeId === 'end_0') {
+                        currentEnemies = [{ name: 'SHADOW NINJA', emoji: '🥷', hp: 22, attack: 5, id: 0 }];
+                    } else if (currentNodeId === 'end_1') {
+                        currentEnemies = [{ name: 'MYTHIC BEAST', emoji: '🦄', hp: 33, attack: 3, id: 0 }];
+                    }
+                } else if (classList.contains('start')) {
+                     currentEnemies = [
+                        { ...enemyPool[0], id: 0 }, // Wolf
+                        { ...enemyPool[1], id: 1 }  // Frog
+                     ];
+                } else { // Regular Battle
+                    const enemy1 = { ...enemyPool[Math.floor(Math.random() * enemyPool.length)], id: 0 };
+                    const enemy2 = { ...enemyPool[Math.floor(Math.random() * enemyPool.length)], id: 1 };
+                    currentEnemies = [enemy1, enemy2];
                 }
 
                 // Calculate current stats with equipment bonuses for this combat instance
                 let currentCombatStats = { ...playerStats };
                 if (equippedItems.weapon) currentCombatStats.attack += 1;
                 if (equippedItems.armor === '🧥') currentCombatStats.armor += 1;
-                if (equippedItems.ring === '💍') currentStats.grace += 1;
+                if (equippedItems.ring === '💍') currentCombatStats.grace += 1;
                 if (equippedItems.accessory === '👑') currentCombatStats.fear -= 1;
                 if (equippedItems.accessory === '📿') currentCombatStats.grace += 1;
                 
@@ -2617,6 +2692,17 @@
                 document.getElementById('combat-stats-modal').classList.add('hidden');
             });
 
+            // Add listeners for choice graph event modals
+            document.getElementById('close-shop-modal').addEventListener('click', () => {
+                document.getElementById('shop-modal').classList.add('hidden');
+            });
+            document.getElementById('close-pink-reward-modal').addEventListener('click', () => {
+                document.getElementById('pink-reward-modal').classList.add('hidden');
+            });
+            document.getElementById('close-crypt-modal').addEventListener('click', () => {
+                document.getElementById('crypt-modal').classList.add('hidden');
+            });
+
             // Add listeners for skip buttons
             skipMarketButton.addEventListener('click', endMarketPhase);
             skipScavengeButton.addEventListener('click', endScavengePhase);
@@ -2682,9 +2768,10 @@
                         break;
                     case '🥔':
                         combatState.player.attack *= 2;
+                        combatState.player.magicAtk *= 2;
                         combatState.player.armor *= 2;
-                        document.getElementById('combat-attack').textContent = combatState.player.attack;
                         document.getElementById('combat-armor').textContent = combatState.player.armor;
+                        updateDisplayedAttack();
                         itemUsed = true;
                         break;
                     case '🥕':
@@ -2738,9 +2825,5 @@
 
 </body>
 </html>
-
-
-
-
 
 
