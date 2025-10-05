@@ -506,7 +506,7 @@
                     <span class="font-bold text-orange-500 text-left">Spirit</span><span class="text-right" id="spirit-stat-value">3</span>
 
                     <span class="font-bold text-red-500 text-left">Attack</span><span class="text-right" id="attack-stat-value">1</span>
-                    <span class="font-bold text-teal-500 text-left">Magic Atk</span><span class="text-right" id="magic-stat-value">2</span>
+                    <span class="font-bold text-teal-500 text-left">Mag. Atk</span><span class="text-right" id="magic-stat-value">2</span>
 
                     <span class="font-bold text-white text-left">Grace</span><span class="text-right" id="grace-stat-value">0</span>
                     <span class="font-bold text-gray-500 text-left">Fear</span><span class="text-right" id="fear-stat-value">0</span>
@@ -646,6 +646,27 @@
         </div>
     </div>
 
+    <!-- Combat Inventory Modal -->
+    <div id="combat-inventory-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
+        <div class="bg-gray-800 rounded-lg p-4 max-w-sm w-full">
+            <h3 class="font-anton text-2xl text-center mb-4">Inventory</h3>
+            <div id="combat-inventory-options" class="grid grid-cols-4 gap-4 max-h-64 overflow-y-auto no-scrollbar">
+                <!-- JS will populate this -->
+            </div>
+            <button id="close-combat-inventory-modal" class="mt-4 w-full bg-red-600 text-white font-bold py-2 rounded-lg">Close</button>
+        </div>
+    </div>
+
+    <!-- Reward Modal -->
+    <div id="reward-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
+        <div class="bg-gray-800 rounded-lg p-6 max-w-sm w-full text-center">
+            <h3 class="font-anton text-3xl text-yellow-300 mb-6">REWARD</h3>
+            <div id="reward-display" class="font-anton text-5xl h-20 flex items-center justify-center bg-gray-900 rounded-lg text-white">
+                <!-- JS will populate this -->
+            </div>
+        </div>
+    </div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -751,12 +772,15 @@
             let marketVegColorPattern = [];
             let scavengeSellColorPattern = [];
             let scavengeKeepColorPattern = [];
+            let marketCounts = {};
             let inventoryCounts = {};
             
             const baseStats = {
                 hp: 15, mp: 15, armor: 3, spirit: 3, 
                 attack: 1, magic: 2, grace: 0, fear: 0, materials: 0
             };
+            
+            let playerStats = { ...baseStats }; // Central state for player stats
             
             let equippedItems = {
                 weapon: null,
@@ -908,10 +932,10 @@
             };
 
             /**
-             * Updates the stats display based on base stats and equipped items.
+             * Updates the stats display based on player stats and equipped items.
              */
             function updateStatsUI() {
-                let currentStats = { ...baseStats };
+                let currentStats = { ...playerStats };
 
                 // Add bonuses from equipment
                 if (equippedItems.weapon) currentStats.attack += 1;
@@ -953,7 +977,7 @@
                     }, {});
                 };
 
-                const marketCounts = countItems(collectedMarketItems);
+                marketCounts = countItems(collectedMarketItems);
                 inventoryCounts = countItems(collectedKeepItems); // Store globally for this screen
                 
                 // Add chosen special item (Bread or Wine) to the food list
@@ -1749,6 +1773,28 @@
             const sleep = ms => new Promise(res => setTimeout(res, ms));
             
             /**
+             * Updates the displayed player attack value based on Magic Strike state.
+             */
+            function updateDisplayedAttack() {
+                if (!combatState.player) return;
+                const magicStrikeToggle = document.getElementById('magic-strike-toggle');
+                const combatAttackEl = document.getElementById('combat-attack');
+                
+                let displayedAttack = combatState.player.attack;
+                if (magicStrikeToggle.checked) {
+                    displayedAttack += combatState.player.magicAtk;
+                }
+                combatAttackEl.textContent = displayedAttack;
+
+                // Disable toggle if no magic resources are left
+                if (combatState.player.spirit <= 0 && combatState.player.mp <= 0) {
+                    magicStrikeToggle.disabled = true;
+                } else {
+                    magicStrikeToggle.disabled = false;
+                }
+            }
+            
+            /**
              * Handles the combat logic when an enemy is tapped.
              */
             async function handleAttack(targetEnemyState) {
@@ -1756,13 +1802,45 @@
 
                 combatState.isAnimating = true;
 
+                const magicStrikeToggle = document.getElementById('magic-strike-toggle');
+                let totalAttack = combatState.player.attack;
+                
+                // --- Magic Strike Logic ---
+                if (magicStrikeToggle.checked) {
+                    if (combatState.player.spirit > 0 || combatState.player.mp > 0) {
+                        totalAttack += combatState.player.magicAtk;
+                        const oldSpirit = combatState.player.spirit;
+
+                        // Consume magic resource (spirit first, then MP)
+                        if (combatState.player.spirit > 0) {
+                            combatState.player.spirit--;
+                            document.getElementById('combat-spirit').textContent = combatState.player.spirit;
+                        } else {
+                            combatState.player.mp--;
+                            document.getElementById('combat-mp').textContent = combatState.player.mp;
+                        }
+
+                        // Auto-toggle off if spirit is depleted
+                        if (oldSpirit > 0 && combatState.player.spirit === 0) {
+                            magicStrikeToggle.checked = false;
+                            magicStrikeToggle.dispatchEvent(new Event('change')); // Update UI
+                        }
+
+                    } else {
+                        // No resources left, turn it off
+                        magicStrikeToggle.checked = false;
+                        magicStrikeToggle.dispatchEvent(new Event('change')); // Update UI
+                    }
+                }
+                // --- End Magic Strike Logic ---
+
                 // 1. Player attack animation
                 targetEnemyState.element.classList.add('shake-animation');
                 await sleep(300);
                 targetEnemyState.element.classList.remove('shake-animation');
 
                 // 2. Player attack logic
-                targetEnemyState.hp -= combatState.player.attack;
+                targetEnemyState.hp -= totalAttack;
                 targetEnemyState.hpElement.textContent = Math.max(0, targetEnemyState.hp);
 
                 if (targetEnemyState.hp <= 0) {
@@ -1771,7 +1849,8 @@
                     targetEnemyState.element.style.visibility = 'hidden';
 
                     const allEnemiesDefeated = combatState.enemies.every(e => e.hp <= 0);
-                    if (allEnemiesDefeated) {
+                    if (allEnemiesDefeated && !combatState.isEnding) {
+                        combatState.isEnding = true;
                         endCombat();
                     }
                     combatState.isAnimating = false;
@@ -1802,7 +1881,10 @@
 
                 if (combatState.player.hp <= 0) {
                     console.log("Player has been defeated!");
-                    endCombat();
+                    if (!combatState.isEnding) {
+                        combatState.isEnding = true;
+                        endCombat();
+                    }
                 }
                 
                 combatState.isAnimating = false;
@@ -1811,15 +1893,113 @@
             /**
              * Ends the current combat encounter.
              */
-            function endCombat() {
+            async function endCombat() {
                 console.log("Combat ended.");
-                // Persist HP damage
-                document.getElementById('hp-stat-value').textContent = combatState.player.hp;
+                const playerWon = combatState.player.hp > 0;
+
+                // Persist stats back to the central playerStats object
+                playerStats.hp = Math.max(0, combatState.player.hp);
+                playerStats.mp = combatState.player.mp;
+                playerStats.spirit = baseStats.spirit; // Replenish Spirit
+
+                if (playerWon) {
+                    await showRewardPopup();
+                }
                 
-                // Hide the combat screen after a delay
-                setTimeout(() => {
-                    combatScreen.classList.add('hidden');
-                }, 1000); // Wait 1 second after last enemy fades
+                updateStatsUI(); // Update the main stats display
+                
+                // Hide the combat screen
+                combatScreen.classList.add('hidden');
+            }
+
+            /**
+             * Displays the reward pop-up after a successful battle.
+             */
+            async function showRewardPopup() {
+                return new Promise(resolve => {
+                    const rewardModal = document.getElementById('reward-modal');
+                    const rewardDisplay = document.getElementById('reward-display');
+                    const rewards = [
+                        { text: '$2', type: 'money', value: 2 },
+                        { text: 'Heal 1 HP', type: 'hp', value: 1 },
+                        { text: 'Heal 1 MP', type: 'mp', value: 1 }
+                    ];
+                    
+                    rewardModal.classList.remove('hidden');
+
+                    let shuffleCount = 0;
+                    const maxShuffles = 20; // ~2 seconds
+                    const shuffleInterval = setInterval(() => {
+                        const randomReward = rewards[Math.floor(Math.random() * rewards.length)];
+                        rewardDisplay.textContent = randomReward.text;
+                        shuffleCount++;
+                        if (shuffleCount >= maxShuffles) {
+                            clearInterval(shuffleInterval);
+                            
+                            // Select and display the final reward
+                            const finalReward = rewards[Math.floor(Math.random() * rewards.length)];
+                            rewardDisplay.textContent = finalReward.text;
+
+                            // Apply the final reward
+                            switch (finalReward.type) {
+                                case 'money':
+                                    totalWinnings += finalReward.value;
+                                    break;
+                                case 'hp':
+                                    playerStats.hp = Math.min(playerStats.hp + finalReward.value, baseStats.hp);
+                                    break;
+                                case 'mp':
+                                    playerStats.mp = Math.min(playerStats.mp + finalReward.value, baseStats.mp);
+                                    break;
+                            }
+                            
+                            // Animate the final reward and make it tappable
+                            rewardDisplay.classList.add('cursor-pointer', 'scale-110', 'transition-transform');
+                            const closeRewardHandler = () => {
+                                rewardModal.classList.add('hidden');
+                                rewardDisplay.classList.remove('cursor-pointer', 'scale-110', 'transition-transform');
+                                rewardDisplay.removeEventListener('click', closeRewardHandler);
+                                resolve(); // Resolve the promise to continue
+                            };
+                            rewardDisplay.addEventListener('click', closeRewardHandler);
+                        }
+                    }, 100);
+                });
+            }
+
+            /**
+             * Populates and displays the combat inventory modal.
+             */
+            function populateAndShowCombatInventory() {
+                const modal = document.getElementById('combat-inventory-modal');
+                const optionsContainer = document.getElementById('combat-inventory-options');
+                optionsContainer.innerHTML = ''; // Clear old options
+
+                // Combine food and other inventory items
+                const allItems = { ...marketCounts, ...inventoryCounts };
+
+                if (Object.keys(allItems).length === 0) {
+                    optionsContainer.innerHTML = '<p class="text-gray-500 text-center col-span-4">No items available.</p>';
+                } else {
+                    for (const [emoji, count] of Object.entries(allItems)) {
+                        if (count > 0) {
+                            const itemDiv = document.createElement('div');
+                            itemDiv.className = 'flex flex-col items-center cursor-pointer p-2 bg-gray-700 rounded-md hover:bg-gray-600 transition-colors';
+                            itemDiv.innerHTML = `
+                                <div class="text-3xl">${emoji}</div>
+                                <span class="text-xs font-bold mt-1">x${count}</span>
+                            `;
+                            // Tappable, but no action yet as per instructions
+                            itemDiv.addEventListener('click', () => {
+                                console.log(`Tapped on ${emoji}`);
+                                // Future implementation for using items in combat
+                            });
+                            optionsContainer.appendChild(itemDiv);
+                        }
+                    }
+                }
+
+                modal.classList.remove('hidden');
             }
 
 
@@ -1830,6 +2010,7 @@
                 const enemyDisplay = document.getElementById('enemy-display');
                 const enemyInfoSection = document.getElementById('enemy-info-section');
                 const playerDisplay = document.getElementById('player-display');
+                const magicStrikeToggle = document.getElementById('magic-strike-toggle');
 
                 // Clear previous combatants
                 enemyDisplay.innerHTML = '';
@@ -1839,21 +2020,33 @@
                 // Define enemies based on node ID
                 const enemies = {
                     'start': [
-                        { id: 0, name: 'DARK WOLF', emoji: '🐺', hp: 3, attack: 1 },
-                        { id: 1, name: 'POISON FROG', emoji: '🐸', hp: 3, attack: 1 }
+                        { id: 0, name: 'DARK WOLF', emoji: '🐺', hp: 5, attack: 2 },
+                        { id: 1, name: 'POISON FROG', emoji: '🐸', hp: 5, attack: 2 }
                     ]
                     // Other nodes can be added here
                 };
 
                 const currentEnemies = enemies[nodeId] || [];
+
+                // Calculate current stats with equipment bonuses for this combat instance
+                let currentCombatStats = { ...playerStats };
+                if (equippedItems.weapon) currentCombatStats.attack += 1;
+                if (equippedItems.armor === '🧥') currentCombatStats.armor += 1;
+                if (equippedItems.ring === '💍') currentCombatStats.grace += 1;
+                if (equippedItems.accessory === '👑') currentCombatStats.fear -= 1;
+                if (equippedItems.accessory === '📿') currentCombatStats.grace += 1;
                 
                 // Initialize combat state
                 combatState = {
                     isAnimating: false,
+                    isEnding: false, // Flag to prevent multiple endCombat calls
                     player: {
-                        hp: parseInt(document.getElementById('hp-stat-value').textContent),
-                        armor: parseInt(document.getElementById('armor-stat-value').textContent),
-                        attack: parseInt(document.getElementById('attack-stat-value').textContent)
+                        hp: currentCombatStats.hp,
+                        mp: currentCombatStats.mp,
+                        armor: currentCombatStats.armor,
+                        spirit: currentCombatStats.spirit,
+                        attack: currentCombatStats.attack,
+                        magicAtk: currentCombatStats.magic
                     },
                     enemies: []
                 };
@@ -1888,12 +2081,20 @@
                 // Populate player
                 playerDisplay.textContent = '👤';
 
+                // Set up Magic Strike toggle
+                magicStrikeToggle.checked = true; // Default ON
+                // Ensure we don't add multiple listeners if combat is re-entered
+                magicStrikeToggle.removeEventListener('change', updateDisplayedAttack); 
+                magicStrikeToggle.addEventListener('change', updateDisplayedAttack);
+
                 // Populate player stats UI
                 document.getElementById('combat-hp').textContent = combatState.player.hp;
                 document.getElementById('combat-armor').textContent = combatState.player.armor;
-                document.getElementById('combat-attack').textContent = combatState.player.attack;
-                document.getElementById('combat-mp').textContent = document.getElementById('mp-stat-value').textContent;
-                document.getElementById('combat-spirit').textContent = document.getElementById('spirit-stat-value').textContent;
+                document.getElementById('combat-mp').textContent = combatState.player.mp;
+                document.getElementById('combat-spirit').textContent = combatState.player.spirit;
+                
+                // Update the displayed attack value based on the initial toggle state
+                updateDisplayedAttack();
 
                 // Show the combat screen
                 combatScreen.classList.remove('hidden');
@@ -2023,6 +2224,12 @@
                 if (e.target === combatScreen) {
                     endCombat();
                 }
+            });
+
+            // Add listeners for combat inventory
+            document.getElementById('combat-inventory-button').addEventListener('click', populateAndShowCombatInventory);
+            document.getElementById('close-combat-inventory-modal').addEventListener('click', () => {
+                document.getElementById('combat-inventory-modal').classList.add('hidden');
             });
 
             // Add listeners for skip buttons
