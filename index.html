@@ -2576,25 +2576,31 @@
                     }
                 });
 
-                // Node click event to start combat
+                // Node interaction event to start combat (handles click and touch)
                 const allGraphNodes = document.querySelectorAll('#choice-graph .node');
-                allGraphNodes.forEach(node => {
-                    node.addEventListener('click', (e) => {
-                        const nodeId = e.target.dataset.id;
-                        const availableMoves = graph[currentPlayerNodeId] || [];
+                
+                const handleNodeInteraction = (e) => {
+                    e.preventDefault(); // Prevents double-firing on touch devices
+                    const targetNode = e.currentTarget; // Use currentTarget for reliability
+                    const nodeId = targetNode.dataset.id;
+                    const availableMoves = graph[currentPlayerNodeId] || [];
 
-                        // Special case for the very first click on the start node
-                        if (nodeId === 'start' && !completedNodes.has('start')) {
-                             startCombat(e.target);
-                        } else if (availableMoves.includes(nodeId) && !completedNodes.has(nodeId)) {
-                            // This is a valid upward move
-                            startCombat(e.target);
-                        } else if (completedNodes.has(nodeId)) {
-                            console.log(`Node ${nodeId} already completed.`);
-                        } else {
-                             console.log(`Invalid move. Player is at ${currentPlayerNodeId}. Cannot move to ${nodeId}.`);
-                        }
-                    });
+                    // Special case for the very first click on the start node
+                    if (nodeId === 'start' && !completedNodes.has('start')) {
+                         startCombat(targetNode);
+                    } else if (availableMoves.includes(nodeId) && !completedNodes.has(nodeId)) {
+                        // This is a valid upward move
+                        startCombat(targetNode);
+                    } else if (completedNodes.has(nodeId)) {
+                        console.log(`Node ${nodeId} already completed.`);
+                    } else {
+                         console.log(`Invalid move. Player is at ${currentPlayerNodeId}. Cannot move to ${nodeId}.`);
+                    }
+                };
+
+                allGraphNodes.forEach(node => {
+                    node.addEventListener('click', handleNodeInteraction);
+                    node.addEventListener('touchend', handleNodeInteraction);
                 });
             });
             
@@ -2732,6 +2738,7 @@
 
 </body>
 </html>
+
 
 
 
