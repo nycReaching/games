@@ -20,16 +20,28 @@
         body {
             overscroll-behavior: none;
         }
+        /* Keyframe animations for the floating emojis */
+        @keyframes float1 {
+            0%, 100% { transform: translate(0, 0) rotate(-5deg); }
+            50% { transform: translate(15px, 10px) rotate(5deg); }
+        }
+        @keyframes float2 {
+            0%, 100% { transform: translate(0, 0) rotate(3deg); }
+            50% { transform: translate(-10px, -15px) rotate(-3deg); }
+        }
+        @keyframes float3 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(5px, 20px) rotate(10deg); }
+        }
+        .emoji-shadow {
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
     </style>
 </head>
 <body class="bg-gray-900 flex items-center justify-center min-h-screen font-sans text-white p-2 sm:p-4">
 
     <!-- 
       Main Game Container
-      - max-w-md: Keeps the phone UI width on larger screens.
-      - h-[95vh] or a fixed aspect ratio can also work well. Using h-screen and max-h-[900px] here.
-      - flex/flex-col: Stacks the top, middle, and bottom sections vertically.
-      - rounded-xl: Gives the container soft, modern corners.
     -->
     <div id="game-container" class="w-full max-w-md h-[95vh] max-h-[900px] bg-gray-800 rounded-xl shadow-2xl flex flex-col overflow-hidden border-4 border-gray-700">
 
@@ -67,60 +79,46 @@
         </header>
 
         <!-- 
-          Middle Section: Main Game View
-          - flex-grow: This is the key part that makes this section fill all available vertical space.
-          - overflow-y-auto: Allows content to scroll if it's too tall.
+          Middle Section: Artistic Scene
+          - A gradient creates the sky-to-water effect.
+          - Emojis are positioned absolutely and animated with CSS.
         -->
-        <main id="middle-section" class="flex-grow p-4 bg-gray-800 overflow-y-auto relative">
-            <!-- Placeholder for game content, e.g., map, character, text descriptions -->
-            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://placehold.co/600x800/2D3748/E2E8F0?text=Game+Area'); opacity: 0.1;"></div>
+        <main id="middle-section" class="flex-grow relative overflow-hidden bg-gradient-to-b from-gray-900 via-indigo-900 to-blue-800 flex flex-col justify-center items-center p-4">
             
-            <div class="relative z-10 space-y-4">
-                 <h2 class="font-game text-xl text-yellow-400 text-center">Ancient Dungeon</h2>
-                
-                <div class="bg-black/30 p-4 rounded-lg border border-gray-600">
-                    <p class="text-gray-300">You enter a dimly lit chamber. The air is thick with the smell of moss and decay. In the center of the room, a treasure chest sits atop a stone pedestal, gleaming faintly.</p>
-                </div>
+            <!-- Moon -->
+            <div class="absolute top-8 right-10 w-16 h-16 bg-yellow-100 rounded-full shadow-[0_0_20px_5px_rgba(254,249,195,0.4)] opacity-80"></div>
+            <div class="absolute top-[48%] right-12 w-12 h-1 bg-yellow-100/20 rounded-full blur-sm"></div>
 
-                <div class="flex justify-center mt-6">
-                    <!-- Placeholder for a character or enemy sprite -->
-                    <div class="w-40 h-40 bg-gray-900/50 rounded-lg flex items-center justify-center border-2 border-gray-600">
-                         <svg class="w-24 h-24 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7l8 4"></path></svg>
-                         <span class="sr-only">Treasure Chest</span>
-                    </div>
-                </div>
-
-                 <div class="bg-black/30 p-4 rounded-lg border border-gray-600 mt-4">
-                    <p class="text-lg text-center text-cyan-300">What do you do?</p>
-                </div>
+            <!-- Animating Emojis -->
+            <div class="w-full h-full relative">
+                <div class="absolute text-6xl emoji-shadow cursor-pointer hover:scale-110 transition-transform" style="animation: float1 10s ease-in-out infinite alternate; top: 40%; left: 20%;">🪼</div>
+                <div class="absolute text-6xl emoji-shadow cursor-pointer hover:scale-110 transition-transform" style="animation: float2 12s ease-in-out infinite alternate; top: 50%; left: 50%; transform: translate(-50%, -50%);">🦑</div>
+                <div class="absolute text-6xl emoji-shadow cursor-pointer hover:scale-110 transition-transform" style="animation: float3 9s ease-in-out infinite alternate; top: 35%; left: 70%;">🐡</div>
             </div>
+
+            <!-- Choice Prompt -->
+            <div class="absolute bottom-10 text-center w-full">
+                <p class="font-game text-lg text-cyan-200 animate-pulse drop-shadow-lg">Choose your form.</p>
+            </div>
+            
         </main>
 
         <!-- Bottom Section: Action Bar / Controls -->
         <footer id="bottom-section" class="bg-gray-900/50 p-3 sm:p-4 border-t-4 border-gray-700 shadow-lg z-10">
-            <!-- 
-              Using a grid for the action buttons makes it easy to have a consistent layout.
-              - grid-cols-4: Creates 4 equal-width columns.
-              - gap-2: Adds a small space between the buttons.
-            -->
             <div class="grid grid-cols-4 gap-2 sm:gap-3">
                 <button class="aspect-square bg-blue-600 hover:bg-blue-500 rounded-lg flex flex-col items-center justify-center transition-all duration-200 transform hover:scale-105 shadow-md">
-                    <!-- SVG for an attack/sword icon -->
                     <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
                     <span class="text-xs sm:text-sm mt-1 font-semibold">Attack</span>
                 </button>
                 <button class="aspect-square bg-green-600 hover:bg-green-500 rounded-lg flex flex-col items-center justify-center transition-all duration-200 transform hover:scale-105 shadow-md">
-                    <!-- SVG for a shield/defend icon -->
                     <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                     <span class="text-xs sm:text-sm mt-1 font-semibold">Defend</span>
                 </button>
                 <button class="aspect-square bg-purple-600 hover:bg-purple-500 rounded-lg flex flex-col items-center justify-center transition-all duration-200 transform hover:scale-105 shadow-md">
-                    <!-- SVG for a bag/inventory icon -->
                     <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                     <span class="text-xs sm:text-sm mt-1 font-semibold">Items</span>
                 </button>
                 <button class="aspect-square bg-gray-600 hover:bg-gray-500 rounded-lg flex flex-col items-center justify-center transition-all duration-200 transform hover:scale-105 shadow-md">
-                    <!-- SVG for a settings/menu icon -->
                     <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                     <span class="text-xs sm:text-sm mt-1 font-semibold">Menu</span>
                 </button>
