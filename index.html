@@ -80,24 +80,31 @@
 
         <!-- 
           Middle Section: Artistic Scene
-          - A gradient creates the sky-to-water effect.
-          - Emojis are positioned absolutely and animated with CSS.
+          - The main container has a solid sky color.
+          - A separate div is positioned at the bottom to create the water with a hard horizon.
         -->
-        <main id="middle-section" class="flex-grow relative overflow-hidden bg-gradient-to-b from-gray-900 via-indigo-900 to-blue-800 flex flex-col justify-center items-center p-4">
+        <main id="middle-section" class="flex-grow relative overflow-hidden bg-gradient-to-t from-indigo-900 to-gray-900 flex flex-col justify-center items-center p-4">
             
             <!-- Moon -->
             <div class="absolute top-8 right-10 w-16 h-16 bg-yellow-100 rounded-full shadow-[0_0_20px_5px_rgba(254,249,195,0.4)] opacity-80"></div>
-            <div class="absolute top-[48%] right-12 w-12 h-1 bg-yellow-100/20 rounded-full blur-sm"></div>
+            
+            <!-- Water Div - creates the hard horizon -->
+            <div class="absolute bottom-0 left-0 w-full h-2/3 bg-gradient-to-t from-blue-800 to-indigo-900">
+                <!-- Subtle glow on the horizon -->
+                <div class="absolute top-0 w-full h-2 bg-indigo-400/50 blur-md"></div>
+                <!-- Moon Reflection -->
+                <div class="absolute top-4 right-12 w-12 h-1 bg-yellow-100/20 rounded-full blur-sm"></div>
+            </div>
 
             <!-- Animating Emojis -->
             <div class="w-full h-full relative">
-                <div class="absolute text-6xl emoji-shadow cursor-pointer hover:scale-110 transition-transform" style="animation: float1 10s ease-in-out infinite alternate; top: 40%; left: 20%;">🪼</div>
-                <div class="absolute text-6xl emoji-shadow cursor-pointer hover:scale-110 transition-transform" style="animation: float2 12s ease-in-out infinite alternate; top: 50%; left: 50%; transform: translate(-50%, -50%);">🦑</div>
-                <div class="absolute text-6xl emoji-shadow cursor-pointer hover:scale-110 transition-transform" style="animation: float3 9s ease-in-out infinite alternate; top: 35%; left: 70%;">🐡</div>
+                <div class="absolute text-6xl emoji-shadow cursor-pointer hover:scale-110 transition-transform" style="animation: float1 10s ease-in-out infinite alternate; top: 70%; left: 20%;">🪼</div>
+                <div class="absolute text-6xl emoji-shadow cursor-pointer hover:scale-110 transition-transform" style="animation: float2 12s ease-in-out infinite alternate; top: 80%; left: 50%; transform: translate(-50%, -50%);">🦑</div>
+                <div class="absolute text-6xl emoji-shadow cursor-pointer hover:scale-110 transition-transform" style="animation: float3 9s ease-in-out infinite alternate; top: 65%; left: 70%;">🐡</div>
             </div>
 
             <!-- Choice Prompt -->
-            <div class="absolute bottom-10 text-center w-full">
+            <div class="absolute bottom-10 text-center w-full z-10">
                 <p class="font-game text-lg text-cyan-200 animate-pulse drop-shadow-lg">Choose your form.</p>
             </div>
             
@@ -128,4 +135,6 @@
 
 </body>
 </html>
+
+
 
