@@ -27,6 +27,45 @@
             transform: scale(0.95);
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
         }
+        /* CRT Filter Styles */
+        .crt-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        .crt-overlay::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0) 0,
+                rgba(0, 0, 0, 0.3) 1.5px,
+                rgba(0, 0, 0, 0) 3px
+            );
+            animation: scanline 10s linear infinite;
+        }
+        @keyframes scanline {
+            from { transform: translateY(0); }
+            to { transform: translateY(-50%); }
+        }
+        .crt-overlay::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0) 60%, rgba(0,0,0,0.6));
+            opacity: 0.7;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white h-full flex flex-col antialiased">
@@ -35,7 +74,7 @@
     <div id="game-container" class="w-full h-full max-w-md mx-auto flex flex-col p-4">
 
         <!-- Header: Game Stats -->
-        <header class="flex-shrink-0 flex w-full rounded-lg mb-4 overflow-hidden h-12 shadow-[0_0_0_2px_#FBBF24,0_0_0_4px_#34D399]">
+        <header class="flex-shrink-0 flex w-full rounded-lg mb-4 overflow-hidden h-12 shadow-[0_0_0_1px_#FDE047,0_0_0_2px_#06B6D4,0_0_0_3px_#EC4899]">
             <!-- Health Meter -->
             <div class="flex-1 bg-black relative flex items-center justify-center">
                 <div id="health-bar" class="bg-red-500 h-full absolute top-0 left-0" style="width: 80%;"></div>
@@ -44,9 +83,6 @@
                 </div>
             </div>
 
-            <!-- Divider -->
-            <div class="w-1 bg-black"></div>
-
             <!-- Energy Meter -->
             <div class="flex-1 bg-black relative flex items-center justify-center">
                 <div id="energy-bar" class="bg-yellow-400 h-full absolute top-0 left-0" style="width: 60%;"></div>
@@ -54,9 +90,6 @@
                     <span class="text-2xl" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">✨</span>
                 </div>
             </div>
-
-            <!-- Divider -->
-            <div class="w-1 bg-black"></div>
 
             <!-- Shield Meter -->
             <div class="flex-1 bg-black relative flex items-center justify-center">
@@ -72,13 +105,13 @@
             <!-- Slots Container -->
             <div class="grid grid-cols-4 gap-3">
                 <!-- Slot 1 -->
-                <div class="aspect-square bg-black rounded-lg shadow-[0_0_0_2px_#FBBF24,0_0_0_4px_#34D399] flex items-center justify-center"><span class="text-4xl md:text-5xl">🗡️</span></div>
+                <div class="aspect-square bg-black rounded-lg shadow-[0_0_0_1px_#FDE047,0_0_0_2px_#06B6D4,0_0_0_3px_#EC4899] flex items-center justify-center"><span class="text-4xl md:text-5xl">🗡️</span></div>
                 <!-- Slot 2 -->
-                <div class="aspect-square bg-black rounded-lg shadow-[0_0_0_2px_#FBBF24,0_0_0_4px_#34D399] flex items-center justify-center"><span class="text-4xl md:text-5xl">🔮</span></div>
+                <div class="aspect-square bg-black rounded-lg shadow-[0_0_0_1px_#FDE047,0_0_0_2px_#06B6D4,0_0_0_3px_#EC4899] flex items-center justify-center"><span class="text-4xl md:text-5xl">🔮</span></div>
                 <!-- Slot 3 -->
-                <div class="aspect-square bg-black rounded-lg shadow-[0_0_0_2px_#FBBF24,0_0_0_4px_#34D399] flex items-center justify-center"><span class="text-4xl md:text-5xl">🍎</span></div>
+                <div class="aspect-square bg-black rounded-lg shadow-[0_0_0_1px_#FDE047,0_0_0_2px_#06B6D4,0_0_0_3px_#EC4899] flex items-center justify-center"><span class="text-4xl md:text-5xl">🍎</span></div>
                 <!-- Slot 4 -->
-                <div class="aspect-square bg-black rounded-lg shadow-[0_0_0_2px_#FBBF24,0_0_0_4px_#34D399] flex items-center justify-center"><span class="text-4xl md:text-5xl">🍞</span></div>
+                <div class="aspect-square bg-black rounded-lg shadow-[0_0_0_1px_#FDE047,0_0_0_2px_#06B6D4,0_0_0_3px_#EC4899] flex items-center justify-center"><span class="text-4xl md:text-5xl">🍞</span></div>
             </div>
         </div>
 
@@ -90,10 +123,13 @@
         <!-- Controls Area -->
         <footer class="flex-shrink-0 mt-4 flex justify-center items-center">
             <!-- Action Button -->
-            <button id="action-btn-a" class="w-24 h-24 bg-purple-600 rounded-full flex items-center justify-center control-btn shadow-[0_0_0_2px_#FBBF24,0_0_0_4px_#34D399]"></button>
+            <button id="action-btn-a" class="w-24 h-24 bg-purple-600 rounded-full flex items-center justify-center control-btn shadow-[0_0_0_1px_#FDE047,0_0_0_2px_#06B6D4,0_0_0_3px_#EC4899]"></button>
         </footer>
 
     </div>
+
+    <!-- CRT Filter Overlay -->
+    <div class="crt-overlay"></div>
 
     <!-- Example Game Logic -->
     <script>
