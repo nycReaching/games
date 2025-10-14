@@ -35,42 +35,31 @@
     <div id="game-container" class="w-full h-full max-w-md mx-auto flex flex-col p-4">
 
         <!-- Header: Game Stats -->
-        <header class="flex-shrink-0 bg-gray-800 p-4 rounded-lg shadow-lg mb-4">
-            <div class="grid grid-cols-3 gap-4 text-center">
-                <!-- Health Meter -->
-                <div>
-                    <div class="flex items-center justify-center mb-1">
-                        <!-- Heart Icon -->
-                        <svg class="w-5 h-5 mr-2 text-red-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path></svg>
-                        <span class="text-xs uppercase">Health</span>
-                    </div>
-                    <div class="w-full bg-gray-700 rounded-full h-2.5">
-                        <div id="health-bar" class="bg-red-500 h-2.5 rounded-full" style="width: 80%"></div>
-                    </div>
+        <header class="flex-shrink-0 flex w-full rounded-lg shadow-lg mb-4 overflow-hidden h-12">
+            <!-- Health Meter -->
+            <div class="flex-1 bg-gray-700 relative flex items-center justify-center border-r-2 border-gray-900/50">
+                <div id="health-bar" class="bg-red-500 h-full absolute top-0 left-0" style="width: 80%;"></div>
+                <div class="relative z-10 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-white drop-shadow-md" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path></svg>
+                    <span class="text-sm uppercase font-bold text-white" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.7);">Health</span>
                 </div>
+            </div>
 
-                <!-- Energy Meter -->
-                <div>
-                    <div class="flex items-center justify-center mb-1">
-                        <!-- Bolt Icon -->
-                        <svg class="w-5 h-5 mr-2 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path></svg>
-                        <span class="text-xs uppercase">Energy</span>
-                    </div>
-                    <div class="w-full bg-gray-700 rounded-full h-2.5">
-                        <div id="energy-bar" class="bg-yellow-400 h-2.5 rounded-full" style="width: 60%"></div>
-                    </div>
+            <!-- Energy Meter -->
+            <div class="flex-1 bg-gray-700 relative flex items-center justify-center border-r-2 border-gray-900/50">
+                <div id="energy-bar" class="bg-yellow-400 h-full absolute top-0 left-0" style="width: 60%;"></div>
+                <div class="relative z-10 flex items-center">
+                     <svg class="w-5 h-5 mr-2 text-white drop-shadow-md" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path></svg>
+                    <span class="text-sm uppercase font-bold text-white" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.7);">Energy</span>
                 </div>
+            </div>
 
-                <!-- Shield Meter -->
-                <div>
-                    <div class="flex items-center justify-center mb-1">
-                        <!-- Shield Icon -->
-                        <svg class="w-5 h-5 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M5 4.133a2 2 0 012-1.996h6a2 2 0 012 1.996v2.449A12.037 12.037 0 0110 18.06a12.037 12.037 0 01-5-11.478V4.133z"></path></svg>
-                        <span class="text-xs uppercase">Shield</span>
-                    </div>
-                    <div class="w-full bg-gray-700 rounded-full h-2.5">
-                        <div id="shield-bar" class="bg-blue-500 h-2.5 rounded-full" style="width: 95%"></div>
-                    </div>
+            <!-- Shield Meter -->
+            <div class="flex-1 bg-gray-700 relative flex items-center justify-center">
+                <div id="shield-bar" class="bg-blue-500 h-full absolute top-0 left-0" style="width: 95%;"></div>
+                <div class="relative z-10 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-white drop-shadow-md" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M5 4.133a2 2 0 012-1.996h6a2 2 0 012 1.996v2.449A12.037 12.037 0 0110 18.06a12.037 12.037 0 01-5-11.478V4.133z"></path></svg>
+                    <span class="text-sm uppercase font-bold text-white" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.7);">Shield</span>
                 </div>
             </div>
         </header>
@@ -192,6 +181,8 @@
 
 </body>
 </html>
+
+
 
 
 
