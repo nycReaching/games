@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Mobile Game UI</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
     <style>
         /* Use a game-like font */
         body {
-            font-family: 'Press Start 2P', cursive;
+            font-family: sans-serif; /* Use a standard sans-serif font */
             touch-action: manipulation; /* Prevents double-tap to zoom on buttons */
             -webkit-tap-highlight-color: transparent; /* Removes tap highlight on mobile */
         }
@@ -34,22 +34,79 @@
     <!-- Main Game Container -->
     <div id="game-container" class="w-full h-full max-w-md mx-auto flex flex-col p-4">
 
-        <!-- Header: Title, Score, and Menu -->
-        <header class="flex-shrink-0 flex items-center justify-between bg-gray-800 p-3 rounded-lg shadow-lg mb-4">
-            <div>
-                <h1 class="text-lg uppercase tracking-widest">AstroDash</h1>
-            </div>
-            <div class="text-right">
-                <div class="text-xs text-yellow-400">SCORE</div>
-                <div id="score" class="text-xl font-bold">0</div>
-            </div>
-            <div class="flex items-center">
-                <button id="pause-btn" class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center shadow-md control-btn">
-                    <!-- Pause Icon SVG -->
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                </button>
+        <!-- Header: Game Stats -->
+        <header class="flex-shrink-0 bg-gray-800 p-4 rounded-lg shadow-lg mb-4">
+            <div class="grid grid-cols-3 gap-4 text-center">
+                <!-- Health Meter -->
+                <div>
+                    <div class="flex items-center justify-center mb-1">
+                        <!-- Heart Icon -->
+                        <svg class="w-5 h-5 mr-2 text-red-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path></svg>
+                        <span class="text-xs uppercase">Health</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2.5">
+                        <div id="health-bar" class="bg-red-500 h-2.5 rounded-full" style="width: 80%"></div>
+                    </div>
+                </div>
+
+                <!-- Energy Meter -->
+                <div>
+                    <div class="flex items-center justify-center mb-1">
+                        <!-- Bolt Icon -->
+                        <svg class="w-5 h-5 mr-2 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path></svg>
+                        <span class="text-xs uppercase">Energy</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2.5">
+                        <div id="energy-bar" class="bg-yellow-400 h-2.5 rounded-full" style="width: 60%"></div>
+                    </div>
+                </div>
+
+                <!-- Shield Meter -->
+                <div>
+                    <div class="flex items-center justify-center mb-1">
+                        <!-- Shield Icon -->
+                        <svg class="w-5 h-5 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M5 4.133a2 2 0 012-1.996h6a2 2 0 012 1.996v2.449A12.037 12.037 0 0110 18.06a12.037 12.037 0 01-5-11.478V4.133z"></path></svg>
+                        <span class="text-xs uppercase">Shield</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2.5">
+                        <div id="shield-bar" class="bg-blue-500 h-2.5 rounded-full" style="width: 95%"></div>
+                    </div>
+                </div>
             </div>
         </header>
+
+        <!-- Equipment Slots -->
+        <div id="equipment-bar" class="flex-shrink-0 flex justify-between items-center my-4">
+            <!-- Left Cycle Button -->
+            <button id="cycle-left-btn" class="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center shadow-md control-btn text-2xl">
+                <span>‹</span>
+            </button>
+
+            <!-- Slots Container -->
+            <div class="flex justify-center gap-4">
+                <!-- Slot 1 -->
+                <div class="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center text-4xl shadow-md">
+                    <span>⚔️</span>
+                </div>
+                <!-- Slot 2 -->
+                <div class="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center text-4xl shadow-md">
+                    <span>🛡️</span>
+                </div>
+                <!-- Slot 3 -->
+                <div class="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center text-4xl shadow-md">
+                    <span>🧪</span>
+                </div>
+                <!-- Slot 4 -->
+                <div class="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center text-4xl shadow-md">
+                    <span>👢</span>
+                </div>
+            </div>
+
+            <!-- Right Cycle Button -->
+            <button id="cycle-right-btn" class="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center shadow-md control-btn text-2xl">
+                <span>›</span>
+            </button>
+        </div>
 
         <!-- Game Canvas Area -->
         <main class="flex-grow flex items-center justify-center">
@@ -108,21 +165,20 @@
             // Replace this with your actual game loop and rendering
             function drawGame() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#4A5568';
+                ctx.fillStyle = '#A0AEC0'; // Lighter text for better contrast
                 ctx.textAlign = 'center';
-                ctx.font = `${canvas.width * 0.1}px 'Press Start 2P'`;
+                // Use a generic sans-serif font that matches the UI
+                const baseFontSize = canvas.width * 0.1;
+                ctx.font = `bold ${baseFontSize}px sans-serif`;
                 ctx.fillText('GAME', canvas.width / 2, canvas.height / 2);
-                ctx.font = `${canvas.width * 0.05}px 'Press Start 2P'`;
-                ctx.fillText('CANVAS', canvas.width / 2, canvas.height / 2 + 40);
+                ctx.font = `bold ${baseFontSize * 0.5}px sans-serif`;
+                ctx.fillText('CANVAS', canvas.width / 2, canvas.height / 2 + (baseFontSize * 0.6));
             }
 
             // --- Event Listeners ---
             window.addEventListener('resize', resizeCanvas);
 
             // Button feedback
-            const scoreEl = document.getElementById('score');
-            let score = 0;
-
             document.getElementById('left-btn').addEventListener('click', () => {
                 console.log('Left button pressed');
             });
@@ -133,13 +189,14 @@
             
             document.getElementById('action-btn').addEventListener('click', () => {
                 console.log('Action button pressed');
-                score += 10;
-                scoreEl.textContent = score;
             });
 
-            document.getElementById('pause-btn').addEventListener('click', () => {
-                console.log('Pause button pressed');
-                alert('Game Paused (replace alert with a modal)');
+            document.getElementById('cycle-left-btn').addEventListener('click', () => {
+                console.log('Cycle equipment left');
+            });
+
+            document.getElementById('cycle-right-btn').addEventListener('click', () => {
+                console.log('Cycle equipment right');
             });
 
 
@@ -150,3 +207,4 @@
 
 </body>
 </html>
+
