@@ -105,26 +105,25 @@
 
         <!-- Controls Area -->
         <footer class="flex-shrink-0 mt-4">
-            <div class="grid grid-cols-3 gap-4 items-center">
-                <!-- Left/Right D-Pad -->
-                <div class="col-span-1 flex justify-start">
-                     <div class="grid grid-cols-2 gap-2">
-                        <button id="left-btn" class="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center shadow-md control-btn">
-                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                        </button>
-                        <button id="right-btn" class="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center shadow-md control-btn">
-                           <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                        </button>
+            <div class="grid grid-cols-2 gap-4 items-center">
+                <!-- 4x2 Grid -->
+                <div class="col-span-1">
+                     <div class="grid grid-cols-4 gap-2">
+                        <button class="aspect-square bg-gray-700 rounded-lg shadow-md control-btn"></button>
+                        <button class="aspect-square bg-gray-700 rounded-lg shadow-md control-btn"></button>
+                        <button class="aspect-square bg-gray-700 rounded-lg shadow-md control-btn"></button>
+                        <button class="aspect-square bg-gray-700 rounded-lg shadow-md control-btn"></button>
+                        <button class="aspect-square bg-gray-700 rounded-lg shadow-md control-btn"></button>
+                        <button class="aspect-square bg-gray-700 rounded-lg shadow-md control-btn"></button>
+                        <button class="aspect-square bg-gray-700 rounded-lg shadow-md control-btn"></button>
+                        <button class="aspect-square bg-gray-700 rounded-lg shadow-md control-btn"></button>
                     </div>
                 </div>
 
-                <!-- Spacer -->
-                 <div class="col-span-1"></div>
-
-
                 <!-- Action Buttons -->
-                <div class="col-span-1 flex justify-end">
-                    <button id="action-btn" class="w-24 h-24 bg-red-600 rounded-full flex items-center justify-center text-2xl shadow-lg control-btn">A</button>
+                <div class="col-span-1 flex justify-end items-center gap-3">
+                    <button id="action-btn-b" class="w-20 h-20 bg-sky-600 rounded-full flex items-center justify-center shadow-lg control-btn"></button>
+                    <button id="action-btn-a" class="w-24 h-24 bg-red-600 rounded-full flex items-center justify-center shadow-lg control-btn"></button>
                 </div>
             </div>
         </footer>
@@ -169,18 +168,14 @@
             window.addEventListener('resize', resizeCanvas);
 
             // Button feedback
-            document.getElementById('left-btn').addEventListener('click', () => {
-                console.log('Left button pressed');
+            document.getElementById('action-btn-a').addEventListener('click', () => {
+                console.log('Action button A pressed');
             });
 
-            document.getElementById('right-btn').addEventListener('click', () => {
-                console.log('Right button pressed');
+            document.getElementById('action-btn-b').addEventListener('click', () => {
+                console.log('Action button B pressed');
             });
             
-            document.getElementById('action-btn').addEventListener('click', () => {
-                console.log('Action button pressed');
-            });
-
             document.getElementById('cycle-left-btn').addEventListener('click', () => {
                 console.log('Cycle equipment left');
             });
@@ -197,6 +192,7 @@
 
 </body>
 </html>
+
 
 
 
