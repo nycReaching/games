@@ -76,35 +76,25 @@
         </header>
 
         <!-- Equipment Slots -->
-        <div id="equipment-bar" class="flex-shrink-0 flex justify-between items-center my-4">
-            <!-- Left Cycle Button -->
-            <button id="cycle-left-btn" class="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center shadow-md control-btn text-2xl">
-                <span>‹</span>
+        <div id="equipment-bar" class="flex-shrink-0 flex items-center my-4 gap-3">
+            <!-- Left Button -->
+            <button id="cycle-left-btn" class="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center shadow-md control-btn flex-shrink-0">
             </button>
 
             <!-- Slots Container -->
-            <div class="flex justify-center gap-4">
+            <div class="flex-grow grid grid-cols-4 gap-3">
                 <!-- Slot 1 -->
-                <div class="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center text-4xl shadow-md">
-                    <span>⚔️</span>
-                </div>
+                <div class="aspect-square bg-sky-600 rounded-lg shadow-md"></div>
                 <!-- Slot 2 -->
-                <div class="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center text-4xl shadow-md">
-                    <span>🛡️</span>
-                </div>
+                <div class="aspect-square bg-emerald-600 rounded-lg shadow-md"></div>
                 <!-- Slot 3 -->
-                <div class="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center text-4xl shadow-md">
-                    <span>🧪</span>
-                </div>
+                <div class="aspect-square bg-amber-600 rounded-lg shadow-md"></div>
                 <!-- Slot 4 -->
-                <div class="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center text-4xl shadow-md">
-                    <span>👢</span>
-                </div>
+                <div class="aspect-square bg-rose-600 rounded-lg shadow-md"></div>
             </div>
 
-            <!-- Right Cycle Button -->
-            <button id="cycle-right-btn" class="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center shadow-md control-btn text-2xl">
-                <span>›</span>
+            <!-- Right Button -->
+            <button id="cycle-right-btn" class="w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center shadow-md control-btn flex-shrink-0">
             </button>
         </div>
 
@@ -207,4 +197,6 @@
 
 </body>
 </html>
+
+
 
