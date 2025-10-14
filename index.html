@@ -1,105 +1,152 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emoji Roguelike RPG</title>
-    <!-- Tailwind CSS for styling -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Mobile Game UI</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts for a retro game feel -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        /* Custom styles */
+        /* Use a game-like font */
         body {
             font-family: 'Press Start 2P', cursive;
-            touch-action: manipulation; /* Prevents double-tap to zoom on mobile */
-            overflow: hidden; /* Hide scrollbars */
+            touch-action: manipulation; /* Prevents double-tap to zoom on buttons */
+            -webkit-tap-highlight-color: transparent; /* Removes tap highlight on mobile */
         }
-
-        /* Define a class for the item slots for consistency */
-        .item-slot {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #1F2937; /* bg-gray-800 */
-            border: 2px solid #4B5563; /* border-gray-600 */
-            border-radius: 0.75rem; /* rounded-xl */
-            aspect-ratio: 1 / 1; /* Ensures the slots are always square */
-            font-size: 1.875rem; /* text-3xl */
-            color: #F9FAFB; /* text-gray-50 */
-            transition: all 0.2s ease-in-out;
+        /* Custom styles for the game canvas */
+        #game-canvas {
+            background-color: #1a202c; /* A darker shade for contrast */
+            border-radius: 0.5rem;
+            display: block; /* Ensures it behaves as a block element */
         }
-
-        .item-slot:hover {
-            border-color: #FBBF24; /* amber-400 */
-            transform: scale(1.05);
+        /* Style for the control buttons for a tactile feel */
+        .control-btn {
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+        .control-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
         }
     </style>
 </head>
-<body class="bg-gray-900 antialiased">
+<body class="bg-gray-900 text-white h-full flex flex-col antialiased">
 
-    <!-- 
-      Main game container. 
-      Uses CSS Grid to create the main layout structure.
-      - The outer columns/rows are set to 'auto' to fit the content (the item slots).
-      - The center column/row is set to '1fr' to take up all remaining space (the game screen).
-      - This creates a perfect border of UI elements around a central content area.
-      - It's constrained to a mobile-friendly width and centered on larger screens.
-    -->
-    <div id="game-ui-container" class="grid grid-cols-[auto_1fr_auto] grid-rows-[auto_1fr_auto] h-screen max-w-lg mx-auto p-2 sm:p-4 gap-2 sm:gap-3">
-        
-        <!-- Top-Left Corner (Empty) -->
-        <div></div>
+    <!-- Main Game Container -->
+    <div id="game-container" class="w-full h-full max-w-md mx-auto flex flex-col p-4">
 
-        <!-- Top Item Bar: 3 slots -->
-        <header id="top-bar" class="grid grid-cols-3 gap-2 sm:gap-3">
-            <div class="item-slot">❤️</div> <!-- Health/Status -->
-            <div class="item-slot">💰</div> <!-- Gold/Currency -->
-            <div class="item-slot">🗝️</div> <!-- Keys/Special -->
+        <!-- Header: Title, Score, and Menu -->
+        <header class="flex-shrink-0 flex items-center justify-between bg-gray-800 p-3 rounded-lg shadow-lg mb-4">
+            <div>
+                <h1 class="text-lg uppercase tracking-widest">AstroDash</h1>
+            </div>
+            <div class="text-right">
+                <div class="text-xs text-yellow-400">SCORE</div>
+                <div id="score" class="text-xl font-bold">0</div>
+            </div>
+            <div class="flex items-center">
+                <button id="pause-btn" class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center shadow-md control-btn">
+                    <!-- Pause Icon SVG -->
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </button>
+            </div>
         </header>
 
-        <!-- Top-Right Corner (Empty) -->
-        <div></div>
-
-        <!-- Left Gear Bar: 5 slots -->
-        <aside id="left-bar" class="grid grid-rows-5 gap-2 sm:gap-3">
-            <div class="item-slot">🗡️</div> <!-- Main Hand -->
-            <div class="item-slot">🛡️</div> <!-- Off Hand -->
-            <div class="item-slot">🎩</div> <!-- Head -->
-            <div class="item-slot">👕</div> <!-- Body -->
-            <div class="item-slot">👢</div> <!-- Feet -->
-        </aside>
-
-        <!-- Main Game Screen -->
-        <main id="game-screen" class="bg-black/50 rounded-xl border-4 border-gray-700 flex flex-col items-center justify-center p-4">
-            <h1 class="text-xl sm:text-2xl text-amber-400">EMOJI RPG</h1>
-            <p class="text-xs text-gray-400 mt-2">Game Area</p>
+        <!-- Game Canvas Area -->
+        <main class="flex-grow flex items-center justify-center">
+            <canvas id="game-canvas"></canvas>
         </main>
 
-        <!-- Right Item Bar: 5 slots -->
-        <aside id="right-bar" class="grid grid-rows-5 gap-2 sm:gap-3">
-            <div class="item-slot">🏹</div> <!-- Ranged Weapon -->
-            <div class="item-slot">🧪</div> <!-- Potion 1 -->
-            <div class="item-slot">💊</div> <!-- Potion 2 -->
-            <div class="item-slot">📜</div> <!-- Scroll -->
-            <div class="item-slot">📖</div> <!-- Spellbook -->
-        </aside>
+        <!-- Controls Area -->
+        <footer class="flex-shrink-0 mt-4">
+            <div class="grid grid-cols-3 gap-4 items-center">
+                <!-- Left/Right D-Pad -->
+                <div class="col-span-1 flex justify-start">
+                     <div class="grid grid-cols-2 gap-2">
+                        <button id="left-btn" class="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center shadow-md control-btn">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        </button>
+                        <button id="right-btn" class="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center shadow-md control-btn">
+                           <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </button>
+                    </div>
+                </div>
 
-        <!-- Bottom-Left Corner (Empty) -->
-        <div></div>
+                <!-- Spacer -->
+                 <div class="col-span-1"></div>
 
-        <!-- Bottom Action Bar: 3 slots -->
-        <footer id="bottom-bar" class="grid grid-cols-3 gap-2 sm:gap-3">
-            <div class="item-slot">🏃</div> <!-- Action: Move/Wait -->
-            <div class="item-slot">🎒</div> <!-- Action: Inventory -->
-            <div class="item-slot">🗺️</div> <!-- Action: Map -->
+
+                <!-- Action Buttons -->
+                <div class="col-span-1 flex justify-end">
+                    <button id="action-btn" class="w-24 h-24 bg-red-600 rounded-full flex items-center justify-center text-2xl shadow-lg control-btn">A</button>
+                </div>
+            </div>
         </footer>
 
-        <!-- Bottom-Right Corner (Empty) -->
-        <div></div>
     </div>
+
+    <!-- Example Game Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('game-canvas');
+            const ctx = canvas.getContext('2d');
+            const main = document.querySelector('main');
+
+            // --- Canvas Sizing ---
+            function resizeCanvas() {
+                // Get the dimensions of the main container
+                const mainRect = main.getBoundingClientRect();
+                const size = Math.min(mainRect.width, mainRect.height);
+
+                canvas.width = size;
+                canvas.height = size;
+
+                // Redraw the game content after resizing
+                drawGame();
+            }
+
+            // --- Example Game Drawing ---
+            // Replace this with your actual game loop and rendering
+            function drawGame() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#4A5568';
+                ctx.textAlign = 'center';
+                ctx.font = `${canvas.width * 0.1}px 'Press Start 2P'`;
+                ctx.fillText('GAME', canvas.width / 2, canvas.height / 2);
+                ctx.font = `${canvas.width * 0.05}px 'Press Start 2P'`;
+                ctx.fillText('CANVAS', canvas.width / 2, canvas.height / 2 + 40);
+            }
+
+            // --- Event Listeners ---
+            window.addEventListener('resize', resizeCanvas);
+
+            // Button feedback
+            const scoreEl = document.getElementById('score');
+            let score = 0;
+
+            document.getElementById('left-btn').addEventListener('click', () => {
+                console.log('Left button pressed');
+            });
+
+            document.getElementById('right-btn').addEventListener('click', () => {
+                console.log('Right button pressed');
+            });
+            
+            document.getElementById('action-btn').addEventListener('click', () => {
+                console.log('Action button pressed');
+                score += 10;
+                scoreEl.textContent = score;
+            });
+
+            document.getElementById('pause-btn').addEventListener('click', () => {
+                console.log('Pause button pressed');
+                alert('Game Paused (replace alert with a modal)');
+            });
+
+
+            // Initial setup
+            resizeCanvas();
+        });
+    </script>
 
 </body>
 </html>
