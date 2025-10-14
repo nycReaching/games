@@ -9,77 +9,91 @@
     <style>
         /* Use a game-like font */
         body {
-            font-family: sans-serif; /* Use a standard sans-serif font */
+            font-family: 'Inter', sans-serif; /* A more modern, clean font */
             touch-action: manipulation; /* Prevents double-tap to zoom on buttons */
             -webkit-tap-highlight-color: transparent; /* Removes tap highlight on mobile */
+            overflow: hidden; /* Prevent scrolling */
         }
         /* Custom styles for the game canvas */
         #game-canvas {
             background-color: #1a202c; /* A darker shade for contrast */
             border-radius: 0.5rem;
             display: block; /* Ensures it behaves as a block element */
+            transform-origin: center center; /* Ensure animations scale from the center */
         }
         /* Style for the control buttons for a tactile feel */
         .control-btn {
             transition: transform 0.1s ease;
         }
 
-        /* Animation class to be added via JavaScript */
+        /* Animation class for button press */
         .animate-press {
             animation: press-animation 0.2s ease-out;
         }
 
         @keyframes press-animation {
-            0% {
-                transform: scale(1);
-                filter: brightness(100%);
-            }
-            50% {
-                transform: scale(0.85);
-                filter: brightness(160%);
-            }
-            100% {
-                transform: scale(1);
-                filter: brightness(100%);
-            }
+            0% { transform: scale(1); filter: brightness(100%); }
+            50% { transform: scale(0.85); filter: brightness(160%); }
+            100% { transform: scale(1); filter: brightness(100%); }
         }
         
+        /* --- BATTLE ANIMATIONS --- */
+        /* Animation for enemy getting hit */
+        .enemy-hit { animation: enemy-hit-animation 0.3s ease-out; }
+        @keyframes enemy-hit-animation {
+            0% { transform: translate(0, 0) rotate(0); }
+            20% { transform: translate(-8px, 8px) rotate(-5deg); filter: brightness(1.5); }
+            40% { transform: translate(8px, -8px) rotate(5deg); }
+            60% { transform: translate(-5px, 5px) rotate(-3deg); }
+            80% { transform: translate(5px, -5px) rotate(3deg); }
+            100% { transform: translate(0, 0) rotate(0); filter: brightness(1); }
+        }
+
+        /* Animation for enemy dying */
+        .enemy-die { animation: enemy-die-animation 0.5s ease-in forwards; }
+        @keyframes enemy-die-animation {
+            0% { transform: scale(1); opacity: 1; filter: blur(0); }
+            100% { transform: scale(2.5) rotate(720deg); opacity: 0; filter: blur(10px) brightness(3); }
+        }
+
+        /* Animation for new enemy appearing */
+        .enemy-appear { animation: enemy-appear-animation 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        @keyframes enemy-appear-animation {
+            0% { transform: scale(0.1) rotate(-90deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        /* Screen shake animation for player getting hit */
+        .shake-hard { animation: shake-hard-animation 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake-hard-animation {
+          10%, 90% { transform: translate3d(-1px, 0, 0); }
+          20%, 80% { transform: translate3d(2px, 0, 0); }
+          30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+          40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        /* Health bar container flash on hit */
+        .health-flash {
+            animation: health-flash-animation 0.4s ease-out;
+        }
+        @keyframes health-flash-animation {
+            0%, 100% { box-shadow: 0 0 0 0px rgba(239, 68, 68, 0); }
+            50% { box-shadow: 0 0 20px 8px rgba(239, 68, 68, 0.7); }
+        }
+
         /* CRT Filter Styles */
         .crt-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 9999;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999;
         }
         .crt-overlay::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 200%;
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 0, 0, 0) 0,
-                rgba(0, 0, 0, 0.3) 1.5px,
-                rgba(0, 0, 0, 0) 3px
-            );
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 200%;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.3) 1.5px, rgba(0,0,0,0.1) 3px);
             animation: scanline 10s linear infinite;
         }
-        @keyframes scanline {
-            from { transform: translateY(0); }
-            to { transform: translateY(-50%); }
-        }
+        @keyframes scanline { from { transform: translateY(0); } to { transform: translateY(-50%); } }
         .crt-overlay::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(ellipse at center, rgba(0,0,0,0) 60%, rgba(0,0,0,0.6));
             opacity: 0.7;
         }
@@ -94,7 +108,7 @@
         <header class="flex-shrink-0 flex w-full rounded-lg mb-4 overflow-hidden h-12 shadow-[0_0_0_1px_#FDE047,0_0_0_2px_#06B6D4,0_0_0_3px_#EC4899]">
             <!-- Health Meter -->
             <div class="flex-1 bg-red-950 relative flex items-center justify-center">
-                <div id="health-bar" class="bg-red-500 h-full absolute top-0 left-0" style="width: 80%;"></div>
+                <div id="health-bar" class="bg-red-500 h-full absolute top-0 left-0 transition-all duration-300 ease-out"></div>
                 <div class="relative z-10 flex items-center">
                     <span class="text-2xl" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">❤️</span>
                 </div>
@@ -102,7 +116,7 @@
 
             <!-- Energy Meter -->
             <div class="flex-1 bg-yellow-900 relative flex items-center justify-center">
-                <div id="energy-bar" class="bg-yellow-400 h-full absolute top-0 left-0" style="width: 60%;"></div>
+                <div id="energy-bar" class="bg-yellow-400 h-full absolute top-0 left-0"></div>
                 <div class="relative z-10 flex items-center">
                     <span class="text-2xl" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">✨</span>
                 </div>
@@ -110,7 +124,7 @@
 
             <!-- Shield Meter -->
             <div class="flex-1 bg-blue-950 relative flex items-center justify-center">
-                <div id="shield-bar" class="bg-sky-400 h-full absolute top-0 left-0" style="width: 95%;"></div>
+                <div id="shield-bar" class="bg-sky-400 h-full absolute top-0 left-0"></div>
                 <div class="relative z-10 flex items-center">
                     <span class="text-2xl" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">🛡️</span>
                 </div>
@@ -133,14 +147,16 @@
         </div>
 
         <!-- Game Canvas Area -->
-        <main class="flex-grow flex items-center justify-center">
+        <main class="flex-grow flex items-center justify-center relative">
             <canvas id="game-canvas"></canvas>
         </main>
 
         <!-- Controls Area -->
         <footer class="flex-shrink-0 mt-4 flex justify-center items-center">
             <!-- Action Button -->
-            <button id="action-btn-a" class="w-24 h-24 bg-purple-600 rounded-full flex items-center justify-center control-btn shadow-[0_0_0_1px_#FDE047,0_0_0_2px_#06B6D4,0_0_0_3px_#EC4899]"></button>
+            <button id="action-btn-a" class="w-24 h-24 bg-purple-600 rounded-full flex items-center justify-center control-btn shadow-[0_0_0_1px_#FDE047,0_0_0_2px_#06B6D4,0_0_0_3px_#EC4899]">
+                <span class="text-5xl">💥</span>
+            </button>
         </footer>
 
     </div>
@@ -148,62 +164,185 @@
     <!-- CRT Filter Overlay -->
     <div class="crt-overlay"></div>
 
-    <!-- Example Game Logic -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const canvas = document.getElementById('game-canvas');
             const ctx = canvas.getContext('2d');
             const main = document.querySelector('main');
+            const gameContainer = document.getElementById('game-container');
+            const healthBar = document.getElementById('health-bar');
+            const energyBar = document.getElementById('energy-bar');
+            const shieldBar = document.getElementById('shield-bar');
+            const actionButton = document.getElementById('action-btn-a');
+
+            // --- Game State ---
+            let player = { health: 10, maxHealth: 10 };
+            const enemies = ['👹', '👻', '💀', '👽', '🤖', '🎃', '🤡', '😈', '🐲'];
+            let currentEnemyIndex = 0;
+            let enemy = null; // Start with null, will be created
+            let gameOver = false;
+            let gameWon = false;
+            let isAnimating = false;
+            
+            // Effects array for particles, damage numbers, etc.
+            let effects = [];
+
+            // --- Helper Functions ---
+            function triggerAnimation(element, className) {
+                element.classList.remove(className);
+                void element.offsetWidth; // browser trick to re-trigger animation
+                element.classList.add(className);
+                element.addEventListener('animationend', () => {
+                    element.classList.remove(className);
+                }, { once: true });
+            }
+
+            function createTextEffect(text, x, y, color = 'white', size = 0.08) {
+                effects.push({
+                    type: 'text', text, x, y, color,
+                    vy: -1, // velocity y
+                    life: 60, // frames to live
+                    size: canvas.width * size,
+                });
+            }
+
+            // --- Update UI ---
+            function updateMeters() {
+                const healthPercent = (player.health / player.maxHealth) * 100;
+                healthBar.style.width = `${healthPercent}%`;
+                energyBar.style.width = `100%`;
+                shieldBar.style.width = `100%`;
+            }
 
             // --- Canvas Sizing ---
             function resizeCanvas() {
-                // Get the dimensions of the main container
                 const mainRect = main.getBoundingClientRect();
-                const size = Math.min(mainRect.width, mainRect.height);
-
+                const size = Math.min(mainRect.width, mainRect.height) * 0.9;
                 canvas.width = size;
                 canvas.height = size;
-
-                // Redraw the game content after resizing
-                drawGame();
             }
 
-            // --- Example Game Drawing ---
-            // Replace this with your actual game loop and rendering
-            function drawGame() {
+            // --- Game Drawing Loop ---
+            function gameLoop() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#A0AEC0'; // Lighter text for better contrast
                 ctx.textAlign = 'center';
-                // Use a generic sans-serif font that matches the UI
-                const baseFontSize = canvas.width * 0.1;
-                ctx.font = `bold ${baseFontSize}px sans-serif`;
-                ctx.fillText('GAME', canvas.width / 2, canvas.height / 2);
-                ctx.font = `bold ${baseFontSize * 0.5}px sans-serif`;
-                ctx.fillText('CANVAS', canvas.width / 2, canvas.height / 2 + (baseFontSize * 0.6));
+                ctx.textBaseline = 'middle';
+
+                if (gameOver) {
+                    const baseFontSize = canvas.width * 0.1;
+                    ctx.font = `bold ${baseFontSize}px sans-serif`;
+                    ctx.fillStyle = '#EF4444';
+                    ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2);
+                } else if (gameWon) {
+                    const baseFontSize = canvas.width * 0.1;
+                    ctx.font = `bold ${baseFontSize}px sans-serif`;
+                    ctx.fillStyle = '#34D399';
+                    ctx.fillText('YOU WIN!', canvas.width / 2, canvas.height / 2);
+                } else if (enemy) {
+                    const enemyFontSize = canvas.width * 0.4;
+                    ctx.font = `${enemyFontSize}px sans-serif`;
+                    ctx.fillText(enemy.emoji, canvas.width / 2, canvas.height / 2);
+                    
+                    const hpFontSize = canvas.width * 0.08;
+                    ctx.font = `bold ${hpFontSize}px sans-serif`;
+                    ctx.fillStyle = 'white';
+                    ctx.fillText(`HP: ${enemy.hp}`, canvas.width / 2, canvas.height / 2 + enemyFontSize * 0.6);
+                }
+
+                // --- Draw & Update Effects ---
+                for (let i = effects.length - 1; i >= 0; i--) {
+                    const effect = effects[i];
+                    effect.life--;
+                    if (effect.life <= 0) {
+                        effects.splice(i, 1);
+                        continue;
+                    }
+                    if (effect.type === 'text') {
+                        effect.y += effect.vy;
+                        ctx.font = `bold ${effect.size}px sans-serif`;
+                        ctx.fillStyle = effect.color;
+                        ctx.globalAlpha = effect.life / 60; // Fade out
+                        ctx.fillText(effect.text, effect.x, effect.y);
+                        ctx.globalAlpha = 1.0;
+                    }
+                }
+                
+                requestAnimationFrame(gameLoop);
+            }
+            
+            // --- Game Logic Functions ---
+            function nextEnemy() {
+                return new Promise(resolve => {
+                    currentEnemyIndex++;
+                    if (currentEnemyIndex >= enemies.length) {
+                        gameWon = true;
+                        resolve();
+                    } else {
+                        enemy = { hp: 3 + currentEnemyIndex, maxHp: 3 + currentEnemyIndex, emoji: enemies[currentEnemyIndex] };
+                        setTimeout(() => {
+                            triggerAnimation(canvas, 'enemy-appear');
+                            resolve();
+                        }, 200);
+                    }
+                });
+            }
+            
+            function spawnFirstEnemy() {
+                 enemy = { hp: 3, maxHp: 3, emoji: enemies[currentEnemyIndex] };
+                 triggerAnimation(canvas, 'enemy-appear');
             }
 
-            // --- Event Listeners ---
-            window.addEventListener('resize', resizeCanvas);
+            // --- Event Listener for the Action Button ---
+            actionButton.addEventListener('click', async () => {
+                if (isAnimating || gameOver || gameWon) return;
+                isAnimating = true;
 
-            // Button feedback
-            const actionButton = document.getElementById('action-btn-a');
-            actionButton.addEventListener('click', () => {
-                console.log('Action button A pressed');
+                // 1. PLAYER ATTACKS
+                triggerAnimation(actionButton, 'animate-press');
+                triggerAnimation(canvas, 'enemy-hit');
+                enemy.hp -= 1;
+                createTextEffect('-1', canvas.width / 2 + Math.random() * 40 - 20, canvas.height / 2, '#ffdd59', 0.12);
+
+                await new Promise(r => setTimeout(r, 300)); // Wait for hit animation
+
+                if (enemy.hp <= 0) {
+                    // 2a. ENEMY DIES
+                    triggerAnimation(canvas, 'enemy-die');
+                    enemy = null; // Remove from screen
+                    await new Promise(r => setTimeout(r, 500)); // Wait for death animation
+                    
+                    // 3. NEXT ENEMY APPEARS
+                    await nextEnemy();
+                } else {
+                    // 2b. ENEMY RETALIATES
+                    await new Promise(r => setTimeout(r, 400));
+                    if (gameOver) return; // Final check
+
+                    triggerAnimation(gameContainer, 'shake-hard');
+                    triggerAnimation(healthBar.parentElement.parentElement, 'health-flash');
+                    player.health -= 1;
+                    updateMeters();
+                    createTextEffect('-1', canvas.width * 0.2, canvas.height * 0.1, '#ff4757', 0.08);
+
+                    if (player.health <= 0) {
+                        player.health = 0;
+                        updateMeters();
+                        gameOver = true;
+                    }
+                }
                 
-                // Add animation class
-                actionButton.classList.add('animate-press');
-
-                // Remove class after animation ends to allow re-triggering
-                actionButton.addEventListener('animationend', () => {
-                    actionButton.classList.remove('animate-press');
-                }, { once: true }); // Important: listener removes itself after running once
+                await new Promise(r => setTimeout(r, 200)); // Cooldown before next action
+                isAnimating = false;
             });
 
-            // Initial setup
+            // --- Initial Setup ---
+            window.addEventListener('resize', resizeCanvas);
             resizeCanvas();
+            updateMeters();
+            spawnFirstEnemy();
+            gameLoop(); // Start the main game loop
         });
     </script>
 
 </body>
 </html>
-
