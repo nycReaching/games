@@ -314,61 +314,11 @@
 
                 // --- Draw Slot Effect ---
                 if (slotEffect) {
-                    if(slotEffect.isSpinning && slotEffect.life % 2 === 0) {
-                        slotEffect.currentSymbol = slotSymbols[Math.floor(Math.random() * 2)];
+                    slotEffect.update();
+                    // Re-check because .update() can set slotEffect to null
+                    if (slotEffect) {
+                        slotEffect.draw(ctx);
                     }
-                    slotEffect.life++;
-                    
-                    const animProgress = Math.min(slotEffect.life / slotEffect.duration, 1);
-                    
-                    let opacity = 0;
-                    let scale = 0;
-
-                    if (slotEffect.state === 'appearing') {
-                        const t = easeOutBack(animProgress);
-                        opacity = t;
-                        scale = t;
-                    } else if (slotEffect.state === 'holding') {
-                        opacity = 1;
-                        scale = 1;
-                        if (slotEffect.isSpecial) {
-                            // Pulsing glow effect
-                            const glowProgress = (slotEffect.life % 30) / 30; // 0.5s pulse
-                            const pulse = Math.sin(glowProgress * Math.PI);
-                            ctx.shadowBlur = 10 + pulse * 15;
-                            ctx.shadowColor = 'rgba(253, 224, 71, 1)';
-                        }
-                    } else if (slotEffect.state === 'fading') {
-                        opacity = 1 - animProgress;
-                        scale = 1;
-                    }
-                    
-                    ctx.save();
-                    const slotSize = canvas.width * 0.15;
-                    ctx.font = `${slotSize}px sans-serif`;
-                    ctx.globalAlpha = opacity;
-                    
-                    const centerX = slotEffect.x;
-                    const centerY = slotEffect.y;
-                    
-                    ctx.translate(centerX, centerY);
-                    ctx.scale(scale, scale);
-                    
-                    // Draw slot machine background
-                    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-                    ctx.strokeStyle = '#FDE047';
-                    ctx.lineWidth = 4;
-                    const boxWidth = slotSize * 1.2;
-                    const boxHeight = slotSize * 1.2;
-                    ctx.beginPath();
-                    ctx.roundRect(-boxWidth/2, -boxHeight/2, boxWidth, boxHeight, [10]);
-                    ctx.fill();
-                    ctx.stroke();
-
-                    // Draw symbol
-                    ctx.fillStyle = slotEffect.isSpecial ? '#FDE047' : '#FFFFFF';
-                    ctx.fillText(slotEffect.currentSymbol, 0, 0);
-                    ctx.restore();
                 }
                 
                 requestAnimationFrame(gameLoop);
@@ -396,47 +346,154 @@
                 });
             }
 
-            function playSlotSpinAnimation() {
-                return new Promise(resolve => {
-                    // 1. Appear
-                    slotEffect = {
-                        x: canvas.width * 0.75,
-                        y: canvas.height * 0.65,
-                        isSpinning: true,
-                        isSpecial: false,
-                        currentSymbol: '❌',
-                        life: 0,
-                        duration: 30, // Appear duration in frames
-                        state: 'appearing'
-                    };
+            const SlotMachineEffect = {
+                x: 0, y: 0,
+                state: 'idle', // idle, appearing, spinning, landing, holding, fading
+                life: 0,
+                duration: 0,
+                symbols: ['❌', '⚡', '❌', '❌', '⚡', '❌'], // Weighted for special
+                reelY: 0,
+                spinVelocity: 0,
+                targetReelY: 0,
+                targetSymbolIndex: 0,
+                currentScale: 0,
+                currentOpacity: 0,
+                isSpecial: false,
+
+                start() {
+                    this.x = canvas.width * 0.75;
+                    this.y = canvas.height * 0.65;
+                    this.state = 'appearing';
+                    this.life = 0;
+                    this.duration = 20; // Appear frames
+                    this.spinVelocity = 80 + Math.random() * 40; // Randomized initial speed
+                    this.targetSymbolIndex = Math.floor(Math.random() * this.symbols.length);
+                    this.isSpecial = this.symbols[this.targetSymbolIndex] === '⚡';
+                    this.reelY = 0;
+                    return new Promise(resolve => {
+                        this.onComplete = resolve;
+                    });
+                },
+
+                update() {
+                    this.life++;
+                    const progress = Math.min(this.life / this.duration, 1);
+
+                    if (this.state === 'appearing') {
+                        const t = easeOutBack(progress);
+                        this.currentScale = t;
+                        this.currentOpacity = t;
+                        if (progress >= 1) {
+                            this.state = 'spinning';
+                            this.life = 0;
+                            this.duration = 60; // Spin for 1s
+                        }
+                    } else if (this.state === 'spinning') {
+                        this.reelY += this.spinVelocity;
+                        this.spinVelocity *= 0.98; // Natural slowdown
+                        if (progress >= 1) {
+                            this.state = 'landing';
+                            this.life = 0;
+                            this.duration = 50; // Landing animation duration
+                            
+                            const slotSize = canvas.width * 0.15;
+                            const totalReelHeight = this.symbols.length * slotSize;
+                            
+                            // Calculate the final target Y position for perfect centering
+                            const currentRotationOffset = this.reelY % totalReelHeight;
+                            const targetOffset = this.targetSymbolIndex * slotSize;
+                            let distance = targetOffset - currentRotationOffset;
+
+                            // Find the shortest path to the target symbol
+                            if (distance < -totalReelHeight / 2) distance += totalReelHeight;
+                            if (distance > totalReelHeight / 2) distance -= totalReelHeight;
+                            
+                            this.targetReelY = this.reelY + distance;
+                        }
+                    } else if (this.state === 'landing') {
+                         // Ease smoothly towards the final target position
+                        this.reelY += (this.targetReelY - this.reelY) * 0.1;
+
+                        if (Math.abs(this.targetReelY - this.reelY) < 0.5) {
+                            this.reelY = this.targetReelY; // Snap to final position
+                            this.state = 'holding';
+                            this.life = 0;
+                            this.duration = this.isSpecial ? 60 : 25;
+                        }
+
+                    } else if (this.state === 'holding') {
+                        if (progress >= 1) {
+                            this.state = 'fading';
+                            this.life = 0;
+                            this.duration = 20;
+                        }
+                    } else if (this.state === 'fading') {
+                        this.currentOpacity = 1 - progress;
+                        if (progress >= 1) {
+                            this.state = 'idle';
+                            slotEffect = null;
+                            this.onComplete(this.symbols[this.targetSymbolIndex]);
+                        }
+                    }
+                },
+
+                draw(ctx) {
+                    if (this.state === 'idle') return;
                     
-                    // 2. Stop spinning and show result
-                    setTimeout(() => {
-                        slotEffect.isSpinning = false;
-                        const spinResult = Math.random() < 0.2 ? '⚡' : '❌'; // 20% chance for special
-                        slotEffect.currentSymbol = spinResult;
-                        slotEffect.isSpecial = spinResult === '⚡';
-                        slotEffect.state = 'holding';
-                        slotEffect.life = 0; // Reset life for next state
-                        const holdDuration = slotEffect.isSpecial ? 1000 : 400;
-                        slotEffect.duration = (holdDuration / 1000) * 60;
+                    const slotSize = canvas.width * 0.15;
+                    const boxWidth = slotSize * 1.2;
+                    const boxHeight = slotSize * 1.2;
+                    
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    ctx.scale(this.currentScale, this.currentScale);
+                    ctx.globalAlpha = this.currentOpacity;
+                    
+                    // Draw slot machine body
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                    ctx.strokeStyle = '#FDE047';
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    ctx.roundRect(-boxWidth/2, -boxHeight/2, boxWidth, boxHeight, [10]);
+                    ctx.fill();
+                    ctx.stroke();
 
-                        // 3. Fade out
-                        setTimeout(() => {
-                            slotEffect.state = 'fading';
-                            slotEffect.life = 0; // Reset life
-                            slotEffect.duration = 20; // Fade duration in frames
+                    // Clip to inside the box to hide overflowing symbols
+                    ctx.clip();
 
-                            // 4. Clean up and resolve
-                            setTimeout(() => {
-                                slotEffect = null;
-                                resolve(spinResult);
-                            }, 350);
+                    // Pulsing glow for special result
+                    if (this.state === 'holding' && this.isSpecial) {
+                        const glowProgress = (this.life % 30) / 30;
+                        const pulse = Math.sin(glowProgress * Math.PI);
+                        ctx.shadowBlur = 10 + pulse * 15;
+                        ctx.shadowColor = 'rgba(253, 224, 71, 1)';
+                    }
+                    
+                    // Calculate which symbol is currently centered and its offset
+                    const currentSymbolFloat = this.reelY / slotSize;
+                    const centerIndex = Math.floor(currentSymbolFloat);
+                    const offset = (currentSymbolFloat - centerIndex) * slotSize;
 
-                        }, holdDuration);
+                    // Draw a few symbols around the center for a smooth scroll effect
+                    for (let i = -2; i <= 2; i++) {
+                        const symbolIndex = (centerIndex + i + this.symbols.length * 100) % this.symbols.length; // Ensure positive index
+                        const symbol = this.symbols[symbolIndex];
+                        const yPos = (i * slotSize) - offset;
 
-                    }, 800); // Spinning duration
-                });
+                        // Only draw symbols that are visible within the box
+                        if (Math.abs(yPos) < boxHeight) {
+                           ctx.fillStyle = symbol === '⚡' ? '#FDE047' : '#FFFFFF';
+                           ctx.font = `${slotSize}px sans-serif`;
+                           ctx.fillText(symbol, 0, yPos);
+                        }
+                    }
+                    ctx.restore();
+                }
+            };
+
+            function playSlotSpinAnimation() {
+                slotEffect = Object.create(SlotMachineEffect);
+                return slotEffect.start();
             }
 
             async function spawnNextEnemy() {
@@ -547,7 +604,5 @@
 
 </body>
 </html>
-
-
 
 
