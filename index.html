@@ -17,7 +17,7 @@
         /* Custom styles for the game canvas */
         #game-canvas {
             /* New Gradient Background */
-            background: radial-gradient(ellipse at center, #4a5568 0%, #1a202c 70%);
+            background: linear-gradient(135deg, #371f47 0%, #111827 60%, #000000 100%);
             border-radius: 0.5rem;
             display: block; /* Ensures it behaves as a block element */
             transform-origin: center center; /* Ensure animations scale from the center */
@@ -56,6 +56,25 @@
             50% { box-shadow: 0 0 20px 8px rgba(239, 68, 68, 0.7); }
         }
 
+        /* Shield bar container flash on hit */
+        .shield-flash {
+            animation: shield-flash-animation 0.4s ease-out;
+        }
+        @keyframes shield-flash-animation {
+            0%, 100% { box-shadow: 0 0 0 0px rgba(59, 130, 246, 0); }
+            50% { box-shadow: 0 0 20px 8px rgba(59, 130, 246, 0.7); }
+        }
+
+        /* Special attack flash */
+        .special-attack-flash {
+             animation: special-attack-flash-animation 0.5s ease-out;
+        }
+        @keyframes special-attack-flash-animation {
+            0%, 100% { background-color: transparent; }
+            50% { background-color: rgba(253, 224, 71, 0.5); }
+        }
+
+
         /* CRT Filter Styles */
         .crt-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -89,9 +108,9 @@
                 </div>
             </div>
 
-            <!-- Energy Meter -->
+            <!-- Player Special Meter -->
             <div class="flex-1 bg-yellow-900 relative flex items-center justify-center">
-                <div id="energy-bar" class="bg-yellow-400 h-full absolute top-0 left-0"></div>
+                <div id="energy-bar" class="bg-yellow-400 h-full absolute top-0 left-0 transition-all duration-300 ease-out"></div>
                 <div class="relative z-10 flex items-center">
                     <span class="text-2xl" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">✨</span>
                 </div>
@@ -99,7 +118,7 @@
 
             <!-- Shield Meter -->
             <div class="flex-1 bg-blue-950 relative flex items-center justify-center">
-                <div id="shield-bar" class="bg-sky-400 h-full absolute top-0 left-0"></div>
+                <div id="shield-bar" class="bg-sky-400 h-full absolute top-0 left-0 transition-all duration-300 ease-out"></div>
                 <div class="relative z-10 flex items-center">
                     <span class="text-2xl" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">🛡️</span>
                 </div>
@@ -126,25 +145,29 @@
              <div id="canvas-wrapper" class="relative w-full h-full flex items-center justify-center">
                 <canvas id="game-canvas"></canvas>
                 <!-- Enemy Status Bars -->
-                <div id="enemy-stats" class="absolute bottom-4 w-3/4 max-w-xs h-8 flex rounded-lg overflow-hidden shadow-lg border-2 border-gray-700 opacity-0 transition-opacity duration-300">
+                <div id="enemy-stats" class="absolute top-4 w-3/4 max-w-xs h-5 flex rounded-lg overflow-hidden shadow-lg border-2 border-gray-700 opacity-0 transition-opacity duration-300">
                     <!-- Enemy Health -->
                     <div class="flex-1 bg-red-950 relative flex items-center justify-center">
                         <div id="enemy-health-bar" class="bg-red-500 h-full absolute top-0 left-0 transition-all duration-300 ease-out"></div>
-                        <div class="relative z-10 flex items-center text-lg" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">❤️</div>
+                        <div class="relative z-10 flex items-center text-base" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">❤️</div>
                     </div>
                     <!-- Enemy Special -->
                     <div class="flex-1 bg-yellow-900 relative flex items-center justify-center">
-                        <div id="enemy-special-bar" class="bg-yellow-400 h-full absolute top-0 left-0"></div>
-                         <div class="relative z-10 flex items-center text-lg" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">⚡</div>
+                        <div id="enemy-special-bar" class="bg-yellow-400 h-full absolute top-0 left-0 transition-all duration-300 ease-out"></div>
+                         <div class="relative z-10 flex items-center text-base" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">⚡</div>
                     </div>
                 </div>
             </div>
         </main>
 
         <!-- Controls Area -->
-        <footer class="flex-shrink-0 mt-4 flex justify-center items-center">
+        <footer class="flex-shrink-0 mt-4 flex justify-center items-center space-x-4">
             <!-- Action Button -->
-            <button id="action-btn-a" class="w-24 h-24 bg-purple-600 rounded-full flex items-center justify-center control-btn shadow-[0_0_0_1px_#FDE047,0_0_0_2px_#06B6D4,0_0_0_3px_#EC4899]"></button>
+            <button id="action-btn-a" class="w-24 h-24 bg-purple-600 rounded-full flex items-center justify-center control-btn shadow-[0_0_0_1px_#FDE047,0_0_0_2px_#06B6D4,0_0_0_3px_#EC4899]">
+            </button>
+            <!-- Special Attack Button -->
+            <button id="special-attack-btn" class="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center control-btn shadow-[0_0_0_1px_#FDE047,0_0_0_2px_#06B6D4,0_0_0_3px_#EC4899]">
+            </button>
         </footer>
 
     </div>
@@ -159,19 +182,24 @@
             const main = document.querySelector('main');
             const gameContainer = document.getElementById('game-container');
             const healthBar = document.getElementById('health-bar');
+            const energyBar = document.getElementById('energy-bar');
+            const shieldBar = document.getElementById('shield-bar');
             const actionButton = document.getElementById('action-btn-a');
+            const specialAttackButton = document.getElementById('special-attack-btn');
             const enemyStats = document.getElementById('enemy-stats');
             const enemyHealthBar = document.getElementById('enemy-health-bar');
             const enemySpecialBar = document.getElementById('enemy-special-bar');
 
             // --- Game State ---
-            let player = { health: 10, maxHealth: 10 };
+            let player = { health: 10, maxHealth: 10, armor: 5, maxArmor: 5, specialPoints: 3, maxSpecialPoints: 3 };
             const enemies = ['👹', '👻', '💀', '👽', '🤖', '🎃', '🤡', '😈', '🐲'];
+            const slotSymbols = ['❌', '⚡'];
             let currentEnemyIndex = 0;
             let enemy = null; 
             let gameOver = false;
             let gameWon = false;
             let isAnimating = false;
+            let slotEffect = null;
 
             // --- Helper Functions ---
             function triggerAnimation(element, className) {
@@ -194,7 +222,11 @@
             // --- UI Update ---
             function updateMeters() {
                 const healthPercent = (player.health / player.maxHealth) * 100;
+                const armorPercent = (player.armor / player.maxArmor) * 100;
+                const specialPercent = (player.specialPoints / player.maxSpecialPoints) * 100;
                 healthBar.style.width = `${healthPercent}%`;
+                shieldBar.style.width = `${armorPercent}%`;
+                energyBar.style.width = `${specialPercent}%`;
             }
 
             function updateEnemyMeters() {
@@ -204,11 +236,10 @@
                 }
                 enemyStats.classList.remove('opacity-0');
                 const healthPercent = (enemy.hp / enemy.maxHp) * 100;
+                const specialPercent = (enemy.specialPoints / enemy.maxSpecialPoints) * 100;
                 enemyHealthBar.style.width = `${healthPercent}%`;
-                // For now special meter is full
-                enemySpecialBar.style.width = '100%';
+                enemySpecialBar.style.width = `${specialPercent}%`;
             }
-
 
             // --- Canvas Sizing ---
             function resizeCanvas() {
@@ -240,16 +271,13 @@
                     const t = Math.sin(progress * Math.PI * 4); // Fast oscillation
                     enemy.xOffset = t * 10;
                 } else if (anim.type === 'attack') {
-                    // Lunge forward and back
-                    const progressMid = Math.abs(progress - 0.5) * 2; // Goes from 1 -> 0 -> 1
-                    const t = 1 - progressMid; // Goes from 0 -> 1 -> 0
-                    enemy.yOffset = t * 30; // Move down and back up
-                    enemy.scale = 1 + t * 0.2; // Scale up and back down
+                    const progressMid = Math.abs(progress - 0.5) * 2;
+                    const t = 1 - progressMid;
+                    enemy.yOffset = t * 30;
+                    enemy.scale = 1 + t * 0.2;
                 }
 
-
                 if (anim.frame >= anim.duration) {
-                    // Reset properties after any animation
                     enemy.animation = null;
                     enemy.xOffset = 0;
                     enemy.yOffset = 0;
@@ -260,7 +288,7 @@
             
             // --- Game Drawing Loop ---
             function gameLoop() {
-                updateEnemyAnimation(); // Update animation states first
+                updateEnemyAnimation();
 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.textAlign = 'center';
@@ -273,17 +301,73 @@
                 } else if (enemy) {
                     ctx.save();
                     ctx.globalAlpha = enemy.opacity;
-                    
-                    // Apply transformations for animation
                     const centerX = canvas.width / 2 + enemy.xOffset;
                     const centerY = canvas.height / 2 + enemy.yOffset;
                     ctx.translate(centerX, centerY);
                     ctx.rotate(enemy.rotation * Math.PI / 180);
                     ctx.scale(enemy.scale, enemy.scale);
-                    
                     const enemyFontSize = canvas.width * 0.4;
                     ctx.font = `${enemyFontSize}px sans-serif`;
                     ctx.fillText(enemy.emoji, 0, 0);
+                    ctx.restore();
+                }
+
+                // --- Draw Slot Effect ---
+                if (slotEffect) {
+                    if(slotEffect.isSpinning && slotEffect.life % 2 === 0) {
+                        slotEffect.currentSymbol = slotSymbols[Math.floor(Math.random() * 2)];
+                    }
+                    slotEffect.life++;
+                    
+                    const animProgress = Math.min(slotEffect.life / slotEffect.duration, 1);
+                    
+                    let opacity = 0;
+                    let scale = 0;
+
+                    if (slotEffect.state === 'appearing') {
+                        const t = easeOutBack(animProgress);
+                        opacity = t;
+                        scale = t;
+                    } else if (slotEffect.state === 'holding') {
+                        opacity = 1;
+                        scale = 1;
+                        if (slotEffect.isSpecial) {
+                            // Pulsing glow effect
+                            const glowProgress = (slotEffect.life % 30) / 30; // 0.5s pulse
+                            const pulse = Math.sin(glowProgress * Math.PI);
+                            ctx.shadowBlur = 10 + pulse * 15;
+                            ctx.shadowColor = 'rgba(253, 224, 71, 1)';
+                        }
+                    } else if (slotEffect.state === 'fading') {
+                        opacity = 1 - animProgress;
+                        scale = 1;
+                    }
+                    
+                    ctx.save();
+                    const slotSize = canvas.width * 0.15;
+                    ctx.font = `${slotSize}px sans-serif`;
+                    ctx.globalAlpha = opacity;
+                    
+                    const centerX = slotEffect.x;
+                    const centerY = slotEffect.y;
+                    
+                    ctx.translate(centerX, centerY);
+                    ctx.scale(scale, scale);
+                    
+                    // Draw slot machine background
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                    ctx.strokeStyle = '#FDE047';
+                    ctx.lineWidth = 4;
+                    const boxWidth = slotSize * 1.2;
+                    const boxHeight = slotSize * 1.2;
+                    ctx.beginPath();
+                    ctx.roundRect(-boxWidth/2, -boxHeight/2, boxWidth, boxHeight, [10]);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    // Draw symbol
+                    ctx.fillStyle = slotEffect.isSpecial ? '#FDE047' : '#FFFFFF';
+                    ctx.fillText(slotEffect.currentSymbol, 0, 0);
                     ctx.restore();
                 }
                 
@@ -292,8 +376,9 @@
             
             function createEnemy(index) {
                 return {
-                    hp: 3 + index, maxHp: 3 + index, emoji: enemies[index],
-                    // Animation properties
+                    hp: 3 + index, maxHp: 3 + index,
+                    specialPoints: 3, maxSpecialPoints: 3,
+                    emoji: enemies[index],
                     scale: 0, rotation: 0, opacity: 0, xOffset: 0, yOffset: 0,
                     animation: null
                 };
@@ -303,16 +388,61 @@
                 if (!enemy) return Promise.resolve();
                 return new Promise(resolve => {
                     let duration = 1;
-                    if (type === 'hit') duration = 18;      // 0.3s
-                    else if (type === 'die') duration = 30; // 0.5s
-                    else if (type === 'appear') duration = 24; // 0.4s
-                    else if (type === 'attack') duration = 24; // 0.4s
-                    
+                    if (type === 'hit') duration = 18;
+                    else if (type === 'die') duration = 30;
+                    else if (type === 'appear') duration = 24;
+                    else if (type === 'attack') duration = 24;
                     enemy.animation = { type, duration, frame: 0, onComplete: resolve };
                 });
             }
 
+            function playSlotSpinAnimation() {
+                return new Promise(resolve => {
+                    // 1. Appear
+                    slotEffect = {
+                        x: canvas.width * 0.75,
+                        y: canvas.height * 0.65,
+                        isSpinning: true,
+                        isSpecial: false,
+                        currentSymbol: '❌',
+                        life: 0,
+                        duration: 30, // Appear duration in frames
+                        state: 'appearing'
+                    };
+                    
+                    // 2. Stop spinning and show result
+                    setTimeout(() => {
+                        slotEffect.isSpinning = false;
+                        const spinResult = Math.random() < 0.2 ? '⚡' : '❌'; // 20% chance for special
+                        slotEffect.currentSymbol = spinResult;
+                        slotEffect.isSpecial = spinResult === '⚡';
+                        slotEffect.state = 'holding';
+                        slotEffect.life = 0; // Reset life for next state
+                        const holdDuration = slotEffect.isSpecial ? 1000 : 400;
+                        slotEffect.duration = (holdDuration / 1000) * 60;
+
+                        // 3. Fade out
+                        setTimeout(() => {
+                            slotEffect.state = 'fading';
+                            slotEffect.life = 0; // Reset life
+                            slotEffect.duration = 20; // Fade duration in frames
+
+                            // 4. Clean up and resolve
+                            setTimeout(() => {
+                                slotEffect = null;
+                                resolve(spinResult);
+                            }, 350);
+
+                        }, holdDuration);
+
+                    }, 800); // Spinning duration
+                });
+            }
+
             async function spawnNextEnemy() {
+                player.armor = player.maxArmor;
+                updateMeters();
+
                 currentEnemyIndex++;
                 if (currentEnemyIndex >= enemies.length) {
                     gameWon = true;
@@ -323,15 +453,13 @@
                 }
             }
 
-            // --- Event Listener ---
-            actionButton.addEventListener('click', async () => {
+            async function handlePlayerAttack(damage) {
                 if (isAnimating || gameOver || gameWon || !enemy) return;
                 isAnimating = true;
 
-                triggerAnimation(actionButton, 'animate-press');
                 await playEnemyAnimation('hit');
                 
-                enemy.hp -= 1;
+                enemy.hp -= damage;
                 updateEnemyMeters();
                 
                 if (enemy.hp <= 0) {
@@ -341,14 +469,38 @@
                     await new Promise(r => setTimeout(r, 200));
                     await spawnNextEnemy();
                 } else {
-                    await new Promise(r => setTimeout(r, 400));
-                    if (gameOver) return;
+                    // Enemy turn
+                    await new Promise(r => setTimeout(r, 200));
+                    if (gameOver) {
+                        isAnimating = false;
+                        return;
+                    }
 
-                    // Enemy retaliates
-                    playEnemyAnimation('attack'); // Play attack anim, no need to wait for it
+                    const spinResult = await playSlotSpinAnimation();
+                    
+                    playEnemyAnimation('attack');
                     triggerAnimation(gameContainer, 'shake-hard');
-                    triggerAnimation(healthBar.parentElement.parentElement, 'health-flash');
-                    player.health -= 1;
+                    
+                    const isSpecialAttack = spinResult === '⚡' && enemy.specialPoints > 0;
+                    const enemyDamage = isSpecialAttack ? 3 : 1;
+
+                    if (isSpecialAttack) {
+                        enemy.specialPoints--;
+                        triggerAnimation(main, 'special-attack-flash');
+                    }
+                    
+                    const damageToArmor = Math.min(player.armor, enemyDamage);
+                    const damageToHealth = enemyDamage - damageToArmor;
+
+                    player.armor -= damageToArmor;
+                    player.health -= damageToHealth;
+
+                    if (!isSpecialAttack) {
+                        if (damageToHealth > 0) triggerAnimation(healthBar.parentElement, 'health-flash');
+                        if (damageToArmor > 0) triggerAnimation(shieldBar.parentElement, 'shield-flash');
+                    }
+                    
+                    updateEnemyMeters();
                     updateMeters();
 
                     if (player.health <= 0) {
@@ -358,8 +510,23 @@
                     }
                 }
                 
-                await new Promise(r => setTimeout(r, 400)); // Cooldown
+                await new Promise(r => setTimeout(r, 400));
                 isAnimating = false;
+            }
+
+            // --- Event Listeners ---
+            actionButton.addEventListener('click', async () => {
+                triggerAnimation(actionButton, 'animate-press');
+                await handlePlayerAttack(1);
+            });
+
+            specialAttackButton.addEventListener('click', async () => {
+                if (player.specialPoints > 0 && !isAnimating) {
+                    player.specialPoints--;
+                    updateMeters();
+                    triggerAnimation(specialAttackButton, 'animate-press');
+                    await handlePlayerAttack(3);
+                }
             });
 
             // --- Initial Setup ---
@@ -369,8 +536,8 @@
                 updateMeters();
                 enemy = createEnemy(currentEnemyIndex);
                 updateEnemyMeters();
-                gameLoop(); // Start the loop
-                await new Promise(r => setTimeout(r, 200)); // Small delay before first spawn
+                gameLoop();
+                await new Promise(r => setTimeout(r, 200));
                 await playEnemyAnimation('appear');
             }
             
@@ -380,4 +547,7 @@
 
 </body>
 </html>
+
+
+
 
