@@ -55,34 +55,26 @@
             </header>
 
             <!-- 2. Larger Central Section 1: Main Game View -->
-            <main class="flex-grow bg-cover bg-center bg-[url('https://placehold.co/400x600/1e293b/94a3b8?text=Game+Screen')] flex items-center justify-center">
-                <div class="text-center p-4 bg-black/50 rounded-xl">
-                    <h1 class="text-3xl font-bold text-white">GAME AREA</h1>
-                    <p class="text-slate-300">Main gameplay happens here.</p>
-                </div>
+            <main class="flex-1 bg-cover bg-center bg-[url('https://placehold.co/400x600/1e293b/94a3b8')] flex items-center justify-center">
+                <!-- Content removed as requested -->
             </main>
 
             <!-- 3. Larger Central Section 2: Character/Info View -->
-            <section class="flex-grow bg-slate-800/70 p-4 flex flex-col items-center justify-center border-y-2 border-slate-700 backdrop-blur-sm">
-                <h2 class="text-xl font-bold text-white mb-2">Character Status</h2>
-                <div class="w-20 h-20 rounded-full bg-blue-500 border-4 border-slate-600 mb-2 flex items-center justify-center">
-                    <i class="ph-fill ph-user text-4xl text-white"></i>
-                </div>
-                <p class="text-slate-200 font-semibold">Hero Level 12</p>
-                <p class="text-xs text-slate-400">Next Level: 1500 XP</p>
+            <section class="flex-1 bg-slate-800/70 p-4 flex flex-col items-center justify-center border-y-2 border-slate-700 backdrop-blur-sm">
+                <!-- Character icon removed as requested -->
             </section>
 
             <!-- 4. Smaller Section Below: Action Buttons -->
-            <section class="flex-shrink-0 h-32 bg-slate-800/50 p-3 grid grid-cols-3 gap-3 items-center">
-                <button class="h-20 bg-red-600/80 text-white rounded-lg flex flex-col items-center justify-center hover:bg-red-500 transition-all transform hover:scale-105">
+            <section class="flex-shrink-0 h-24 bg-slate-800/50 p-3 grid grid-cols-3 gap-3 items-center">
+                <button class="h-16 bg-red-600/80 text-white rounded-lg flex flex-col items-center justify-center hover:bg-red-500 transition-all transform hover:scale-105 active:scale-95">
                     <i class="ph-fill ph-sword text-3xl"></i>
                     <span class="text-sm font-semibold">Attack</span>
                 </button>
-                <button class="h-24 bg-blue-600/80 text-white rounded-lg flex flex-col items-center justify-center hover:bg-blue-500 transition-all transform hover:scale-105 btn-primary">
+                <button class="h-16 bg-blue-600/80 text-white rounded-lg flex flex-col items-center justify-center hover:bg-blue-500 transition-all transform hover:scale-105 btn-primary active:scale-95">
                     <i class="ph-fill ph-magic-wand text-3xl"></i>
                     <span class="text-sm font-semibold">Spell</span>
                 </button>
-                <button class="h-20 bg-green-600/80 text-white rounded-lg flex flex-col items-center justify-center hover:bg-green-500 transition-all transform hover:scale-105">
+                <button class="h-16 bg-green-600/80 text-white rounded-lg flex flex-col items-center justify-center hover:bg-green-500 transition-all transform hover:scale-105 active:scale-95">
                     <i class="ph-fill ph-potion text-3xl"></i>
                     <span class="text-sm font-semibold">Item</span>
                 </button>
@@ -95,8 +87,8 @@
                     <span class="text-xs">Map</span>
                 </a>
                 <a href="#" class="text-white flex flex-col items-center gap-1">
-                    <div class="w-14 h-14 rounded-full bg-sky-500 flex items-center justify-center -mt-8 border-4 border-slate-700 shadow-lg shadow-sky-500/30">
-                        <i class="ph ph-sword text-3xl"></i>
+                    <div class="w-16 h-16 rounded-full bg-sky-500 flex items-center justify-center -mt-4 border-4 border-slate-700 shadow-lg shadow-sky-500/30 transition-transform duration-100 ease-in-out active:scale-90">
+                        <i class="ph ph-sword text-4xl"></i>
                     </div>
                     <span class="text-xs mt-1">Battle</span>
                 </a>
@@ -111,3 +103,6 @@
 
 </body>
 </html>
+
+
+
