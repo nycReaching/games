@@ -1,608 +1,113 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mobile Game UI</title>
+    <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+    <!-- Phosphor Icons for UI elements -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        /* Use a game-like font */
+        /* Using a custom font for a better look */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body {
-            font-family: 'Inter', sans-serif; /* A more modern, clean font */
-            touch-action: manipulation; /* Prevents double-tap to zoom on buttons */
-            -webkit-tap-highlight-color: transparent; /* Removes tap highlight on mobile */
-            overflow: hidden; /* Prevent scrolling */
+            font-family: 'Inter', sans-serif;
         }
-        /* Custom styles for the game canvas */
-        #game-canvas {
-            /* New Gradient Background */
-            background: linear-gradient(135deg, #371f47 0%, #111827 60%, #000000 100%);
-            border-radius: 0.5rem;
-            display: block; /* Ensures it behaves as a block element */
-            transform-origin: center center; /* Ensure animations scale from the center */
+        /* Custom styles for a glowing effect on buttons */
+        .btn-primary {
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.4), 0 0 20px rgba(59, 130, 246, 0.3);
         }
-        /* Style for the control buttons for a tactile feel */
-        .control-btn {
-            transition: transform 0.1s ease;
-        }
-
-        /* Animation class for button press */
-        .animate-press {
-            animation: press-animation 0.2s ease-out;
-        }
-
-        @keyframes press-animation {
-            0% { transform: scale(1); filter: brightness(100%); }
-            50% { transform: scale(0.85); filter: brightness(160%); }
-            100% { transform: scale(1); filter: brightness(100%); }
-        }
-        
-        /* Screen shake animation for player getting hit */
-        .shake-hard { animation: shake-hard-animation 0.4s cubic-bezier(.36,.07,.19,.97) both; }
-        @keyframes shake-hard-animation {
-          10%, 90% { transform: translate3d(-1px, 0, 0); }
-          20%, 80% { transform: translate3d(2px, 0, 0); }
-          30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-          40%, 60% { transform: translate3d(4px, 0, 0); }
-        }
-
-        /* Health bar container flash on hit */
-        .health-flash {
-            animation: health-flash-animation 0.4s ease-out;
-        }
-        @keyframes health-flash-animation {
-            0%, 100% { box-shadow: 0 0 0 0px rgba(239, 68, 68, 0); }
-            50% { box-shadow: 0 0 20px 8px rgba(239, 68, 68, 0.7); }
-        }
-
-        /* Shield bar container flash on hit */
-        .shield-flash {
-            animation: shield-flash-animation 0.4s ease-out;
-        }
-        @keyframes shield-flash-animation {
-            0%, 100% { box-shadow: 0 0 0 0px rgba(59, 130, 246, 0); }
-            50% { box-shadow: 0 0 20px 8px rgba(59, 130, 246, 0.7); }
-        }
-
-        /* Special attack flash */
-        .special-attack-flash {
-             animation: special-attack-flash-animation 0.5s ease-out;
-        }
-        @keyframes special-attack-flash-animation {
-            0%, 100% { background-color: transparent; }
-            50% { background-color: rgba(253, 224, 71, 0.5); }
-        }
-
-
-        /* CRT Filter Styles */
-        .crt-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            pointer-events: none; z-index: 9999;
-        }
-        .crt-overlay::after {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 200%;
-            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.3) 1.5px, rgba(0,0,0,0.1) 3px);
-            animation: scanline 10s linear infinite;
-        }
-        @keyframes scanline { from { transform: translateY(0); } to { transform: translateY(-50%); } }
-        .crt-overlay::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(ellipse at center, rgba(0,0,0,0) 60%, rgba(0,0,0,0.6));
-            opacity: 0.7;
+        .icon-glow {
+             filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white h-full flex flex-col antialiased">
+<body class="bg-slate-900 flex items-center justify-center min-h-screen p-4">
 
-    <!-- Main Game Container -->
-    <div id="game-container" class="w-full h-full max-w-md mx-auto flex flex-col p-4">
+    <!-- This container simulates the phone's screen -->
+    <div id="phone-ui" class="w-full max-w-sm h-[800px] max-h-[90vh] bg-slate-800 rounded-3xl shadow-2xl shadow-blue-500/10 p-2 border-4 border-slate-700 overflow-hidden">
+        
+        <!-- Main flex container for the 5 sections -->
+        <div class="flex flex-col h-full w-full bg-slate-900 rounded-2xl">
 
-        <!-- Header: Game Stats -->
-        <header class="flex-shrink-0 flex w-full rounded-lg mb-4 overflow-hidden h-12 shadow-[0_0_0_1px_#FDE047,0_0_0_2px_#06B6D4,0_0_0_3px_#EC4899]">
-            <!-- Health Meter -->
-            <div class="flex-1 bg-red-950 relative flex items-center justify-center">
-                <div id="health-bar" class="bg-red-500 h-full absolute top-0 left-0 transition-all duration-300 ease-out"></div>
-                <div class="relative z-10 flex items-center">
-                    <span class="text-2xl" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">❤️</span>
+            <!-- 1. Slim Top Section: Status Bar -->
+            <header class="flex-shrink-0 h-16 bg-slate-800/50 rounded-t-2xl p-3 flex justify-between items-center border-b border-slate-700">
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-1 text-yellow-400">
+                        <i class="ph-fill ph-coin text-2xl icon-glow"></i>
+                        <span class="font-bold text-lg">1,250</span>
+                    </div>
+                    <div class="flex items-center gap-1 text-green-400">
+                        <i class="ph-fill ph-leaf text-2xl icon-glow"></i>
+                        <span class="font-bold text-lg">99+</span>
+                    </div>
                 </div>
-            </div>
-
-            <!-- Player Special Meter -->
-            <div class="flex-1 bg-yellow-900 relative flex items-center justify-center">
-                <div id="energy-bar" class="bg-yellow-400 h-full absolute top-0 left-0 transition-all duration-300 ease-out"></div>
-                <div class="relative z-10 flex items-center">
-                    <span class="text-2xl" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">✨</span>
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-1 text-red-500">
+                        <i class="ph-fill ph-heart text-2xl icon-glow"></i>
+                        <span class="font-bold text-lg">3/5</span>
+                    </div>
+                    <div class="w-24 h-4 bg-slate-700 rounded-full overflow-hidden">
+                         <div class="h-full bg-sky-400" style="width: 75%;"></div>
+                    </div>
                 </div>
-            </div>
+            </header>
 
-            <!-- Shield Meter -->
-            <div class="flex-1 bg-blue-950 relative flex items-center justify-center">
-                <div id="shield-bar" class="bg-sky-400 h-full absolute top-0 left-0 transition-all duration-300 ease-out"></div>
-                <div class="relative z-10 flex items-center">
-                    <span class="text-2xl" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">🛡️</span>
+            <!-- 2. Larger Central Section 1: Main Game View -->
+            <main class="flex-grow bg-cover bg-center bg-[url('https://placehold.co/400x600/1e293b/94a3b8?text=Game+Screen')] flex items-center justify-center">
+                <div class="text-center p-4 bg-black/50 rounded-xl">
+                    <h1 class="text-3xl font-bold text-white">GAME AREA</h1>
+                    <p class="text-slate-300">Main gameplay happens here.</p>
                 </div>
-            </div>
-        </header>
+            </main>
 
-        <!-- Equipment Slots -->
-        <div id="equipment-bar" class="flex-shrink-0 my-4">
-            <!-- Slots Container -->
-            <div class="grid grid-cols-4 gap-3">
-                <!-- Slot 1 -->
-                <div class="aspect-square bg-black rounded-lg shadow-[0_0_0_1px_#FDE047,0_0_0_2px_#06B6D4,0_0_0_3px_#EC4899] flex items-center justify-center"><span class="text-4xl md:text-5xl">🗡️</span></div>
-                <!-- Slot 2 -->
-                <div class="aspect-square bg-black rounded-lg shadow-[0_0_0_1px_#FDE047,0_0_0_2px_#06B6D4,0_0_0_3px_#EC4899] flex items-center justify-center"><span class="text-4xl md:text-5xl">🔮</span></div>
-                <!-- Slot 3 -->
-                <div class="aspect-square bg-black rounded-lg shadow-[0_0_0_1px_#FDE047,0_0_0_2px_#06B6D4,0_0_0_3px_#EC4899] flex items-center justify-center"><span class="text-4xl md:text-5xl">🍎</span></div>
-                <!-- Slot 4 -->
-                <div class="aspect-square bg-black rounded-lg shadow-[0_0_0_1px_#FDE047,0_0_0_2px_#06B6D4,0_0_0_3px_#EC4899] flex items-center justify-center"><span class="text-4xl md:text-5xl">🍞</span></div>
-            </div>
+            <!-- 3. Larger Central Section 2: Character/Info View -->
+            <section class="flex-grow bg-slate-800/70 p-4 flex flex-col items-center justify-center border-y-2 border-slate-700 backdrop-blur-sm">
+                <h2 class="text-xl font-bold text-white mb-2">Character Status</h2>
+                <div class="w-20 h-20 rounded-full bg-blue-500 border-4 border-slate-600 mb-2 flex items-center justify-center">
+                    <i class="ph-fill ph-user text-4xl text-white"></i>
+                </div>
+                <p class="text-slate-200 font-semibold">Hero Level 12</p>
+                <p class="text-xs text-slate-400">Next Level: 1500 XP</p>
+            </section>
+
+            <!-- 4. Smaller Section Below: Action Buttons -->
+            <section class="flex-shrink-0 h-32 bg-slate-800/50 p-3 grid grid-cols-3 gap-3 items-center">
+                <button class="h-20 bg-red-600/80 text-white rounded-lg flex flex-col items-center justify-center hover:bg-red-500 transition-all transform hover:scale-105">
+                    <i class="ph-fill ph-sword text-3xl"></i>
+                    <span class="text-sm font-semibold">Attack</span>
+                </button>
+                <button class="h-24 bg-blue-600/80 text-white rounded-lg flex flex-col items-center justify-center hover:bg-blue-500 transition-all transform hover:scale-105 btn-primary">
+                    <i class="ph-fill ph-magic-wand text-3xl"></i>
+                    <span class="text-sm font-semibold">Spell</span>
+                </button>
+                <button class="h-20 bg-green-600/80 text-white rounded-lg flex flex-col items-center justify-center hover:bg-green-500 transition-all transform hover:scale-105">
+                    <i class="ph-fill ph-potion text-3xl"></i>
+                    <span class="text-sm font-semibold">Item</span>
+                </button>
+            </section>
+
+            <!-- 5. Slim Bottom Section: Navigation -->
+            <footer class="flex-shrink-0 h-20 bg-slate-800/50 rounded-b-2xl p-3 flex justify-around items-center border-t border-slate-700">
+                <a href="#" class="text-slate-400 hover:text-white transition-colors flex flex-col items-center gap-1">
+                    <i class="ph ph-map-trifold text-3xl"></i>
+                    <span class="text-xs">Map</span>
+                </a>
+                <a href="#" class="text-white flex flex-col items-center gap-1">
+                    <div class="w-14 h-14 rounded-full bg-sky-500 flex items-center justify-center -mt-8 border-4 border-slate-700 shadow-lg shadow-sky-500/30">
+                        <i class="ph ph-sword text-3xl"></i>
+                    </div>
+                    <span class="text-xs mt-1">Battle</span>
+                </a>
+                <a href="#" class="text-slate-400 hover:text-white transition-colors flex flex-col items-center gap-1">
+                    <i class="ph ph-gear text-3xl"></i>
+                    <span class="text-xs">Settings</span>
+                </a>
+            </footer>
+
         </div>
-
-        <!-- Game Canvas Area -->
-        <main class="flex-grow flex items-center justify-center relative">
-             <div id="canvas-wrapper" class="relative w-full h-full flex items-center justify-center">
-                <canvas id="game-canvas"></canvas>
-                <!-- Enemy Status Bars -->
-                <div id="enemy-stats" class="absolute top-4 w-3/4 max-w-xs h-5 flex rounded-lg overflow-hidden shadow-lg border-2 border-gray-700 opacity-0 transition-opacity duration-300">
-                    <!-- Enemy Health -->
-                    <div class="flex-1 bg-red-950 relative flex items-center justify-center">
-                        <div id="enemy-health-bar" class="bg-red-500 h-full absolute top-0 left-0 transition-all duration-300 ease-out"></div>
-                        <div class="relative z-10 flex items-center text-base" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">❤️</div>
-                    </div>
-                    <!-- Enemy Special -->
-                    <div class="flex-1 bg-yellow-900 relative flex items-center justify-center">
-                        <div id="enemy-special-bar" class="bg-yellow-400 h-full absolute top-0 left-0 transition-all duration-300 ease-out"></div>
-                         <div class="relative z-10 flex items-center text-base" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">⚡</div>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <!-- Controls Area -->
-        <footer class="flex-shrink-0 mt-4 flex justify-center items-center space-x-4">
-            <!-- Action Button -->
-            <button id="action-btn-a" class="w-24 h-24 bg-purple-600 rounded-full flex items-center justify-center control-btn shadow-[0_0_0_1px_#FDE047,0_0_0_2px_#06B6D4,0_0_0_3px_#EC4899]">
-            </button>
-            <!-- Special Attack Button -->
-            <button id="special-attack-btn" class="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center control-btn shadow-[0_0_0_1px_#FDE047,0_0_0_2px_#06B6D4,0_0_0_3px_#EC4899]">
-            </button>
-        </footer>
-
     </div>
-
-    <!-- CRT Filter Overlay -->
-    <div class="crt-overlay"></div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const canvas = document.getElementById('game-canvas');
-            const ctx = canvas.getContext('2d');
-            const main = document.querySelector('main');
-            const gameContainer = document.getElementById('game-container');
-            const healthBar = document.getElementById('health-bar');
-            const energyBar = document.getElementById('energy-bar');
-            const shieldBar = document.getElementById('shield-bar');
-            const actionButton = document.getElementById('action-btn-a');
-            const specialAttackButton = document.getElementById('special-attack-btn');
-            const enemyStats = document.getElementById('enemy-stats');
-            const enemyHealthBar = document.getElementById('enemy-health-bar');
-            const enemySpecialBar = document.getElementById('enemy-special-bar');
-
-            // --- Game State ---
-            let player = { health: 10, maxHealth: 10, armor: 5, maxArmor: 5, specialPoints: 3, maxSpecialPoints: 3 };
-            const enemies = ['👹', '👻', '💀', '👽', '🤖', '🎃', '🤡', '😈', '🐲'];
-            const slotSymbols = ['❌', '⚡'];
-            let currentEnemyIndex = 0;
-            let enemy = null; 
-            let gameOver = false;
-            let gameWon = false;
-            let isAnimating = false;
-            let slotEffect = null;
-
-            // --- Helper Functions ---
-            function triggerAnimation(element, className) {
-                element.classList.remove(className);
-                void element.offsetWidth; 
-                element.classList.add(className);
-                element.addEventListener('animationend', () => {
-                    element.classList.remove(className);
-                }, { once: true });
-            }
-            
-            // --- Easing function for smooth animations ---
-            function easeInCubic(t) { return t * t * t; }
-            function easeOutBack(t) {
-                const c1 = 1.70158;
-                const c3 = c1 + 1;
-                return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
-            }
-
-            // --- UI Update ---
-            function updateMeters() {
-                const healthPercent = (player.health / player.maxHealth) * 100;
-                const armorPercent = (player.armor / player.maxArmor) * 100;
-                const specialPercent = (player.specialPoints / player.maxSpecialPoints) * 100;
-                healthBar.style.width = `${healthPercent}%`;
-                shieldBar.style.width = `${armorPercent}%`;
-                energyBar.style.width = `${specialPercent}%`;
-            }
-
-            function updateEnemyMeters() {
-                if (!enemy) {
-                    enemyStats.classList.add('opacity-0');
-                    return;
-                }
-                enemyStats.classList.remove('opacity-0');
-                const healthPercent = (enemy.hp / enemy.maxHp) * 100;
-                const specialPercent = (enemy.specialPoints / enemy.maxSpecialPoints) * 100;
-                enemyHealthBar.style.width = `${healthPercent}%`;
-                enemySpecialBar.style.width = `${specialPercent}%`;
-            }
-
-            // --- Canvas Sizing ---
-            function resizeCanvas() {
-                const mainRect = document.getElementById('canvas-wrapper').getBoundingClientRect();
-                const size = Math.min(mainRect.width, mainRect.height) * 0.9;
-                canvas.width = size;
-                canvas.height = size;
-            }
-
-            // --- Animation Controller ---
-            function updateEnemyAnimation() {
-                if (!enemy || !enemy.animation) return;
-
-                const anim = enemy.animation;
-                anim.frame++;
-                const progress = Math.min(anim.frame / anim.duration, 1);
-
-                if (anim.type === 'appear') {
-                    const t = easeOutBack(progress);
-                    enemy.scale = t;
-                    enemy.opacity = progress;
-                    enemy.rotation = (1 - t) * -90; 
-                } else if (anim.type === 'die') {
-                    const t = easeInCubic(progress);
-                    enemy.scale = 1 + t * 1.5;
-                    enemy.rotation = t * 720;
-                    enemy.opacity = 1 - progress;
-                } else if (anim.type === 'hit') {
-                    const t = Math.sin(progress * Math.PI * 4); // Fast oscillation
-                    enemy.xOffset = t * 10;
-                } else if (anim.type === 'attack') {
-                    const progressMid = Math.abs(progress - 0.5) * 2;
-                    const t = 1 - progressMid;
-                    enemy.yOffset = t * 30;
-                    enemy.scale = 1 + t * 0.2;
-                }
-
-                if (anim.frame >= anim.duration) {
-                    enemy.animation = null;
-                    enemy.xOffset = 0;
-                    enemy.yOffset = 0;
-                    enemy.scale = 1;
-                    if (anim.onComplete) anim.onComplete();
-                }
-            }
-            
-            // --- Game Drawing Loop ---
-            function gameLoop() {
-                updateEnemyAnimation();
-
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-
-                if (gameOver) {
-                    // ... game over text ...
-                } else if (gameWon) {
-                    // ... you win text ...
-                } else if (enemy) {
-                    ctx.save();
-                    ctx.globalAlpha = enemy.opacity;
-                    const centerX = canvas.width / 2 + enemy.xOffset;
-                    const centerY = canvas.height / 2 + enemy.yOffset;
-                    ctx.translate(centerX, centerY);
-                    ctx.rotate(enemy.rotation * Math.PI / 180);
-                    ctx.scale(enemy.scale, enemy.scale);
-                    const enemyFontSize = canvas.width * 0.4;
-                    ctx.font = `${enemyFontSize}px sans-serif`;
-                    ctx.fillText(enemy.emoji, 0, 0);
-                    ctx.restore();
-                }
-
-                // --- Draw Slot Effect ---
-                if (slotEffect) {
-                    slotEffect.update();
-                    // Re-check because .update() can set slotEffect to null
-                    if (slotEffect) {
-                        slotEffect.draw(ctx);
-                    }
-                }
-                
-                requestAnimationFrame(gameLoop);
-            }
-            
-            function createEnemy(index) {
-                return {
-                    hp: 3 + index, maxHp: 3 + index,
-                    specialPoints: 3, maxSpecialPoints: 3,
-                    emoji: enemies[index],
-                    scale: 0, rotation: 0, opacity: 0, xOffset: 0, yOffset: 0,
-                    animation: null
-                };
-            }
-            
-            function playEnemyAnimation(type) {
-                if (!enemy) return Promise.resolve();
-                return new Promise(resolve => {
-                    let duration = 1;
-                    if (type === 'hit') duration = 18;
-                    else if (type === 'die') duration = 30;
-                    else if (type === 'appear') duration = 24;
-                    else if (type === 'attack') duration = 24;
-                    enemy.animation = { type, duration, frame: 0, onComplete: resolve };
-                });
-            }
-
-            const SlotMachineEffect = {
-                x: 0, y: 0,
-                state: 'idle', // idle, appearing, spinning, landing, holding, fading
-                life: 0,
-                duration: 0,
-                symbols: ['❌', '⚡', '❌', '❌', '⚡', '❌'], // Weighted for special
-                reelY: 0,
-                spinVelocity: 0,
-                targetReelY: 0,
-                targetSymbolIndex: 0,
-                currentScale: 0,
-                currentOpacity: 0,
-                isSpecial: false,
-
-                start() {
-                    this.x = canvas.width * 0.75;
-                    this.y = canvas.height * 0.65;
-                    this.state = 'appearing';
-                    this.life = 0;
-                    this.duration = 20; // Appear frames
-                    this.spinVelocity = 80 + Math.random() * 40; // Randomized initial speed
-                    this.targetSymbolIndex = Math.floor(Math.random() * this.symbols.length);
-                    this.isSpecial = this.symbols[this.targetSymbolIndex] === '⚡';
-                    this.reelY = 0;
-                    return new Promise(resolve => {
-                        this.onComplete = resolve;
-                    });
-                },
-
-                update() {
-                    this.life++;
-                    const progress = Math.min(this.life / this.duration, 1);
-
-                    if (this.state === 'appearing') {
-                        const t = easeOutBack(progress);
-                        this.currentScale = t;
-                        this.currentOpacity = t;
-                        if (progress >= 1) {
-                            this.state = 'spinning';
-                            this.life = 0;
-                            this.duration = 60; // Spin for 1s
-                        }
-                    } else if (this.state === 'spinning') {
-                        this.reelY += this.spinVelocity;
-                        this.spinVelocity *= 0.98; // Natural slowdown
-                        if (progress >= 1) {
-                            this.state = 'landing';
-                            this.life = 0;
-                            this.duration = 50; // Landing animation duration
-                            
-                            const slotSize = canvas.width * 0.15;
-                            const totalReelHeight = this.symbols.length * slotSize;
-                            
-                            // Calculate the final target Y position for perfect centering
-                            const currentRotationOffset = this.reelY % totalReelHeight;
-                            const targetOffset = this.targetSymbolIndex * slotSize;
-                            let distance = targetOffset - currentRotationOffset;
-
-                            // Find the shortest path to the target symbol
-                            if (distance < -totalReelHeight / 2) distance += totalReelHeight;
-                            if (distance > totalReelHeight / 2) distance -= totalReelHeight;
-                            
-                            this.targetReelY = this.reelY + distance;
-                        }
-                    } else if (this.state === 'landing') {
-                         // Ease smoothly towards the final target position
-                        this.reelY += (this.targetReelY - this.reelY) * 0.1;
-
-                        if (Math.abs(this.targetReelY - this.reelY) < 0.5) {
-                            this.reelY = this.targetReelY; // Snap to final position
-                            this.state = 'holding';
-                            this.life = 0;
-                            this.duration = this.isSpecial ? 60 : 25;
-                        }
-
-                    } else if (this.state === 'holding') {
-                        if (progress >= 1) {
-                            this.state = 'fading';
-                            this.life = 0;
-                            this.duration = 20;
-                        }
-                    } else if (this.state === 'fading') {
-                        this.currentOpacity = 1 - progress;
-                        if (progress >= 1) {
-                            this.state = 'idle';
-                            slotEffect = null;
-                            this.onComplete(this.symbols[this.targetSymbolIndex]);
-                        }
-                    }
-                },
-
-                draw(ctx) {
-                    if (this.state === 'idle') return;
-                    
-                    const slotSize = canvas.width * 0.15;
-                    const boxWidth = slotSize * 1.2;
-                    const boxHeight = slotSize * 1.2;
-                    
-                    ctx.save();
-                    ctx.translate(this.x, this.y);
-                    ctx.scale(this.currentScale, this.currentScale);
-                    ctx.globalAlpha = this.currentOpacity;
-                    
-                    // Draw slot machine body
-                    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-                    ctx.strokeStyle = '#FDE047';
-                    ctx.lineWidth = 4;
-                    ctx.beginPath();
-                    ctx.roundRect(-boxWidth/2, -boxHeight/2, boxWidth, boxHeight, [10]);
-                    ctx.fill();
-                    ctx.stroke();
-
-                    // Clip to inside the box to hide overflowing symbols
-                    ctx.clip();
-
-                    // Pulsing glow for special result
-                    if (this.state === 'holding' && this.isSpecial) {
-                        const glowProgress = (this.life % 30) / 30;
-                        const pulse = Math.sin(glowProgress * Math.PI);
-                        ctx.shadowBlur = 10 + pulse * 15;
-                        ctx.shadowColor = 'rgba(253, 224, 71, 1)';
-                    }
-                    
-                    // Calculate which symbol is currently centered and its offset
-                    const currentSymbolFloat = this.reelY / slotSize;
-                    const centerIndex = Math.floor(currentSymbolFloat);
-                    const offset = (currentSymbolFloat - centerIndex) * slotSize;
-
-                    // Draw a few symbols around the center for a smooth scroll effect
-                    for (let i = -2; i <= 2; i++) {
-                        const symbolIndex = (centerIndex + i + this.symbols.length * 100) % this.symbols.length; // Ensure positive index
-                        const symbol = this.symbols[symbolIndex];
-                        const yPos = (i * slotSize) - offset;
-
-                        // Only draw symbols that are visible within the box
-                        if (Math.abs(yPos) < boxHeight) {
-                           ctx.fillStyle = symbol === '⚡' ? '#FDE047' : '#FFFFFF';
-                           ctx.font = `${slotSize}px sans-serif`;
-                           ctx.fillText(symbol, 0, yPos);
-                        }
-                    }
-                    ctx.restore();
-                }
-            };
-
-            function playSlotSpinAnimation() {
-                slotEffect = Object.create(SlotMachineEffect);
-                return slotEffect.start();
-            }
-
-            async function spawnNextEnemy() {
-                player.armor = player.maxArmor;
-                updateMeters();
-
-                currentEnemyIndex++;
-                if (currentEnemyIndex >= enemies.length) {
-                    gameWon = true;
-                } else {
-                    enemy = createEnemy(currentEnemyIndex);
-                    updateEnemyMeters();
-                    await playEnemyAnimation('appear');
-                }
-            }
-
-            async function handlePlayerAttack(damage) {
-                if (isAnimating || gameOver || gameWon || !enemy) return;
-                isAnimating = true;
-
-                await playEnemyAnimation('hit');
-                
-                enemy.hp -= damage;
-                updateEnemyMeters();
-                
-                if (enemy.hp <= 0) {
-                    await playEnemyAnimation('die');
-                    enemy = null;
-                    updateEnemyMeters();
-                    await new Promise(r => setTimeout(r, 200));
-                    await spawnNextEnemy();
-                } else {
-                    // Enemy turn
-                    await new Promise(r => setTimeout(r, 200));
-                    if (gameOver) {
-                        isAnimating = false;
-                        return;
-                    }
-
-                    const spinResult = await playSlotSpinAnimation();
-                    
-                    playEnemyAnimation('attack');
-                    triggerAnimation(gameContainer, 'shake-hard');
-                    
-                    const isSpecialAttack = spinResult === '⚡' && enemy.specialPoints > 0;
-                    const enemyDamage = isSpecialAttack ? 3 : 1;
-
-                    if (isSpecialAttack) {
-                        enemy.specialPoints--;
-                        triggerAnimation(main, 'special-attack-flash');
-                    }
-                    
-                    const damageToArmor = Math.min(player.armor, enemyDamage);
-                    const damageToHealth = enemyDamage - damageToArmor;
-
-                    player.armor -= damageToArmor;
-                    player.health -= damageToHealth;
-
-                    if (!isSpecialAttack) {
-                        if (damageToHealth > 0) triggerAnimation(healthBar.parentElement, 'health-flash');
-                        if (damageToArmor > 0) triggerAnimation(shieldBar.parentElement, 'shield-flash');
-                    }
-                    
-                    updateEnemyMeters();
-                    updateMeters();
-
-                    if (player.health <= 0) {
-                        player.health = 0;
-                        updateMeters();
-                        gameOver = true;
-                    }
-                }
-                
-                await new Promise(r => setTimeout(r, 400));
-                isAnimating = false;
-            }
-
-            // --- Event Listeners ---
-            actionButton.addEventListener('click', async () => {
-                triggerAnimation(actionButton, 'animate-press');
-                await handlePlayerAttack(1);
-            });
-
-            specialAttackButton.addEventListener('click', async () => {
-                if (player.specialPoints > 0 && !isAnimating) {
-                    player.specialPoints--;
-                    updateMeters();
-                    triggerAnimation(specialAttackButton, 'animate-press');
-                    await handlePlayerAttack(3);
-                }
-            });
-
-            // --- Initial Setup ---
-            async function init() {
-                window.addEventListener('resize', resizeCanvas);
-                resizeCanvas();
-                updateMeters();
-                enemy = createEnemy(currentEnemyIndex);
-                updateEnemyMeters();
-                gameLoop();
-                await new Promise(r => setTimeout(r, 200));
-                await playEnemyAnimation('appear');
-            }
-            
-            init();
-        });
-    </script>
 
 </body>
 </html>
-
-
