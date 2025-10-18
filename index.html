@@ -84,13 +84,31 @@
                     <div id="reel3" class="w-16 h-16 bg-black/50 rounded-lg flex items-center justify-center text-4xl border-2 border-transparent"><span>🐉</span></div>
                 </div>
                  <!-- Upgrade List -->
-                <div id="upgrade-list" class="w-full max-w-xs text-center text-gray-300 text-xs space-y-1">
-                    <p>Lorem ipsum dolor sit amet consectetur.</p>
-                    <p>Adipisicing elit. Maxime, laudantium.</p>
-                    <p>Repellendus, molestiae. Aut, in quasi?</p>
-                    <p>Voluptas, praesentium! Quos, voluptatem.</p>
-                    <p>Natus eius obcaecati est delectus.</p>
-                    <p>Aliquid corrupti veniam et quis.</p>
+                <div id="upgrade-list" class="w-full max-w-xs text-gray-300 text-xs grid grid-cols-2 gap-x-4 gap-y-2">
+                    <div class="flex items-center">
+                        <span class="text-base mr-2">⚡️</span>
+                        <span>Faster Animation</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-base mr-2">🍀</span>
+                        <span>Increased Luck</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-base mr-2">💎</span>
+                        <span>Higher Payouts</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-base mr-2">💰</span>
+                        <span>Bonus Gold</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-base mr-2">🔄</span>
+                        <span>Free Re-spin</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-base mr-2">🐉</span>
+                        <span>Legendary Symbol</span>
+                    </div>
                 </div>
             </section>
 
@@ -138,42 +156,58 @@
         
         const emojis = ['💎', '👑', '🐉', '🧙', '⚔️', '🛡️', '📜', '💍', '💰', '👻'];
         
-        let isSpinning = false;
+        let isSpinning = false; // Tracks if the 5-spin sequence is active
         
-        function spin() {
-            if (isSpinning) return;
-            isSpinning = true;
-            
-            slotMachineContainer.classList.remove('winner');
+        // This function performs a single spin animation and returns a promise that resolves when it's done.
+        function runSingleSpinAnimation() {
+            return new Promise(resolve => {
+                slotMachineContainer.classList.remove('winner');
 
-            // Hide current symbols before starting the new animation
-            reelElements.forEach(reel => {
-                reel.classList.remove('animate-reel');
-                reel.style.opacity = '0';
-            });
-
-            // A tiny delay allows the browser to register the opacity change before adding the animation class
-            setTimeout(() => {
-                reelElements.forEach((reel, i) => {
-                    // Set new emoji
-                    reel.querySelector('span').textContent = emojis[Math.floor(Math.random() * emojis.length)];
-                    
-                    // Set animation delay for sequential effect and add class to trigger it
-                    reel.style.animationDelay = `${i * 0.15}s`;
-                    reel.classList.add('animate-reel');
-                });
-            }, 50);
-
-            // Set a timeout to re-enable spinning and check for a win after the animations complete
-            const totalAnimationTime = 50 + 400 + (2 * 150);
-            setTimeout(() => {
-                isSpinning = false;
-                checkWin();
-                // It's good practice to reset the animation delay after it's done
+                // Hide current symbols before starting the new animation
                 reelElements.forEach(reel => {
-                    reel.style.animationDelay = '0s';
+                    reel.classList.remove('animate-reel');
+                    reel.style.opacity = '0';
                 });
-            }, totalAnimationTime);
+
+                // A tiny delay allows the browser to register the opacity change before adding the animation class
+                setTimeout(() => {
+                    reelElements.forEach((reel, i) => {
+                        // Set new emoji
+                        reel.querySelector('span').textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                        
+                        // Set animation delay for sequential effect and add class to trigger it
+                        reel.style.animationDelay = `${i * 0.15}s`;
+                        reel.classList.add('animate-reel');
+                    });
+                }, 50);
+
+                // Set a timeout to check for a win and resolve the promise after animations complete
+                const totalAnimationTime = 50 + 400 + (2 * 150); // Approx 750ms
+                setTimeout(() => {
+                    checkWin();
+                    // It's good practice to reset the animation delay after it's done
+                    reelElements.forEach(reel => {
+                        reel.style.animationDelay = '0s';
+                    });
+                    resolve(); // Signal that this spin is complete
+                }, totalAnimationTime);
+            });
+        }
+
+        // This function handles the sequence of 5 spins.
+        async function startFiveSpins() {
+            if (isSpinning) return; // Don't start a new sequence if one is running
+            isSpinning = true;
+
+            for (let i = 0; i < 5; i++) {
+                await runSingleSpinAnimation();
+                // Optional: add a small delay between spins for a better feel
+                if (i < 4) { // No delay after the last spin
+                    await new Promise(res => setTimeout(res, 200));
+                }
+            }
+
+            isSpinning = false; // Allow a new sequence to start
         }
         
         function checkWin() {
@@ -186,7 +220,7 @@
             }
         }
         
-        spinButton.addEventListener('click', spin);
+        spinButton.addEventListener('click', startFiveSpins);
     </script>
 </body>
 </html>
