@@ -23,16 +23,16 @@
         }
     </style>
 </head>
-<body class="bg-slate-900 flex items-center justify-center min-h-screen p-4">
+<body class="bg-black flex items-center justify-center min-h-screen p-4">
 
     <!-- This container simulates the phone's screen -->
-    <div id="phone-ui" class="w-full max-w-sm h-[800px] max-h-[90vh] bg-slate-800 rounded-3xl shadow-2xl shadow-blue-500/10 p-2 border-4 border-slate-700 overflow-hidden">
+    <div id="phone-ui" class="w-full max-w-sm h-[800px] max-h-[90vh] bg-gray-900 rounded-xl shadow-2xl shadow-blue-500/10 p-2 border-2 border-gray-700 overflow-hidden">
         
         <!-- Main flex container for the 5 sections -->
-        <div class="flex flex-col h-full w-full bg-slate-900 rounded-2xl">
+        <div class="flex flex-col h-full w-full bg-gray-950 rounded-lg">
 
             <!-- 1. Slim Top Section: Status Bar -->
-            <header class="flex-shrink-0 h-16 bg-slate-800/50 rounded-t-2xl p-3 flex justify-between items-center border-b border-slate-700">
+            <header class="flex-shrink-0 h-16 bg-gray-900/50 rounded-t-lg p-3 flex justify-between items-center border-b border-gray-700">
                 <div class="flex items-center gap-3">
                     <div class="flex items-center gap-1 text-yellow-400">
                         <i class="ph-fill ph-coin text-2xl icon-glow"></i>
@@ -48,53 +48,46 @@
                         <i class="ph-fill ph-heart text-2xl icon-glow"></i>
                         <span class="font-bold text-lg">3/5</span>
                     </div>
-                    <div class="w-24 h-4 bg-slate-700 rounded-full overflow-hidden">
+                    <div class="w-24 h-4 bg-gray-700 rounded-full overflow-hidden">
                          <div class="h-full bg-sky-400" style="width: 75%;"></div>
                     </div>
                 </div>
             </header>
 
             <!-- 2. Larger Central Section 1: Main Game View -->
-            <main class="flex-1 bg-cover bg-center bg-[url('https://placehold.co/400x600/1e293b/94a3b8')] flex items-center justify-center">
+            <main class="flex-1 bg-cover bg-center bg-[url('https://placehold.co/400x600/030712/94a3b8?text=')] flex items-center justify-center">
                 <!-- Content removed as requested -->
             </main>
 
             <!-- 3. Larger Central Section 2: Character/Info View -->
-            <section class="flex-1 bg-slate-800/70 p-4 flex flex-col items-center justify-center border-y-2 border-slate-700 backdrop-blur-sm">
+            <section class="flex-1 bg-gray-800/70 p-4 flex flex-col items-center justify-center border-y-2 border-gray-700 backdrop-blur-sm">
                 <!-- Character icon removed as requested -->
             </section>
 
             <!-- 4. Smaller Section Below: Action Buttons -->
-            <section class="flex-shrink-0 h-24 bg-slate-800/50 p-3 grid grid-cols-3 gap-3 items-center">
-                <button class="h-16 bg-red-600/80 text-white rounded-lg flex flex-col items-center justify-center hover:bg-red-500 transition-all transform hover:scale-105 active:scale-95">
-                    <i class="ph-fill ph-sword text-3xl"></i>
-                    <span class="text-sm font-semibold">Attack</span>
+            <section class="flex-shrink-0 h-20 bg-gray-900/50 p-3 grid grid-cols-3 gap-3 items-center">
+                <button class="h-14 bg-red-600/80 text-white rounded-md flex items-center justify-center hover:bg-red-500 transition-all transform hover:scale-105 active:scale-95">
+                    <i class="ph-fill ph-sword text-3xl icon-glow"></i>
                 </button>
-                <button class="h-16 bg-blue-600/80 text-white rounded-lg flex flex-col items-center justify-center hover:bg-blue-500 transition-all transform hover:scale-105 btn-primary active:scale-95">
-                    <i class="ph-fill ph-magic-wand text-3xl"></i>
-                    <span class="text-sm font-semibold">Spell</span>
+                <button class="h-14 bg-blue-600/80 text-white rounded-md flex items-center justify-center hover:bg-blue-500 transition-all transform hover:scale-105 btn-primary active:scale-95">
+                    <i class="ph-fill ph-magic-wand text-3xl icon-glow"></i>
                 </button>
-                <button class="h-16 bg-green-600/80 text-white rounded-lg flex flex-col items-center justify-center hover:bg-green-500 transition-all transform hover:scale-105 active:scale-95">
-                    <i class="ph-fill ph-potion text-3xl"></i>
-                    <span class="text-sm font-semibold">Item</span>
+                <button class="h-14 bg-green-600/80 text-white rounded-md flex items-center justify-center hover:bg-green-500 transition-all transform hover:scale-105 active:scale-95">
+                    <i class="ph-fill ph-potion text-3xl icon-glow"></i>
                 </button>
             </section>
 
             <!-- 5. Slim Bottom Section: Navigation -->
-            <footer class="flex-shrink-0 h-20 bg-slate-800/50 rounded-b-2xl p-3 flex justify-around items-center border-t border-slate-700">
-                <a href="#" class="text-slate-400 hover:text-white transition-colors flex flex-col items-center gap-1">
+            <footer class="flex-shrink-0 h-20 bg-gray-900/50 rounded-b-lg p-3 flex justify-around items-center border-t border-gray-700">
+                <a href="#" class="flex-1 text-gray-400 hover:text-white transition-colors flex flex-col items-center justify-center">
                     <i class="ph ph-map-trifold text-3xl"></i>
-                    <span class="text-xs">Map</span>
                 </a>
-                <a href="#" class="text-white flex flex-col items-center gap-1">
-                    <div class="w-16 h-16 rounded-full bg-sky-500 flex items-center justify-center -mt-4 border-4 border-slate-700 shadow-lg shadow-sky-500/30 transition-transform duration-100 ease-in-out active:scale-90">
-                        <i class="ph ph-sword text-4xl"></i>
+                <a href="#" class="flex-1 text-white flex flex-col items-center">
+                    <div class="w-16 h-16 rounded-full bg-sky-500 flex items-center justify-center -mt-8 border-4 border-gray-700 shadow-lg shadow-sky-500/30 transition-transform duration-100 ease-in-out active:scale-90">
                     </div>
-                    <span class="text-xs mt-1">Battle</span>
                 </a>
-                <a href="#" class="text-slate-400 hover:text-white transition-colors flex flex-col items-center gap-1">
+                <a href="#" class="flex-1 text-gray-400 hover:text-white transition-colors flex flex-col items-center justify-center">
                     <i class="ph ph-gear text-3xl"></i>
-                    <span class="text-xs">Settings</span>
                 </a>
             </footer>
 
@@ -103,6 +96,3 @@
 
 </body>
 </html>
-
-
-
