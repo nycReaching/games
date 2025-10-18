@@ -18,16 +18,16 @@
         }
     </style>
 </head>
-<body class="bg-black">
+<body class="bg-black flex items-center justify-center min-h-screen">
 
-    <!-- This container is now the full screen of the device -->
-    <div id="game-ui" class="w-screen h-screen bg-gray-900 overflow-hidden">
+    <!-- This container is now the full screen on mobile, and a framed portrait view on desktop -->
+    <div id="game-ui" class="w-screen h-screen overflow-hidden relative md:max-w-sm md:h-[800px] md:rounded-2xl md:shadow-2xl">
         
         <!-- Main flex container for the 5 sections -->
-        <div class="flex flex-col h-full w-full bg-gray-950">
+        <div class="flex flex-col h-full w-full">
 
             <!-- 1. Slim Top Section: Status Bar -->
-            <header class="flex-shrink-0 h-16 bg-gray-900/50 p-3 flex justify-between items-center border-b border-gray-700">
+            <header class="flex-shrink-0 h-16 bg-slate-800 p-3 flex justify-between items-center">
                 <div class="flex items-center gap-2 sm:gap-3">
                     <div class="flex items-center gap-1 text-yellow-400">
                         <i class="ph-fill ph-coin text-2xl"></i>
@@ -50,27 +50,17 @@
             </header>
 
             <!-- 2. Larger Central Section 1: Main Game View -->
-            <main class="flex-1 flex items-center justify-center">
+            <main class="flex-1 flex items-center justify-center bg-slate-700">
                 <!-- Content removed as requested -->
             </main>
 
             <!-- 3. Larger Central Section 2: Character/Info View -->
-            <section class="flex-1 bg-gray-800/70 p-4 flex flex-col items-center justify-center border-y-2 border-gray-700 backdrop-blur-sm">
+            <section class="flex-1 bg-purple-800 p-4 flex flex-col items-center justify-center backdrop-blur-sm">
                 <!-- Character icon removed as requested -->
             </section>
 
-            <!-- 4. Smaller Section Below: Action Buttons -->
-            <section class="flex-shrink-0 h-20 bg-gray-900/50 p-3 grid grid-cols-3 gap-3 items-center">
-                <button class="h-14 bg-red-600/80 text-white rounded-md flex items-center justify-center hover:bg-red-500 transition-all transform hover:scale-105 active:scale-95">
-                </button>
-                <button class="h-14 bg-blue-600/80 text-white rounded-md flex items-center justify-center hover:bg-blue-500 transition-all transform hover:scale-105 active:scale-95">
-                </button>
-                <button class="h-14 bg-green-600/80 text-white rounded-md flex items-center justify-center hover:bg-green-500 transition-all transform hover:scale-105 active:scale-95">
-                </button>
-            </section>
-
-            <!-- 5. Slim Bottom Section: Navigation -->
-            <footer class="flex-shrink-0 h-24 bg-gray-900/50 p-3 flex justify-around items-center border-t border-gray-700">
+            <!-- 4. Slim Bottom Section: Navigation -->
+            <footer class="flex-shrink-0 h-24 bg-slate-900 p-3 flex justify-around items-center">
                 <a href="#" class="flex-1 text-gray-400 hover:text-white transition-colors flex flex-col items-center justify-center">
                     <div class="w-8 h-8 bg-gray-600 rounded"></div>
                 </a>
@@ -82,10 +72,19 @@
                     <div class="w-8 h-8 bg-gray-600 rounded"></div>
                 </a>
             </footer>
+            
+            <!-- 5. Smaller Section Below: Action Buttons -->
+            <section class="flex-shrink-0 h-20 bg-slate-800 p-3 grid grid-cols-3 gap-3 items-center">
+                <button class="h-14 bg-red-600/80 text-white rounded-md flex items-center justify-center hover:bg-red-500 transition-all transform hover:scale-105 active:scale-95">
+                </button>
+                <button class="h-14 bg-blue-600/80 text-white rounded-md flex items-center justify-center hover:bg-blue-500 transition-all transform hover:scale-105 active:scale-95">
+                </button>
+                <button class="h-14 bg-green-600/80 text-white rounded-md flex items-center justify-center hover:bg-green-500 transition-all transform hover:scale-105 active:scale-95">
+                </button>
+            </section>
 
         </div>
     </div>
 
 </body>
 </html>
-
