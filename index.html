@@ -14,11 +14,25 @@
             /* Prevent scrolling and bouncing on mobile */
             overscroll-behavior-y: contain;
         }
-        /* Style for the spinning animation - blur removed */
-        .spinning {
-            transform: scale(1.05);
-            transition: all 0.1s linear;
+        
+        /* Keyframes for the new fade/slide-in effect */
+        @keyframes fadeInFromLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
+
+        /* A class to apply the animation */
+        .animate-reel {
+            opacity: 0; /* Start invisible */
+            animation: fadeInFromLeft 0.4s ease-out forwards;
+        }
+
         /* Style for a winning combination */
         .winner div {
             box-shadow: 0 0 25px 5px gold;
@@ -62,13 +76,21 @@
                 <!-- Content removed as requested -->
             </main>
 
-            <!-- 3. Larger Central Section 2: Character/Info View with Slot Machine -->
-            <section class="flex-1 bg-purple-800 p-4 flex flex-col items-center justify-start pt-6 backdrop-blur-sm">
+            <!-- 3. Larger Central Section 2: Character/Info View with Slot Machine and Upgrades -->
+            <section class="flex-1 bg-purple-800 p-4 flex flex-col items-center justify-start pt-6 backdrop-blur-sm space-y-4">
                 <div id="slot-machine-container" class="flex gap-2 sm:gap-3 transition-all duration-300">
-                    <!-- Reels are now smaller squares (w-16 h-16) with smaller text (text-4xl) -->
                     <div id="reel1" class="w-16 h-16 bg-black/50 rounded-lg flex items-center justify-center text-4xl border-2 border-transparent"><span>💎</span></div>
                     <div id="reel2" class="w-16 h-16 bg-black/50 rounded-lg flex items-center justify-center text-4xl border-2 border-transparent"><span>👑</span></div>
                     <div id="reel3" class="w-16 h-16 bg-black/50 rounded-lg flex items-center justify-center text-4xl border-2 border-transparent"><span>🐉</span></div>
+                </div>
+                 <!-- Upgrade List -->
+                <div id="upgrade-list" class="w-full max-w-xs text-center text-gray-300 text-xs space-y-1">
+                    <p>Lorem ipsum dolor sit amet consectetur.</p>
+                    <p>Adipisicing elit. Maxime, laudantium.</p>
+                    <p>Repellendus, molestiae. Aut, in quasi?</p>
+                    <p>Voluptas, praesentium! Quos, voluptatem.</p>
+                    <p>Natus eius obcaecati est delectus.</p>
+                    <p>Aliquid corrupti veniam et quis.</p>
                 </div>
             </section>
 
@@ -86,16 +108,16 @@
                 </a>
             </footer>
             
-            <!-- 5. Smaller Section Below: Item Slots with Emojis -->
+            <!-- 5. Smaller Section Below: Reworked Item Slots -->
             <section class="flex-shrink-0 h-20 bg-slate-800 p-3 grid grid-cols-3 gap-3 items-center">
-                <div class="h-14 bg-black border-2 border-white/75 rounded-md flex items-center justify-center">
-                    <span class="text-4xl">🗡️</span>
+                <div class="h-14 bg-black/40 rounded-lg flex items-center justify-center shadow-inner border border-black/30">
+                    <span class="text-3xl opacity-80">🗡️</span>
                 </div>
-                <div class="h-14 bg-black border-2 border-white/75 rounded-md flex items-center justify-center">
-                    <span class="text-4xl">⚗️</span>
+                <div class="h-14 bg-black/40 rounded-lg flex items-center justify-center shadow-inner border border-black/30">
+                    <span class="text-3xl opacity-80">⚗️</span>
                 </div>
-                <div class="h-14 bg-black border-2 border-white/75 rounded-md flex items-center justify-center">
-                    <span class="text-4xl">🥕</span>
+                <div class="h-14 bg-black/40 rounded-lg flex items-center justify-center shadow-inner border border-black/30">
+                    <span class="text-3xl opacity-80">🥕</span>
                 </div>
             </section>
 
@@ -107,12 +129,13 @@
     
     <script>
         const spinButton = document.getElementById('spin-button');
-        const reel1 = document.getElementById('reel1').querySelector('span');
-        const reel2 = document.getElementById('reel2').querySelector('span');
-        const reel3 = document.getElementById('reel3').querySelector('span');
+        const reelElements = [
+            document.getElementById('reel1'),
+            document.getElementById('reel2'),
+            document.getElementById('reel3')
+        ];
         const slotMachineContainer = document.getElementById('slot-machine-container');
         
-        const reels = [reel1, reel2, reel3];
         const emojis = ['💎', '👑', '🐉', '🧙', '⚔️', '🛡️', '📜', '💍', '💰', '👻'];
         
         let isSpinning = false;
@@ -123,30 +146,42 @@
             
             slotMachineContainer.classList.remove('winner');
 
-            reels.forEach((reel, i) => {
-                const reelElement = reel.parentElement;
-                reelElement.classList.add('spinning');
-                
-                const interval = setInterval(() => {
-                    reel.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-                }, 100);
-                
-                // Faster animation duration
-                setTimeout(() => {
-                    clearInterval(interval);
-                    reelElement.classList.remove('spinning');
-                    reel.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-                    
-                    if (i === reels.length - 1) {
-                        isSpinning = false;
-                        checkWin();
-                    }
-                }, 500 + (i * 200)); // Faster, staggered stop time
+            // Hide current symbols before starting the new animation
+            reelElements.forEach(reel => {
+                reel.classList.remove('animate-reel');
+                reel.style.opacity = '0';
             });
+
+            // A tiny delay allows the browser to register the opacity change before adding the animation class
+            setTimeout(() => {
+                reelElements.forEach((reel, i) => {
+                    // Set new emoji
+                    reel.querySelector('span').textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    
+                    // Set animation delay for sequential effect and add class to trigger it
+                    reel.style.animationDelay = `${i * 0.15}s`;
+                    reel.classList.add('animate-reel');
+                });
+            }, 50);
+
+            // Set a timeout to re-enable spinning and check for a win after the animations complete
+            const totalAnimationTime = 50 + 400 + (2 * 150);
+            setTimeout(() => {
+                isSpinning = false;
+                checkWin();
+                // It's good practice to reset the animation delay after it's done
+                reelElements.forEach(reel => {
+                    reel.style.animationDelay = '0s';
+                });
+            }, totalAnimationTime);
         }
         
         function checkWin() {
-            if (reel1.textContent === reel2.textContent && reel2.textContent === reel3.textContent) {
+            const reel1Emoji = reelElements[0].querySelector('span').textContent;
+            const reel2Emoji = reelElements[1].querySelector('span').textContent;
+            const reel3Emoji = reelElements[2].querySelector('span').textContent;
+
+            if (reel1Emoji === reel2Emoji && reel2Emoji === reel3Emoji) {
                 slotMachineContainer.classList.add('winner');
             }
         }
