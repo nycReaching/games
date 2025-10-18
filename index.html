@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Mobile Game UI</title>
     <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -13,49 +13,44 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-        }
-        /* Custom styles for a glowing effect on buttons */
-        .btn-primary {
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.4), 0 0 20px rgba(59, 130, 246, 0.3);
-        }
-        .icon-glow {
-             filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
+            /* Prevent scrolling and bouncing on mobile */
+            overscroll-behavior-y: contain;
         }
     </style>
 </head>
-<body class="bg-black flex items-center justify-center min-h-screen p-4">
+<body class="bg-black">
 
-    <!-- This container simulates the phone's screen -->
-    <div id="phone-ui" class="w-full max-w-sm h-[800px] max-h-[90vh] bg-gray-900 rounded-xl shadow-2xl shadow-blue-500/10 p-2 border-2 border-gray-700 overflow-hidden">
+    <!-- This container is now the full screen of the device -->
+    <div id="game-ui" class="w-screen h-screen bg-gray-900 overflow-hidden">
         
         <!-- Main flex container for the 5 sections -->
-        <div class="flex flex-col h-full w-full bg-gray-950 rounded-lg">
+        <div class="flex flex-col h-full w-full bg-gray-950">
 
             <!-- 1. Slim Top Section: Status Bar -->
-            <header class="flex-shrink-0 h-16 bg-gray-900/50 rounded-t-lg p-3 flex justify-between items-center border-b border-gray-700">
-                <div class="flex items-center gap-3">
+            <header class="flex-shrink-0 h-16 bg-gray-900/50 p-3 flex justify-between items-center border-b border-gray-700">
+                <div class="flex items-center gap-2 sm:gap-3">
                     <div class="flex items-center gap-1 text-yellow-400">
-                        <i class="ph-fill ph-coin text-2xl icon-glow"></i>
-                        <span class="font-bold text-lg">1,250</span>
+                        <i class="ph-fill ph-coin text-2xl"></i>
+                        <span class="font-bold text-base sm:text-lg">1,250</span>
                     </div>
                     <div class="flex items-center gap-1 text-green-400">
-                        <i class="ph-fill ph-leaf text-2xl icon-glow"></i>
-                        <span class="font-bold text-lg">99+</span>
+                        <i class="ph-fill ph-leaf text-2xl"></i>
+                        <span class="font-bold text-base sm:text-lg">99+</span>
                     </div>
                 </div>
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2 sm:gap-3">
                     <div class="flex items-center gap-1 text-red-500">
-                        <i class="ph-fill ph-heart text-2xl icon-glow"></i>
-                        <span class="font-bold text-lg">3/5</span>
+                        <i class="ph-fill ph-heart text-2xl"></i>
+                        <span class="font-bold text-base sm:text-lg">3/5</span>
                     </div>
-                    <div class="w-24 h-4 bg-gray-700 rounded-full overflow-hidden">
+                    <div class="w-20 sm:w-24 h-4 bg-gray-700 rounded-full overflow-hidden flex-shrink-0">
                          <div class="h-full bg-sky-400" style="width: 75%;"></div>
                     </div>
                 </div>
             </header>
 
             <!-- 2. Larger Central Section 1: Main Game View -->
-            <main class="flex-1 bg-cover bg-center bg-[url('https://placehold.co/400x600/030712/94a3b8?text=')] flex items-center justify-center">
+            <main class="flex-1 flex items-center justify-center">
                 <!-- Content removed as requested -->
             </main>
 
@@ -67,27 +62,24 @@
             <!-- 4. Smaller Section Below: Action Buttons -->
             <section class="flex-shrink-0 h-20 bg-gray-900/50 p-3 grid grid-cols-3 gap-3 items-center">
                 <button class="h-14 bg-red-600/80 text-white rounded-md flex items-center justify-center hover:bg-red-500 transition-all transform hover:scale-105 active:scale-95">
-                    <i class="ph-fill ph-sword text-3xl icon-glow"></i>
                 </button>
-                <button class="h-14 bg-blue-600/80 text-white rounded-md flex items-center justify-center hover:bg-blue-500 transition-all transform hover:scale-105 btn-primary active:scale-95">
-                    <i class="ph-fill ph-magic-wand text-3xl icon-glow"></i>
+                <button class="h-14 bg-blue-600/80 text-white rounded-md flex items-center justify-center hover:bg-blue-500 transition-all transform hover:scale-105 active:scale-95">
                 </button>
                 <button class="h-14 bg-green-600/80 text-white rounded-md flex items-center justify-center hover:bg-green-500 transition-all transform hover:scale-105 active:scale-95">
-                    <i class="ph-fill ph-potion text-3xl icon-glow"></i>
                 </button>
             </section>
 
             <!-- 5. Slim Bottom Section: Navigation -->
-            <footer class="flex-shrink-0 h-20 bg-gray-900/50 rounded-b-lg p-3 flex justify-around items-center border-t border-gray-700">
+            <footer class="flex-shrink-0 h-20 bg-gray-900/50 p-3 flex justify-around items-center border-t border-gray-700">
                 <a href="#" class="flex-1 text-gray-400 hover:text-white transition-colors flex flex-col items-center justify-center">
-                    <i class="ph ph-map-trifold text-3xl"></i>
+                    <div class="w-8 h-8 bg-gray-600 rounded"></div>
                 </a>
                 <a href="#" class="flex-1 text-white flex flex-col items-center">
-                    <div class="w-16 h-16 rounded-full bg-sky-500 flex items-center justify-center -mt-8 border-4 border-gray-700 shadow-lg shadow-sky-500/30 transition-transform duration-100 ease-in-out active:scale-90">
+                    <div class="w-16 h-16 rounded-full bg-sky-500 flex items-center justify-center border-4 border-gray-700 transition-transform duration-100 ease-in-out active:scale-90">
                     </div>
                 </a>
                 <a href="#" class="flex-1 text-gray-400 hover:text-white transition-colors flex flex-col items-center justify-center">
-                    <i class="ph ph-gear text-3xl"></i>
+                    <div class="w-8 h-8 bg-gray-600 rounded"></div>
                 </a>
             </footer>
 
@@ -96,3 +88,4 @@
 
 </body>
 </html>
+
