@@ -6,8 +6,6 @@
     <title>Mobile Game UI</title>
     <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Phosphor Icons for UI elements -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         /* Using a custom font for a better look */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -49,8 +47,8 @@
                 </div>
             </header>
 
-            <!-- 2. Larger Central Section 1: Main Game View -->
-            <main class="flex-1 flex items-center justify-center bg-slate-700">
+            <!-- 2. Larger Central Section 1: Main Game View (now larger) -->
+            <main class="flex-[1.5] flex items-center justify-center bg-slate-700">
                 <!-- Content removed as requested -->
             </main>
 
@@ -73,22 +71,23 @@
                 </a>
             </footer>
             
-            <!-- 5. Smaller Section Below: Item Slots -->
+            <!-- 5. Smaller Section Below: Item Slots with Emojis -->
             <section class="flex-shrink-0 h-20 bg-slate-800 p-3 grid grid-cols-3 gap-3 items-center">
-                <div class="h-14 bg-black border-2 border-white/75 text-white rounded-md flex items-center justify-center">
-                    <i class="ph-bold ph-sword text-4xl text-white/75"></i>
+                <div class="h-14 bg-black border-2 border-white/75 rounded-md flex items-center justify-center">
+                    <span class="text-4xl">🗡️</span>
                 </div>
-                <div class="h-14 bg-black border-2 border-white/75 text-white rounded-md flex items-center justify-center">
-                    <i class="ph-bold ph-flask text-4xl text-white/75"></i>
+                <div class="h-14 bg-black border-2 border-white/75 rounded-md flex items-center justify-center">
+                    <span class="text-4xl">⚗️</span>
                 </div>
-                <div class="h-14 bg-black border-2 border-white/75 text-white rounded-md flex items-center justify-center">
-                    <i class="ph-bold ph-carrot text-4xl text-white/75"></i>
+                <div class="h-14 bg-black border-2 border-white/75 rounded-md flex items-center justify-center">
+                    <span class="text-4xl">🥕</span>
                 </div>
             </section>
 
         </div>
     </div>
-
+    <!-- Phosphor Icons script is still needed for header icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </body>
 </html>
 
