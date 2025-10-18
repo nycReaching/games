@@ -14,9 +14,8 @@
             /* Prevent scrolling and bouncing on mobile */
             overscroll-behavior-y: contain;
         }
-        /* Style for the spinning animation */
+        /* Style for the spinning animation - blur removed */
         .spinning {
-            filter: blur(2px);
             transform: scale(1.05);
             transition: all 0.1s linear;
         }
@@ -64,11 +63,12 @@
             </main>
 
             <!-- 3. Larger Central Section 2: Character/Info View with Slot Machine -->
-            <section class="flex-1 bg-purple-800 p-4 flex flex-col items-center justify-center backdrop-blur-sm">
-                <div id="slot-machine-container" class="flex gap-2 sm:gap-4 transition-all duration-300">
-                    <div id="reel1" class="w-20 h-24 bg-black/50 rounded-lg flex items-center justify-center text-5xl border-2 border-transparent"><span>💎</span></div>
-                    <div id="reel2" class="w-20 h-24 bg-black/50 rounded-lg flex items-center justify-center text-5xl border-2 border-transparent"><span>👑</span></div>
-                    <div id="reel3" class="w-20 h-24 bg-black/50 rounded-lg flex items-center justify-center text-5xl border-2 border-transparent"><span>🐉</span></div>
+            <section class="flex-1 bg-purple-800 p-4 flex flex-col items-center justify-start pt-6 backdrop-blur-sm">
+                <div id="slot-machine-container" class="flex gap-2 sm:gap-3 transition-all duration-300">
+                    <!-- Reels are now smaller squares (w-16 h-16) with smaller text (text-4xl) -->
+                    <div id="reel1" class="w-16 h-16 bg-black/50 rounded-lg flex items-center justify-center text-4xl border-2 border-transparent"><span>💎</span></div>
+                    <div id="reel2" class="w-16 h-16 bg-black/50 rounded-lg flex items-center justify-center text-4xl border-2 border-transparent"><span>👑</span></div>
+                    <div id="reel3" class="w-16 h-16 bg-black/50 rounded-lg flex items-center justify-center text-4xl border-2 border-transparent"><span>🐉</span></div>
                 </div>
             </section>
 
@@ -121,7 +121,6 @@
             if (isSpinning) return;
             isSpinning = true;
             
-            // Clear any previous win styles
             slotMachineContainer.classList.remove('winner');
 
             reels.forEach((reel, i) => {
@@ -132,23 +131,21 @@
                     reel.textContent = emojis[Math.floor(Math.random() * emojis.length)];
                 }, 100);
                 
+                // Faster animation duration
                 setTimeout(() => {
                     clearInterval(interval);
                     reelElement.classList.remove('spinning');
-                    // Set final emoji
                     reel.textContent = emojis[Math.floor(Math.random() * emojis.length)];
                     
-                    // If it's the last reel, allow spinning again and check for a win
                     if (i === reels.length - 1) {
                         isSpinning = false;
                         checkWin();
                     }
-                }, 1000 + (i * 500)); // Stagger the stop time
+                }, 500 + (i * 200)); // Faster, staggered stop time
             });
         }
         
         function checkWin() {
-            // Check if all three reels have the same emoji
             if (reel1.textContent === reel2.textContent && reel2.textContent === reel3.textContent) {
                 slotMachineContainer.classList.add('winner');
             }
