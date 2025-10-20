@@ -90,6 +90,9 @@
             from { transform: translateY(0); opacity: 1; }
             to { transform: translateY(-60px); opacity: 0; }
         }
+        .meter-text {
+             text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
     </style>
 </head>
 <body class="bg-black flex items-center justify-center min-h-screen">
@@ -125,14 +128,16 @@
                 <div class="space-y-2">
                     <div class="flex items-center">
                         <span class="text-lg mr-2">❤️</span>
-                        <div class="w-full bg-black/30 rounded-full h-2">
-                            <div id="player-health-bar" class="bg-red-500 h-2 rounded-full health-bar" style="width: 100%"></div>
+                        <div class="w-full bg-black/30 rounded-full h-4 relative flex items-center justify-center">
+                             <div id="player-health-bar" class="bg-red-500 h-4 rounded-full health-bar absolute left-0 top-0" style="width: 100%"></div>
+                             <span id="player-health-text" class="relative text-xs font-bold text-white z-10 meter-text"></span>
                         </div>
                     </div>
                     <div class="flex items-center">
                         <span class="text-lg mr-2">💜</span>
-                        <div class="w-full bg-black/30 rounded-full h-2">
-                            <div class="bg-purple-500 h-2 rounded-full" style="width: 60%"></div>
+                        <div class="w-full bg-black/30 rounded-full h-4 relative flex items-center justify-center">
+                            <div class="bg-purple-500 h-4 rounded-full absolute left-0 top-0" style="width: 60%"></div>
+                            <span class="relative text-xs font-bold text-white z-10 meter-text">60 / 100</span>
                         </div>
                     </div>
                 </div>
@@ -145,22 +150,25 @@
                 <!-- Character on the left -->
                 <div id="player-character" class="flex flex-col items-center character-container">
                     <span class="text-8xl">🧝</span>
-                    <div class="w-24 h-2 bg-black/30 rounded-full mt-4 border-2 border-black/30 overflow-hidden">
-                        <div id="player-armor-bar" class="bg-blue-500 h-full rounded-full armor-bar" style="width: 100%;"></div>
+                    <div class="w-24 h-4 bg-black/30 rounded-full mt-4 border-2 border-black/30 overflow-hidden relative flex items-center justify-center">
+                        <div id="player-armor-bar" class="bg-blue-500 h-full rounded-full armor-bar absolute left-0 top-0" style="width: 100%;"></div>
+                        <span id="player-armor-text" class="relative text-xs font-bold text-white z-10 meter-text"></span>
                     </div>
                 </div>
                 <!-- Enemies on the right -->
                 <div class="flex flex-col gap-8">
                     <div id="enemy-1" class="flex flex-col items-center character-container">
                         <span class="text-6xl enemy-emoji">🐺</span>
-                        <div class="w-16 h-2 bg-black/30 rounded-full mt-2 border-2 border-black/30 overflow-hidden">
-                           <div id="enemy-1-hp" class="bg-red-500 h-full rounded-full health-bar" style="width: 100%"></div>
+                        <div class="w-16 h-4 bg-black/30 rounded-full mt-2 border-2 border-black/30 overflow-hidden relative flex items-center justify-center">
+                           <div id="enemy-1-hp" class="bg-red-500 h-full rounded-full health-bar absolute left-0 top-0" style="width: 100%"></div>
+                           <span id="enemy-1-hp-text" class="relative text-xs font-bold text-white z-10 meter-text"></span>
                         </div>
                     </div>
                     <div id="enemy-2" class="flex flex-col items-center character-container">
                         <span class="text-6xl enemy-emoji">🐊</span>
-                         <div class="w-16 h-2 bg-black/30 rounded-full mt-2 border-2 border-black/30 overflow-hidden">
-                           <div id="enemy-2-hp" class="bg-red-500 h-full rounded-full health-bar" style="width: 100%"></div>
+                         <div class="w-16 h-4 bg-black/30 rounded-full mt-2 border-2 border-black/30 overflow-hidden relative flex items-center justify-center">
+                           <div id="enemy-2-hp" class="bg-red-500 h-full rounded-full health-bar absolute left-0 top-0" style="width: 100%"></div>
+                           <span id="enemy-2-hp-text" class="relative text-xs font-bold text-white z-10 meter-text"></span>
                         </div>
                     </div>
                 </div>
@@ -178,9 +186,31 @@
                         <div id="reel3" class="w-16 h-16 bg-black/50 rounded-lg flex items-center justify-center text-4xl border-2 border-transparent"><span class="transition-opacity duration-200 ease-in-out"></span></div>
                     </div>
                 </div>
-                 <!-- Upgrade List -->
-                <div id="upgrade-list" class="w-full max-w-xs text-gray-300 text-xs grid grid-cols-2 gap-x-4 gap-y-2">
-                    <!-- Upgrades can be populated dynamically -->
+                 <!-- Dynamic Content Area below slots -->
+                <div id="dynamic-content-area" class="w-full max-w-xs h-32 flex flex-col justify-center">
+                    <!-- Upgrade List (visible by default) -->
+                    <div id="upgrade-list" class="w-full text-gray-300 text-xs grid grid-cols-2 gap-x-4 gap-y-2">
+                        <!-- Upgrades can be populated dynamically -->
+                    </div>
+
+                    <!-- Mini Shop (hidden by default) -->
+                    <div id="mini-shop-container" class="hidden w-full h-full bg-black/40 p-2 rounded-lg border border-yellow-400 text-white text-center flex flex-col justify-around">
+                        <h3 class="text-sm font-bold text-yellow-300">🏪 Shop 🏪</h3>
+                        <div class="grid grid-cols-4 gap-2 text-xs">
+                            <div class="bg-black/50 p-2 rounded-md cursor-pointer hover:bg-yellow-500/20">❤️</div>
+                            <div class="bg-black/50 p-2 rounded-md cursor-pointer hover:bg-yellow-500/20">🛡️</div>
+                            <div class="bg-black/50 p-2 rounded-md cursor-pointer hover:bg-yellow-500/20">⚔️</div>
+                            <div class="bg-black/50 p-2 rounded-md cursor-pointer hover:bg-yellow-500/20">✨</div>
+                        </div>
+                        <button id="close-mini-shop-button" class="bg-purple-600 px-4 py-1 text-xs rounded-md font-bold transition-transform active:scale-95 w-full mt-2">Close</button>
+                    </div>
+
+                    <!-- Mini Urn (hidden by default) -->
+                    <div id="mini-urn-container" class="hidden w-full h-full bg-black/40 p-2 rounded-lg border border-amber-400 text-white text-center flex flex-col items-center justify-around">
+                        <h3 class="text-sm font-bold text-amber-300">🏺 Ancient Urn</h3>
+                        <p class="text-3xl">?</p>
+                        <button id="close-mini-urn-button" class="bg-amber-600 px-4 py-1 text-xs rounded-md font-bold transition-transform active:scale-95 w-full mt-2">Leave It</button>
+                    </div>
                 </div>
             </section>
 
@@ -203,20 +233,20 @@
 
             <!-- 5. Item Slots -->
             <section class="flex-shrink-0 h-20 bg-gradient-to-br from-black to-blue-900 p-3 grid grid-cols-3 gap-3 items-center">
-                <div id="item-slot-container-1" class="h-14 bg-black/40 rounded-lg flex items-center justify-center gap-1 shadow-inner border-2 border-black/30 text-white cursor-pointer transition-all">
-                    <span class="item-stat text-sm font-bold opacity-80 transition-opacity opacity-0">🟡 3</span>
-                    <span id="item-slot-1" class="text-3xl opacity-80"></span>
-                    <span class="item-stat text-sm font-bold opacity-80 transition-opacity opacity-0">+1</span>
+                <div id="item-slot-container-1" class="h-14 bg-black/40 rounded-lg flex items-center justify-center gap-1 shadow-inner border-2 border-black/30 text-white cursor-pointer transition-all opacity-80">
+                    <span class="item-stat-left text-sm font-bold text-yellow-300 w-8 text-right"></span>
+                    <span id="item-slot-1" class="text-3xl w-10 text-center"></span>
+                    <span class="item-stat-right text-sm font-bold w-8 text-left"></span>
                 </div>
-                <div id="item-slot-container-2" class="h-14 bg-black/40 rounded-lg flex items-center justify-center gap-1 shadow-inner border-2 border-black/30 text-white cursor-pointer transition-all">
-                    <span class="item-stat text-sm font-bold opacity-80 transition-opacity opacity-0">🟡 3</span>
-                    <span id="item-slot-2" class="text-3xl opacity-80"></span>
-                    <span class="item-stat text-sm font-bold opacity-80 transition-opacity opacity-0">+1</span>
+                <div id="item-slot-container-2" class="h-14 bg-black/40 rounded-lg flex items-center justify-center gap-1 shadow-inner border-2 border-black/30 text-white cursor-pointer transition-all opacity-80">
+                    <span class="item-stat-left text-sm font-bold text-yellow-300 w-8 text-right"></span>
+                    <span id="item-slot-2" class="text-3xl w-10 text-center"></span>
+                    <span class="item-stat-right text-sm font-bold w-8 text-left"></span>
                 </div>
-                <div id="item-slot-container-3" class="h-14 bg-black/40 rounded-lg flex items-center justify-center gap-1 shadow-inner border-2 border-black/30 text-white cursor-pointer transition-all">
-                    <span class="item-stat text-sm font-bold opacity-80 transition-opacity opacity-0">🟡 3</span>
-                    <span id="item-slot-3" class="text-3xl opacity-80"></span>
-                    <span class="item-stat text-sm font-bold opacity-80 transition-opacity opacity-0">+1</span>
+                <div id="item-slot-container-3" class="h-14 bg-black/40 rounded-lg flex items-center justify-center gap-1 shadow-inner border-2 border-black/30 text-white cursor-pointer transition-all opacity-80">
+                    <span class="item-stat-left text-sm font-bold text-yellow-300 w-8 text-right"></span>
+                    <span id="item-slot-3" class="text-3xl w-10 text-center"></span>
+                    <span class="item-stat-right text-sm font-bold w-8 text-left"></span>
                 </div>
             </section>
         </div>
@@ -226,32 +256,6 @@
             <p>Battle Won!</p>
             <p id="battle-won-details" class="text-2xl mt-2 text-yellow-400">+10 Gold</p>
         </div>
-
-        <!-- Shop Modal -->
-        <div id="shop-modal" class="absolute inset-0 bg-black/80 flex-col items-center justify-center text-white z-50 hidden">
-            <div class="bg-gray-800 p-8 rounded-lg shadow-xl border border-yellow-400 w-11/12 max-w-md text-center">
-                <h2 class="text-3xl font-bold mb-4 text-yellow-300">🏪 Welcome! 🏪</h2>
-                <p class="mb-6">The shop is currently under construction. Come back later!</p>
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <!-- Mock-up items -->
-                    <div class="bg-black/50 p-4 rounded-lg border border-gray-600">Health Potion ❤️</div>
-                    <div class="bg-black/50 p-4 rounded-lg border border-gray-600">Armor Plate 🛡️</div>
-                    <div class="bg-black/50 p-4 rounded-lg border border-gray-600">Power Up ⚔️</div>
-                    <div class="bg-black/50 p-4 rounded-lg border border-gray-600">Extra Spin ✨</div>
-                </div>
-                <button id="close-shop-button" class="bg-purple-600 px-6 py-2 rounded-lg font-bold transition-transform active:scale-95">Close</button>
-            </div>
-        </div>
-
-        <!-- Urn Modal -->
-        <div id="urn-modal" class="absolute inset-0 bg-black/80 flex-col items-center justify-center text-white z-50 hidden">
-            <div class="bg-gray-800 p-8 rounded-lg shadow-xl border border-amber-400 w-11/12 max-w-md text-center">
-                <h2 class="text-3xl font-bold mb-4 text-amber-300">🏺 An Ancient Urn 🏺</h2>
-                <p class="mb-6">You found a mysterious urn. What could be inside?</p>
-                <div class="text-5xl mb-6">? ? ?</div>
-                <button id="close-urn-button" class="bg-amber-600 px-6 py-2 rounded-lg font-bold transition-transform active:scale-95">Leave It</button>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -260,7 +264,6 @@
         const spinButton = document.getElementById('spin-button');
         const spinCostText = document.getElementById('spin-cost-text');
         const reelElements = [document.getElementById('reel1'), document.getElementById('reel2'), document.getElementById('reel3')];
-        const itemSlotSpans = [document.getElementById('item-slot-1'), document.getElementById('item-slot-2'), document.getElementById('item-slot-3')];
         const itemSlotContainers = [...document.querySelectorAll('[id^="item-slot-container-"]')];
         const slotMachineContainer = document.getElementById('slot-machine-container');
         const goldCountElement = document.getElementById('gold-count');
@@ -268,21 +271,45 @@
         const spinsRemainingCount = document.getElementById('spins-remaining-count');
         const victoryMessageElement = document.getElementById('victory-message');
         const battleWonDetails = document.getElementById('battle-won-details');
-        const shopModal = document.getElementById('shop-modal');
-        const closeShopButton = document.getElementById('close-shop-button');
-        const urnModal = document.getElementById('urn-modal');
-        const closeUrnButton = document.getElementById('close-urn-button');
         const damageContainer = document.getElementById('damage-container');
+        const playerHealthText = document.getElementById('player-health-text');
+        const playerArmorText = document.getElementById('player-armor-text');
+        const upgradeList = document.getElementById('upgrade-list');
+        const miniShopContainer = document.getElementById('mini-shop-container');
+        const miniUrnContainer = document.getElementById('mini-urn-container');
+        const closeMiniShopButton = document.getElementById('close-mini-shop-button');
+        const closeMiniUrnButton = document.getElementById('close-mini-urn-button');
 
-        // --- Game Assets ---
-        const food = ['🍎', '🍗', '🍋'];
-        const weapons = ['🗡️', '🏹', '🪓'];
-        const clothing = ['👢', '🧥', '🧤'];
-        const items = ['🗝️', '📜', '🪈'];
+        // --- Game Assets (Data-driven) ---
+        const itemCategories = {
+            food: [
+                { emoji: '🍎', stats: { left: '❤️ 1', right: '' } },
+                { emoji: '🍗', stats: { left: '❤️ 2', right: '' } },
+                { emoji: '🍋', stats: { left: '🟡 1', right: '' } }
+            ],
+            weapons: [
+                { emoji: '🗡️', stats: { left: '🟡 3', right: '+1' } },
+                { emoji: '🏹', stats: { left: '🟡 2', right: '+2' } },
+                { emoji: '🪓', stats: { left: '🟡 4', right: '+1' } }
+            ],
+            clothing: [
+                { emoji: '👢', stats: { left: '🟡 1', right: '🛡️1' } },
+                { emoji: '🧥', stats: { left: '🟡 3', right: '🛡️2' } },
+                { emoji: '🧤', stats: { left: '🟡 1', right: '🛡️1' } }
+            ],
+            items: [
+                { emoji: '🗝️', stats: { left: '', right: '' } },
+                { emoji: '📜', stats: { left: '', right: '' } },
+                { emoji: '🪈', stats: { left: '', right: '' } }
+            ]
+        };
         const enemyEmojis = ['🐺', '🐊', '🐉', '👻', '🐙', '🕷️', '🦂', '🦇', '👹', '🐍'];
-        const emojis = [...food, ...weapons, ...clothing, ...items, '🏪', '🏺'];
+        const allItems = Object.values(itemCategories).flat();
+        const specialSymbols = [{ emoji: '🏪' }, { emoji: '🏺' }];
+        const allSymbols = [...allItems, ...specialSymbols];
 
         // --- Game State ---
+        let playerItems = [null, null, null];
         let isSpinning = false;
         let isPaused = false;
         let lockedSlotIndex = -1;
@@ -295,7 +322,6 @@
         // --- Battle State ---
         const BASE_ENEMY_HP = 5;
         const BASE_ENEMY_DAMAGE = 1;
-
         let player = {
             hp: 10, maxHp: 10, armor: 5, maxArmor: 5, damage: 3,
             element: document.getElementById('player-character'),
@@ -303,8 +329,8 @@
             armorBar: document.getElementById('player-armor-bar')
         };
         let enemies = [
-            { id: 1, hp: 5, maxHp: 5, damage: 1, isAlive: true, element: document.getElementById('enemy-1'), hpBar: document.getElementById('enemy-1-hp') },
-            { id: 2, hp: 5, maxHp: 5, damage: 1, isAlive: true, element: document.getElementById('enemy-2'), hpBar: document.getElementById('enemy-2-hp') }
+            { id: 1, hp: 5, maxHp: 5, damage: 1, isAlive: true, element: document.getElementById('enemy-1'), hpBar: document.getElementById('enemy-1-hp'), hpText: document.getElementById('enemy-1-hp-text') },
+            { id: 2, hp: 5, maxHp: 5, damage: 1, isAlive: true, element: document.getElementById('enemy-2'), hpBar: document.getElementById('enemy-2-hp'), hpText: document.getElementById('enemy-2-hp-text') }
         ];
         
         // --- Utility Functions ---
@@ -312,8 +338,8 @@
 
         // --- Animation & Visual Feedback Functions ---
         function applyAnimation(element, animationClass) {
-            element.classList.remove(animationClass); // Reset animation
-            void element.offsetWidth; // Trigger reflow
+            element.classList.remove(animationClass);
+            void element.offsetWidth;
             element.classList.add(animationClass);
             element.addEventListener('animationend', () => element.classList.remove(animationClass), { once: true });
         }
@@ -326,15 +352,12 @@
                 damageEl.style.color = '#60a5fa'; // Light blue for armor
                 damageEl.style.textShadow = '1px 1px 2px #2563eb';
             }
-            
             const rect = targetElement.getBoundingClientRect();
             const containerRect = damageContainer.getBoundingClientRect();
-
             damageEl.style.left = `${rect.left - containerRect.left + rect.width / 2 - 15}px`;
             damageEl.style.top = `${rect.top - containerRect.top + rect.height / 2 - 15}px`;
-
             damageContainer.appendChild(damageEl);
-            setTimeout(() => damageEl.remove(), 1200); // Remove after animation
+            setTimeout(() => damageEl.remove(), 1200);
         }
 
         async function showVictoryMessage() {
@@ -350,23 +373,38 @@
 
         // --- UI Update Functions ---
         function updateAllUI() {
+            // Player
             player.hpBar.style.width = `${(player.hp / player.maxHp) * 100}%`;
+            playerHealthText.textContent = `${player.hp} / ${player.maxHp}`;
             player.armorBar.style.width = `${(player.armor / player.maxArmor) * 100}%`;
+            playerArmorText.textContent = `${player.armor} / ${player.maxArmor}`;
+            
+            // Enemies
             enemies.forEach(enemy => {
                  enemy.hpBar.style.width = `${(enemy.hp / enemy.maxHp) * 100}%`;
+                 enemy.hpText.textContent = `${enemy.hp} / ${enemy.maxHp}`;
             });
+
+            // Resources
             goldCountElement.textContent = gold;
             spinCostText.textContent = SPIN_COST_SEQUENCE;
         }
 
         function updateItemSlotVisuals() {
-            itemSlotContainers.forEach((container, index) => {
-                const itemSymbol = itemSlotSpans[index].textContent.trim();
-                const statElements = container.querySelectorAll('.item-stat');
-                if (itemSymbol === '') {
-                    statElements.forEach(el => el.classList.add('opacity-0'));
+            playerItems.forEach((item, index) => {
+                const container = itemSlotContainers[index];
+                const emojiSpan = container.querySelector(`#item-slot-${index + 1}`);
+                const leftStatSpan = container.querySelector('.item-stat-left');
+                const rightStatSpan = container.querySelector('.item-stat-right');
+
+                if (item && item.emoji) {
+                    emojiSpan.textContent = item.emoji;
+                    leftStatSpan.textContent = item.stats?.left || '';
+                    rightStatSpan.textContent = item.stats?.right || '';
                 } else {
-                    statElements.forEach(el => el.classList.remove('opacity-0'));
+                    emojiSpan.textContent = '';
+                    leftStatSpan.textContent = '';
+                    rightStatSpan.textContent = '';
                 }
             });
         }
@@ -381,7 +419,7 @@
                 enemy.hp = newHp;
                 enemy.damage = newDamage;
                 enemy.isAlive = true;
-                enemy.element.classList.remove('dying'); // Reset animation state
+                enemy.element.classList.remove('dying');
                 enemy.element.style.opacity = '1';
                 enemy.element.style.transform = '';
                 enemy.element.querySelector('.enemy-emoji').textContent = shuffledEnemies[index];
@@ -390,7 +428,7 @@
         }
 
         function setLockedSlot(index) {
-            if (isSpinning || itemSlotSpans[index].textContent.trim() === '') return;
+            if (isSpinning || !playerItems[index]) return;
             if (lockedSlotIndex === index) {
                 itemSlotContainers[index].classList.remove('locked-slot');
                 lockedSlotIndex = -1;
@@ -401,15 +439,17 @@
             }
         }
 
-        function checkWin(reelValues) {
-            if (reelValues[0] === reelValues[1] && reelValues[1] === reelValues[2]) {
+        function checkWin(reelItemObjects) {
+            const reelEmojis = reelItemObjects.map(item => item.emoji);
+            if (reelEmojis[0] === reelEmojis[1] && reelEmojis[1] === reelEmojis[2]) {
                 slotMachineContainer.classList.add('winner');
             }
-            for (const category of [items, clothing, food, weapons]) {
-                if (reelValues.every(emoji => category.includes(emoji))) {
-                    for (let i = 0; i < itemSlotSpans.length; i++) {
+            for (const category of Object.values(itemCategories)) {
+                const categoryEmojis = category.map(item => item.emoji);
+                if (reelEmojis.every(emoji => categoryEmojis.includes(emoji))) {
+                    for (let i = 0; i < playerItems.length; i++) {
                         if (i !== lockedSlotIndex) {
-                            itemSlotSpans[i].textContent = reelValues[i];
+                            playerItems[i] = reelItemObjects[i];
                         }
                     }
                     slotMachineContainer.classList.add('winner');
@@ -424,20 +464,20 @@
             slotMachineContainer.classList.remove('winner');
             reelElements.forEach(reel => reel.classList.remove('glow'));
             
-            const finalValues = reelElements.map(() => emojis[Math.floor(Math.random() * emojis.length)]);
+            const finalValues = reelElements.map(() => allSymbols[Math.floor(Math.random() * allSymbols.length)]);
 
             const spinPromises = reelElements.map((reel, i) => {
                 return new Promise(async resolve => {
                     const span = reel.querySelector('span');
-                    const spinDuration = 500 + i * 200; // Staggered spin duration
+                    const spinDuration = 500 + i * 200;
                     const startTime = Date.now();
                     
                     async function animateReel() {
-                        span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                        span.textContent = allSymbols[Math.floor(Math.random() * allSymbols.length)].emoji;
                         if (Date.now() - startTime < spinDuration) {
                             requestAnimationFrame(animateReel);
                         } else {
-                            span.textContent = finalValues[i];
+                            span.textContent = finalValues[i].emoji;
                             resolve();
                         }
                     }
@@ -448,24 +488,25 @@
             await Promise.all(spinPromises);
             checkWin(finalValues);
 
-            let openedModal = false;
-            if (finalValues.includes('🏪') && !hasShopAppearedThisTurn) {
-                finalValues.forEach((v, i) => v === '🏪' && reelElements[i].classList.add('glow'));
+            const finalEmojis = finalValues.map(v => v.emoji);
+            let openedMiniView = false;
+            if (finalEmojis.includes('🏪') && !hasShopAppearedThisTurn) {
+                finalValues.forEach((v, i) => v.emoji === '🏪' && reelElements[i].classList.add('glow'));
                 await sleep(600);
-                isPaused = true;
+                isPaused = true; 
                 hasShopAppearedThisTurn = true;
-                shopModal.classList.remove('hidden');
-                shopModal.classList.add('flex');
-                openedModal = true;
+                upgradeList.classList.add('hidden');
+                miniShopContainer.classList.remove('hidden');
+                openedMiniView = true;
             }
 
-            if (finalValues.includes('🏺') && !hasUrnAppearedThisTurn && !openedModal) {
-                finalValues.forEach((v, i) => v === '🏺' && reelElements[i].classList.add('glow'));
+            if (finalEmojis.includes('🏺') && !hasUrnAppearedThisTurn && !openedMiniView) {
+                finalValues.forEach((v, i) => v.emoji === '🏺' && reelElements[i].classList.add('glow'));
                 await sleep(600);
-                isPaused = true;
+                isPaused = true; 
                 hasUrnAppearedThisTurn = true;
-                urnModal.classList.remove('hidden');
-                urnModal.classList.add('flex');
+                upgradeList.classList.add('hidden');
+                miniUrnContainer.classList.remove('hidden');
             }
         }
 
@@ -474,7 +515,6 @@
             if (livingEnemies.length === 0) return;
             const target = livingEnemies[Math.floor(Math.random() * livingEnemies.length)];
 
-            // Player attacks enemy
             applyAnimation(player.element, 'lunge');
             await sleep(150);
             applyAnimation(target.element, 'shake');
@@ -482,15 +522,13 @@
             target.hp -= player.damage;
             
             if (target.hp <= 0) {
-                target.hp = 0;
-                target.isAlive = false;
+                target.hp = 0; target.isAlive = false;
                 await sleep(300);
                 target.element.classList.add('dying');
             }
             updateAllUI();
-            await sleep(500); // Pause to see damage result
+            await sleep(500);
 
-            // Enemy retaliates (if still alive and any enemy is alive)
             const anyEnemyAlive = enemies.some(e => e.isAlive);
             if (!target.isAlive || !anyEnemyAlive) return;
             
@@ -511,10 +549,8 @@
             }
 
             if (player.hp < 0) player.hp = 0;
-            
             applyAnimation(player.element, 'shake');
             applyAnimation(gameUi, 'screen-shake');
-            
             updateAllUI();
         }
 
@@ -536,32 +572,23 @@
 
             for (let i = SPIN_COST_SEQUENCE; i > 0; i--) {
                 if (gold <= 0) break;
-
                 gold--;
                 updateAllUI();
                 spinsRemainingCount.textContent = i;
-
                 await runSingleSpinAnimation();
-                await sleep(400); // Pause after spin to register results
-
-                // Pause loop if a modal is open
+                await sleep(400);
                 while (isPaused) { await sleep(100); }
-
                 await performBattleTurn();
-
-                // Check for victory AFTER the battle turn and set up next wave if won
                 if (enemies.every(e => !e.isAlive)) {
                     gold += 10;
                     battleCount++;
                     await showVictoryMessage();
                     setupNextBattle();
                 }
-
-                await sleep(800); // Pause after battle turn for readability
+                await sleep(800);
             }
 
-            player.armor = player.maxArmor; // Restore armor after sequence
-
+            player.armor = player.maxArmor;
             updateAllUI();
             spinsRemainingContainer.classList.add('opacity-0');
             spinButton.disabled = false;
@@ -572,22 +599,24 @@
         function initializeGame() {
             spinButton.addEventListener('click', startFiveSpins);
             itemSlotContainers.forEach((c, i) => c.addEventListener('click', () => setLockedSlot(i)));
-            closeShopButton.addEventListener('click', () => {
-                shopModal.classList.add('hidden');
-                shopModal.classList.remove('flex');
+            
+            closeMiniShopButton.addEventListener('click', () => {
+                miniShopContainer.classList.add('hidden');
+                upgradeList.classList.remove('hidden');
                 isPaused = false;
             });
-            closeUrnButton.addEventListener('click', () => {
-                urnModal.classList.add('hidden');
-                urnModal.classList.remove('flex');
+
+            closeMiniUrnButton.addEventListener('click', () => {
+                miniUrnContainer.classList.add('hidden');
+                upgradeList.classList.remove('hidden');
                 isPaused = false;
             });
 
             setupNextBattle();
-            itemSlotSpans.forEach(span => span.textContent = '');
             reelElements.forEach(reel => reel.querySelector('span').textContent = '');
-            itemSlotContainers.forEach(c => c.classList.remove('locked-slot'));
+            playerItems = [null, null, null];
             lockedSlotIndex = -1;
+            itemSlotContainers.forEach(c => c.classList.remove('locked-slot'));
             updateItemSlotVisuals();
             updateAllUI();
         }
