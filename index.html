@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Mobile Game UI</title>
+    <title>Mobile Game UI - Polished</title>
     <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -15,15 +15,23 @@
             overscroll-behavior-y: contain;
         }
 
+        /* --- Animation & Effects Styles --- */
+
         /* Style for a standard winning combination */
         .winner div, .glow {
+            animation: pulse-gold 1s ease-in-out;
             box-shadow: 0 0 25px 5px gold;
             border-color: gold !important;
         }
-        
+        @keyframes pulse-gold {
+            0% { box-shadow: 0 0 15px 3px gold; }
+            50% { box-shadow: 0 0 35px 8px gold; }
+            100% { box-shadow: 0 0 15px 3px gold; }
+        }
+
         /* New style for the locked item slot */
         .locked-slot {
-            border-color: #FBBF24 !important; /* Tailwind yellow-400, !important to override Tailwind default */
+            border-color: #FBBF24 !important; /* Tailwind yellow-400 */
             box-shadow: 0 0 10px #FBBF24;
         }
 
@@ -32,9 +40,55 @@
             transition: width 0.3s ease-in-out;
         }
 
-        /* Transition for characters moving/disappearing */
+        /* Character container for smooth transitions */
         .character-container {
             transition: transform 0.2s ease-in-out, opacity 0.5s ease-in-out;
+        }
+
+        /* Battle Animations */
+        @keyframes character-lunge {
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .lunge { animation: character-lunge 0.3s ease-out; }
+
+        @keyframes take-damage-shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px) rotate(-2deg); }
+            75% { transform: translateX(6px) rotate(2deg); }
+        }
+        .shake { animation: take-damage-shake 0.3s ease-in-out; }
+
+        @keyframes character-death {
+            from { opacity: 1; transform: scale(1) rotate(0deg); }
+            to { opacity: 0; transform: scale(0.3) rotate(20deg); }
+        }
+        .dying {
+            animation: character-death 0.4s ease-in forwards;
+        }
+
+        /* Screen Shake for impact */
+        @keyframes screen-shake-anim {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(2px, -2px) rotate(0.5deg); }
+            75% { transform: translate(-2px, 2px) rotate(-0.5deg); }
+        }
+        .screen-shake { animation: screen-shake-anim 0.2s ease-in-out; }
+
+        /* Floating damage numbers */
+        .damage-number {
+            position: absolute;
+            font-size: 1.75rem; /* Larger for more impact */
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 3px red, -1px -1px 3px red;
+            pointer-events: none;
+            animation: float-up-and-fade 1.2s ease-out forwards;
+            z-index: 100;
+        }
+        @keyframes float-up-and-fade {
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(-60px); opacity: 0; }
         }
     </style>
 </head>
@@ -85,7 +139,9 @@
             </header>
 
             <!-- 2. Main Game View -->
-            <main class="flex-1 flex items-center justify-between p-4 bg-gradient-to-br from-black to-green-900">
+            <main class="flex-1 flex items-center justify-between p-4 bg-gradient-to-br from-black to-green-900 relative">
+                <!-- This container is for floating damage numbers -->
+                <div id="damage-container" class="absolute inset-0"></div>
                 <!-- Character on the left -->
                 <div id="player-character" class="flex flex-col items-center character-container">
                     <span class="text-8xl">🧝</span>
@@ -124,14 +180,7 @@
                 </div>
                  <!-- Upgrade List -->
                 <div id="upgrade-list" class="w-full max-w-xs text-gray-300 text-xs grid grid-cols-2 gap-x-4 gap-y-2">
-                    <div class="flex items-center"><span class="text-base mr-2">⚡️</span><span>Upgrade 1</span></div>
-                    <div class="flex items-center"><span class="text-base mr-2">🍀</span><span>Upgrade 2</span></div>
-                    <div class="flex items-center"><span class="text-base mr-2">💎</span><span>Upgrade 3</span></div>
-                    <div class="flex items-center"><span class="text-base mr-2">💰</span><span>Upgrade 4</span></div>
-                    <div class="flex items-center"><span class="text-base mr-2">🔄</span><span>Upgrade 5</span></div>
-                    <div class="flex items-center"><span class="text-base mr-2">🐉</span><span>Upgrade 6</span></div>
-                    <div class="flex items-center"><span class="text-base mr-2">📈</span><span>Upgrade 7</span></div>
-                    <div class="flex items-center"><span class="text-base mr-2">❤️</span><span>Upgrade 8</span></div>
+                    <!-- Upgrades can be populated dynamically -->
                 </div>
             </section>
 
@@ -140,11 +189,11 @@
                 <a href="#" class="flex-1 text-gray-400 hover:text-white transition-colors flex flex-col items-center justify-center">
                     <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center"></div>
                 </a>
-                <a href="#" id="spin-button" class="flex-1 text-white flex flex-col items-center cursor-pointer">
+                <button id="spin-button" class="flex-1 text-white flex flex-col items-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
                     <div class="w-20 h-20 rounded-full bg-purple-600 flex items-center justify-center transition-all duration-100 ease-in-out active:scale-90 active:brightness-75">
-                        <span class="text-5xl font-bold">5</span>
+                        <span id="spin-cost-text" class="text-5xl font-bold">5</span>
                     </div>
-                </a>
+                </button>
                 <a href="#" class="flex-1 text-gray-400 hover:text-white transition-colors flex flex-col items-center justify-center">
                     <div class="w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center">
                         <span class="text-xl">✨</span>
@@ -206,11 +255,13 @@
     </div>
 
     <script>
-        // DOM Elements
+        // --- DOM Elements ---
+        const gameUi = document.getElementById('game-ui');
         const spinButton = document.getElementById('spin-button');
+        const spinCostText = document.getElementById('spin-cost-text');
         const reelElements = [document.getElementById('reel1'), document.getElementById('reel2'), document.getElementById('reel3')];
         const itemSlotSpans = [document.getElementById('item-slot-1'), document.getElementById('item-slot-2'), document.getElementById('item-slot-3')];
-        const itemSlotContainers = [document.getElementById('item-slot-container-1'), document.getElementById('item-slot-container-2'), document.getElementById('item-slot-container-3')];
+        const itemSlotContainers = [...document.querySelectorAll('[id^="item-slot-container-"]')];
         const slotMachineContainer = document.getElementById('slot-machine-container');
         const goldCountElement = document.getElementById('gold-count');
         const spinsRemainingContainer = document.getElementById('spins-remaining-container');
@@ -221,8 +272,9 @@
         const closeShopButton = document.getElementById('close-shop-button');
         const urnModal = document.getElementById('urn-modal');
         const closeUrnButton = document.getElementById('close-urn-button');
+        const damageContainer = document.getElementById('damage-container');
 
-        // Game Assets
+        // --- Game Assets ---
         const food = ['🍎', '🍗', '🍋'];
         const weapons = ['🗡️', '🏹', '🪓'];
         const clothing = ['👢', '🧥', '🧤'];
@@ -230,52 +282,71 @@
         const enemyEmojis = ['🐺', '🐊', '🐉', '👻', '🐙', '🕷️', '🦂', '🦇', '👹', '🐍'];
         const emojis = [...food, ...weapons, ...clothing, ...items, '🏪', '🏺'];
 
-
-        // Game State
+        // --- Game State ---
         let isSpinning = false;
         let isPaused = false;
-        let lockedSlotIndex = -1; // -1 indicates no slot is locked initially
+        let lockedSlotIndex = -1;
         let gold = 125;
         const SPIN_COST_SEQUENCE = 5;
         let battleCount = 0;
         let hasShopAppearedThisTurn = false;
         let hasUrnAppearedThisTurn = false;
 
-        // Battle State
+        // --- Battle State ---
         const BASE_ENEMY_HP = 5;
         const BASE_ENEMY_DAMAGE = 1;
 
         let player = {
-            hp: 10,
-            maxHp: 10,
-            armor: 5,
-            maxArmor: 5,
-            damage: 3,
+            hp: 10, maxHp: 10, armor: 5, maxArmor: 5, damage: 3,
             element: document.getElementById('player-character'),
             hpBar: document.getElementById('player-health-bar'),
             armorBar: document.getElementById('player-armor-bar')
         };
-
         let enemies = [
-            {
-                id: 1,
-                hp: 5,
-                maxHp: 5,
-                damage: 1,
-                isAlive: true,
-                element: document.getElementById('enemy-1'),
-                hpBar: document.getElementById('enemy-1-hp')
-            },
-            {
-                id: 2,
-                hp: 5,
-                maxHp: 5,
-                damage: 1,
-                isAlive: true,
-                element: document.getElementById('enemy-2'),
-                hpBar: document.getElementById('enemy-2-hp')
-            }
+            { id: 1, hp: 5, maxHp: 5, damage: 1, isAlive: true, element: document.getElementById('enemy-1'), hpBar: document.getElementById('enemy-1-hp') },
+            { id: 2, hp: 5, maxHp: 5, damage: 1, isAlive: true, element: document.getElementById('enemy-2'), hpBar: document.getElementById('enemy-2-hp') }
         ];
+        
+        // --- Utility Functions ---
+        const sleep = ms => new Promise(res => setTimeout(res, ms));
+
+        // --- Animation & Visual Feedback Functions ---
+        function applyAnimation(element, animationClass) {
+            element.classList.remove(animationClass); // Reset animation
+            void element.offsetWidth; // Trigger reflow
+            element.classList.add(animationClass);
+            element.addEventListener('animationend', () => element.classList.remove(animationClass), { once: true });
+        }
+        
+        function showDamageNumber(targetElement, damageAmount, isArmorHit = false) {
+            const damageEl = document.createElement('div');
+            damageEl.textContent = damageAmount;
+            damageEl.className = 'damage-number';
+            if (isArmorHit) {
+                damageEl.style.color = '#60a5fa'; // Light blue for armor
+                damageEl.style.textShadow = '1px 1px 2px #2563eb';
+            }
+            
+            const rect = targetElement.getBoundingClientRect();
+            const containerRect = damageContainer.getBoundingClientRect();
+
+            damageEl.style.left = `${rect.left - containerRect.left + rect.width / 2 - 15}px`;
+            damageEl.style.top = `${rect.top - containerRect.top + rect.height / 2 - 15}px`;
+
+            damageContainer.appendChild(damageEl);
+            setTimeout(() => damageEl.remove(), 1200); // Remove after animation
+        }
+
+        async function showVictoryMessage() {
+            battleWonDetails.textContent = `+10 Gold | Wave ${battleCount + 1} Cleared!`;
+            victoryMessageElement.classList.remove('hidden');
+            victoryMessageElement.classList.add('flex');
+            await sleep(1500);
+            victoryMessageElement.classList.add('opacity-0');
+            await sleep(300);
+            victoryMessageElement.classList.add('hidden');
+            victoryMessageElement.classList.remove('flex', 'opacity-0');
+        }
 
         // --- UI Update Functions ---
         function updateAllUI() {
@@ -285,6 +356,7 @@
                  enemy.hpBar.style.width = `${(enemy.hp / enemy.maxHp) * 100}%`;
             });
             goldCountElement.textContent = gold;
+            spinCostText.textContent = SPIN_COST_SEQUENCE;
         }
 
         function updateItemSlotVisuals() {
@@ -299,160 +371,40 @@
             });
         }
 
-        async function showVictoryMessage() {
-            return new Promise(resolve => {
-                battleWonDetails.textContent = `+10 Gold | Wave ${battleCount + 1} Cleared!`;
-                victoryMessageElement.classList.remove('hidden', 'opacity-0');
-                victoryMessageElement.classList.add('flex');
-                setTimeout(() => {
-                    victoryMessageElement.classList.add('opacity-0');
-                     setTimeout(() => {
-                        victoryMessageElement.classList.add('hidden');
-                        victoryMessageElement.classList.remove('flex', 'opacity-0'); // Reset for next time
-                        resolve();
-                    }, 300);
-                }, 1500);
-            });
-        }
-        
+        // --- Game Logic Functions ---
         function setupNextBattle() {
             const newHp = BASE_ENEMY_HP + battleCount;
             const newDamage = BASE_ENEMY_DAMAGE + Math.floor(battleCount / 2);
-
             const shuffledEnemies = [...enemyEmojis].sort(() => 0.5 - Math.random());
-
             enemies.forEach((enemy, index) => {
                 enemy.maxHp = newHp;
                 enemy.hp = newHp;
                 enemy.damage = newDamage;
                 enemy.isAlive = true;
-                enemy.element.classList.remove('opacity-0');
+                enemy.element.classList.remove('dying'); // Reset animation state
+                enemy.element.style.opacity = '1';
+                enemy.element.style.transform = '';
                 enemy.element.querySelector('.enemy-emoji').textContent = shuffledEnemies[index];
             });
             updateAllUI();
         }
-        
+
         function setLockedSlot(index) {
             if (isSpinning || itemSlotSpans[index].textContent.trim() === '') return;
-
-            // If clicking the currently locked slot, unlock it
             if (lockedSlotIndex === index) {
                 itemSlotContainers[index].classList.remove('locked-slot');
                 lockedSlotIndex = -1;
-                return;
-            }
-
-            // Otherwise, set the new locked slot
-            itemSlotContainers.forEach(container => container.classList.remove('locked-slot'));
-            if (itemSlotContainers[index]) {
+            } else {
+                itemSlotContainers.forEach(container => container.classList.remove('locked-slot'));
                 itemSlotContainers[index].classList.add('locked-slot');
                 lockedSlotIndex = index;
             }
-        }
-
-        // --- Spin & Slot Machine Logic ---
-        async function runSingleSpinAnimation() {
-             return new Promise(async (resolve) => {
-                slotMachineContainer.classList.remove('winner');
-                reelElements.forEach(reel => reel.classList.remove('glow'));
-                const spans = reelElements.map(reel => reel.querySelector('span'));
-                spans.forEach(span => { span.style.opacity = '0'; });
-                await new Promise(res => setTimeout(res, 50));
-                
-                const reelValues = [];
-                for (const span of spans) {
-                    const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-                    reelValues.push(randomEmoji);
-                    span.textContent = randomEmoji;
-                    span.style.opacity = '1';
-                    await new Promise(res => setTimeout(res, 150));
-                }
-
-                checkWin(reelValues);
-                
-                let openedModal = false;
-                if (reelValues.includes('🏪') && !hasShopAppearedThisTurn) {
-                    reelValues.forEach((value, index) => {
-                        if (value === '🏪') reelElements[index].classList.add('glow');
-                    });
-                    await new Promise(res => setTimeout(res, 600)); // Wait for animation to be visible
-                    isPaused = true;
-                    hasShopAppearedThisTurn = true;
-                    shopModal.classList.remove('hidden');
-                    shopModal.classList.add('flex');
-                    openedModal = true;
-                } 
-                
-                if (reelValues.includes('🏺') && !hasUrnAppearedThisTurn && !openedModal) {
-                     reelValues.forEach((value, index) => {
-                        if (value === '🏺') reelElements[index].classList.add('glow');
-                    });
-                    await new Promise(res => setTimeout(res, 600)); // Wait for animation
-                    isPaused = true;
-                    hasUrnAppearedThisTurn = true;
-                    urnModal.classList.remove('hidden');
-                    urnModal.classList.add('flex');
-                }
-
-                await new Promise(res => setTimeout(res, 100));
-                resolve();
-            });
-        }
-
-        async function startFiveSpins() {
-            if (isSpinning) return;
-            if (gold < SPIN_COST_SEQUENCE) {
-                console.log("Not enough gold for 5 spins!");
-                return;
-            }
-
-            hasShopAppearedThisTurn = false;
-            hasUrnAppearedThisTurn = false;
-            
-            isSpinning = true;
-            spinsRemainingContainer.classList.remove('opacity-0');
-            
-            for (let i = SPIN_COST_SEQUENCE; i > 0; i--) {
-                const livingEnemies = enemies.filter(e => e.isAlive);
-                if (gold <= 0 || livingEnemies.length === 0) break;
-
-                gold--;
-                updateAllUI();
-                spinsRemainingCount.textContent = i;
-                
-                await runSingleSpinAnimation();
-
-                // Pause loop if a modal is open
-                while (isPaused) {
-                    await new Promise(resolve => setTimeout(resolve, 100)); 
-                }
-                
-                await new Promise(res => setTimeout(res, 200));
-                
-                await performBattleTurn();
-                await new Promise(res => setTimeout(res, 500)); 
-            }
-            
-            player.armor = player.maxArmor;
-            
-            // Check for victory
-            if (enemies.every(e => !e.isAlive)) {
-                gold += 10;
-                await showVictoryMessage();
-                battleCount++; // Increment battle count for the next wave
-                setupNextBattle();
-            }
-
-            updateAllUI();
-            spinsRemainingContainer.classList.add('opacity-0');
-            isSpinning = false;
         }
 
         function checkWin(reelValues) {
             if (reelValues[0] === reelValues[1] && reelValues[1] === reelValues[2]) {
                 slotMachineContainer.classList.add('winner');
             }
-
             for (const category of [items, clothing, food, weapons]) {
                 if (reelValues.every(emoji => category.includes(emoji))) {
                     for (let i = 0; i < itemSlotSpans.length; i++) {
@@ -461,89 +413,186 @@
                         }
                     }
                     slotMachineContainer.classList.add('winner');
-                    updateItemSlotVisuals(); // Update visuals after assigning new items
+                    updateItemSlotVisuals();
                     break;
                 }
             }
         }
 
-        // --- Battle Logic ---
+        // --- Core Game Flow ---
+        async function runSingleSpinAnimation() {
+            slotMachineContainer.classList.remove('winner');
+            reelElements.forEach(reel => reel.classList.remove('glow'));
+            
+            const finalValues = reelElements.map(() => emojis[Math.floor(Math.random() * emojis.length)]);
+
+            const spinPromises = reelElements.map((reel, i) => {
+                return new Promise(async resolve => {
+                    const span = reel.querySelector('span');
+                    const spinDuration = 500 + i * 200; // Staggered spin duration
+                    const startTime = Date.now();
+                    
+                    async function animateReel() {
+                        span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                        if (Date.now() - startTime < spinDuration) {
+                            requestAnimationFrame(animateReel);
+                        } else {
+                            span.textContent = finalValues[i];
+                            resolve();
+                        }
+                    }
+                    await animateReel();
+                });
+            });
+
+            await Promise.all(spinPromises);
+            checkWin(finalValues);
+
+            let openedModal = false;
+            if (finalValues.includes('🏪') && !hasShopAppearedThisTurn) {
+                finalValues.forEach((v, i) => v === '🏪' && reelElements[i].classList.add('glow'));
+                await sleep(600);
+                isPaused = true;
+                hasShopAppearedThisTurn = true;
+                shopModal.classList.remove('hidden');
+                shopModal.classList.add('flex');
+                openedModal = true;
+            }
+
+            if (finalValues.includes('🏺') && !hasUrnAppearedThisTurn && !openedModal) {
+                finalValues.forEach((v, i) => v === '🏺' && reelElements[i].classList.add('glow'));
+                await sleep(600);
+                isPaused = true;
+                hasUrnAppearedThisTurn = true;
+                urnModal.classList.remove('hidden');
+                urnModal.classList.add('flex');
+            }
+        }
+
         async function performBattleTurn() {
             const livingEnemies = enemies.filter(e => e.isAlive);
             if (livingEnemies.length === 0) return;
-
             const target = livingEnemies[Math.floor(Math.random() * livingEnemies.length)];
 
             // Player attacks enemy
-            player.element.style.transform = 'translateX(10px)';
-            await new Promise(res => setTimeout(res, 150));
+            applyAnimation(player.element, 'lunge');
+            await sleep(150);
+            applyAnimation(target.element, 'shake');
+            showDamageNumber(target.element, player.damage);
             target.hp -= player.damage;
-            target.element.classList.add('opacity-50');
-            await new Promise(res => setTimeout(res, 150));
-            target.element.classList.remove('opacity-50');
-            player.element.style.transform = 'translateX(0)';
             
             if (target.hp <= 0) {
                 target.hp = 0;
                 target.isAlive = false;
-                target.element.classList.add('opacity-0');
+                await sleep(300);
+                target.element.classList.add('dying');
             }
             updateAllUI();
-            
-            if (!target.isAlive) return;
-            await new Promise(res => setTimeout(res, 200));
+            await sleep(500); // Pause to see damage result
 
-            // Enemy retaliates
-            target.element.style.transform = 'translateX(-10px)';
-            await new Promise(res => setTimeout(res, 150));
+            // Enemy retaliates (if still alive and any enemy is alive)
+            const anyEnemyAlive = enemies.some(e => e.isAlive);
+            if (!target.isAlive || !anyEnemyAlive) return;
+            
+            await sleep(200);
+            applyAnimation(target.element, 'lunge');
+            await sleep(150);
 
             let damageToPlayer = target.damage;
             const armorDamage = Math.min(player.armor, damageToPlayer);
-            player.armor -= armorDamage;
+            if (armorDamage > 0) {
+                player.armor -= armorDamage;
+                showDamageNumber(player.element, armorDamage, true);
+            }
             damageToPlayer -= armorDamage;
-            player.hp -= damageToPlayer;
+            if(damageToPlayer > 0) {
+                player.hp -= damageToPlayer;
+                showDamageNumber(player.element, damageToPlayer);
+            }
+
             if (player.hp < 0) player.hp = 0;
-
-            player.element.classList.add('opacity-50');
-            await new Promise(res => setTimeout(res, 150));
-            player.element.classList.remove('opacity-50');
-            target.element.style.transform = 'translateX(0)';
-
+            
+            applyAnimation(player.element, 'shake');
+            applyAnimation(gameUi, 'screen-shake');
+            
             updateAllUI();
         }
 
+        async function startFiveSpins() {
+            if (isSpinning) return;
+            if (gold < SPIN_COST_SEQUENCE) {
+                spinCostText.textContent = "NO!";
+                applyAnimation(spinButton.querySelector('div'), 'shake');
+                await sleep(500);
+                updateAllUI();
+                return;
+            }
+
+            isSpinning = true;
+            spinButton.disabled = true;
+            hasShopAppearedThisTurn = false;
+            hasUrnAppearedThisTurn = false;
+            spinsRemainingContainer.classList.remove('opacity-0');
+
+            for (let i = SPIN_COST_SEQUENCE; i > 0; i--) {
+                if (gold <= 0) break;
+
+                gold--;
+                updateAllUI();
+                spinsRemainingCount.textContent = i;
+
+                await runSingleSpinAnimation();
+                await sleep(400); // Pause after spin to register results
+
+                // Pause loop if a modal is open
+                while (isPaused) { await sleep(100); }
+
+                await performBattleTurn();
+
+                // Check for victory AFTER the battle turn and set up next wave if won
+                if (enemies.every(e => !e.isAlive)) {
+                    gold += 10;
+                    battleCount++;
+                    await showVictoryMessage();
+                    setupNextBattle();
+                }
+
+                await sleep(800); // Pause after battle turn for readability
+            }
+
+            player.armor = player.maxArmor; // Restore armor after sequence
+
+            updateAllUI();
+            spinsRemainingContainer.classList.add('opacity-0');
+            spinButton.disabled = false;
+            isSpinning = false;
+        }
+
         // --- Event Listeners & Initialization ---
-        spinButton.addEventListener('click', startFiveSpins);
-        
-        itemSlotContainers.forEach((container, index) => {
-            container.addEventListener('click', () => setLockedSlot(index));
-        });
-        
-        closeShopButton.addEventListener('click', () => {
-            shopModal.classList.add('hidden');
-            shopModal.classList.remove('flex');
-            isPaused = false;
-        });
-
-        closeUrnButton.addEventListener('click', () => {
-            urnModal.classList.add('hidden');
-            urnModal.classList.remove('flex');
-            isPaused = false;
-        });
-
-        // Initialize the game state on load
         function initializeGame() {
+            spinButton.addEventListener('click', startFiveSpins);
+            itemSlotContainers.forEach((c, i) => c.addEventListener('click', () => setLockedSlot(i)));
+            closeShopButton.addEventListener('click', () => {
+                shopModal.classList.add('hidden');
+                shopModal.classList.remove('flex');
+                isPaused = false;
+            });
+            closeUrnButton.addEventListener('click', () => {
+                urnModal.classList.add('hidden');
+                urnModal.classList.remove('flex');
+                isPaused = false;
+            });
+
             setupNextBattle();
-            // Start with empty slots and reels
             itemSlotSpans.forEach(span => span.textContent = '');
             reelElements.forEach(reel => reel.querySelector('span').textContent = '');
-            itemSlotContainers.forEach(container => container.classList.remove('locked-slot'));
+            itemSlotContainers.forEach(c => c.classList.remove('locked-slot'));
             lockedSlotIndex = -1;
             updateItemSlotVisuals();
+            updateAllUI();
         }
 
         initializeGame();
-
     </script>
 </body>
 </html>
