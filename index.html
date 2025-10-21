@@ -7,11 +7,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'VT323', monospace;
+            font-family: 'Inter', sans-serif;
             touch-action: manipulation; /* Prevents double-tap zoom on mobile */
+            background-color: #0a0a0a;
         }
         /* Custom scrollbar for the log */
         #log-area::-webkit-scrollbar {
@@ -21,118 +22,127 @@
             background: #1f2937;
         }
         #log-area::-webkit-scrollbar-thumb {
-            background: #4b5563;
+            background: #4f46e5;
             border-radius: 3px;
-        }
-        #log-area::-webkit-scrollbar-thumb:hover {
-            background: #6b7280;
         }
         .hud-bar-container {
             background-color: #374151;
-            border-radius: 5px;
+            border-radius: 9999px; /* Pill shape */
             overflow: hidden;
-            border: 2px solid #1f2937;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+            padding: 3px;
         }
         .hud-bar {
-            height: 100%;
+            height: 10px;
             transition: width 0.3s ease-in-out;
-            text-shadow: 1px 1px 2px black;
+            border-radius: 9999px;
+        }
+        .hp-bar {
+             background: linear-gradient(90deg, #f87171, #ef4444);
+        }
+        .mp-bar {
+            background: linear-gradient(90deg, #60a5fa, #3b82f6);
         }
         .btn-action {
-            transition: all 0.1s ease-in-out;
+            color: #d1d5db;
+            background-color: #374151;
+            border: 1px solid #4b5563;
+            transition: all 0.2s ease-in-out;
+            font-weight: 600;
+        }
+        .btn-action:hover {
+            background-color: #4b5563;
+            color: #ffffff;
+            border-color: #6b7280;
         }
         .btn-action:active {
             transform: scale(0.95);
-            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.4);
         }
+        
     </style>
 </head>
-<body class="bg-gray-900 flex items-center justify-center h-screen overflow-hidden">
+<body class="bg-black flex items-center justify-center h-screen overflow-hidden">
 
     <!-- Game Container -->
-    <div id="game-container" class="w-full max-w-md h-full bg-gray-800 shadow-2xl flex flex-col text-white border-4 border-gray-700 rounded-lg overflow-hidden">
+    <div id="game-container" class="w-full max-w-md h-full bg-gray-900 shadow-2xl flex flex-col text-gray-300 border-2 border-gray-700 rounded-lg overflow-hidden">
 
         <!-- Header -->
-        <header class="bg-gray-900 p-2 border-b-4 border-gray-700 text-center">
-            <h1 class="text-2xl tracking-widest">Dungeon Level: 1</h1>
+        <header class="bg-gray-800/80 p-2 border-b-2 border-gray-700 text-center">
+            <h1 class="text-lg font-bold tracking-wider text-gray-100">Floor 1</h1>
         </header>
 
         <!-- Main Content Area -->
-        <main class="flex-grow flex flex-col p-2 space-y-2 overflow-hidden">
+        <main class="flex-grow flex flex-col p-3 space-y-3 overflow-hidden">
 
             <!-- Art & Stats Area -->
-            <div id="art-and-stats" class="h-[55%] bg-black bg-opacity-30 rounded-lg p-2 border-2 border-gray-700 relative flex flex-col justify-between shadow-inner">
+            <div id="art-and-stats" class="h-[55%] flex justify-between items-end gap-3">
                 
-                <!-- Enemy Info -->
-                <div id="enemy-info" class="relative z-10">
-                    <div class="flex justify-between items-center gap-2">
-                        <h2 class="text-xl truncate">Vicious Goblin</h2>
-                        <p class="text-lg whitespace-nowrap">HP: <span id="enemy-hp-text">50/50</span></p>
+                <!-- Player Card -->
+                <div class="w-1/2 h-full flex flex-col items-center justify-end text-center space-y-2 relative">
+                    <div class="w-full px-1">
+                         <h2 class="text-lg font-bold text-white">HERO</h2>
+                         <div class="w-full hud-bar-container mt-2">
+                            <div id="player-hp-bar" class="hud-bar hp-bar" style="width: 100%;"></div>
+                        </div>
+                        <div class="flex justify-between text-xs px-2 mt-1 text-gray-400 font-semibold">
+                           <span>HP</span>
+                           <span id="player-hp-text">100/100</span>
+                        </div>
+                         <div class="w-full hud-bar-container mt-1">
+                            <div id="player-mp-bar" class="hud-bar mp-bar" style="width: 100%;"></div>
+                        </div>
+                         <div class="flex justify-between text-xs px-2 mt-1 text-gray-400 font-semibold">
+                           <span>MP</span>
+                           <span id="player-mp-text">30/30</span>
+                        </div>
                     </div>
-                    <div class="w-full hud-bar-container mt-1">
-                        <div id="enemy-hp-bar" class="hud-bar bg-red-600 text-right pr-2" style="width: 100%;"></div>
-                    </div>
+                    <img id="player-sprite" src="flower.jpg" alt="Player Character" class="max-h-[70%] object-contain" onerror="this.onerror=null;this.src='https://placehold.co/200x200/3b82f6/ffffff?text=Hero';">
                 </div>
 
-                <!-- Character and Enemy Sprites -->
-                <div class="absolute inset-0 flex items-center">
-                    <!-- Player Sprite Container -->
-                    <div class="w-1/2 flex justify-center items-center">
-                        <img id="player-sprite" src="darkelf2.jpg" alt="Player Character" class="h-2/3 object-contain" onerror="this.onerror=null;this.src='https://placehold.co/128x128/3b82f6/ffffff?text=Hero';">
+                <!-- Enemy Card -->
+                 <div class="w-1/2 h-full flex flex-col items-center justify-end text-center space-y-2 relative">
+                     <div class="w-full px-1">
+                         <h2 class="text-lg font-bold text-white truncate">GOBLIN</h2>
+                         <div class="w-full hud-bar-container mt-2">
+                            <div id="enemy-hp-bar" class="hud-bar hp-bar" style="width: 100%;"></div>
+                        </div>
+                        <div class="flex justify-between text-xs px-2 mt-1 text-gray-400 font-semibold">
+                           <span>HP</span>
+                           <span id="enemy-hp-text">50/50</span>
+                        </div>
                     </div>
-                    <!-- Enemy Sprite Container -->
-                    <div class="w-1/2 flex justify-center items-center">
-                        <img id="enemy-sprite" src="https://placehold.co/128x128/ef4444/ffffff?text=Enemy" alt="Enemy" class="h-2/3 object-contain" onerror="this.onerror=null;this.src='https://placehold.co/128x128/ef4444/ffffff?text=Enemy';">
-                    </div>
+                    <img id="enemy-sprite" src="https://placehold.co/200x200/ef4444/ffffff?text=Enemy" alt="Enemy" class="max-h-[70%] object-contain" onerror="this.onerror=null;this.src='https://placehold.co/200x200/ef4444/ffffff?text=Enemy';">
                 </div>
 
-                <!-- Player Info -->
-                <div id="player-info" class="relative z-10">
-                    <div class="flex justify-between items-center gap-2">
-                        <h2 class="text-xl">You</h2>
-                        <p class="text-lg whitespace-nowrap">HP: <span id="player-hp-text">100/100</span></p>
-                    </div>
-                    <div class="w-full hud-bar-container mt-1">
-                        <div id="player-hp-bar" class="hud-bar bg-blue-600 text-right pr-2" style="width: 100%;"></div>
-                    </div>
-                     <div class="flex justify-between items-center mt-1 gap-2">
-                        <p class="text-lg whitespace-nowrap">MP: <span id="player-mp-text">30/30</span></p>
-                    </div>
-                    <div class="w-full hud-bar-container mt-1">
-                        <div id="player-mp-bar" class="hud-bar bg-purple-600 text-right pr-2" style="width: 100%;"></div>
-                    </div>
-                </div>
             </div>
 
             <!-- Log Area -->
-            <div id="log-area" class="h-[20%] bg-gray-900 rounded-lg p-2 border-2 border-gray-700 overflow-y-auto text-lg leading-tight shadow-inner">
-                <p>> A Vicious Goblin appears!</p>
+            <div id="log-area" class="h-[20%] bg-gray-800 rounded-lg p-3 border border-gray-700 overflow-y-auto text-sm leading-relaxed shadow-inner">
+                <p class="text-yellow-400 font-semibold">> A Vicious Goblin appears!</p>
                 <p>> What will you do?</p>
             </div>
 
             <!-- Controls Area -->
-            <div id="controls-area" class="h-[25%] grid grid-cols-3 grid-rows-2 gap-2">
-                <button class="btn-action bg-green-600 hover:bg-green-700 rounded-lg text-2xl shadow-md border-b-4 border-green-800">Attack</button>
-                <button class="btn-action bg-blue-600 hover:bg-blue-700 rounded-lg text-2xl shadow-md border-b-4 border-blue-800">Skills</button>
-                <button class="btn-action bg-yellow-500 hover:bg-yellow-600 rounded-lg text-2xl shadow-md border-b-4 border-yellow-700">Items</button>
-                <button class="btn-action bg-gray-500 hover:bg-gray-600 rounded-lg text-2xl shadow-md border-b-4 border-gray-700">Wait</button>
-                <button id="inventory-btn" class="btn-action bg-purple-600 hover:bg-purple-700 rounded-lg text-2xl shadow-md border-b-4 border-purple-800 col-span-2">Inventory</button>
+            <div id="controls-area" class="h-[25%] grid grid-cols-3 grid-rows-2 gap-2 text-sm">
+                <button class="btn-action rounded-lg shadow-md">Attack</button>
+                <button class="btn-action rounded-lg shadow-md">Skills</button>
+                <button class="btn-action rounded-lg shadow-md">Items</button>
+                <button class="btn-action rounded-lg shadow-md">Wait</button>
+                <button id="inventory-btn" class="btn-action rounded-lg shadow-md col-span-2">Inventory</button>
             </div>
         </main>
     </div>
 
     <!-- Modal Container -->
-    <div id="modal-container" class="hidden absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
-        <div class="bg-gray-800 border-4 border-gray-700 rounded-lg shadow-xl w-full max-w-md p-4 text-white">
-            <h2 id="modal-title" class="text-3xl text-center mb-4">Inventory</h2>
-            <div id="modal-content" class="text-lg space-y-2">
+    <div id="modal-container" class="hidden absolute inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-gray-800 border border-gray-600 rounded-lg shadow-2xl w-full max-w-md p-5 text-white">
+            <h2 id="modal-title" class="text-2xl text-center mb-4 font-bold text-white">Inventory</h2>
+            <div id="modal-content" class="text-base space-y-2 text-gray-300">
                 <p>- Healing Potion x3</p>
                 <p>- Mana Potion x1</p>
                 <p>- Rusty Sword</p>
                 <p>- Worn Leather Armor</p>
             </div>
-            <button id="close-modal-btn" class="w-full mt-6 bg-red-600 hover:bg-red-700 rounded-lg text-2xl py-2 shadow-md border-b-4 border-red-800">Close</button>
+            <button id="close-modal-btn" class="w-full mt-6 bg-red-600 hover:bg-red-700 rounded-lg text-lg py-2 font-semibold transition">Close</button>
         </div>
     </div>
 
@@ -160,9 +170,10 @@
             const enemySprite = document.getElementById('enemy-sprite');
 
             // --- Functions ---
-            function addLogMessage(message) {
+            function addLogMessage(message, color = 'text-gray-300') {
                 const p = document.createElement('p');
-                p.textContent = `> ${message}`;
+                p.innerHTML = `&gt; ${message}`; // Use innerHTML for safety if needed, textContent is fine here
+                p.className = color;
                 logArea.appendChild(p);
                 // Auto-scroll to the bottom
                 logArea.scrollTop = logArea.scrollHeight;
@@ -181,13 +192,15 @@
             }
             
             function showSpriteDamage(spriteElement) {
-                spriteElement.classList.add('animate-pulse');
-                setTimeout(() => spriteElement.classList.remove('animate-pulse'), 500);
+                spriteElement.classList.add('opacity-50');
+                setTimeout(() => spriteElement.classList.remove('opacity-50'), 100);
+                 setTimeout(() => spriteElement.classList.add('opacity-50'), 200);
+                setTimeout(() => spriteElement.classList.remove('opacity-50'), 300);
             }
-
+            
             function handleAction(action) {
                 if (enemy.currentHp <= 0) {
-                    addLogMessage("The enemy is already defeated!");
+                    addLogMessage("The enemy is already defeated!", "text-yellow-400");
                     return;
                 }
 
@@ -195,24 +208,25 @@
                     case 'Attack':
                         const playerDamage = Math.floor(Math.random() * 10) + 5;
                         enemy.currentHp = Math.max(0, enemy.currentHp - playerDamage);
-                        addLogMessage(`You attack the goblin for ${playerDamage} damage!`);
+                        addLogMessage(`You attack for <span class="font-bold text-white">${playerDamage}</span> damage!`, 'text-gray-300');
                         showSpriteDamage(enemySprite);
                         
                         if (enemy.currentHp <= 0) {
-                            addLogMessage("You have defeated the goblin!");
+                            addLogMessage("You have defeated the goblin!", "text-green-400 font-bold");
+                            enemySprite.classList.add('opacity-0', 'transition-opacity', 'duration-500');
                         } else {
                             // Enemy attacks back
                             setTimeout(enemyTurn, 800);
                         }
                         break;
                     case 'Skills':
-                         addLogMessage("You don't have any skills yet.");
+                         addLogMessage("You don't have any skills yet.", "text-gray-500");
                          break;
                     case 'Items':
-                         addLogMessage("You check your pockets but find no items to use in battle.");
+                         addLogMessage("No items to use in battle.", "text-gray-500");
                          break;
                     case 'Wait':
-                        addLogMessage("You wait, gathering your resolve.");
+                        addLogMessage("You wait, gathering your resolve.", "text-gray-400");
                         setTimeout(enemyTurn, 800);
                         break;
                 }
@@ -220,14 +234,16 @@
             }
             
             function enemyTurn() {
+                if(enemy.currentHp <= 0) return;
                 const enemyDamage = Math.floor(Math.random() * 8) + 3;
                 player.currentHp = Math.max(0, player.currentHp - enemyDamage);
-                addLogMessage(`The goblin attacks you for ${enemyDamage} damage!`);
+                addLogMessage(`The goblin attacks for <span class="font-bold text-red-400">${enemyDamage}</span> damage!`, 'text-gray-300');
                 showSpriteDamage(playerSprite);
                 updateHud();
 
                 if(player.currentHp <= 0) {
-                    addLogMessage("You have been defeated... Game Over.");
+                    addLogMessage("You have been defeated... <span class='font-bold'>Game Over.</span>", "text-red-500");
+                    playerSprite.classList.add('opacity-0', 'transition-opacity', 'duration-500');
                 }
             }
 
@@ -254,6 +270,4 @@
     </script>
 </body>
 </html>
-
-
 
