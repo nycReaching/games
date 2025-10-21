@@ -32,7 +32,7 @@
             padding: 3px;
         }
         .hud-bar {
-            height: 10px;
+            height: 8px;
             transition: width 0.3s ease-in-out;
             border-radius: 9999px;
         }
@@ -65,44 +65,16 @@
     <!-- Game Container -->
     <div id="game-container" class="w-full max-w-md h-full bg-gray-900 shadow-2xl flex flex-col text-gray-300 border-2 border-gray-700 rounded-lg overflow-hidden">
 
-        <!-- Header -->
-        <header class="bg-gray-800/80 p-2 border-b-2 border-gray-700 text-center">
-            <h1 class="text-lg font-bold tracking-wider text-gray-100">Floor 1</h1>
-        </header>
-
         <!-- Main Content Area -->
-        <main class="flex-grow flex flex-col p-3 space-y-3 overflow-hidden">
+        <main class="flex-grow flex flex-col overflow-hidden">
 
-            <!-- Art & Stats Area -->
-            <div id="art-and-stats" class="h-[55%] flex justify-between items-end gap-3">
-                
-                <!-- Player Card -->
-                <div class="w-1/2 h-full flex flex-col items-center justify-end text-center space-y-2 relative">
-                    <div class="w-full px-1">
-                         <h2 class="text-lg font-bold text-white">HERO</h2>
-                         <div class="w-full hud-bar-container mt-2">
-                            <div id="player-hp-bar" class="hud-bar hp-bar" style="width: 100%;"></div>
-                        </div>
-                        <div class="flex justify-between text-xs px-2 mt-1 text-gray-400 font-semibold">
-                           <span>HP</span>
-                           <span id="player-hp-text">100/100</span>
-                        </div>
-                         <div class="w-full hud-bar-container mt-1">
-                            <div id="player-mp-bar" class="hud-bar mp-bar" style="width: 100%;"></div>
-                        </div>
-                         <div class="flex justify-between text-xs px-2 mt-1 text-gray-400 font-semibold">
-                           <span>MP</span>
-                           <span id="player-mp-text">30/30</span>
-                        </div>
-                    </div>
-                    <img id="player-sprite" src="flower.jpg" alt="Player Character" class="max-h-[70%] object-contain" onerror="this.onerror=null;this.src='https://placehold.co/200x200/3b82f6/ffffff?text=Hero';">
-                </div>
-
-                <!-- Enemy Card -->
-                 <div class="w-1/2 h-full flex flex-col items-center justify-end text-center space-y-2 relative">
-                     <div class="w-full px-1">
-                         <h2 class="text-lg font-bold text-white truncate">GOBLIN</h2>
-                         <div class="w-full hud-bar-container mt-2">
+            <!-- Enemy Area (Top 1/3) -->
+            <div id="enemy-area" class="h-1/3 flex items-center justify-between p-3">
+                <!-- Enemy Stats (Left) -->
+                <div class="w-1/3 flex flex-col items-start space-y-1">
+                    <h2 class="text-base font-bold text-white truncate">GOBLIN</h2>
+                    <div class="w-full">
+                        <div class="w-full hud-bar-container">
                             <div id="enemy-hp-bar" class="hud-bar hp-bar" style="width: 100%;"></div>
                         </div>
                         <div class="flex justify-between text-xs px-2 mt-1 text-gray-400 font-semibold">
@@ -110,25 +82,56 @@
                            <span id="enemy-hp-text">50/50</span>
                         </div>
                     </div>
-                    <img id="enemy-sprite" src="https://placehold.co/200x200/ef4444/ffffff?text=Enemy" alt="Enemy" class="max-h-[70%] object-contain" onerror="this.onerror=null;this.src='https://placehold.co/200x200/ef4444/ffffff?text=Enemy';">
                 </div>
-
+                <!-- Enemy Sprite (Right) -->
+                <div class="w-2/3 h-full flex justify-end items-center">
+                     <img id="enemy-sprite" src="babydragon.jpg" alt="Enemy" class="max-h-full object-contain" onerror="this.onerror=null;this.src='https://placehold.co/250x250/ef4444/ffffff?text=Enemy';">
+                </div>
             </div>
 
-            <!-- Log Area -->
-            <div id="log-area" class="h-[20%] bg-gray-800 rounded-lg p-3 border border-gray-700 overflow-y-auto text-sm leading-relaxed shadow-inner">
-                <p class="text-yellow-400 font-semibold">> A Vicious Goblin appears!</p>
-                <p>> What will you do?</p>
+            <!-- Player Area (Middle 1/3) -->
+            <div id="player-area" class="h-1/3 flex items-center justify-between p-3">
+                <!-- Player Sprite (Left) -->
+                <div class="w-2/3 h-full flex justify-start items-center">
+                    <img id="player-sprite" src="hammer.jpg" alt="Player Character" class="max-h-full object-contain" onerror="this.onerror=null;this.src='https://placehold.co/250x250/3b82f6/ffffff?text=Hero';">
+                </div>
+                <!-- Player Stats (Right) -->
+                <div class="w-1/3 flex flex-col items-end text-right space-y-1">
+                    <h2 class="text-base font-bold text-white">HERO</h2>
+                    <div class="w-full">
+                        <div class="w-full hud-bar-container">
+                            <div id="player-hp-bar" class="hud-bar hp-bar" style="width: 100%;"></div>
+                        </div>
+                        <div class="flex justify-between text-xs px-2 mt-1 text-gray-400 font-semibold">
+                           <span>HP</span>
+                           <span id="player-hp-text">100/100</span>
+                        </div>
+                        <div class="w-full hud-bar-container mt-1">
+                            <div id="player-mp-bar" class="hud-bar mp-bar" style="width: 100%;"></div>
+                        </div>
+                         <div class="flex justify-between text-xs px-2 mt-1 text-gray-400 font-semibold">
+                           <span>MP</span>
+                           <span id="player-mp-text">30/30</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Controls Area -->
-            <div id="controls-area" class="h-[25%] grid grid-cols-3 grid-rows-2 gap-2 text-sm">
-                <button class="btn-action rounded-lg shadow-md">Attack</button>
-                <button class="btn-action rounded-lg shadow-md">Skills</button>
-                <button class="btn-action rounded-lg shadow-md">Items</button>
-                <button class="btn-action rounded-lg shadow-md">Wait</button>
-                <button id="inventory-btn" class="btn-action rounded-lg shadow-md col-span-2">Inventory</button>
+            <!-- UI Area (Bottom 1/3) -->
+            <div id="ui-area" class="h-1/3 flex flex-col p-3 pt-0 space-y-3">
+                <div id="log-area" class="flex-grow bg-gray-800 rounded-lg p-3 border border-gray-700 overflow-y-auto text-sm leading-relaxed shadow-inner">
+                    <p class="text-yellow-400 font-semibold">> A Vicious Goblin appears!</p>
+                    <p>> What will you do?</p>
+                </div>
+                <div id="controls-area" class="h-2/5 grid grid-cols-3 grid-rows-2 gap-2 text-sm">
+                    <button class="btn-action rounded-lg shadow-md">Attack</button>
+                    <button class="btn-action rounded-lg shadow-md">Skills</button>
+                    <button class="btn-action rounded-lg shadow-md">Items</button>
+                    <button class="btn-action rounded-lg shadow-md">Wait</button>
+                    <button id="inventory-btn" class="btn-action rounded-lg shadow-md col-span-2">Inventory</button>
+                </div>
             </div>
+
         </main>
     </div>
 
@@ -172,10 +175,9 @@
             // --- Functions ---
             function addLogMessage(message, color = 'text-gray-300') {
                 const p = document.createElement('p');
-                p.innerHTML = `&gt; ${message}`; // Use innerHTML for safety if needed, textContent is fine here
+                p.innerHTML = `&gt; ${message}`;
                 p.className = color;
                 logArea.appendChild(p);
-                // Auto-scroll to the bottom
                 logArea.scrollTop = logArea.scrollHeight;
             }
 
@@ -215,7 +217,6 @@
                             addLogMessage("You have defeated the goblin!", "text-green-400 font-bold");
                             enemySprite.classList.add('opacity-0', 'transition-opacity', 'duration-500');
                         } else {
-                            // Enemy attacks back
                             setTimeout(enemyTurn, 800);
                         }
                         break;
@@ -246,7 +247,6 @@
                     playerSprite.classList.add('opacity-0', 'transition-opacity', 'duration-500');
                 }
             }
-
 
             // --- Event Listeners ---
             inventoryBtn.addEventListener('click', () => {
