@@ -26,21 +26,18 @@
             border-radius: 3px;
         }
         .hud-bar-container {
-            background-color: #374151;
-            border-radius: 9999px; /* Pill shape */
+            background-color: #1f2937; /* Dark background for empty portion of bar */
             overflow: hidden;
-            padding: 3px;
         }
         .hud-bar {
             height: 8px;
             transition: width 0.3s ease-in-out;
-            border-radius: 9999px;
         }
         .hp-bar {
-             background: linear-gradient(90deg, #f87171, #ef4444);
+             background-color: #ef4444; /* Solid red */
         }
         .mp-bar {
-            background: linear-gradient(90deg, #60a5fa, #3b82f6);
+            background-color: #3b82f6; /* Solid blue */
         }
         /* Base styles for all action buttons */
         .btn {
@@ -136,9 +133,9 @@
                         </div>
                     </div>
                     <!-- Equipment Slots Group -->
-                    <div class="flex space-x-2">
-                        <div class="w-14 h-14 bg-gray-800 border-2 border-dashed border-gray-600 rounded-md flex items-center justify-center text-xs text-gray-500 font-semibold">ITEM 1</div>
-                        <div class="w-14 h-14 bg-gray-800 border-2 border-dashed border-gray-600 rounded-md flex items-center justify-center text-xs text-gray-500 font-semibold">ITEM 2</div>
+                    <div class="w-full flex space-x-2">
+                        <div class="flex-1 aspect-square bg-gray-800 border-2 border-dashed border-gray-600 rounded-md flex items-center justify-center text-xs text-gray-500 font-semibold p-1">ITEM 1</div>
+                        <div class="flex-1 aspect-square bg-gray-800 border-2 border-dashed border-gray-600 rounded-md flex items-center justify-center text-xs text-gray-500 font-semibold p-1">ITEM 2</div>
                     </div>
                 </div>
             </div>
