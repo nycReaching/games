@@ -19,10 +19,10 @@
             width: 6px;
         }
         #log-area::-webkit-scrollbar-track {
-            background: #1f2937;
+            background: #1a1a1a;
         }
         #log-area::-webkit-scrollbar-thumb {
-            background: #4f46e5;
+            background: #14b8a6; /* Teal scrollbar handle */
             border-radius: 3px;
         }
         .hud-bar-container {
@@ -42,37 +42,55 @@
         .mp-bar {
             background: linear-gradient(90deg, #60a5fa, #3b82f6);
         }
-        .btn-action {
-            color: #d1d5db;
-            background-color: #374151;
-            border: 1px solid #4b5563;
+        /* Base styles for all action buttons */
+        .btn {
+            color: #ffffff;
+            border: 1px solid transparent;
             transition: all 0.2s ease-in-out;
             font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
         }
-        .btn-action:hover {
-            background-color: #4b5563;
-            color: #ffffff;
-            border-color: #6b7280;
-        }
-        .btn-action:active {
+        .btn:active {
             transform: scale(0.95);
         }
         
+        /* Damage number animation */
+        @keyframes float-up {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-50px) scale(1.5);
+            }
+        }
+        .damage-number {
+            position: absolute;
+            font-size: 1.75rem; /* Increased size */
+            font-weight: bold;
+            color: #ef4444; /* Red color for damage */
+            text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 2px 2px 3px rgba(0,0,0,0.7); /* White outline */
+            pointer-events: none;
+            animation: float-up 1s ease-out forwards;
+            z-index: 10;
+        }
+
     </style>
 </head>
 <body class="bg-black flex items-center justify-center h-screen">
 
     <!-- Game Container -->
-    <div id="game-container" class="w-full max-w-md h-full bg-gray-900 shadow-2xl flex flex-col text-gray-300 border-2 border-gray-700 rounded-lg overflow-hidden">
+    <div id="game-container" class="w-full max-w-md h-full bg-gray-900 shadow-2xl flex flex-col text-gray-300 border-4 border-teal-500 rounded-lg overflow-hidden">
 
         <!-- Main Content Area -->
         <main class="flex-grow flex flex-col overflow-hidden">
 
             <!-- Enemy Area (Top 1/3) -->
-            <div id="enemy-area" class="h-1/3 flex items-center justify-between p-3">
+            <div id="enemy-area" class="h-1/3 flex items-center justify-between p-3 bg-black">
                 <!-- Enemy Stats (Left) -->
                 <div class="w-1/3 flex flex-col items-start space-y-1">
-                    <h2 class="text-base font-bold text-white truncate">GOBLIN</h2>
+                    <h2 class="text-base font-bold text-white truncate">BABY DRAGON</h2>
                     <div class="w-full">
                         <div class="w-full hud-bar-container">
                             <div id="enemy-hp-bar" class="hud-bar hp-bar" style="width: 100%;"></div>
@@ -84,20 +102,20 @@
                     </div>
                 </div>
                 <!-- Enemy Sprite (Right) -->
-                <div class="w-2/3 h-full flex justify-end items-center">
-                     <img id="enemy-sprite" src="demon.jpg" alt="Enemy" class="max-h-full object-contain" onerror="this.onerror=null;this.src='https://placehold.co/250x250/ef4444/ffffff?text=Enemy';">
+                <div class="w-2/3 h-full flex justify-end items-center relative">
+                     <img id="enemy-sprite" src="babydragon.jpg" alt="Enemy" class="max-h-full object-contain" onerror="this.onerror=null;this.src='https://placehold.co/250x250/ef4444/ffffff?text=Dragon';">
                 </div>
             </div>
 
             <!-- Player Area (Middle 1/3) -->
-            <div id="player-area" class="h-1/3 flex items-center justify-between p-3">
+            <div id="player-area" class="h-1/3 flex items-center justify-between p-3 bg-black">
                 <!-- Player Sprite (Left) -->
-                <div class="w-2/3 h-full flex justify-start items-center">
-                    <img id="robogirl.jpg" alt="Player Character" class="max-h-full object-contain" onerror="this.onerror=null;this.src='https://placehold.co/250x250/3b82f6/ffffff?text=Hero';">
+                <div class="w-2/3 h-full flex justify-start items-center relative">
+                    <img id="player-sprite" src="princess.jpg" alt="Player Character" class="max-h-full object-contain" onerror="this.onerror=null;this.src='https://placehold.co/250x250/3b82f6/ffffff?text=Princess';">
                 </div>
                 <!-- Player Stats (Right) -->
                 <div class="w-1/3 flex flex-col items-end text-right space-y-1">
-                    <h2 class="text-base font-bold text-white">HERO</h2>
+                    <h2 class="text-base font-bold text-white">PRINCESS</h2>
                     <div class="w-full">
                         <div class="w-full hud-bar-container">
                             <div id="player-hp-bar" class="hud-bar hp-bar" style="width: 100%;"></div>
@@ -118,17 +136,17 @@
             </div>
 
             <!-- UI Area (Bottom 1/3) -->
-            <div id="ui-area" class="h-1/3 flex flex-col p-3 pt-0 space-y-3">
-                <div id="log-area" class="flex-grow bg-gray-800 rounded-lg p-3 border border-gray-700 overflow-y-auto text-sm leading-relaxed shadow-inner">
-                    <p class="text-yellow-400 font-semibold">> A Vicious Goblin appears!</p>
+            <div id="ui-area" class="h-1/3 flex flex-col p-3 pt-0 space-y-3 bg-gray-900">
+                <div id="log-area" class="flex-grow bg-gray-950 rounded-lg p-3 border border-teal-800 overflow-y-auto text-sm leading-relaxed shadow-inner">
+                    <p class="text-yellow-400 font-semibold">> A Baby Dragon appears!</p>
                     <p>> What will you do?</p>
                 </div>
                 <div id="controls-area" class="h-2/5 grid grid-cols-3 grid-rows-2 gap-2 text-sm">
-                    <button class="btn-action rounded-lg shadow-md">Attack</button>
-                    <button class="btn-action rounded-lg shadow-md">Skills</button>
-                    <button class="btn-action rounded-lg shadow-md">Items</button>
-                    <button class="btn-action rounded-lg shadow-md">Wait</button>
-                    <button id="inventory-btn" class="btn-action rounded-lg shadow-md col-span-2">Inventory</button>
+                    <button class="btn rounded-lg shadow-md bg-red-600 hover:bg-red-700 border-red-800">Attack</button>
+                    <button class="btn rounded-lg shadow-md bg-blue-600 hover:bg-blue-700 border-blue-800">Skills</button>
+                    <button class="btn rounded-lg shadow-md bg-green-600 hover:bg-green-700 border-green-800">Items</button>
+                    <button class="btn rounded-lg shadow-md bg-gray-600 hover:bg-gray-700 border-gray-800">Wait</button>
+                    <button id="inventory-btn" class="btn rounded-lg shadow-md col-span-2 bg-purple-600 hover:bg-purple-700 border-purple-800">Inventory</button>
                 </div>
             </div>
 
@@ -156,7 +174,7 @@
             const inventoryBtn = document.getElementById('inventory-btn');
             const closeModalBtn = document.getElementById('close-modal-btn');
             const modalContainer = document.getElementById('modal-container');
-            const actionButtons = document.querySelectorAll('.btn-action');
+            const actionButtons = document.querySelectorAll('.btn');
 
             // --- Game State (Example) ---
             const player = { maxHp: 100, currentHp: 100, maxMp: 30, currentMp: 30 };
@@ -192,14 +210,36 @@
                 enemyHpText.textContent = `${enemy.currentHp}/${enemy.maxHp}`;
                 enemyHpBar.style.width = `${(enemy.currentHp / enemy.maxHp) * 100}%`;
             }
-            
+
             function showSpriteDamage(spriteElement) {
                 spriteElement.classList.add('opacity-50');
                 setTimeout(() => spriteElement.classList.remove('opacity-50'), 100);
                  setTimeout(() => spriteElement.classList.add('opacity-50'), 200);
                 setTimeout(() => spriteElement.classList.remove('opacity-50'), 300);
             }
-            
+
+            function showDamageNumber(targetSprite, damageAmount) {
+                const damageEl = document.createElement('div');
+                damageEl.textContent = damageAmount;
+                damageEl.className = 'damage-number';
+                
+                const parentContainer = targetSprite.parentElement;
+                parentContainer.appendChild(damageEl);
+
+                // Position randomly over the top half of the sprite
+                const randomX = Math.random() * (targetSprite.offsetWidth * 0.5) + (targetSprite.offsetWidth * 0.25);
+                const randomY = Math.random() * (targetSprite.offsetHeight * 0.5);
+
+                damageEl.style.left = `${targetSprite.offsetLeft + randomX}px`;
+                damageEl.style.top = `${targetSprite.offsetTop + randomY}px`;
+                
+                setTimeout(() => {
+                    if (damageEl.parentElement) {
+                        damageEl.parentElement.removeChild(damageEl);
+                    }
+                }, 1000); // Remove after 1 second (duration of animation)
+            }
+
             function handleAction(action) {
                 if (enemy.currentHp <= 0) {
                     addLogMessage("The enemy is already defeated!", "text-yellow-400");
@@ -209,12 +249,13 @@
                 switch(action) {
                     case 'Attack':
                         const playerDamage = Math.floor(Math.random() * 10) + 5;
+                        showDamageNumber(enemySprite, playerDamage);
                         enemy.currentHp = Math.max(0, enemy.currentHp - playerDamage);
                         addLogMessage(`You attack for <span class="font-bold text-white">${playerDamage}</span> damage!`, 'text-gray-300');
                         showSpriteDamage(enemySprite);
-                        
+
                         if (enemy.currentHp <= 0) {
-                            addLogMessage("You have defeated the goblin!", "text-green-400 font-bold");
+                            addLogMessage("You have defeated the Baby Dragon!", "text-green-400 font-bold");
                             enemySprite.classList.add('opacity-0', 'transition-opacity', 'duration-500');
                         } else {
                             setTimeout(enemyTurn, 800);
@@ -233,12 +274,13 @@
                 }
                 updateHud();
             }
-            
+
             function enemyTurn() {
                 if(enemy.currentHp <= 0) return;
                 const enemyDamage = Math.floor(Math.random() * 8) + 3;
+                showDamageNumber(playerSprite, enemyDamage);
                 player.currentHp = Math.max(0, player.currentHp - enemyDamage);
-                addLogMessage(`The goblin attacks for <span class="font-bold text-red-400">${enemyDamage}</span> damage!`, 'text-gray-300');
+                addLogMessage(`The Baby Dragon attacks for <span class="font-bold text-red-400">${enemyDamage}</span> damage!`, 'text-gray-300');
                 showSpriteDamage(playerSprite);
                 updateHud();
 
@@ -256,7 +298,7 @@
             closeModalBtn.addEventListener('click', () => {
                 modalContainer.classList.add('hidden');
             });
-            
+
             actionButtons.forEach(button => {
                 const action = button.textContent;
                 if(action !== 'Inventory'){
@@ -270,7 +312,4 @@
     </script>
 </body>
 </html>
-
-
-
 
