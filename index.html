@@ -73,6 +73,39 @@
             z-index: 10;
         }
 
+        /* Attack lunge animation */
+        @keyframes lunge-right { /* Player attacking */
+            0% { transform: translate(0, 0); z-index: 20; }
+            50% { transform: translate(40px, -20px) scale(1.1); z-index: 20; }
+            100% { transform: translate(0, 0); z-index: 20; }
+        }
+        .animate-lunge-right {
+            animation: lunge-right 0.4s ease-in-out forwards;
+        }
+
+        @keyframes lunge-left { /* Enemy attacking */
+            0% { transform: translate(0, 0); z-index: 20; }
+            50% { transform: translate(-40px, 20px) scale(1.1); z-index: 20; }
+            100% { transform: translate(0, 0); z-index: 20; }
+        }
+        .animate-lunge-left {
+            animation: lunge-left 0.4s ease-in-out forwards;
+        }
+
+
+        /* Take damage shake animation */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-10px); }
+            80% { transform: translateX(10px); }
+        }
+        .animate-shake {
+            animation: shake 0.3s linear;
+        }
+
+
     </style>
 </head>
 <body class="bg-black flex items-center justify-center h-screen">
@@ -135,12 +168,12 @@
                     <!-- Equipment Slots Group -->
                     <div class="w-full flex space-x-2">
                         <div class="flex-1 aspect-square bg-gray-800 border-2 border-gray-600 rounded-md">
-                            
-                            <img src="sword-array.png" alt="Item 1" class="w-full h-full object-cover rounded-md">
+                            <!-- TODO: Replace the src below with your image URL for Item 1 -->
+                            <img id="item-slot-1" src="https://placehold.co/64x64/1f2937/4b5563?text=Item" alt="Item 1" class="w-full h-full object-cover rounded-md">
                         </div>
                         <div class="flex-1 aspect-square bg-gray-800 border-2 border-gray-600 rounded-md">
-                             
-                            <img src="sword-tie.png" alt="Item 2" class="w-full h-full object-cover rounded-md">
+                             <!-- TODO: Replace the src below with your image URL for Item 2 -->
+                            <img id="item-slot-2" src="https://placehold.co/64x64/1f2937/4b5563?text=Item" alt="Item 2" class="w-full h-full object-cover rounded-md">
                         </div>
                     </div>
                 </div>
@@ -186,6 +219,7 @@
             const closeModalBtn = document.getElementById('close-modal-btn');
             const modalContainer = document.getElementById('modal-container');
             const actionButtons = document.querySelectorAll('.btn');
+            const controlsArea = document.getElementById('controls-area'); // Get controls area
 
             // --- Game State (Example) ---
             const player = { maxHp: 100, currentHp: 100, maxMp: 30, currentMp: 30 };
@@ -200,6 +234,8 @@
             const enemyHpBar = document.getElementById('enemy-hp-bar');
             const playerSprite = document.getElementById('player-sprite');
             const enemySprite = document.getElementById('enemy-sprite');
+
+            let isAnimating = false; // Flag to prevent multiple actions
 
             // --- Functions ---
             function addLogMessage(message, color = 'text-gray-300') {
@@ -222,11 +258,18 @@
                 enemyHpBar.style.width = `${(enemy.currentHp / enemy.maxHp) * 100}%`;
             }
 
-            function showSpriteDamage(spriteElement) {
+            function playDamageAnimation(spriteElement) {
+                // Opacity blink
                 spriteElement.classList.add('opacity-50');
                 setTimeout(() => spriteElement.classList.remove('opacity-50'), 100);
                  setTimeout(() => spriteElement.classList.add('opacity-50'), 200);
                 setTimeout(() => spriteElement.classList.remove('opacity-50'), 300);
+
+                // Shake
+                spriteElement.classList.add('animate-shake');
+                setTimeout(() => {
+                    spriteElement.classList.remove('animate-shake');
+                }, 300); // Duration of shake animation
             }
 
             function showDamageNumber(targetSprite, damageAmount) {
@@ -251,58 +294,103 @@
                 }, 1000); // Remove after 1 second (duration of animation)
             }
 
+            function playAttackAnimation(attackerSprite, animationClass, callback) {
+                isAnimating = true; // Start animation lock
+                controlsArea.style.pointerEvents = 'none'; // Disable buttons
+                
+                attackerSprite.classList.add(animationClass);
+                
+                setTimeout(() => {
+                    attackerSprite.classList.remove(animationClass);
+                    if (callback) {
+                        callback(); // Execute next step in the sequence
+                    }
+                }, 400); // Duration of lunge animation
+            }
+
             function handleAction(action) {
-                if (enemy.currentHp <= 0) {
-                    addLogMessage("The enemy is already defeated!", "text-yellow-400");
+                if (isAnimating || enemy.currentHp <= 0) {
+                    if (enemy.currentHp <= 0) {
+                        addLogMessage("The enemy is already defeated!", "text-yellow-400");
+                    }
                     return;
                 }
 
                 switch(action) {
                     case 'Attack':
-                        const playerDamage = Math.floor(Math.random() * 10) + 5;
-                        showDamageNumber(enemySprite, playerDamage);
-                        enemy.currentHp = Math.max(0, enemy.currentHp - playerDamage);
-                        addLogMessage(`You attack for <span class="font-bold text-white">${playerDamage}</span> damage!`, 'text-gray-300');
-                        showSpriteDamage(enemySprite);
+                        // 1. Play attack animation
+                        playAttackAnimation(playerSprite, 'animate-lunge-right', () => {
+                            // 2. When attack animation finishes, apply damage
+                            const playerDamage = Math.floor(Math.random() * 10) + 5;
+                            showDamageNumber(enemySprite, playerDamage);
+                            playDamageAnimation(enemySprite);
+                            enemy.currentHp = Math.max(0, enemy.currentHp - playerDamage);
+                            addLogMessage(`You attack for <span class="font-bold text-white">${playerDamage}</span> damage!`, 'text-gray-300');
+                            updateHud();
 
-                        if (enemy.currentHp <= 0) {
-                            addLogMessage("You have defeated the Baby Dragon!", "text-green-400 font-bold");
-                            enemySprite.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                        } else {
-                            setTimeout(enemyTurn, 800);
-                        }
+                            if (enemy.currentHp <= 0) {
+                                addLogMessage("You have defeated the Baby Dragon!", "text-green-400 font-bold");
+                                enemySprite.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                                isAnimating = false; // Release lock
+                                controlsArea.style.pointerEvents = 'auto'; // Re-enable buttons
+                            } else {
+                                // 3. Schedule enemy turn
+                                setTimeout(enemyTurn, 800);
+                            }
+                        });
                         break;
                     case 'Skills':
                          addLogMessage("You don't have any skills yet.", "text-gray-500");
+                         isAnimating = false; // Release lock if no action taken
+                         controlsArea.style.pointerEvents = 'auto';
                          break;
                     case 'Items':
                          addLogMessage("No items to use in battle.", "text-gray-500");
+                         isAnimating = false; // Release lock if no action taken
+                         controlsArea.style.pointerEvents = 'auto';
                          break;
                     case 'Wait':
+                        if (isAnimating) return;
+                        isAnimating = true; // Lock for wait
+                        controlsArea.style.pointerEvents = 'none';
                         addLogMessage("You wait, gathering your resolve.", "text-gray-400");
                         setTimeout(enemyTurn, 800);
                         break;
                 }
-                updateHud();
+                // updateHud() is now called after damage calculation
             }
 
             function enemyTurn() {
-                if(enemy.currentHp <= 0) return;
-                const enemyDamage = Math.floor(Math.random() * 8) + 3;
-                showDamageNumber(playerSprite, enemyDamage);
-                player.currentHp = Math.max(0, player.currentHp - enemyDamage);
-                addLogMessage(`The Baby Dragon attacks for <span class="font-bold text-red-400">${enemyDamage}</span> damage!`, 'text-gray-300');
-                showSpriteDamage(playerSprite);
-                updateHud();
-
-                if(player.currentHp <= 0) {
-                    addLogMessage("You have been defeated... <span class='font-bold'>Game Over.</span>", "text-red-500");
-                    playerSprite.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                if(enemy.currentHp <= 0) {
+                    isAnimating = false; // Ensure lock is released if enemy was defeated
+                    controlsArea.style.pointerEvents = 'auto';
+                    return;
                 }
+
+                // 1. Play enemy attack animation
+                playAttackAnimation(enemySprite, 'animate-lunge-left', () => {
+                    // 2. When attack finishes, apply damage to player
+                    const enemyDamage = Math.floor(Math.random() * 8) + 3;
+                    showDamageNumber(playerSprite, enemyDamage);
+                    playDamageAnimation(playerSprite);
+                    player.currentHp = Math.max(0, player.currentHp - enemyDamage);
+                    addLogMessage(`The Baby Dragon attacks for <span class="font-bold text-red-400">${enemyDamage}</span> damage!`, 'text-gray-300');
+                    updateHud();
+
+                    if(player.currentHp <= 0) {
+                        addLogMessage("You have been defeated... <span class='font-bold'>Game Over.</span>", "text-red-500");
+                        playerSprite.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    }
+                    
+                    // 3. Release animation lock and re-enable buttons
+                    isAnimating = false; 
+                    controlsArea.style.pointerEvents = 'auto';
+                });
             }
 
             // --- Event Listeners ---
             inventoryBtn.addEventListener('click', () => {
+                if (isAnimating) return; // Prevent opening modal during animations
                 modalContainer.classList.remove('hidden');
             });
 
