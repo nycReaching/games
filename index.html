@@ -50,7 +50,7 @@
         .btn:active {
             transform: scale(0.95);
         }
-        
+
         /* Damage number animation */
         @keyframes float-up {
             0% {
@@ -165,15 +165,23 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Equipment Slots Group -->
-                    <div class="w-full flex space-x-2">
-                        <div class="flex-1 aspect-square bg-gray-800 border-2 border-gray-600 rounded-md">
+                    <!-- Equipment Slots Group (2x2 Grid) -->
+                    <div class="w-full grid grid-cols-2 gap-2">
+                        <div class="aspect-square bg-gray-800 border-2 border-gray-600 rounded-md">
                             <!-- TODO: Replace the src below with your image URL for Item 1 -->
                             <img id="item-slot-1" src="https://placehold.co/64x64/1f2937/4b5563?text=Item" alt="Item 1" class="w-full h-full object-cover rounded-md">
                         </div>
-                        <div class="flex-1 aspect-square bg-gray-800 border-2 border-gray-600 rounded-md">
+                        <div class="aspect-square bg-gray-800 border-2 border-gray-600 rounded-md">
                              <!-- TODO: Replace the src below with your image URL for Item 2 -->
                             <img id="item-slot-2" src="https://placehold.co/64x64/1f2937/4b5563?text=Item" alt="Item 2" class="w-full h-full object-cover rounded-md">
+                        </div>
+                        <div class="aspect-square bg-gray-800 border-2 border-gray-600 rounded-md">
+                             <!-- TODO: Replace the src below with your image URL for Item 3 -->
+                            <img id="item-slot-3" src="https://placehold.co/64x64/1f2937/4b5563?text=Item" alt="Item 3" class="w-full h-full object-cover rounded-md">
+                        </div>
+                        <div class="aspect-square bg-gray-800 border-2 border-gray-600 rounded-md">
+                             <!-- TODO: Replace the src below with your image URL for Item 4 -->
+                            <img id="item-slot-4" src="https://placehold.co/64x64/1f2937/4b5563?text=Item" alt="Item 4" class="w-full h-full object-cover rounded-md">
                         </div>
                     </div>
                 </div>
@@ -181,16 +189,16 @@
 
             <!-- UI Area (Bottom 1/3) -->
             <div id="ui-area" class="h-1/3 flex flex-col p-3 pt-0 space-y-3 bg-gray-900">
-                <div id="log-area" class="flex-grow bg-gray-950 rounded-lg p-3 border border-teal-800 overflow-y-auto text-sm leading-relaxed shadow-inner">
+                <!-- Log Area: Added min-h-0 to prevent flex squishing -->
+                <div id="log-area" class="flex-grow min-h-0 bg-gray-950 rounded-lg p-3 border border-teal-800 overflow-y-auto text-sm leading-relaxed shadow-inner">
                     <p class="text-yellow-400 font-semibold">> A Baby Dragon appears!</p>
                     <p>> What will you do?</p>
                 </div>
-                <div id="controls-area" class="h-2/5 grid grid-cols-3 grid-rows-2 gap-2 text-sm">
-                    <button class="btn rounded-lg shadow-md bg-red-600 hover:bg-red-700 border-red-800">Attack</button>
-                    <button class="btn rounded-lg shadow-md bg-blue-600 hover:bg-blue-700 border-blue-800">Skills</button>
-                    <button class="btn rounded-lg shadow-md bg-green-600 hover:bg-green-700 border-green-800">Items</button>
-                    <button class="btn rounded-lg shadow-md bg-gray-600 hover:bg-gray-700 border-gray-800">Wait</button>
-                    <button id="inventory-btn" class="btn rounded-lg shadow-md col-span-2 bg-purple-600 hover:bg-purple-700 border-purple-800">Inventory</button>
+                <!-- Controls Area: Changed to 1 row, 3 cols. Added flex-shrink-0 -->
+                <div id="controls-area" class="flex-shrink-0 grid grid-cols-3 gap-2 text-sm">
+                    <button class="btn h-14 rounded-lg shadow-md bg-red-600 hover:bg-red-700 border-red-800">Attack</button>
+                    <button class="btn h-14 rounded-lg shadow-md bg-blue-600 hover:bg-blue-700 border-blue-800">Skills</button>
+                    <button id="inventory-btn" class="btn h-14 rounded-lg shadow-md bg-purple-600 hover:bg-purple-700 border-purple-800">Inventory</button>
                 </div>
             </div>
 
@@ -276,7 +284,7 @@
                 const damageEl = document.createElement('div');
                 damageEl.textContent = damageAmount;
                 damageEl.className = 'damage-number';
-                
+
                 const parentContainer = targetSprite.parentElement;
                 parentContainer.appendChild(damageEl);
 
@@ -286,7 +294,7 @@
 
                 damageEl.style.left = `${targetSprite.offsetLeft + randomX}px`;
                 damageEl.style.top = `${targetSprite.offsetTop + randomY}px`;
-                
+
                 setTimeout(() => {
                     if (damageEl.parentElement) {
                         damageEl.parentElement.removeChild(damageEl);
@@ -297,9 +305,9 @@
             function playAttackAnimation(attackerSprite, animationClass, callback) {
                 isAnimating = true; // Start animation lock
                 controlsArea.style.pointerEvents = 'none'; // Disable buttons
-                
+
                 attackerSprite.classList.add(animationClass);
-                
+
                 setTimeout(() => {
                     attackerSprite.classList.remove(animationClass);
                     if (callback) {
@@ -344,18 +352,7 @@
                          isAnimating = false; // Release lock if no action taken
                          controlsArea.style.pointerEvents = 'auto';
                          break;
-                    case 'Items':
-                         addLogMessage("No items to use in battle.", "text-gray-500");
-                         isAnimating = false; // Release lock if no action taken
-                         controlsArea.style.pointerEvents = 'auto';
-                         break;
-                    case 'Wait':
-                        if (isAnimating) return;
-                        isAnimating = true; // Lock for wait
-                        controlsArea.style.pointerEvents = 'none';
-                        addLogMessage("You wait, gathering your resolve.", "text-gray-400");
-                        setTimeout(enemyTurn, 800);
-                        break;
+                    // Removed 'Items' and 'Wait' cases
                 }
                 // updateHud() is now called after damage calculation
             }
@@ -381,9 +378,9 @@
                         addLogMessage("You have been defeated... <span class='font-bold'>Game Over.</span>", "text-red-500");
                         playerSprite.classList.add('opacity-0', 'transition-opacity', 'duration-500');
                     }
-                    
+
                     // 3. Release animation lock and re-enable buttons
-                    isAnimating = false; 
+                    isAnimating = false;
                     controlsArea.style.pointerEvents = 'auto';
                 });
             }
@@ -411,5 +408,3 @@
     </script>
 </body>
 </html>
-
-
