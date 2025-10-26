@@ -93,7 +93,7 @@
             width: 100%;
             height: 100dvh;
             max-width: 500px; /* Common max-width for portrait apps */
-            background-color: #1F2937; /* dark gray */
+            background-color: #1a1a22; /* dark gray - POLISHED */
             position: relative;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
@@ -104,12 +104,13 @@
         #game-header, #game-footer {
             flex-shrink: 0;
             padding: 0.75rem 1rem; /* Reduced padding for a slimmer feel */
-            background-color: rgba(0,0,0,0.2);
+            /* POLISHED: Added subtle gradient and brighter border */
+            background: linear-gradient(to bottom, rgba(30, 30, 40, 0.7), rgba(20, 20, 30, 0.5));
             z-index: 10;
         }
 
-        #game-header { border-bottom: 1px solid #374151; }
-        #game-footer { border-top: 1px solid #374151; }
+        #game-header { border-bottom: 1px solid #444455; }
+        #game-footer { border-top: 1px solid #444455; }
 
         /* Main game area fills all remaining space */
         #game-canvas-container {
@@ -124,9 +125,11 @@
         /* * 5. GAME CANVAS
          */
         #game-canvas {
-            background: #374151;
-            max-width: 100%;
-            max-height: 100%;
+            /* UPDATED: Set background to black */
+            background: #000;
+            /* UPDATED: Force canvas to fill container */
+            width: 100%;
+            height: 100%;
             image-rendering: -moz-crisp-edges;
             image-rendering: -webkit-crisp-edges;
             image-rendering: pixelated;
@@ -145,7 +148,9 @@
         /* * NEW: Stat Bars (Thinner) */
         .stat-bar {
             width: 100%;
-            background-color: #111827;
+            /* POLISHED: Darker bg with inner shadow */
+            background-color: #111;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
             border-radius: 9999px;
             border: 1px solid #374151;
             position: relative;
@@ -163,17 +168,22 @@
             align-items: center;
             justify-content: center;
             font-weight: 600;
+            /* POLISHED: White text with shadow for legibility */
+            color: #ffffff;
+            text-shadow: 0 1px 1px rgba(0,0,0,0.7);
         }
 
         /* HP Bar */
         .stat-bar.hp { height: 18px; } /* Was 24px */
-        .stat-bar.hp .stat-bar-inner { background-color: #22C55E; } /* green-500 */
-        .stat-bar.hp .stat-bar-text { color: #1F2937; font-size: 0.75rem; } /* 12px */
+        /* POLISHED: Gradient fill */
+        .stat-bar.hp .stat-bar-inner { background: linear-gradient(to right, #16A34A, #22C55E); } /* green-600 to green-500 */
+        .stat-bar.hp .stat-bar-text { font-size: 0.75rem; } /* 12px */
 
         /* Energy Bar */
-        .stat-bar.energy { height: 14px; } /* Was 16px */
-        .stat-bar.energy .stat-bar-inner { background-color: #0EA5E9; } /* sky-500 */
-        .stat-bar.energy .stat-bar-text { font-size: 0.75rem; color: #1F2937; } /* 12px */
+        .stat-bar.energy { height: 18px; } /* FIX: Was 16px, now matches HP */
+        /* POLISHED: Gradient fill */
+        .stat-bar.energy .stat-bar-inner { background: linear-gradient(to right, #0284C7, #0EA5E9); } /* sky-600 to sky-500 */
+        .stat-bar.energy .stat-bar-text { font-size: 0.75rem; } /* 12px */
 
         /* * NEW: Currency Display Icons */
         .stat-currency-icon {
@@ -183,33 +193,42 @@
             margin-right: 0.5rem; /* 8px */
         }
         .stat-currency-icon.gold {
-            background-color: #FACC15; /* yellow-400 */
-            border: 2px solid #FDE047; /* yellow-300 */
+            /* POLISHED: Gradient fill, border, and shadow */
+            background: linear-gradient(145deg, #FDE047, #FACC15);
+            box-shadow: 0 0 5px #FACC15;
+            border: 1px solid #FDE047;
         }
         .stat-currency-icon.gems {
             width: 18px;
             height: 18px;
-            background-color: #A78BFA; /* violet-400 */
-            border: 2px solid #C4B5FD; /* violet-300 */
+            /* POLISHED: Gradient fill, border, and shadow */
+            background: linear-gradient(145deg, #C4B5FD, #A78BFA);
+            box-shadow: 0 0 5px #A78BFA;
+            border: 1px solid #C4B5FD;
             transform: rotate(45deg);
             border-radius: 4px;
         }
 
         .stat-currency-icon.wood {
-            background-color: #78350F; /* amber-900 */
-            border: 2px solid #A16207; /* amber-700 */
+            /* POLISHED: Gradient fill, border, and shadow */
+            background: linear-gradient(145deg, #A16207, #78350F);
+            box-shadow: 0 0 5px #A16207;
+            border: 1px solid #A16207;
             border-radius: 4px;
         }
         .stat-currency-icon.stone {
-            background-color: #57534E; /* stone-600 */
-            border: 2px solid #78716C; /* stone-500 */
+            /* POLISHED: Gradient fill, border, and shadow */
+            background: linear-gradient(145deg, #78716C, #57534E);
+            box-shadow: 0 0 5px #78716C;
+            border: 1px solid #78716C;
             border-radius: 8px;
         }
 
         /* Currency amount text style (was part of .currency-item) */
         .currency-amount {
             font-weight: 700; /* font-bold */
-            font-size: 1rem; /* text-base */
+            font-size: 1.125rem; /* text-lg - POLISHED */
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5); /* POLISHED */
         }
         
         /*
@@ -231,44 +250,59 @@
         
         /* * NEW: Round Action Buttons (for footer) */
         .action-button-round {
-            width: 60px;
-            height: 60px;
+            width: 64px; /* POLISHED: Slightly larger */
+            height: 64px; /* POLISHED: Slightly larger */
             border-radius: 9999px; /* rounded-full */
             font-weight: 700;
             transition: transform 75ms ease-out, box-shadow 75ms ease-out, background-color 75ms ease-out;
-            /* We'll add icons here later if needed */
+            /* POLISHED: Added flex properties to center icons */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
 
         /* * 3D Button Styles */
         .btn-red {
-            background-color: #DC2626; /* red-600 */
-            box-shadow: 0 4px 0 0 #B91C1C; /* red-700 */
+            /* POLISHED: Gradient and deeper shadow */
+            background: linear-gradient(145deg, #EF4444, #DC2626);
+            box-shadow: 0 5px 0 0 #B91C1C, 0 8px 15px rgba(0,0,0,0.3);
         }
         .btn-red:active {
-            background-color: #EF4444; /* red-500 */
-            transform: translateY(3px) scale(0.98);
-            box-shadow: 0 1px 0 0 #B91C1C;
+            /* POLISHED: More pronounced press effect */
+            background: #EF4444;
+            transform: translateY(4px) scale(0.98);
+            box-shadow: 0 1px 0 0 #B91C1C, 0 3px 5px rgba(0,0,0,0.4);
         }
 
         .btn-blue {
-            background-color: #2563EB; /* blue-600 */
-            box-shadow: 0 4px 0 0 #1D4ED8; /* blue-800 */
+            /* POLISHED: Gradient and deeper shadow */
+            background: linear-gradient(145deg, #3B82F6, #2563EB);
+            box-shadow: 0 5px 0 0 #1D4ED8, 0 8px 15px rgba(0,0,0,0.3);
         }
         .btn-blue:active {
-            background-color: #3B82F6; /* blue-500 */
-            transform: translateY(3px) scale(0.98);
-            box-shadow: 0 1px 0 0 #1D4ED8;
+            /* POLISHED: More pronounced press effect */
+            background: #3B82F6;
+            transform: translateY(4px) scale(0.98);
+            box-shadow: 0 1px 0 0 #1D4ED8, 0 3px 5px rgba(0,0,0,0.4);
         }
 
         /* * Item Slot */
         .item-slot {
             width: clamp(48px, 14vmin, 64px);
             height: clamp(48px, 14vmin, 64px);
-            background-color: #111827; /* Darker bg */
-            border: 2px solid #374151; /* Gray border */
+            background-color: #111; /* Darker bg */
+            border: 1px solid #444; /* Thinner border */
             border-radius: 0.5rem; /* 8px */
-            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.4); /* Inner shadow */
+            /* POLISHED: Deeper inner shadow + top highlight */
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.6), 0 1px 0 0 rgba(255,255,255,0.05);
+            transition: all 0.2s ease;
+        }
+
+        /* POLISHED: Added hover/active glow */
+        .item-slot:hover {
+            border-color: #3B82F6;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.6), 0 0 10px rgba(59, 130, 246, 0.5);
         }
 
         /* * MODAL (Pop-up)
@@ -329,7 +363,8 @@
             </div>
 
             <!-- Row 4: Currencies (Slim Panel) -->
-            <div class="flex items-center justify-around bg-gray-900/50 rounded-lg p-2 border border-gray-700">
+            <!-- POLISHED: Updated classes for new look -->
+            <div class="flex items-center justify-around bg-black/50 rounded-lg p-2 border border-gray-700 shadow-inner">
                 <!-- Gold -->
                 <div class="flex items-center">
                     <div class="stat-currency-icon gold"></div>
@@ -346,7 +381,8 @@
                     <span class="currency-amount" id="wood-display">300</span>
                 </div>
                 <!-- Stone -->
-                <div classall="flex items-center">
+                <!-- FIX: Corrected typo 'classall' to 'class' -->
+                <div class="flex items-center">
                     <div class="stat-currency-icon stone"></div>
                     <span class="currency-amount" id="stone-display">150</span>
                 </div>
@@ -372,8 +408,12 @@
 
                 <!-- Right Side: 2 Round Buttons (Side-by-side) -->
                 <div class="flex space-x-3 ml-4">
-                    <button data-action="attack" class="action-button-round text-white btn-red"></button>
-                    <button data-action="ability-1" class="action-button-round text-white btn-blue"></button>
+                    <!-- POLISHED: Removed inline SVG icon for Attack -->
+                    <button data-action="attack" class="action-button-round text-white btn-red">
+                    </button>
+                    <!-- POLISHED: Removed inline SVG icon for Ability -->
+                    <button data-action="ability-1" class="action-button-round text-white btn-blue">
+                    </button>
                 </div>
             </div>
         </footer>
@@ -390,113 +430,24 @@
             const ctx = canvas.getContext('2d');
             const canvasContainer = document.getElementById('game-canvas-container');
 
-            // --- 1. FIXED ASPECT RATIO (9:16) ---
-            const GAME_ASPECT_RATIO = 9 / 16;
-            canvas.width = 1080;  // 9 * 120
-            canvas.height = 1920; // 16 * 120
+            // --- 1. CANVAS RESIZING ---
+            // DELETED: GAME_ASPECT_RATIO and fixed internal resolution
 
             function resizeCanvas() {
-                const containerWidth = canvasContainer.clientWidth;
-                const containerHeight = canvasContainer.clientHeight;
-                const containerRatio = containerWidth / containerHeight;
+                // UPDATED: Set internal resolution to match display size
+                canvas.width = canvasContainer.clientWidth;
+                canvas.height = canvasContainer.clientHeight;
 
-                let newWidth, newHeight;
-
-                if (containerRatio < GAME_ASPECT_RATIO) {
-                    newWidth = containerWidth;
-                    newHeight = containerWidth / GAME_ASPECT_RATIO;
-                } else {
-                    newHeight = containerHeight;
-                    newWidth = containerHeight * GAME_ASPECT_RATIO;
-                }
-
-                canvas.style.width = `${Math.floor(newWidth)}px`;
-                canvas.style.height = `${Math.floor(newHeight)}px`;
+                // You could draw a default state here if needed, e.g.:
+                // ctx.fillStyle = 'black';
+                // ctx.fillRect(0, 0, canvas.width, canvas.height);
             }
 
             window.addEventListener('resize', resizeCanvas);
             resizeCanvas();
 
-            // --- 2. "SCREENSAVER" GAME LOOP ---
-
-            // Logo properties, sized relative to the 1080x1920 internal canvas
-            let logo = {
-                x: 150,
-                y: 100,
-                width: 300,
-                height: 150,
-                speedX: 5,
-                speedY: 5,
-                color: '#3B82F6' // Start blue
-            };
-
-            function getRandomColor() {
-                const letters = '0123456789ABCDEF';
-                let color = '#';
-                for (let i = 0; i < 6; i++) {
-                    color += letters[Math.floor(Math.random() * 16)];
-                }
-                return color;
-            }
-
-            function gameLoop() {
-                // Update position
-                logo.x += logo.speedX;
-                logo.y += logo.speedY;
-
-                // Collision detection with walls
-                let hitWall = false;
-
-                // Left wall
-                if (logo.x < 0) {
-                    logo.speedX *= -1;
-                    logo.x = 0;
-                    hitWall = true;
-                }
-                // Right wall
-                if (logo.x + logo.width > canvas.width) {
-                    logo.speedX *= -1;
-                    logo.x = canvas.width - logo.width;
-                    hitWall = true;
-                }
-                // Top wall
-                if (logo.y < 0) {
-                    logo.speedY *= -1;
-                    logo.y = 0;
-                    hitWall = true;
-                }
-                // Bottom wall
-                if (logo.y + logo.height > canvas.height) {
-                    logo.speedY *= -1;
-                    logo.y = canvas.height - logo.height;
-                    hitWall = true;
-                }
-
-                // Change color on hit
-                if (hitWall) {
-                    logo.color = getRandomColor();
-                }
-
-                // --- Draw everything ---
-
-                // Clear the canvas
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                // Draw "LOGO" box
-                ctx.fillStyle = logo.color;
-                ctx.fillRect(logo.x, logo.y, logo.width, logo.height);
-
-                // Draw text inside the box
-                ctx.fillStyle = '#FFFFFF'; // White text
-                ctx.font = 'bold 80px Inter';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle'; // Center text vertically
-                ctx.fillText('LOGO', logo.x + logo.width / 2, logo.y + logo.height / 2);
-
-                requestAnimationFrame(gameLoop);
-            }
-
-            gameLoop();
+            // --- 2. "SCREENSAVER" GAME LOOP (REMOVED) ---
+            // DELETED: logo object, getRandomColor(), and gameLoop()
 
             // --- 3. INPUT ABSTRACTION (Pointer Events) ---
 
@@ -515,3 +466,5 @@
 
 </body>
 </html>
+
+
