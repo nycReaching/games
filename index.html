@@ -67,8 +67,12 @@
 
         /* * MEDIA QUERY: This is the magic.
          * If the orientation is landscape, hide the game and show the lock screen.
+         * UPDATED: We replace '(max-height: 850px)' with '(hover: none)'.
+         * This targets devices that are in landscape AND do not have a
+         * primary hover capability (i.e., mobile phones and tablets).
+         * This prevents the lock from appearing on desktops/laptops.
          */
-        @media (orientation: landscape) {
+        @media (orientation: landscape) and (hover: none) {
             #orientation-lock {
                 display: flex;
             }
@@ -212,7 +216,37 @@
             border-radius: 4px;
         }
 
-        /* * NEW: Status Icons */
+        /* NEW Currency Icons */
+        .stat-currency-icon.wood {
+            background-color: #78350F; /* amber-900 */
+            border: 2px solid #A16207; /* amber-700 */
+            border-radius: 4px;
+        }
+        .stat-currency-icon.stone {
+            background-color: #57534E; /* stone-600 */
+            border: 2px solid #78716C; /* stone-500 */
+            border-radius: 8px;
+        }
+
+        /* NEW Currency Container */
+        .currency-item {
+            display: flex;
+            align-items: center;
+            background-color: rgba(17, 24, 39, 0.7); /* bg-gray-900 bg-opacity-70 */
+            padding: 0.25rem 0.75rem; /* px-3 py-1 */
+            border-radius: 9999px; /* rounded-full */
+            border: 1px solid #374151; /* border-gray-700 */
+        }
+        .currency-item .stat-currency-icon {
+            margin-right: 0.375rem; /* mr-1.5 */
+        }
+        .currency-item .currency-amount {
+            font-weight: 700; /* font-bold */
+            font-size: 1rem; /* text-base */
+        }
+
+        /* * NEW: Status Icons (REMOVED) */
+        /*
         .status-icon {
             width: 28px;
             height: 28px;
@@ -228,6 +262,7 @@
             background-color: #991B1B; /* red-800 */
             border-color: #EF4444; /* red-500 */
         }
+        */
 
 
         /* * Action Buttons Base Style
@@ -307,19 +342,17 @@
         <!-- 1. HEADER (Top UI Bar) - UPDATED -->
         <header id="game-header" class="flex flex-col space-y-3">
             
-            <!-- Row 1: Level + Settings -->
+            <!-- Row 1: Level + Player Info -->
             <div class="flex items-center justify-between">
                 <div class="stat-level-display">
                     <span class="level-number">8</span>
                     <span class="level-label">LVL</span>
                 </div>
-                <!-- Settings Button -->
-                <button id="settings-btn" class="p-2 ml-2 rounded-full hover:bg-gray-600 transition-colors self-start">
-                    <!-- Cog SVG -->
-                    <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-1.007 1.11-.902l.11.02a11.985 11.985 0 013.67 1.63M9.594 3.94L8.25 15.006M14.406 3.94L15.75 15.006M14.406 3.94c-.09.542-.56 1.007-1.11.902l-.11-.02a11.985 11.985 0 00-3.67 1.63M14.406 3.94L15.75 15.006M14.406 3.94L13.06 15.006M9.594 3.94L10.94 15.006m2.12-11.066c.09-.542.56-1.007 1.11-.902l.11.02a11.985 11.985 0 013.67 1.63m-4.78 0L8.25 15.006m4.78-11.066L15.75 15.006m-4.78-11.066L13.06 15.006m-2.12 11.066c-.09.542-.56 1.007-1.11.902l-.11-.02a11.985 11.985 0 00-3.67-1.63m4.78 0L15.75 15.006m-4.78 0L13.06 15.006m0 0L8.25 15.006m4.78 0L15.75 15.006" />
-                    </svg>
-                </button>
+                <!-- NEW: Player Info -->
+                <div class="flex flex-col items-end ml-4">
+                    <span class="text-lg font-bold">Player_123</span>
+                    <span class="text-sm text-blue-300">"The Brave"</span>
+                </div>
             </div>
             
             <!-- Row 2: HP Bar -->
@@ -334,25 +367,37 @@
                 <div class="stat-bar-text">90 / 100</div>
             </div>
 
-            <!-- Row 4: Currencies -->
-            <div class="flex items-center justify-between space-x-4">
-                <div class="flex items-center flex-grow bg-gray-900 bg-opacity-50 px-3 py-1 rounded-full">
+            <!-- Row 4: Currencies (Grid) -->
+            <div class="grid grid-cols-2 gap-x-3 gap-y-2">
+                <!-- Gold -->
+                <div class="currency-item">
                     <div class="stat-currency-icon gold"></div>
-                    <span id="score-display" class="font-bold text-lg">1,250</span>
+                    <span class="currency-amount" id="score-display">1,250</span>
                 </div>
-                <div class="flex items-center flex-grow bg-gray-900 bg-opacity-50 px-3 py-1 rounded-full">
+                <!-- Gems -->
+                <div class="currency-item">
                     <div class="stat-currency-icon gems"></div>
-                    <span id="gem-display" class="font-bold text-lg">48</span>
+                    <span class="currency-amount" id="gem-display">48</span>
+                </div>
+                <!-- Wood -->
+                <div class="currency-item">
+                    <div class="stat-currency-icon wood"></div>
+                    <span class="currency-amount" id="wood-display">300</span>
+                </div>
+                <!-- Stone -->
+                <div class="currency-item">
+                    <div class="stat-currency-icon stone"></div>
+                    <span class="currency-amount" id="stone-display">150</span>
                 </div>
             </div>
 
-            <!-- Row 5: Status Icons -->
-            <div class="flex items-center space-x-2">
+            <!-- Row 5: Status Icons (REMOVED) -->
+            <!-- <div class="flex items-center space-x-2">
                 <div class="status-icon buff"></div>
                 <div class="status-icon debuff"></div>
                 <div class="status-icon"></div>
                 <div class="status-icon"></div>
-            </div>
+            </div> -->
             
         </header>
 
@@ -379,33 +424,10 @@
                 </div>
             </div>
         </footer>
-
+ 
         <!-- 
-          4. MODAL (Settings) 
-          This is hidden by default and sits on top of the #game-wrapper
+          REMOVED: Settings Modal
         -->
-        <div id="settings-modal" class="hidden items-center justify-center p-4">
-            <div class="bg-white text-gray-900 w-full max-w-sm rounded-lg shadow-2xl p-6">
-                <h2 class="text-2xl font-bold mb-4">Settings</h2>
-                <div class="space-y-4">
-                    <label class="flex items-center justify-between">
-                        <span class="text-lg">Music</span>
-                        <input type="checkbox" class="form-checkbox h-6 w-6 text-blue-600 rounded" checked>
-                    </label>
-                    <label class="flex items-center justify-between">
-                        <span class="text-lg">Sound FX</span>
-                        <input type="checkbox" class="form-checkbox h-6 w-6 text-blue-600 rounded" checked>
-                    </label>
-                    <div class="pt-2">
-                        <span class="text-lg">Volume</span>
-                        <input type="range" class="w-full mt-1" min="0" max="100" value="75">
-                    </div>
-                </div>
-                <button id="close-modal-btn" class="game-button w-full mt-6 bg-blue-600 text-white font-bold p-3 rounded-lg hover:bg-blue-500 active:scale-95">
-                    Close
-                </button>
-            </div>
-        </div>
 
     </div> <!-- End #game-wrapper -->
 
@@ -525,23 +547,8 @@
 
             // --- 3. INPUT ABSTRACTION (Pointer Events) ---
             
-            // Modal controls
-            const settingsModal = document.getElementById('settings-modal');
-            const settingsButton = document.getElementById('settings-btn');
-            const closeModalButton = document.getElementById('close-modal-btn');
-
-            settingsButton.addEventListener('pointerdown', (e) => {
-                e.preventDefault();
-                settingsModal.classList.remove('hidden');
-                settingsModal.classList.add('flex');
-            });
-
-            closeModalButton.addEventListener('pointerdown', (e) => {
-                e.preventDefault();
-                settingsModal.classList.add('hidden');
-                settingsModal.classList.remove('flex');
-            });
-
+            // REMOVED: Modal controls
+ 
             // Game action buttons
             const actionButtons = document.querySelectorAll('.game-button[data-action]');
             actionButtons.forEach(button => {
@@ -557,4 +564,8 @@
 
 </body>
 </html>
+
+
+
+
 
