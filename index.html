@@ -1,345 +1,401 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dark Game UI</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <title>Game UI Shell v7</title>
+  <style>
+    :root {
+      --max-phone-width: 420px;
 
-        :root {
-            --bg: #0f0f15;
-            --surface: #1a1a22;
-            --surface-dark: #121218;
-            --primary: #6a5af9;
-            --primary-dark: #5145c4;
-            --accent: #ff2d75;
-            --accent-dark: #cc245e;
-            --text: #e6e6ff;
-            --text-secondary: #a0a0c0;
-            --border-radius: 20px;
-            --border-radius-lg: 28px;
-            --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-            --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.5);
-            --glow: 0 0 16px rgba(106, 90, 249, 0.4);
-            --glow-accent: 0 0 16px rgba(255, 45, 117, 0.5);
-            --transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
+      --top-height: 10vh;          /* slim resource HUD */
+      --inventory-height: 10vh;    /* 4 item slots row */
+      --bottom-height: 18vh;       /* meters + buttons */
 
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom) 0;
-        }
+      --border-radius: 24px;
 
-        .game-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            max-width: 100%;
-            max-height: 100%;
-            padding: 20px;
-            gap: 20px;
-        }
+      --panel-bg: rgba(255,255,255,0.05);
+      --panel-border: rgba(255,255,255,0.08);
 
-        /* Header */
-        .game-header {
-            display: flex;
-            justify-content: center;
-            padding: 16px 0;
-            position: relative;
-        }
+      --slot-bg: rgba(255,255,255,0.07);
+      --slot-border: rgba(255,255,255,0.15);
+    }
 
-        .game-title {
-            font-size: 1.8rem;
-            font-weight: 800;
-            background: linear-gradient(90deg, var(--primary), #8a7bff);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            letter-spacing: -0.5px;
-            text-shadow: 0 0 10px rgba(106, 90, 249, 0.3);
-        }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-        /* Main game area */
-        .game-area {
-            flex: 1;
-            background: var(--surface);
-            border-radius: var(--border-radius-lg);
-            box-shadow: var(--shadow-lg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", Roboto, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100dvh;
+    }
 
-        .game-placeholder {
-            text-align: center;
-            padding: 32px;
-            color: var(--text-secondary);
-        }
+    .device {
+      width: 100%;
+      max-width: var(--max-phone-width);
+      height: clamp(600px, 100dvh, 900px);
+      background: #111827;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      flex-direction: column;
+    }
 
-        .game-placeholder h2 {
-            font-size: 2.2rem;
-            font-weight: 800;
-            margin-bottom: 16px;
-            background: linear-gradient(90deg, #e0e0ff, #ffffff);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
+    /* === TOP SECTION (RPG resource counters) ===
+       Updated:
+       - Larger text, no pill chrome
+       - Matches bottom meter typography style
+    */
+    .top-section {
+      flex: 0 0 var(--top-height);
+      background: var(--panel-bg);
+      border-bottom: 1px solid var(--panel-border);
 
-        .game-placeholder p {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            max-width: 80%;
-            margin: 0 auto;
-        }
+      padding: calc(env(safe-area-inset-top) + 8px) 12px 8px;
 
-        /* Game controls */
-        .game-controls {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-            padding: 10px 0 20px;
-        }
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-content: flex-start;
+      gap: 16px;
 
-        .action-btn {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            border: none;
-            border-radius: var(--border-radius-lg);
-            padding: 24px 16px;
-            font-size: 1.4rem;
-            font-weight: 800;
-            box-shadow: var(--shadow), var(--glow);
-            cursor: pointer;
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-            letter-spacing: -0.5px;
-            text-transform: uppercase;
-        }
+      font-size: 0.8rem;
+      line-height: 1.2;
+    }
 
-        .action-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.6s;
-        }
+    /* flattened HUD row items (no bubble) */
+    .resource-pill {
+      background: none;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      padding: 0;
 
-        .action-btn:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg), var(--glow);
-        }
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
 
-        .action-btn:active {
-            transform: translateY(2px) scale(0.98);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-        }
+      font-size: 0.8rem;
+      line-height: 1.2;
+      font-weight: 500;
+      color: rgba(255,255,255,0.9);
+      min-width: max-content;
+    }
 
-        .action-btn:active::before {
-            left: 100%;
-        }
+    .resource-label {
+      display: flex;
+      gap: 6px;
+      font-weight: 600;
+      color: #fff;
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
 
-        /* Status bar */
-        .status-bar {
-            display: flex;
-            justify-content: space-between;
-            padding: 18px 24px;
-            background: var(--surface-dark);
-            border-radius: var(--border-radius-lg);
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
+    .resource-value {
+      color: rgba(255,255,255,0.7);
+      font-weight: 500;
+      font-size: 0.8rem;
+    }
 
-        .status-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-width: 80px;
-        }
+    .exp-col {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+    }
 
-        .status-value {
-            font-weight: 800;
-            font-size: 1.5rem;
-            background: linear-gradient(90deg, var(--accent), #ff6ba0);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 4px;
-        }
+    .exp-top-row {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      color: #fff;
+    }
 
-        .status-label {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
+    .exp-bottom-row {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.7);
+      font-weight: 500;
+    }
 
-        /* Special button */
-        .special-btn {
-            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            box-shadow: var(--shadow), var(--glow-accent);
-        }
+    /* === MIDDLE GAME AREA ===
+       Full band = playfield
+    */
+    .middle-section {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at 50% 40%, #1e293b 0%, #0f172a 80%);
+    }
 
-        .special-btn:hover {
-            box-shadow: var(--shadow-lg), var(--glow-accent);
-        }
+    .placeholder {
+      /* No border, no frame, just debug text */
+      border: 0;
+      border-radius: 0;
+      width: auto;
+      height: auto;
 
-        .special-btn:active {
-            background: linear-gradient(135deg, var(--accent-dark), var(--accent));
-        }
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.6);
+      text-align: center;
+      font-size: 0.8rem;
+      opacity: 0.6;
+      user-select: none;
+    }
 
-        /* Responsive adjustments */
-        @media (min-width: 768px) {
-            .game-container {
-                max-width: 500px;
-                margin: 0 auto;
-            }
-            
-            body {
-                padding: 20px;
-                background: radial-gradient(circle at center, #0a0a12 0%, var(--bg) 100%);
-            }
-        }
+    /* === INVENTORY ROW (4 item slots) === */
+    .inventory-row {
+      flex: 0 0 var(--inventory-height);
+      background: rgba(255,255,255,0.03);
+      border-top: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 8px 0;
+      -webkit-user-select: none;
+      user-select: none;
+    }
 
-        @media (min-height: 800px) {
-            .game-container {
-                padding: 28px;
-            }
-            
-            .action-btn {
-                padding: 28px 20px;
-                font-size: 1.5rem;
-            }
-        }
+    .slot {
+      width: 56px;
+      height: 56px;
+      background: var(--slot-bg);
+      border: 1px solid var(--slot-border);
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.5rem;
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+      user-select: none;
+    }
 
-        /* Animation for placeholder */
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-12px); }
-            100% { transform: translateY(0px); }
-        }
+    /* === BOTTOM SECTION (meters + action buttons) === */
+    .bottom-section {
+      flex: 0 0 var(--bottom-height);
+      background: var(--panel-bg);
+      border-top: 1px solid var(--panel-border);
 
-        .floating {
-            animation: float 3s ease-in-out infinite;
-        }
+      padding: 12px 16px calc(env(safe-area-inset-bottom) + 12px);
 
-        /* Juicy feedback animations */
-        @keyframes pulse {
-            0% { transform: scale(1); box-shadow: var(--shadow), var(--glow); }
-            50% { transform: scale(1.03); box-shadow: var(--shadow-lg), var(--glow); }
-            100% { transform: scale(1); box-shadow: var(--shadow), var(--glow); }
-        }
+      display: flex;
+      gap: 16px;
+      align-items: center; /* vertically align buttons vs meters */
+      justify-content: space-between;
+      -webkit-user-select: none;
+      user-select: none;
+    }
 
-        .pulse-once {
-            animation: pulse 0.4s ease-out;
-        }
-    </style>
+    /* Left side: meters stacked */
+    .meters-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .meter-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .meter-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      line-height: 1.2;
+      color: rgba(255,255,255,0.8);
+      font-weight: 500;
+    }
+
+    .meter-bar-outer {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.8) inset;
+      overflow: hidden;
+    }
+
+    /* demo fill widths */
+    .meter-bar-inner.hp {
+      width: 80%;
+      height: 100%;
+      background: linear-gradient(
+        to right,
+        #ef4444,
+        #dc2626
+      );
+    }
+    .meter-bar-inner.energy {
+      width: 45%;
+      height: 100%;
+      background: linear-gradient(
+        to right,
+        #38bdf8,
+        #0ea5e9
+      );
+    }
+    .meter-bar-inner.xp {
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(
+        to right,
+        #a3e635,
+        #65a30d
+      );
+    }
+
+    /* Right side: two vertical round buttons */
+    .buttons-area {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .round-btn {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.1rem;
+      color: #fff;
+      user-select: none;
+      touch-action: manipulation;
+      transition: transform 0.1s ease;
+    }
+
+    .round-btn:active {
+      transform: scale(0.94);
+      background: rgba(255,255,255,0.12);
+    }
+
+    .round-btn.secondary {
+      width: 54px;
+      height: 54px;
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+  </style>
 </head>
 <body>
-    <div class="game-container">
-        <!-- Header -->
-        <header class="game-header">
-            <h1 class="game-title">NEON QUEST</h1>
-        </header>
-        
-        <!-- Main game area -->
-        <main class="game-area">
-            <div class="game-placeholder floating">
-                <h2>GAME CANVAS</h2>
-                <p>Your epic adventure begins here</p>
-            </div>
-        </main>
-        
-        <!-- Game controls -->
-        <div class="game-controls">
-            <button class="action-btn" id="btn1">ATTACK</button>
-            <button class="action-btn special-btn" id="btn2">ULTIMATE</button>
-            <button class="action-btn" id="btn3">DEFEND</button>
+  <main class="device">
+    <!-- TOP: RPG-style resource counters (larger, still flat) -->
+    <header class="top-section">
+      <div class="resource-pill">
+        <div class="resource-label">
+          <span>💰</span><span>Gold</span>
         </div>
-        
-        <!-- Status bar -->
-        <div class="status-bar">
-            <div class="status-item">
-                <div class="status-value">100</div>
-                <div class="status-label">HEALTH</div>
-            </div>
-            <div class="status-item">
-                <div class="status-value">5,240</div>
-                <div class="status-label">SCORE</div>
-            </div>
-            <div class="status-item">
-                <div class="status-value">3</div>
-                <div class="status-label">LIVES</div>
-            </div>
+        <div class="resource-value">1,234</div>
+      </div>
+
+      <div class="resource-pill">
+        <div class="resource-label">
+          <span>💎</span><span>Gems</span>
         </div>
+        <div class="resource-value">56</div>
+      </div>
+
+      <div class="resource-pill">
+        <div class="resource-label">
+          <span>🪵</span><span>Mats</span>
+        </div>
+        <div class="resource-value">12</div>
+      </div>
+
+      <div class="resource-pill">
+        <div class="exp-col">
+          <div class="exp-top-row">
+            <span>⭐</span>
+            <span>Lv&nbsp;3</span>
+          </div>
+          <div class="exp-bottom-row">
+            12,340&nbsp;XP
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- MIDDLE GAME AREA (full playable surface; no border box) -->
+    <section class="middle-section">
+      <div class="placeholder">GAME AREA</div>
+    </section>
+
+    <!-- INVENTORY ROW -->
+    <div class="inventory-row">
+      <div class="slot">🗡️</div>
+      <div class="slot">🛡️</div>
+      <div class="slot">💎</div>
+      <div class="slot">🍗</div>
     </div>
 
-    <script>
-        // Juicy button feedback
-        document.querySelectorAll('.action-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                // Add pulse animation
-                this.classList.add('pulse-once');
-                
-                // Remove animation class after it completes
-                setTimeout(() => {
-                    this.classList.remove('pulse-once');
-                }, 400);
-                
-                // Haptic feedback if supported
-                if ('vibrate' in navigator) {
-                    navigator.vibrate([10, 50, 10]);
-                }
-            });
-            
-            // Add subtle hover effect for desktop
-            button.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-4px)';
-            });
-            
-            button.addEventListener('mouseleave', function() {
-                this.style.transform = '';
-            });
-        });
-        
-        // Prevent zoom on double-tap
-        document.addEventListener('touchstart', function(event) {
-            if (event.touches.length > 1) {
-                event.preventDefault();
-            }
-        });
-        
-        let lastTouchEnd = 0;
-        document.addEventListener('touchend', function(event) {
-            const now = (new Date()).getTime();
-            if (now - lastTouchEnd <= 300) {
-                event.preventDefault();
-            }
-            lastTouchEnd = now;
-        }, false);
-    </script>
+    <!-- BOTTOM: meters (left) + buttons (right) -->
+    <nav class="bottom-section">
+      <!-- meters -->
+      <section class="meters-area">
+        <div class="meter-block">
+          <div class="meter-label-row">
+            <span>HP</span>
+            <span>80 / 100</span>
+          </div>
+          <div class="meter-bar-outer">
+            <div class="meter-bar-inner hp"></div>
+          </div>
+        </div>
+
+        <div class="meter-block">
+          <div class="meter-label-row">
+            <span>ENERGY</span>
+            <span>45%</span>
+          </div>
+          <div class="meter-bar-outer">
+            <div class="meter-bar-inner energy"></div>
+          </div>
+        </div>
+
+        <div class="meter-block">
+          <div class="meter-label-row">
+            <span>XP</span>
+            <span>12 / 20</span>
+          </div>
+          <div class="meter-bar-outer">
+            <div class="meter-bar-inner xp"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- buttons -->
+      <section class="buttons-area">
+        <button class="round-btn">A</button>
+        <button class="round-btn secondary">B</button>
+      </section>
+    </nav>
+  </main>
 </body>
 </html>
