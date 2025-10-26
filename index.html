@@ -12,17 +12,18 @@
       --gap: 0;
       --bg: #0e0f12;
       --outline-w: 2px;
-      /* accent (was teal) → dark pink */
-      --teal: #d81b60; /* dark pink tone */
+      /* accent (dark green) */
+      --teal: #0b5d3b; /* was pink, now dark green */
     }
 
     html, body {
       padding: 0; margin: 0; height: 100%;
       background: var(--bg);
-      color: transparent; /* no visible text */
+      color: transparent; /* keep rest of the UI textless */
       overscroll-behavior: none;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
     }
 
     .app {
@@ -45,7 +46,6 @@
       border-radius: 14px;
       overflow: hidden;
       background-clip: padding-box;
-      /* Intensified container gradient */
       background: linear-gradient(180deg, #0c1219 0%, #090c12 50%, #07090d 100%);
     }
 
@@ -53,14 +53,12 @@
 
     header {
       display: block;
-      /* Intensified header gradient */
       background: linear-gradient(180deg, #1b2330 0%, #121824 60%, #0d111a 100%);
       box-shadow: inset 0 -1px 0 0 color-mix(in oklab, var(--teal) 55%, black);
     }
 
     main {
       position: relative;
-      /* Intensified stage gradient with vignette */
       background: radial-gradient(120% 85% at 50% 18%, #101622 0%, #0b0f18 55%, #070a10 100%),
                   radial-gradient(140% 120% at 50% 100%, rgba(0,0,0,0.45), transparent 60%);
       border-top: 1px solid var(--teal);
@@ -71,7 +69,6 @@
 
     footer {
       display: block;
-      /* Intensified footer gradient */
       background: linear-gradient(180deg, #121824 0%, #0f141e 50%, #0b1018 100%);
       border-top: 1px solid var(--teal);
       box-shadow: inset 0 1px 0 0 color-mix(in oklab, var(--teal) 55%, black);
@@ -101,7 +98,7 @@
       display: block;
       width: 100%;
       height: clamp(22px, 5.5vh, 56px); /* taller */
-      border: 2px solid color-mix(in oklab, var(--teal) 70%, black);
+      border: 2px solid color-mix(in oklab, #b08900 85%, black);
       border-radius: 8px;
       background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0));
       box-shadow: 0 0 0 1px rgba(0,0,0,0.5), inset 0 0 6px rgba(0,0,0,0.35);
@@ -110,53 +107,121 @@
 
     /* Fallback for browsers without color-mix */
     @supports not (color: color-mix(in oklab, white 50%, black)) {
-      header { box-shadow: inset 0 -1px 0 0 rgba(216, 27, 96, 0.55); }
-      footer { box-shadow: inset 0 1px 0 0 rgba(216, 27, 96, 0.55); }
-      .rail { background: linear-gradient(90deg, transparent, rgba(216, 27, 96, 0.16), transparent); }
-      .rail span { border-color: rgba(216, 27, 96, 0.7); }
+      header { box-shadow: inset 0 -1px 0 0 rgba(11, 93, 59, 0.55); }
+      footer { box-shadow: inset 0 1px 0 0 rgba(11, 93, 59, 0.55); }
+      .rail { background: linear-gradient(90deg, transparent, rgba(11, 93, 59, 0.16), transparent); }
+      .rail span { border-color: rgba(176, 137, 0, 0.85); }
     }
-  
-    /* ======= Thin meters in top section (header) ======= */
+
+    /* ======= HUD layout (meters + counters) ======= */
+    .hud { display: grid; grid-template-columns: minmax(280px, 55%) 1fr; align-items: center; gap: 16px; padding: 0 12px; min-height: 100%; }
+
+    .counters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 10px; margin: 0 12px 0 0; align-items: stretch; justify-items: stretch; }
+    .counter-item { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 10px; border: 1px solid var(--teal); border-radius: 999px; font-weight: 700; font-size: 12px; color: color-mix(in oklab, white 90%, transparent); background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0)); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.35); width: 100%; box-sizing: border-box; }
+    .counter-item .value { min-width: 2ch; text-align: right; }
+
+    /* ======= Meters in top section (header) ======= */
     .meters {
       position: relative;
-      width: 50%; /* end at the middle */
-      max-width: 420px;
-      margin: 10px auto 0 10px; /* left-aligned, stops mid */
+      width: 100%; /* fill left grid column only */
+      max-width: none;
+      margin: 0 0 0 12px; /* align left, no vertical push */
       display: grid;
-      row-gap: 6px;
-      padding: 10px 0 8px;
+      row-gap: 12px; /* spacing between meters */
+      padding: 0; /* no extra vertical padding so it's height-centered */
     }
+
+    .meter-row {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      column-gap: 14px; /* space between number and bar */
+      align-items: center;
+    }
+
+    .meter-label {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: color-mix(in oklab, white 88%, transparent); /* visible numeric text */
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.3px;
+      text-shadow: 0 0 6px rgba(0,0,0,0.6);
+      min-width: 52px; /* prevents layout shift */
+      text-align: right;
+    }
+    .meter-label .icon { display: inline-block; width: 1.15em; text-align: center; }
+
     .meter {
       position: relative;
-      height: 4px; /* thin meters */
-      background: color-mix(in oklab, white 6%, transparent);
-      border-radius: 999px;
+      height: 10px; /* thicker meters */
+      background: color-mix(in oklab, white 8%, transparent);
+      border-radius: 2px; /* squared off */
       overflow: hidden;
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.4);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.45);
+      isolation: isolate;
     }
-    .meter::before {
-      content: "";
+
+    .meter .fill {
       position: absolute;
-      left: 0; right: 50%; /* fill ends in the middle */
-      top: 0; bottom: 0;
-      background: linear-gradient(90deg,
-        color-mix(in oklab, var(--teal) 85%, white),
-        color-mix(in oklab, var(--teal) 55%, transparent));
-      box-shadow: 0 0 8px color-mix(in oklab, var(--teal) 35%, transparent);
+      inset: 0 auto 0 0;
+      width: calc(var(--fill, .5) * 100%);
+      box-shadow: 0 0 10px color-mix(in oklab, currentColor 35%, transparent);
     }
+
+    /* distinct meter colors */
+    .fill.red {
+      background: linear-gradient(90deg, color-mix(in oklab, #ff3b30 85%, white), color-mix(in oklab, #ff3b30 50%, transparent));
+      color: #ff3b30;
+    }
+    .fill.blue {
+      background: linear-gradient(90deg, color-mix(in oklab, #0a84ff 85%, white), color-mix(in oklab, #0a84ff 50%, transparent));
+      color: #0a84ff;
+    }
+    .fill.orange {
+      background: linear-gradient(90deg, color-mix(in oklab, #ff9f0a 85%, white), color-mix(in oklab, #ff9f0a 50%, transparent));
+      color: #ff9f0a;
+    }
+    .fill.white {
+      background: linear-gradient(90deg, color-mix(in oklab, #ffffff 92%, white), color-mix(in oklab, #ffffff 40%, transparent));
+      color: #ffffff;
+    }
+
     @supports not (color: color-mix(in oklab, white 50%, black)) {
-      .meter { background: rgba(255,255,255,0.06); }
-      .meter::before { background: linear-gradient(90deg, rgba(216,27,96,0.85), rgba(216,27,96,0.55)); }
+      .meter { background: rgba(255,255,255,0.08); }
+      .fill.red { background: linear-gradient(90deg, rgba(255,59,48,0.9), rgba(255,59,48,0.5)); }
+      .fill.blue { background: linear-gradient(90deg, rgba(10,132,255,0.9), rgba(10,132,255,0.5)); }
+      .fill.orange { background: linear-gradient(90deg, rgba(255,159,10,0.9), rgba(255,159,10,0.5)); }
+      .fill.white { background: linear-gradient(90deg, rgba(255,255,255,0.95), rgba(255,255,255,0.4)); }
     }
   </style>
 </head>
 <body>
   <div class="app">
     <header>
-      <div class="meters" aria-hidden="true">
-        <div class="meter"></div>
-        <div class="meter"></div>
-        <div class="meter"></div>
+      <div class="hud">
+        <div class="meters" aria-hidden="false" role="group" aria-label="Status meters">
+        <div class="meter-row">
+          <span class="meter-label" aria-label="Health"><span class="icon">❤️</span>50/100</span>
+          <div class="meter"><span class="fill red" style="--fill: .5"></span></div>
+        </div>
+        <div class="meter-row">
+          <span class="meter-label" aria-label="Armor"><span class="icon">🛡️</span>70/100</span>
+          <div class="meter"><span class="fill blue" style="--fill: .7"></span></div>
+        </div>
+        <div class="meter-row">
+          <span class="meter-label" aria-label="Magic"><span class="icon">✨</span>30/100</span>
+          <div class="meter"><span class="fill orange" style="--fill: .3"></span></div>
+        </div>
+        <div class="meter-row">
+          <span class="meter-label" aria-label="Spirit"><span class="icon">🕊️</span>90/100</span>
+          <div class="meter"><span class="fill white" style="--fill: .9"></span></div>
+        </div>
+        </div>
+        <div class="counters" aria-label="Resources" role="group">
+          <div class="counter-item" aria-label="Gold">🪙<span class="value">1,234</span></div>
+          <div class="counter-item" aria-label="Experience">⭐<span class="value">5,678</span></div>
+          <div class="counter-item" aria-label="Crystals">💎<span class="value">42</span></div>
+          <div class="counter-item" aria-label="Materials">🧱<span class="value">128</span></div>
+        </div>
       </div>
     </header>
     <main id="stage">
