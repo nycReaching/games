@@ -2,402 +2,351 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- This meta tag is crucial for mobile responsiveness -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Mobile Game UI Shell</title>
-
-    <!-- Load the Inter font (added 900 weight) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Slot Machine</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        /* --- NEW: Wobble Animation --- */
-        @keyframes wobble {
-            0%, 100% { transform: translate(5px, 5px) rotate(0deg); }
-            25% { transform: translate(5px, 5px) rotate(2deg); }
-            75% { transform: translate(5px, 5px) rotate(-2deg); }
-        }
-
-        /* Reset browser defaults and set up base styles */
-        html, body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            width: 100%;
-            /* --- MODIFIED: Allow scrolling to hide URL bar --- */
-            overflow-x: hidden;
-            overflow-y: auto;
+        body {
             font-family: 'Inter', sans-serif;
-            /* --- MODIFIED: Colorful background --- */
-            background: linear-gradient(45deg, #1d1933, #302b63);
-            touch-action: manipulation;
-        }
-
-        /* The main application container */
-        #app-container {
-            display: flex;
-            flex-direction: column; /* Stacks the sections vertically */
-            height: 100vh; /* Fills 100% of the viewport height. JS will override this. */
-            width: 100%;  /* Fills 100% of its container (up to max-width) */
-            max-width: 480px; /* Constrains width on large screens */
-            margin: 0 auto;   /* Centers the container horizontally */
-            position: relative;
-            /* --- MODIFIED: Exaggerated shadow --- */
-            box-shadow: 10px 10px 0px rgba(0,0,0,0.8);
-        }
-
-        /* Top section for stats */
-        #top-bar {
-            flex: 0 0 10%;
-            /* --- MODIFIED: Colorful background --- */
-            background: linear-gradient(0deg, #520461, #3c0347);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            font-size: 1.2rem;
-            border: none;
-            /* --- MODIFIED: Text shadow --- */
-            text-shadow: 3px 3px 0px rgba(0,0,0,0.5);
-            /* --- FIX: Force new rendering layer to prevent flicker --- */
-            transform: translateZ(0);
-        }
-
-        /* Main middle section for game visuals */
-        #game-area {
-            flex: 1 1 auto;
-            /* --- MODIFIED: Colorful background --- */
-            background: linear-gradient(180deg, #1d1933, #302b63);
-            color: #999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            padding: 1rem;
-            box-sizing: border-box;
-            /* Allows this section to scroll internally if content overflows */
-            overflow-y: auto;
-        }
-
-        /* --- Slot Machine Styles --- */
-        .slot-reel {
-            display: flex;
-            flex-direction: row;
-            gap: 0.5rem;
-            width: 100%;
-            /* --- NEW: Needed for 3D flip --- */
-            perspective: 150px; 
-        }
-
-        .slot {
-            /* --- MODIFIED: Flexible width, square aspect ratio --- */
-            flex: 1; /* Each slot takes equal space */
-            max-width: 70px; /* But won't get bigger than 70px */
-            aspect-ratio: 1 / 1; /* Maintains a square shape */
-
-            /* --- MODIFIED: Shiny background & shadow --- */
-            background: linear-gradient(145deg, #6a6a6a, #4a4a4a);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            /* --- MODIFIED: Responsive font size --- */
-            font-size: clamp(2rem, 10vw, 3rem);
-            border: none;
-            box-shadow: 5px 5px 0px rgba(0,0,0,0.8);
-            transition: all 0.1s ease-out;
-
-            /* --- NEW: 3D Animation properties --- */
-            transform-style: preserve-3d;
-            transition: transform 0.5s ease-in-out, box-shadow 0.1s ease-out;
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
-            outline: none;
-        }
-
-        /* --- NEW: Click/Tap "push in" effect --- */
-        .slot.active,
-        .square-button.active {
-            transform: translate(5px, 5px);
-            box-shadow: 0px 0px 0px rgba(0,0,0,0.8);
+            /* Prevent pull-to-refresh on mobile */
+            overscroll-behavior-y: contain;
         }
         
-        /* --- NEW: Flip animation --- */
-        .slot.spinning {
-            transform: rotateX(360deg);
-        }
-        /* --- End Slot Machine Styles --- */
+        /* ===== Slot Machine Styles ===== */
 
-
-        /* Bottom section for buttons */
-        #bottom-bar {
-            flex: 0 0 18%;
-            /* --- MODIFIED: Colorful background --- */
-            background: linear-gradient(0deg, #520461, #3c0347);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-weight: bold;
-            border: none;
-            padding: 1rem;
-            box-sizing: border-box;
-            /* --- FIX: Force new rendering layer to prevent flicker --- */
-            transform: translateZ(0);
+        .reel {
+            width: 60px; /* Fixed width for each reel */
+            height: 80px; /* Fixed height to show ONE symbol */
+            overflow: hidden;
+            border: 2px solid #4b5563; /* gray-600 */
+            border-radius: 0.5rem; /* rounded-lg */
+            background-color: #1f2937; /* gray-800 */
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.5);
+            
+            /* Gentle floaty animation for the whole reel */
+            animation: float 3s ease-in-out infinite;
         }
 
-        /* Left side 2x2 grid container */
-        #left-controls {
-            display: grid;
-            /* --- MODIFIED: Match slot machine max size --- */
-            grid-template-columns: repeat(2, 70px);
-            grid-template-rows: repeat(2, 70px);
-            gap: 0.5rem;
+        .reel.spinning {
+            /* Disable float when spinning */
+            animation: none;
         }
-
-        .square-button {
-            /* --- MODIFIED: Match slot machine max size --- */
-            width: 70px;
-            height: 70px;
-            /* --- MODIFIED: Shiny background & shadow --- */
-            background: linear-gradient(145deg, #6a6a6a, #4a4a4a);
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.1s ease-out;
-            box-shadow: 5px 5px 0px rgba(0,0,0,0.8);
-            -webkit-tap-highlight-color: transparent;
-            outline: none;
+        
+        .reel-strip {
+            /* The 'spinning' animation is a cubic-bezier ease-out */
+            /* This is applied by JS to make it 'snap' to the end position */
+            transition: transform 3s cubic-bezier(0.33, 1, 0.68, 1);
         }
-
-        /* Right side round button container */
-        #right-controls {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .round-button {
-            /* --- MODIFIED: Increased button size --- */
-            width: 80px;
-            height: 80px;
-            /* --- MODIFIED: Shiny background & shadow --- */
-            background: radial-gradient(circle at 30% 30%, #ff80ff, #e140e6, #a832b3);
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.1s ease-out;
-            box-shadow: 5px 5px 0px rgba(0,0,0,0.8);
-            -webkit-tap-highlight-color: transparent;
-            outline: none;
+        
+        .symbol {
+            width: 100%;
+            height: 80px; /* Must match reel height */
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
-            color: white;
+            font-size: 2.5rem; /* 40px */
+            user-select: none; /* Prevent text selection */
+            cursor: pointer;
+            
+            /* Add a sharp 'inset' look to symbols */
+            text-shadow: 0 2px 2px rgba(0,0,0,0.4);
+            transition: transform 0.1s ease;
+        }
+        
+        /* Clickable effect for symbols after spin */
+        .symbol.clickable:hover {
+            transform: scale(1.1);
+        }
+        .symbol.clickable:active {
+            transform: scale(0.95);
         }
 
-        /* --- MODIFIED: "push in" effect for round buttons --- */
-        .round-button.active {
-            transform: translate(5px, 5px);
-            box-shadow: 0px 0px 0px rgba(0,0,0,0.8);
-            background: radial-gradient(circle at 40% 40%, #ff80ff, #e140e6, #a832b3);
+        /* The idle float animation */
+        @keyframes float {
+          0%, 100% { transform: translateY(-2px); }
+          50% { transform: translateY(2px); }
         }
-
-        /* --- NEW: Spinning state for spin button --- */
-        #spin-button.spinning {
-            /* Hold the "pushed in" state */
-            transform: translate(5px, 5px);
-            box-shadow: 0px 0px 0px rgba(0,0,0,0.8);
-            /* And wobble! */
-            animation: wobble 0.5s infinite linear;
-        }
-
     </style>
 </head>
-<body>
+<body class="bg-gray-900 text-white overflow-hidden">
 
-    <!-- This is the main container that holds all UI sections -->
-    <div id="app-container">
+    <div id="game-container" class="flex flex-col h-screen max-w-lg mx-auto bg-gray-800 shadow-2xl">
 
-        <!-- TOP SECTION -->
-        <div id="top-bar">
-            STATS AREA
-        </div>
-
-        <!-- MIDDLE SECTION (Fills remaining space) -->
-        <div id="game-area">
-            <!-- Slot Machine Reels -->
-            <div class="slot-reel" id="reel1">
-                <div class="slot">🍒</div>
-                <div class="slot">🍋</div>
-                <div class="slot">🍉</div>
-                <div class="slot">🍇</div>
-                <div class="slot">🍓</div>
+        <!-- ===== TOP SECTION (Unchanged) ===== -->
+        <header id="top-section" class="p-4 border-b border-gray-700 shadow-md">
+            <div class="flex justify-between items-center">
+                <div class="text-left">
+                    <span class="text-xs text-gray-400 font-medium tracking-wider uppercase">Level</span>
+                    <span class="block text-xl font-bold text-white">12</span>
+                </div>
+                <div class="text-center">
+                    <span class="text-xs text-gray-400 font-medium tracking-wider uppercase">Score</span>
+                    <span class="block text-2xl font-bold text-indigo-400">18,500</span>
+                </div>
+                <button class="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 active:bg-gray-500 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </button>
             </div>
+        </header>
 
-            <div class="slot-reel" id="reel2">
-                <div class="slot">🍊</div>
-                <div class="slot">🍍</div>
-                <div class="slot">🍒</div>
-                <div class="slot">🍋</div>
-                <div class="slot">🍉</div>
+        <!-- ===== MIDDLE SECTION (Game Area) ===== -->
+        <main id="middle-section" class="flex-grow p-4 flex flex-col justify-center overflow-auto">
+            
+            <!-- Slot machine container -->
+            <div id="slot-machine" class="w-full flex justify-center items-center space-x-2 bg-gray-900/50 rounded-lg p-4 border border-gray-700 shadow-inner">
+                <!-- Reels will be injected by JS here -->
             </div>
-            <!-- End Slot Machine Reels -->
-        </div>
+            
+            <!-- Spin Button & Status Area -->
+            <div class="pt-6 flex flex-col items-center space-y-3">
+                <button id="spin-button" class="w-full max-w-xs py-3 px-6 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-lg font-bold rounded-lg shadow-lg transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                    SPIN
+                </button>
+                <p id="status-text" class="text-sm text-gray-400 h-4">Press Spin to start!</p>
+            </div>
+        </main>
 
-        <!-- BOTTOM SECTION -->
-        <div id="bottom-bar">
-            <!-- Left 2x2 Grid -->
-            <div id="left-controls">
-                <div class="square-button"></div>
-                <div class="square-button"></div>
-                <div class="square-button"></div>
-                <div class="square-button"></div>
+        <!-- ===== BOTTOM SECTION (Dynamic Buttons) ===== -->
+        <footer id="bottom-section" class="p-3 border-t border-gray-700 shadow-inner bg-gray-900/70 backdrop-blur-sm">
+            <!-- Dynamic button container -->
+            <div id="button-container" class="flex justify-around items-center space-x-2 min-h-[70px]">
+                <!-- Buttons will be injected by JS here -->
+                <span id="button-placeholder" class="text-xs text-gray-500 transition-opacity duration-300">Buttons will appear here after spinning.</span>
             </div>
-
-            <!-- Right Round Buttons -->
-            <div id="right-controls">
-                <div class="round-button"></div>
-                <div class="round-button" id="spin-button"></div>
-            </div>
-        </div>
+        </footer>
 
     </div>
 
     <script>
-        // --- Viewport Height Fix ---
-        const appContainer = document.getElementById('app-container');
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Game Configuration ---
+            const SYMBOLS = ['🍒', '🍋', '🍉', '🍓', '🍇', '🍊', '🍍', '🔔', '💎'];
+            const REEL_COUNT = 5;
+            const SYMBOLS_PER_REEL = 30; // How many symbols in the virtual strip
+            const SYMBOL_HEIGHT_PX = 80; // Must match CSS .symbol height
+            const MAX_BUTTONS = 3;
 
-        function updateAppHeight() {
-            if (appContainer) {
-                appContainer.style.height = `${window.innerHeight}px`;
+            // --- Game State ---
+            let isSpinning = false;
+            let currentButtons = []; // Stores the symbols, e.g., ['🍒', '🍋']
+            let currentResultSymbols = []; // Stores the actual symbol DOM elements
+
+            // --- Element Selectors ---
+            const slotMachine = document.getElementById('slot-machine');
+            const spinButton = document.getElementById('spin-button');
+            const statusText = document.getElementById('status-text');
+            const buttonContainer = document.getElementById('button-container');
+            const buttonPlaceholder = document.getElementById('button-placeholder');
+
+            /**
+             * Initializes the game, populating reels.
+             */
+            function init() {
+                // Clear any existing reels (for hot-reloads)
+                slotMachine.innerHTML = '';
+                
+                for (let i = 0; i < REEL_COUNT; i++) {
+                    // Create the reel container (for floating)
+                    const reel = document.createElement('div');
+                    reel.className = 'reel';
+                    
+                    // Create the reel strip (for spinning)
+                    const reelStrip = document.createElement('div');
+                    reelStrip.className = 'reel-strip';
+                    reel.appendChild(reelStrip);
+
+                    // We build a "double" strip for seamless looping
+                    const stripSymbols = [];
+                    for (let j = 0; j < SYMBOLS_PER_REEL; j++) {
+                        stripSymbols.push(SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]);
+                    }
+                    
+                    // Create elements for the first half
+                    for (const symbol of stripSymbols) {
+                        reelStrip.appendChild(createSymbolElement(symbol));
+                    }
+                    // Create elements for the second (looping) half
+                    for (const symbol of stripSymbols) {
+                        reelStrip.appendChild(createSymbolElement(symbol));
+                    }
+
+                    slotMachine.appendChild(reel);
+                }
+                
+                spinButton.addEventListener('click', spin);
             }
-        }
 
-        window.addEventListener('resize', updateAppHeight);
-        window.addEventListener('load', updateAppHeight);
-        updateAppHeight(); // Initial call
-        // --- End Viewport Height Fix ---
-
-
-        // --- Prevent double-tap zoom on buttons ---
-        document.addEventListener('touchstart', function(event) {
-            if (event.touches.length > 1) {
-                event.preventDefault();
+            /**
+             * Creates a single symbol DOM element.
+             */
+            function createSymbolElement(symbol) {
+                const el = document.createElement('div');
+                el.className = 'symbol';
+                el.textContent = symbol;
+                el.dataset.symbol = symbol;
+                el.addEventListener('click', handleSymbolClick);
+                return el;
             }
-        }, { passive: false });
 
-        let lastTouchEnd = 0;
-        document.addEventListener('touchend', function(event) {
-            const now = (new Date()).getTime();
-            if (now - lastTouchEnd <= 300) {
-                event.preventDefault();
-            }
-            lastTouchEnd = now;
-        }, false);
-        // --- End touch enhancements ---
+            /**
+             * Starts the spinning animation.
+             */
+            async function spin() {
+                if (isSpinning) return;
+                
+                isSpinning = true;
+                spinButton.disabled = true;
+                statusText.textContent = 'Spinning...';
+                currentResultSymbols = [];
+                
+                // Remove 'clickable' class from old symbols
+                document.querySelectorAll('.symbol.clickable').forEach(s => s.classList.remove('clickable'));
+                
+                const reels = slotMachine.querySelectorAll('.reel');
+                const spinPromises = [];
 
+                reels.forEach((reel, i) => {
+                    const strip = reel.querySelector('.reel-strip');
+                    reel.classList.add('spinning'); // Add spinning class to reel
+                    
+                    // Reset position to the top half instantly
+                    strip.style.transition = 'none';
+                    strip.style.transform = 'translateY(0)';
+                    
+                    // Force browser repaint
+                    strip.offsetHeight; 
 
-        // --- Button "Push In" Effect Logic ---
-        const tappableButtons = document.querySelectorAll('.slot, .square-button, .round-button');
+                    // Calculate random landing spot
+                    // Land in the *second* identical half
+                    const targetSymbolIndexInSecondHalf = Math.floor(Math.random() * SYMBOLS_PER_REEL) + SYMBOLS_PER_REEL;
+                    const targetY = -targetSymbolIndexInSecondHalf * SYMBOL_HEIGHT_PX;
+                    
+                    // --- FASTER DURATION ---
+                    // Reduced base duration from 3000ms to 1500ms and stagger from 200ms to 100ms
+                    const spinDuration = 1500 + i * 100; // Staggered spin duration
+                    
+                    // Set the transition and final transform
+                    strip.style.transition = `transform ${spinDuration / 1000}s cubic-bezier(0.33, 1, 0.68, 1)`;
+                    strip.style.transform = `translateY(${targetY}px)`;
+                    
+                    // --- FIX: Store the correct symbol ---
+                    // Store the *equivalent symbol from the first half* which will be visible after the snap-back
+                    const targetSymbolIndexInFirstHalf = targetSymbolIndexInSecondHalf - SYMBOLS_PER_REEL;
+                    currentResultSymbols.push(strip.children[targetSymbolIndexInFirstHalf]);
 
-        function onButtonPress(event) {
-            // Don't apply 'active' to the spin button if it's already spinning
-            if (event.currentTarget.id === 'spin-button' && isSpinning) {
-                return;
-            }
-            event.currentTarget.classList.add('active');
-        }
+                    // Create a promise that resolves when this reel's animation ends
+                    const spinPromise = new Promise(resolve => {
+                        setTimeout(() => {
+                            // Stop the float animation
+                            reel.classList.remove('spinning');
+                            
+                            // -- CRITICAL: Reset for next spin --
+                            // Invisibly snap back to the equivalent symbol in the *first* half
+                            strip.style.transition = 'none';
+                            // --- FIX: Snap back to the correct index in the first half ---
+                            strip.style.transform = `translateY(${-targetSymbolIndexInFirstHalf * SYMBOL_HEIGHT_PX}px)`;
+                            
+                            resolve();
+                        }, spinDuration + 50); // A small buffer
+                    });
+                    
+                    spinPromises.push(spinPromise);
+                });
 
-        function onButtonRelease(event) {
-            event.currentTarget.classList.remove('active');
-        }
-
-        tappableButtons.forEach(button => {
-            button.addEventListener('mousedown', onButtonPress);
-            button.addEventListener('mouseup', onButtonRelease);
-            button.addEventListener('mouseleave', onButtonRelease); // In case mouse slides off
-            button.addEventListener('touchstart', onButtonPress, { passive: true });
-            button.addEventListener('touchend', onButtonRelease);
-        });
-        // --- End Button Effect Logic ---
-
-
-        // --- Slot Machine Logic ---
-        const fruits = ['🍒', '🍋', '🍉', '🍇', '🍓', '🍊', '🍍'];
-        const spinButton = document.getElementById('spin-button');
-
-        const reel1Slots = document.querySelectorAll('#reel1 .slot');
-        const reel2Slots = document.querySelectorAll('#reel2 .slot');
-
-        let isSpinning = false; // Prevent multiple spins at once
-
-        /**
-         * Returns a random item from any array
-         */
-        function getRandomItem(arr) {
-            return arr[Math.floor(Math.random() * arr.length)];
-        }
-
-        /**
-         * Simulates spinning a single reel with the new flip animation
-         * @param {NodeList} reelSlots - The .slot elements of the reel to spin
-         */
-        function spinReel(reelSlots) {
-            // Loop through each slot in the reel
-            reelSlots.forEach((slot, i) => {
-
-                // 1. Stagger the start of each flip
-                setTimeout(() => {
-                    // 2. Set the final fruit & add animation class
-                    slot.textContent = getRandomItem(fruits);
-                    slot.classList.add('spinning');
-
-                    // 3. After animation finishes (500ms), remove class
-                    setTimeout(() => {
-                        slot.classList.remove('spinning');
-                    /* --- FIX: Add 10ms buffer to prevent animation cut-off --- */
-                    }, 510); 
-
-                }, i * 100); // Stagger each slot flip by 100ms
-            });
-        }
-
-        /**
-         * Handles the spin button click/tap
-         */
-        function handleSpin() {
-            if (isSpinning) return; // Don't spin if already spinning
-            isSpinning = true;
-            spinButton.classList.add('spinning'); // Add wobble/active state
-
-            // Spin both reels
-            spinReel(reel1Slots);
-            spinReel(reel2Slots);
-
-            // Set a cooldown to re-enable the button
-            // Total time is 500ms (flip) + 5 * 100ms (stagger) = 1000ms
-            setTimeout(() => {
+                // Wait for all animations to finish
+                await Promise.all(spinPromises);
+                
                 isSpinning = false;
-                spinButton.classList.remove('spinning'); // Remove wobble/active state
-            }, 1000);
-        }
+                spinButton.disabled = false;
+                statusText.textContent = 'Tap a symbol to create a button!';
+                
+                // Make the resulting symbols clickable
+                currentResultSymbols.forEach(symbolEl => {
+                    symbolEl.classList.add('clickable');
+                });
+            }
 
-        // Add listeners for both click (desktop) and touchend (mobile)
-        spinButton.addEventListener('click', handleSpin);
-        spinButton.addEventListener('touchend', (e) => {
-            e.preventDefault(); // Prevent 'click' from firing after
-            // We don't call handleSpin() here because the 'touchend'
-            // on .round-button already triggered onButtonRelease,
-            // and the 'click' event will fire right after.
-            // Let the 'click' event handle the logic to avoid double-spins.
+            /**
+             * Handles clicking on a symbol after a spin.
+             */
+            function handleSymbolClick(e) {
+                // Can only click symbols if not spinning AND it's a 'clickable' result
+                if (isSpinning || !e.currentTarget.classList.contains('clickable')) {
+                    return;
+                }
+                
+                const symbol = e.currentTarget.dataset.symbol;
+
+                if (currentButtons.length >= MAX_BUTTONS) {
+                    statusText.textContent = 'Button bar is full!';
+                    return;
+                }
+
+                if (currentButtons.includes(symbol)) {
+                    statusText.textContent = 'That button already exists!';
+                    return;
+                }
+
+                // Add to state and UI
+                currentButtons.push(symbol);
+                addButtonToBar(symbol);
+                
+                // Update UI
+                if (currentButtons.length > 0) {
+                    buttonPlaceholder.style.opacity = '0';
+                }
+                statusText.textContent = 'Button added!';
+            }
+
+            /**
+             * Creates and adds a new button to the bottom bar.
+             */
+            function addButtonToBar(symbol) {
+                const buttonEl = document.createElement('button');
+                buttonEl.className = 'flex-1 flex flex-col items-center py-2 px-3 rounded-lg text-gray-300 hover:text-white hover:bg-gray-700 active:bg-gray-600 transition-colors';
+                buttonEl.dataset.symbol = symbol;
+                
+                buttonEl.innerHTML = `
+                    <span class="text-3xl">${symbol}</span>
+                    <span class="text-xs mt-1 font-medium">Use ${symbol}</span>
+                `;
+                
+                // Add click event to remove the button
+                buttonEl.addEventListener('click', () => {
+                    removeButtonFromBar(symbol, buttonEl);
+                });
+                
+                buttonContainer.appendChild(buttonEl);
+            }
+
+            /**
+             * Removes a button from the bottom bar.
+             */
+            function removeButtonFromBar(symbol, buttonEl) {
+                // Remove from state
+                currentButtons = currentButtons.filter(b => b !== symbol);
+                
+                // Remove from UI
+                buttonEl.remove();
+
+                // Show placeholder if empty
+                if (currentButtons.length === 0) {
+                    buttonPlaceholder.style.opacity = '1';
+                }
+                statusText.textContent = 'Button removed.';
+            }
+
+            // Start the game
+            init();
         });
-
     </script>
 </body>
 </html>
+
 
