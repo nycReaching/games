@@ -21,6 +21,11 @@
             overflow: hidden; /* Prevents scrolling on the body */
             font-family: 'Inter', sans-serif;
             background-color: #111; /* Darker background for desktop view */
+
+            /* --- NEW RULE --- */
+            /* This prevents the browser from handling touch gestures 
+               like pull-to-refresh or page scrolling. */
+            touch-action: none;
         }
 
         /* The main application container */
@@ -83,7 +88,8 @@
             /* flex: 0 0 15%; 
               - flex-basis: 15% (a bit larger for touch targets)
             */
-            flex: 0 0 15%;
+            /* --- MODIFIED: Increased height --- */
+            flex: 0 0 18%; /* Was 15% */
             background-color: #333;
             color: white;
             
@@ -102,19 +108,25 @@
         /* Left side 2x2 grid container */
         #left-controls {
             display: grid;
-            grid-template-columns: repeat(2, 50px); /* 2 columns, 50px wide */
-            grid-template-rows: repeat(2, 50px);    /* 2 rows, 50px high */
+            /* --- MODIFIED: Increased grid button size --- */
+            grid-template-columns: repeat(2, 55px); /* Was 50px */
+            grid-template-rows: repeat(2, 55px);    /* Was 50px */
             gap: 0.5rem; /* Space between grid buttons */
         }
 
         .square-button {
-            width: 50px;
-            height: 50px;
+            /* --- MODIFIED: Increased button size --- */
+            width: 55px;  /* Was 50px */
+            height: 55px; /* Was 50px */
             background-color: #555;
             border: 2px solid #777;
             border-radius: 8px; /* Slightly rounded corners */
             cursor: pointer;
             transition: background-color 0.2s;
+
+            /* --- NEW: Disable tap highlight --- */
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
         }
 
         .square-button:active {
@@ -129,14 +141,19 @@
         }
 
         .round-button {
-            width: 70px;
-            height: 70px;
+            /* --- MODIFIED: Increased button size --- */
+            width: 75px;  /* Was 70px */
+            height: 75px; /* Was 70px */
             background: linear-gradient(145deg, #e140e6, #a832b3);
             border: 2px solid #f0abfc;
             border-radius: 50%; /* Makes it perfectly round */
             cursor: pointer;
             transition: all 0.2s;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+
+            /* --- NEW: Disable tap highlight --- */
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
         }
         
         .round-button:active {
@@ -183,4 +200,6 @@
 
 </body>
 </html>
+
+
 
