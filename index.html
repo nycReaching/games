@@ -4,23 +4,22 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
   <meta name="theme-color" content="#0b0b0b" />
-  <title>Mobile Browser Game UI Shell – Teal Outline (Solid Corners)</title>
+  <title>UI</title>
   <style>
     :root {
       --app-height: 100dvh;
-      --bar-h: 60px; /* bigger top/bottom sections by default */
-      --gap: 0; /* no gaps; teal lines act as dividers */
-
-      /* Colors */
+      /* layout */
+      --gap: 0;
       --bg: #0e0f12;
-      --panel: #14171d;
-      --fg-muted: #b5bcc9;
-      --teal: #10d6c2; /* thin teal accents */
+      --outline-w: 2px;
+      /* accent (was teal) → dark pink */
+      --teal: #d81b60; /* dark pink tone */
     }
 
     html, body {
       padding: 0; margin: 0; height: 100%;
-      background: var(--bg); color: white;
+      background: var(--bg);
+      color: transparent; /* no visible text */
       overscroll-behavior: none;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
@@ -30,101 +29,147 @@
       height: var(--app-height);
       min-height: 100svh;
       max-height: 100lvh;
-
       display: grid;
-      grid-template-rows: var(--bar-h) 1fr var(--bar-h);
+      /* Top & bottom each ~15% of the full game height */
+      grid-template-rows: minmax(0,15%) 1fr minmax(0,15%);
       grid-template-columns: 100%;
       gap: var(--gap);
-
-      /* Safe areas for notches */
       padding-top: env(safe-area-inset-top);
       padding-bottom: env(safe-area-inset-bottom);
       padding-left: env(safe-area-inset-left);
       padding-right: env(safe-area-inset-right);
-
       box-sizing: border-box;
       margin: 0 auto;
       max-width: 700px;
-
-      /* 🔹 Thin teal outline around the whole game */
-      border: 1px solid var(--teal);
-      border-radius: 14px; /* slightly larger to keep corners crisp */
-      overflow: hidden; /* ensure inner panels don't bleed over rounded corners */
-      background-clip: padding-box; /* keep border color solid on corners */
+      border: var(--outline-w) solid var(--teal);
+      border-radius: 14px;
+      overflow: hidden;
+      background-clip: padding-box;
+      /* Intensified container gradient */
+      background: linear-gradient(180deg, #0c1219 0%, #090c12 50%, #07090d 100%);
     }
 
     header, main, footer { box-sizing: border-box; }
 
-    /* Panels without their own outlines */
-    header, footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--panel);
-      padding: 0 16px; /* a bit more breathing room */
-      font-size: 15px;
-      letter-spacing: .2px;
+    header {
+      display: block;
+      /* Intensified header gradient */
+      background: linear-gradient(180deg, #1b2330 0%, #121824 60%, #0d111a 100%);
+      box-shadow: inset 0 -1px 0 0 color-mix(in oklab, var(--teal) 55%, black);
     }
 
-    /* 🔹 Thin teal horizontal dividers between sections */
-    main { border-top: 1px solid var(--teal); }
-    footer { border-top: 1px solid var(--teal); }
-
-    header .title { font-weight: 600; opacity: .9; }
-    header .right, footer .right, header .left, footer .left {
-      display: inline-flex; gap: 10px; align-items: center;
-      opacity: .85; color: var(--fg-muted);
-    }
-
-    /* Stage */
     main {
       position: relative;
-      background: #0b0c10;
-      /* no inner outline; the divider line above is enough */
+      /* Intensified stage gradient with vignette */
+      background: radial-gradient(120% 85% at 50% 18%, #101622 0%, #0b0f18 55%, #070a10 100%),
+                  radial-gradient(140% 120% at 50% 100%, rgba(0,0,0,0.45), transparent 60%);
+      border-top: 1px solid var(--teal);
+      border-bottom: 1px solid var(--teal);
       overflow: hidden;
-    }
-    #game-stage {
-      position: absolute; inset: 0; display: grid; place-items: center;
-      pointer-events: none; user-select: none;
-      font: 500 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
-      color: var(--fg-muted);
+      isolation: isolate;
     }
 
-    /* Tablet & desktop tweaks */
-    @media (min-width: 600px) {
-      :root { --bar-h: 68px; }
-      header, footer { font-size: 16px; padding: 0 18px; }
-    }
-    @media (min-width: 1024px) {
-      :root { --bar-h: 72px; }
-      header, footer { font-size: 17px; padding: 0 20px; }
+    footer {
+      display: block;
+      /* Intensified footer gradient */
+      background: linear-gradient(180deg, #121824 0%, #0f141e 50%, #0b1018 100%);
+      border-top: 1px solid var(--teal);
+      box-shadow: inset 0 1px 0 0 color-mix(in oklab, var(--teal) 55%, black);
     }
 
-    /* Landscape hint */
-    @media (orientation: landscape) and (max-height: 540px) {
-      main::after {
-        content: "Best viewed in portrait";
-        position: absolute; right: 8px; bottom: 8px; opacity: .5; font-size: 11px; pointer-events: none;
-      }
+    /* ============ Rails: 6×1 empty squares at top & bottom of central game ============ */
+    .rail {
+      position: absolute;
+      left: 0; right: 0;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      column-gap: 10px;
+      justify-items: stretch;
+      align-items: start;
+      padding: 10px 12px;
+      pointer-events: none; /* UI-only, non-interactive for now */
+      z-index: 2;
+      /* subtle glow line behind squares */
+      background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--teal) 16%, transparent), transparent);
+      mix-blend-mode: screen;
+    }
+
+    .rail-top { top: 0; }
+    .rail-bottom { bottom: 0; }
+
+    .rail span {
+      display: block;
+      width: 100%;
+      height: clamp(22px, 5.5vh, 56px); /* taller */
+      border: 2px solid color-mix(in oklab, var(--teal) 70%, black);
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0));
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.5), inset 0 0 6px rgba(0,0,0,0.35);
+      opacity: 0.9;
+    }
+
+    /* Fallback for browsers without color-mix */
+    @supports not (color: color-mix(in oklab, white 50%, black)) {
+      header { box-shadow: inset 0 -1px 0 0 rgba(216, 27, 96, 0.55); }
+      footer { box-shadow: inset 0 1px 0 0 rgba(216, 27, 96, 0.55); }
+      .rail { background: linear-gradient(90deg, transparent, rgba(216, 27, 96, 0.16), transparent); }
+      .rail span { border-color: rgba(216, 27, 96, 0.7); }
+    }
+  
+    /* ======= Thin meters in top section (header) ======= */
+    .meters {
+      position: relative;
+      width: 50%; /* end at the middle */
+      max-width: 420px;
+      margin: 10px auto 0 10px; /* left-aligned, stops mid */
+      display: grid;
+      row-gap: 6px;
+      padding: 10px 0 8px;
+    }
+    .meter {
+      position: relative;
+      height: 4px; /* thin meters */
+      background: color-mix(in oklab, white 6%, transparent);
+      border-radius: 999px;
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.4);
+    }
+    .meter::before {
+      content: "";
+      position: absolute;
+      left: 0; right: 50%; /* fill ends in the middle */
+      top: 0; bottom: 0;
+      background: linear-gradient(90deg,
+        color-mix(in oklab, var(--teal) 85%, white),
+        color-mix(in oklab, var(--teal) 55%, transparent));
+      box-shadow: 0 0 8px color-mix(in oklab, var(--teal) 35%, transparent);
+    }
+    @supports not (color: color-mix(in oklab, white 50%, black)) {
+      .meter { background: rgba(255,255,255,0.06); }
+      .meter::before { background: linear-gradient(90deg, rgba(216,27,96,0.85), rgba(216,27,96,0.55)); }
     }
   </style>
 </head>
 <body>
-  <div class="app" role="application" aria-label="Game Shell (Teal Outline – Solid Corners)">
-    <header aria-label="Top Bar">
-      <div class="left">⟵</div>
-      <div class="title">Game</div>
-      <div class="right">☰</div>
+  <div class="app">
+    <header>
+      <div class="meters" aria-hidden="true">
+        <div class="meter"></div>
+        <div class="meter"></div>
+        <div class="meter"></div>
+      </div>
     </header>
-
-    <main id="stage" aria-label="Game Stage">
-      <div id="game-stage">(empty stage)</div>
+    <main id="stage">
+      <!-- Top 6×1 empty squares -->
+      <div class="rail rail-top" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <!-- Bottom 6×1 empty squares -->
+      <div class="rail rail-bottom" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
     </main>
-
-    <footer aria-label="Bottom Bar">
-      <div class="left">◎</div>
-      <div class="right">⏻</div>
-    </footer>
+    <footer></footer>
   </div>
 
   <script>
@@ -135,7 +180,6 @@
     setAppHeight();
     window.addEventListener('resize', setAppHeight);
     window.addEventListener('orientationchange', setAppHeight);
-
     if ('virtualKeyboard' in navigator) {
       try { navigator.virtualKeyboard.overlaysContent = true; } catch(e){}
     }
