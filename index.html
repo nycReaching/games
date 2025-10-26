@@ -165,25 +165,25 @@
             position: absolute;
             inset: 0;
             display: flex;
-            align-items: center;
+            align: items: center;
             justify-content: center;
-            font-weight: 600;
+            font-weight: 700; /* POLISHED: Was 600 */
             /* POLISHED: White text with shadow for legibility */
             color: #ffffff;
-            text-shadow: 0 1px 1px rgba(0,0,0,0.7);
+            text-shadow: 0 1px 2px rgba(0,0,0,1); /* POLISHED: More solid shadow */
         }
 
         /* HP Bar */
         .stat-bar.hp { height: 18px; } /* Was 24px */
         /* POLISHED: Gradient fill */
         .stat-bar.hp .stat-bar-inner { background: linear-gradient(to right, #16A34A, #22C55E); } /* green-600 to green-500 */
-        .stat-bar.hp .stat-bar-text { font-size: 0.75rem; } /* 12px */
+        .stat-bar.hp .stat-bar-text { font-size: 0.875rem; } /* 14px - Was 12px */
 
         /* Energy Bar */
         .stat-bar.energy { height: 18px; } /* FIX: Was 16px, now matches HP */
-        /* POLISHED: Gradient fill */
-        .stat-bar.energy .stat-bar-inner { background: linear-gradient(to right, #0284C7, #0EA5E9); } /* sky-600 to sky-500 */
-        .stat-bar.energy .stat-bar-text { font-size: 0.75rem; } /* 12px */
+        /* POLISHED: Gradient fill (UPDATED to purple) */
+        .stat-bar.energy .stat-bar-inner { background: linear-gradient(to right, #A855F7, #C084FC); } /* purple-600 to purple-400 */
+        .stat-bar.energy .stat-bar-text { font-size: 0.875rem; } /* 14px - Was 12px */
 
         /* * NEW: Currency Display Icons */
         .stat-currency-icon {
@@ -191,37 +191,49 @@
             height: 20px;
             border-radius: 9999px;
             margin-right: 0.5rem; /* 8px */
+            /* UPDATED: Add flex for centering rotated items */
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        .stat-currency-icon.gold {
-            /* POLISHED: Gradient fill, border, and shadow */
-            background: linear-gradient(145deg, #FDE047, #FACC15);
-            box-shadow: 0 0 5px #FACC15;
-            border: 1px solid #FDE047;
-        }
-        .stat-currency-icon.gems {
+        .stat-currency-icon.attack { /* Was .gold */
+            /* POLISHED: Red gradient for Attack */
+            background: linear-gradient(145deg, #F87171, #DC2626); /* red-400 to red-600 */
+            box-shadow: 0 0 5px #F87171;
+            border: 1px solid #FCA5A5; /* red-300 */
+            /* UPDATED: Diamond shape */
             width: 18px;
             height: 18px;
-            /* POLISHED: Gradient fill, border, and shadow */
-            background: linear-gradient(145deg, #C4B5FD, #A78BFA);
-            box-shadow: 0 0 5px #A78BFA;
-            border: 1px solid #C4B5FD;
             transform: rotate(45deg);
             border-radius: 4px;
         }
-
-        .stat-currency-icon.wood {
-            /* POLISHED: Gradient fill, border, and shadow */
-            background: linear-gradient(145deg, #A16207, #78350F);
-            box-shadow: 0 0 5px #A16207;
-            border: 1px solid #A16207;
-            border-radius: 4px;
+        .stat-currency-icon.armor { /* Was .gems */
+            width: 18px;
+            height: 18px;
+            /* POLISHED: Blue/grey gradient for Armor, shield-like shape */
+            background: linear-gradient(145deg, #9CA3AF, #6B7280); /* gray-400 to gray-500 */
+            box-shadow: 0 0 5px #9CA3AF;
+            border: 1px solid #E5E7EB; /* gray-200 */
+            /* transform: rotate(45deg); -- removed gem rotation */
+            border-radius: 4px; /* Make it a rounded square (shield-like) */
         }
-        .stat-currency-icon.stone {
-            /* POLISHED: Gradient fill, border, and shadow */
-            background: linear-gradient(145deg, #78716C, #57534E);
-            box-shadow: 0 0 5px #78716C;
-            border: 1px solid #78716C;
-            border-radius: 8px;
+
+        .stat-currency-icon.magic { /* Was .wood */
+            /* POLISHED: Purple gradient for Magic */
+            background: linear-gradient(145deg, #C084FC, #A855F7); /* purple-400 to purple-600 */
+            box-shadow: 0 0 5px #C084FC;
+            border: 1px solid #E9D5FF; /* purple-200 */
+            border-radius: 9999px; /* Circle - UNCHANGED */
+        }
+        .stat-currency-icon.spirit { /* Was .stone */
+            /* POLISHED: Green gradient for Spirit */
+            background: linear-gradient(145deg, #4ADE80, #16A34A); /* green-400 to green-600 */
+            box-shadow: 0 0 5px #4ADE80;
+            border: 1px solid #86EFAC; /* green-300 */
+            /* UPDATED: Horizontal capsule shape */
+            width: 24px;
+            height: 18px;
+            border-radius: 9999px; 
         }
 
         /* Currency amount text style (was part of .currency-item) */
@@ -250,9 +262,9 @@
         
         /* * NEW: Round Action Buttons (for footer) */
         .action-button-round {
-            width: 64px; /* POLISHED: Slightly larger */
-            height: 64px; /* POLISHED: Slightly larger */
-            border-radius: 9999px; /* rounded-full */
+            width: 90px; /* UPDATED: Was 64px */
+            height: 60px; /* UPDATED: Was 64px */
+            border-radius: 9999px; /* rounded-full (makes it a capsule) */
             font-weight: 700;
             transition: transform 75ms ease-out, box-shadow 75ms ease-out, background-color 75ms ease-out;
             /* POLISHED: Added flex properties to center icons */
@@ -365,26 +377,26 @@
             <!-- Row 4: Currencies (Slim Panel) -->
             <!-- POLISHED: Updated classes for new look -->
             <div class="flex items-center justify-around bg-black/50 rounded-lg p-2 border border-gray-700 shadow-inner">
-                <!-- Gold -->
+                <!-- Attack -->
                 <div class="flex items-center">
-                    <div class="stat-currency-icon gold"></div>
-                    <span class="currency-amount" id="score-display">1,250</span>
+                    <div class="stat-currency-icon attack"></div>
+                    <span class="currency-amount" id="attack-display">1,250</span>
                 </div>
-                <!-- Gems -->
+                <!-- Armor -->
                 <div class="flex items-center">
-                    <div class="stat-currency-icon gems"></div>
-                    <span class="currency-amount" id="gem-display">48</span>
+                    <div class="stat-currency-icon armor"></div>
+                    <span class="currency-amount" id="armor-display">48</span>
                 </div>
-                <!-- Wood -->
+                <!-- Magic -->
                 <div class="flex items-center">
-                    <div class="stat-currency-icon wood"></div>
-                    <span class="currency-amount" id="wood-display">300</span>
+                    <div class="stat-currency-icon magic"></div>
+                    <span class="currency-amount" id="magic-display">300</span>
                 </div>
-                <!-- Stone -->
+                <!-- Spirit -->
                 <!-- FIX: Corrected typo 'classall' to 'class' -->
                 <div class="flex items-center">
-                    <div class="stat-currency-icon stone"></div>
-                    <span class="currency-amount" id="stone-display">150</span>
+                    <div class="stat-currency-icon spirit"></div>
+                    <span class="currency-amount" id="spirit-display">150</span>
                 </div>
             </div>
 
@@ -466,5 +478,7 @@
 
 </body>
 </html>
+
+
 
 
