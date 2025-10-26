@@ -1,484 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portrait Game UI Demo</title>
-    <!-- Load Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Import 'Inter' font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
-    <style>
-        /* * 1. GLOBAL & FONT SETUP
-         * We use the 'Inter' font and set a dark background.
-         * 'overflow: hidden' prevents scrolling, which is crucial for a game.
-         * We use 'dvh' (dynamic viewport height) to ensure the UI fills the screen
-         * on mobile browsers, even when the address bar appears/disappears.
-         */
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-            background-color: #111827; /* dark gray-blue */
-            color: #ffffff;
-            overflow: hidden;
-        }
-
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* * 2. ORIENTATION LOCK
-         * This element is hidden by default and becomes a flex container
-         * (taking up the whole screen) ONLY in landscape orientation.
-         * This forces the user to rotate their device.
-         */
-        #orientation-lock {
-            display: none; /* Hidden by default (in portrait) */
-            position: fixed;
-            inset: 0;
-            z-index: 1000;
-            background-color: #111827;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-
-        /* The SVG icon for rotation */
-        #orientation-lock svg {
-            width: 8vmin;
-            height: 8vmin;
-            margin-bottom: 1.5rem;
-            animation: rotate-device 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
-        }
-
-        @keyframes rotate-device {
-            0%, 100% { transform: rotate(0deg); }
-            50% { transform: rotate(90deg); }
-        }
-
-        /* * MEDIA QUERY: This is the magic.
-         * If the orientation is landscape, hide the game and show the lock screen.
-         * UPDATED: We replace '(max-height: 850px)' with '(hover: none)'.
-         * This targets devices that are in landscape AND do not have a
-         * primary hover capability (i.e., mobile phones and tablets).
-         * This prevents the lock from appearing on desktops/laptops.
-         */
-        @media (orientation: landscape) and (hover: none) {
-            #orientation-lock {
-                display: flex;
-            }
-            #game-wrapper {
-                display: none;
-            }
-        }
-
-        /* * 3. GAME WRAPPER
-         * This is the main container for our portrait game.
-         * It uses flex-column to stack Header, Main (Canvas), and Footer.
-         * It has a max-width to look good on tablets/desktops.
-         * 'height: 100dvh' is the key for full-screen on mobile.
-         */
-        #game-wrapper {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            height: 100dvh;
-            max-width: 500px; /* Common max-width for portrait apps */
-            background-color: #1a1a22; /* dark gray - POLISHED */
-            position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        /* * 4. UI SECTIONS (HEADER, MAIN, FOOTER)
-         */
-
-        #game-header, #game-footer {
-            flex-shrink: 0;
-            padding: 0.75rem 1rem; /* Reduced padding for a slimmer feel */
-            /* POLISHED: Added subtle gradient and brighter border */
-            background: linear-gradient(to bottom, rgba(30, 30, 40, 0.7), rgba(20, 20, 30, 0.5));
-            z-index: 10;
-        }
-
-        #game-header { border-bottom: 1px solid #444455; }
-        #game-footer { border-top: 1px solid #444455; }
-
-        /* Main game area fills all remaining space */
-        #game-canvas-container {
-            flex-grow: 1; /* This is the most important part! */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden; /* Prevent canvas from overflowing */
-            position: relative;
-        }
-
-        /* * 5. GAME CANVAS
-         */
-        #game-canvas {
-            /* UPDATED: Set background to black */
-            background: #000;
-            /* UPDATED: Force canvas to fill container */
-            width: 100%;
-            height: 100%;
-            image-rendering: -moz-crisp-edges;
-            image-rendering: -webkit-crisp-edges;
-            image-rendering: pixelated;
-            image-rendering: crisp-edges;
-        }
-
-        /* * 6. RESPONSIVE COMPONENTS
-         */
-
-        /*
-         * REMOVED: .stat-level-display styles
-         * This class is no longer used as the level and player
-         * info is now a single, space-efficient text row.
-         */
-
-        /* * NEW: Stat Bars (Thinner) */
-        .stat-bar {
-            width: 100%;
-            /* POLISHED: Darker bg with inner shadow */
-            background-color: #111;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
-            border-radius: 9999px;
-            border: 1px solid #374151;
-            position: relative;
-            overflow: hidden;
-        }
-        .stat-bar-inner {
-            height: 100%;
-            border-radius: 9999px;
-            transition: width 0.3s ease;
-        }
-        .stat-bar-text {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align: items: center;
-            justify-content: center;
-            font-weight: 700; /* POLISHED: Was 600 */
-            /* POLISHED: White text with shadow for legibility */
-            color: #ffffff;
-            text-shadow: 0 1px 2px rgba(0,0,0,1); /* POLISHED: More solid shadow */
-        }
-
-        /* HP Bar */
-        .stat-bar.hp { height: 18px; } /* Was 24px */
-        /* POLISHED: Gradient fill */
-        .stat-bar.hp .stat-bar-inner { background: linear-gradient(to right, #16A34A, #22C55E); } /* green-600 to green-500 */
-        .stat-bar.hp .stat-bar-text { font-size: 0.875rem; } /* 14px - Was 12px */
-
-        /* Energy Bar */
-        .stat-bar.energy { height: 18px; } /* FIX: Was 16px, now matches HP */
-        /* POLISHED: Gradient fill (UPDATED to purple) */
-        .stat-bar.energy .stat-bar-inner { background: linear-gradient(to right, #A855F7, #C084FC); } /* purple-600 to purple-400 */
-        .stat-bar.energy .stat-bar-text { font-size: 0.875rem; } /* 14px - Was 12px */
-
-        /* * NEW: Currency Display Icons */
-        .stat-currency-icon {
-            width: 20px;
-            height: 20px;
-            border-radius: 9999px;
-            margin-right: 0.5rem; /* 8px */
-            /* UPDATED: Add flex for centering rotated items */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .stat-currency-icon.attack { /* Was .gold */
-            /* POLISHED: Red gradient for Attack */
-            background: linear-gradient(145deg, #F87171, #DC2626); /* red-400 to red-600 */
-            box-shadow: 0 0 5px #F87171;
-            border: 1px solid #FCA5A5; /* red-300 */
-            /* UPDATED: Diamond shape */
-            width: 18px;
-            height: 18px;
-            transform: rotate(45deg);
-            border-radius: 4px;
-        }
-        .stat-currency-icon.armor { /* Was .gems */
-            width: 18px;
-            height: 18px;
-            /* POLISHED: Blue/grey gradient for Armor, shield-like shape */
-            background: linear-gradient(145deg, #9CA3AF, #6B7280); /* gray-400 to gray-500 */
-            box-shadow: 0 0 5px #9CA3AF;
-            border: 1px solid #E5E7EB; /* gray-200 */
-            /* transform: rotate(45deg); -- removed gem rotation */
-            border-radius: 4px; /* Make it a rounded square (shield-like) */
-        }
-
-        .stat-currency-icon.magic { /* Was .wood */
-            /* POLISHED: Purple gradient for Magic */
-            background: linear-gradient(145deg, #C084FC, #A855F7); /* purple-400 to purple-600 */
-            box-shadow: 0 0 5px #C084FC;
-            border: 1px solid #E9D5FF; /* purple-200 */
-            border-radius: 9999px; /* Circle - UNCHANGED */
-        }
-        .stat-currency-icon.spirit { /* Was .stone */
-            /* POLISHED: Green gradient for Spirit */
-            background: linear-gradient(145deg, #4ADE80, #16A34A); /* green-400 to green-600 */
-            box-shadow: 0 0 5px #4ADE80;
-            border: 1px solid #86EFAC; /* green-300 */
-            /* UPDATED: Horizontal capsule shape */
-            width: 24px;
-            height: 18px;
-            border-radius: 9999px; 
-        }
-
-        /* Currency amount text style (was part of .currency-item) */
-        .currency-amount {
-            font-weight: 700; /* font-bold */
-            font-size: 1.125rem; /* text-lg - POLISHED */
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5); /* POLISHED */
-        }
-        
-        /*
-         * REMOVED: .currency-item styles
-         * The bubble style is gone. We now have a single panel
-         * created with Tailwind classes in the HTML.
-         */
-
-        /* * Action Buttons Base Style (Original, for modals etc.)
-         */
-        .game-button {
-            font-size: clamp(0.875rem, 4vmin, 1.125rem);
-            padding-top: 0.85rem;
-            padding-bottom: 0.85rem;
-            font-weight: 700;
-            border-radius: 0.5rem; /* 8px */
-            transition: transform 75ms ease-out, box-shadow 75ms ease-out, background-color 75ms ease-out;
-        }
-        
-        /* * NEW: Round Action Buttons (for footer) */
-        .action-button-round {
-            width: 90px; /* UPDATED: Was 64px */
-            height: 60px; /* UPDATED: Was 64px */
-            border-radius: 9999px; /* rounded-full (makes it a capsule) */
-            font-weight: 700;
-            transition: transform 75ms ease-out, box-shadow 75ms ease-out, background-color 75ms ease-out;
-            /* POLISHED: Added flex properties to center icons */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-
-        /* * 3D Button Styles */
-        .btn-red {
-            /* POLISHED: Gradient and deeper shadow */
-            background: linear-gradient(145deg, #EF4444, #DC2626);
-            box-shadow: 0 5px 0 0 #B91C1C, 0 8px 15px rgba(0,0,0,0.3);
-        }
-        .btn-red:active {
-            /* POLISHED: More pronounced press effect */
-            background: #EF4444;
-            transform: translateY(4px) scale(0.98);
-            box-shadow: 0 1px 0 0 #B91C1C, 0 3px 5px rgba(0,0,0,0.4);
-        }
-
-        .btn-blue {
-            /* POLISHED: Gradient and deeper shadow */
-            background: linear-gradient(145deg, #3B82F6, #2563EB);
-            box-shadow: 0 5px 0 0 #1D4ED8, 0 8px 15px rgba(0,0,0,0.3);
-        }
-        .btn-blue:active {
-            /* POLISHED: More pronounced press effect */
-            background: #3B82F6;
-            transform: translateY(4px) scale(0.98);
-            box-shadow: 0 1px 0 0 #1D4ED8, 0 3px 5px rgba(0,0,0,0.4);
-        }
-
-        /* * Item Slot */
-        .item-slot {
-            width: clamp(48px, 14vmin, 64px);
-            height: clamp(48px, 14vmin, 64px);
-            background-color: #111; /* Darker bg */
-            border: 1px solid #444; /* Thinner border */
-            border-radius: 0.5rem; /* 8px */
-            /* POLISHED: Deeper inner shadow + top highlight */
-            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.6), 0 1px 0 0 rgba(255,255,255,0.05);
-            transition: all 0.2s ease;
-        }
-
-        /* POLISHED: Added hover/active glow */
-        .item-slot:hover {
-            border-color: #3B82F6;
-            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.6), 0 0 10px rgba(59, 130, 246, 0.5);
-        }
-
-        /* * MODAL (Pop-up)
-         */
-        #settings-modal {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(5px);
-            z-index: 100;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compact Game UI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-900">
+<body class="bg-gray-900 text-white flex justify-center items-center h-screen">
+  <div id="game-wrapper" class="flex flex-col w-full max-w-[500px] h-[100dvh] bg-gray-800 shadow-lg">
 
-    <!--
-      ORIENTATION LOCK SCREEN
-      This is hidden by default and only shown via CSS @media query
-    -->
-    <div id="orientation-lock">
-        <!-- Rotate SVG Icon -->
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
-        </svg>
-        <h2 class="text-2xl font-bold">Please rotate your device</h2>
-        <p class="text-lg text-gray-400 mt-2">This game is best played in portrait mode.</p>
-    </div>
+    <!-- Compact Header -->
+    <header id="game-header" class="p-2 border-b border-gray-700 flex flex-col space-y-2">
 
-    <!--
-      GAME WRAPPER
-      This is the main container for the game, visible only in portrait.
-    -->
-    <div id="game-wrapper">
+      <!-- Level + Player Info (condensed) -->
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <div class="bg-gray-900 border border-blue-500 rounded-full w-10 h-10 flex items-center justify-center text-blue-400 font-bold text-sm">8</div>
+          <span class="text-sm font-semibold">Player_123</span>
+        </div>
+        <span class="text-xs text-blue-300 italic">"The Brave"</span>
+      </div>
 
-        <!-- 1. HEADER (Top UI Bar) - UPDATED -->
-        <header id="game-header" class="flex flex-col space-y-3">
+      <!-- Thin Bars -->
+      <div class="w-full h-2 bg-gray-900 rounded-full overflow-hidden border border-gray-700">
+        <div class="bg-green-500 h-full w-[75%]"></div>
+      </div>
+      <div class="w-full h-1.5 bg-gray-900 rounded-full overflow-hidden border border-gray-700">
+        <div class="bg-sky-500 h-full w-[90%]"></div>
+      </div>
 
-            <!-- Row 1: Level + Player Info (Space-efficient) -->
-            <div class="flex items-baseline justify-between text-base">
-                <div class="font-medium">
-                    <span class="text-lg font-bold text-blue-400">LVL 8</span>
-                    <span class="text-gray-500 mx-2">|</span>
-                    <span class="font-bold">Player_123</span>
-                </div>
-                <span class="text-sm text-blue-300 font-medium">"The Brave"</span>
-            </div>
+      <!-- Slim Currency Row -->
+      <div class="flex justify-between text-sm font-bold">
+        <div class="flex items-center space-x-1"><div class="w-3 h-3 bg-yellow-400 rounded-full"></div><span>1250</span></div>
+        <div class="flex items-center space-x-1"><div class="w-3 h-3 bg-violet-400 rotate-45"></div><span>48</span></div>
+        <div class="flex items-center space-x-1"><div class="w-3 h-3 bg-amber-800 rounded"></div><span>300</span></div>
+        <div class="flex items-center space-x-1"><div class="w-3 h-3 bg-stone-500 rounded"></div><span>150</span></div>
+      </div>
 
-            <!-- Row 2: HP Bar (Thinner) -->
-            <div class="stat-bar hp">
-                <div class="stat-bar-inner" style="width: 75%;"></div>
-                <div class="stat-bar-text">750 / 1000</div>
-            </div>
+    </header>
 
-            <!-- Row 3: Energy Bar (Thinner) -->
-            <div class="stat-bar energy">
-                <div class="stat-bar-inner" style="width: 90%;"></div>
-                <div class="stat-bar-text">90 / 100</div>
-            </div>
+    <!-- Main Game Area -->
+    <main id="game-canvas-container" class="flex-grow flex items-center justify-center bg-gray-700">
+      <canvas id="game-canvas" class="max-w-full max-h-full"></canvas>
+    </main>
 
-            <!-- Row 4: Currencies (Slim Panel) -->
-            <!-- POLISHED: Updated classes for new look -->
-            <div class="flex items-center justify-around bg-black/50 rounded-lg p-2 border border-gray-700 shadow-inner">
-                <!-- Attack -->
-                <div class="flex items-center">
-                    <div class="stat-currency-icon attack"></div>
-                    <span class="currency-amount" id="attack-display">1,250</span>
-                </div>
-                <!-- Armor -->
-                <div class="flex items-center">
-                    <div class="stat-currency-icon armor"></div>
-                    <span class="currency-amount" id="armor-display">48</span>
-                </div>
-                <!-- Magic -->
-                <div class="flex items-center">
-                    <div class="stat-currency-icon magic"></div>
-                    <span class="currency-amount" id="magic-display">300</span>
-                </div>
-                <!-- Spirit -->
-                <!-- FIX: Corrected typo 'classall' to 'class' -->
-                <div class="flex items-center">
-                    <div class="stat-currency-icon spirit"></div>
-                    <span class="currency-amount" id="spirit-display">150</span>
-                </div>
-            </div>
+    <!-- Compact Footer with Round Buttons -->
+    <footer id="game-footer" class="p-3 border-t border-gray-700 flex items-center justify-between">
+      <div class="flex space-x-2">
+        <div class="item-slot w-12 h-12 bg-gray-900 border border-gray-700 rounded"></div>
+        <div class="item-slot w-12 h-12 bg-gray-900 border border-gray-700 rounded"></div>
+        <div class="item-slot w-12 h-12 bg-gray-900 border border-gray-700 rounded"></div>
+      </div>
+      <div class="flex space-x-3">
+        <button class="w-12 h-12 bg-red-600 rounded-full shadow-md active:scale-95"></button>
+        <button class="w-12 h-12 bg-blue-600 rounded-full shadow-md active:scale-95"></button>
+      </div>
+    </footer>
 
-        </header>
-
-        <!-- 2. MAIN GAME AREA (Canvas Container) -->
-        <main id="game-canvas-container">
-            <canvas id="game-canvas"></canvas>
-        </main>
-
-        <!-- 3. FOOTER (Action Bar) - UPDATED -->
-        <footer id="game-footer">
-            <div class="flex items-center justify-between">
-
-                <!-- Left Side: 3 Item Slots -->
-                <div class="flex space-x-2">
-                    <div class="item-slot"></div>
-                    <div class="item-slot"></div>
-                    <div class="item-slot"></div>
-                </div>
-
-                <!-- Right Side: 2 Round Buttons (Side-by-side) -->
-                <div class="flex space-x-3 ml-4">
-                    <!-- POLISHED: Removed inline SVG icon for Attack -->
-                    <button data-action="attack" class="action-button-round text-white btn-red">
-                    </button>
-                    <!-- POLISHED: Removed inline SVG icon for Ability -->
-                    <button data-action="ability-1" class="action-button-round text-white btn-blue">
-                    </button>
-                </div>
-            </div>
-        </footer>
-
-        <!--
-          REMOVED: Settings Modal
-        -->
-
-    </div> <!-- End #game-wrapper -->
-
-    <script>
-        window.addEventListener('DOMContentLoaded', () => {
-            const canvas = document.getElementById('game-canvas');
-            const ctx = canvas.getContext('2d');
-            const canvasContainer = document.getElementById('game-canvas-container');
-
-            // --- 1. CANVAS RESIZING ---
-            // DELETED: GAME_ASPECT_RATIO and fixed internal resolution
-
-            function resizeCanvas() {
-                // UPDATED: Set internal resolution to match display size
-                canvas.width = canvasContainer.clientWidth;
-                canvas.height = canvasContainer.clientHeight;
-
-                // You could draw a default state here if needed, e.g.:
-                // ctx.fillStyle = 'black';
-                // ctx.fillRect(0, 0, canvas.width, canvas.height);
-            }
-
-            window.addEventListener('resize', resizeCanvas);
-            resizeCanvas();
-
-            // --- 2. "SCREENSAVER" GAME LOOP (REMOVED) ---
-            // DELETED: logo object, getRandomColor(), and gameLoop()
-
-            // --- 3. INPUT ABSTRACTION (Pointer Events) ---
-
-            // Game action buttons
-            const actionButtons = document.querySelectorAll('.action-button-round[data-action]');
-            actionButtons.forEach(button => {
-                button.addEventListener('pointerdown', (e) => {
-                    // CSS :active pseudo-class handles the animation.
-                    // We just log the action.
-                    const action = e.currentTarget.dataset.action;
-                    console.log(`Action triggered: ${action}`);
-                });
-            });
-        });
-    </script>
-
+  </div>
 </body>
 </html>
-
-
-
-
