@@ -2,59 +2,71 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- This meta tag is crucial for mobile responsiveness -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Mobile Game UI Shell</title>
 
-    <!-- Load the Inter font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 
     <style>
+        /* --- NEW: Wobble Animation --- */
+        @keyframes wobble {
+            0% { transform: rotate(0deg) translate(5px, 5px); }
+            25% { transform: rotate(3deg) translate(5px, 5px); }
+            50% { transform: rotate(0deg) translate(5px, 5px); }
+            75% { transform: rotate(-3deg) translate(5px, 5px); }
+            100% { transform: rotate(0deg) translate(5px, 5px); }
+        }
+
+
         /* Reset browser defaults and set up base styles */
         html, body {
             margin: 0;
             padding: 0;
             height: 100%;
             width: 100%;
-            /* --- MODIFIED: Removed overflow: hidden --- */
-            /* This allows the browser's "tap-to-hide-URL-bar" behavior to work */
-            /* overflow: hidden; */
             font-family: 'Inter', sans-serif;
-            background-color: #111; /* Darker background for desktop view */
+            /* --- MODIFIED: Colorful Background --- */
+            background: linear-gradient(45deg, #1d1933, #302b63);
             touch-action: manipulation;
         }
 
         /* The main application container */
         #app-container {
             display: flex;
-            flex-direction: column; /* Stacks the sections vertically */
-            height: 100vh; /* Fills 100% of the viewport height. JS will override this. */
-            width: 100%;  /* Fills 100% of its container (up to max-width) */
-            max-width: 480px; /* Constrains width on large screens */
-            margin: 0 auto;   /* Centers the container horizontally */
+            flex-direction: column;
+            height: 100vh;
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
             position: relative;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            /* --- MODIFIED: Exaggerated Shadow --- */
+            /* This shadow is on the container itself, visible on desktop */
+            box-shadow: 10px 10px 0px rgba(0,0,0,0.8);
         }
 
         /* Top section for stats */
         #top-bar {
             flex: 0 0 10%;
-            background-color: #333;
+            /* --- MODIFIED: Colorful Background --- */
+            background: linear-gradient(180deg, #005a50, #004d40);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            /* --- MODIFIED: Explicitly remove border --- */
+            font-weight: 900; /* Bolder */
+            font-size: 1.2rem;
             border: none;
+            /* --- MODIFIED: Exaggerated Shadow --- */
+            text-shadow: 3px 3px 0px rgba(0,0,0,0.5);
         }
 
         /* Main middle section for game visuals */
         #game-area {
             flex: 1 1 auto;
-            background-color: #222;
+            /* --- MODIFIED: Colorful Background --- */
+            background: linear-gradient(180deg, #4b376e, #3a2b57);
             color: #999;
             display: flex;
             flex-direction: column;
@@ -63,7 +75,7 @@
             gap: 1rem;
             padding: 1rem;
             box-sizing: border-box;
-            overflow-y: auto; /* Allows this section to scroll internally if content overflows */
+            overflow-y: auto;
         }
 
         /* --- Slot Machine Styles --- */
@@ -71,32 +83,27 @@
             display: flex;
             flex-direction: row;
             gap: 0.5rem;
-            /* --- MODIFIED: Ensure reels don't overflow viewport --- */
             width: 100%;
             justify-content: center;
             box-sizing: border-box;
         }
 
         .slot {
-            /* --- MODIFIED: Flexible width to fit screen --- */
-            flex: 1; /* Allow slots to grow/shrink */
-            max-width: 70px; /* But not get bigger than 70px */
-            
-            /* --- MODIFIED: Use aspect-ratio to keep slots square --- */
+            flex: 1;
+            max-width: 70px;
             height: auto;
             aspect-ratio: 1 / 1; 
-
-            background-color: #555;
+            /* --- MODIFIED: Colorful Background --- */
+            background: linear-gradient(145deg, #777, #555);
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-
-            /* --- MODIFIED: Responsive font size --- */
-            font-size: clamp(2rem, 10vw, 3rem); /* Min, preferred, max */
-
+            font-size: clamp(2rem, 10vw, 3rem);
             border: none;
             transition: transform 0.1s ease-in-out, opacity 0.1s ease-in-out;
+            /* --- MODIFIED: Exaggerated Shadow --- */
+            box-shadow: 5px 5px 0px #000;
         }
         /* --- End Slot Machine Styles --- */
 
@@ -104,13 +111,13 @@
         /* Bottom section for buttons */
         #bottom-bar {
             flex: 0 0 18%;
-            background-color: #333;
+            /* --- MODIFIED: Colorful Background --- */
+            background: linear-gradient(0deg, #005a50, #004d40);
             color: white;
             display: flex;
             align-items: center;
             justify-content: space-between;
             font-weight: bold;
-            /* --- MODIFIED: Explicitly remove border --- */
             border: none;
             padding: 1rem;
             box-sizing: border-box;
@@ -127,17 +134,24 @@
         .square-button {
             width: 60px;
             height: 60px;
-            background-color: #555;
+            /* --- MODIFIED: Shiny Button --- */
+            background: linear-gradient(145deg, #777, #555);
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.2s;
+            /* --- MODIFIED: Exaggerated Shadow --- */
+            box-shadow: 5px 5px 0px #000;
+            /* --- MODIFIED: Exaggerated Animation --- */
+            transition: all 0.1s ease-out;
             -webkit-tap-highlight-color: transparent;
             outline: none;
         }
 
         .square-button:active {
-            background-color: #777;
+            /* --- MODIFIED: Exaggerated Animation --- */
+            background: linear-gradient(145deg, #555, #777); /* Invert gradient */
+            transform: translate(5px, 5px); /* Move into shadow's space */
+            box-shadow: none; /* Remove shadow */
         }
 
         /* Right side round button container */
@@ -150,12 +164,15 @@
         .round-button {
             width: 80px;
             height: 80px;
-            background: linear-gradient(145deg, #e140e6, #a832b3);
+            /* --- MODIFIED: Shiny Button --- */
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), rgba(255,255,255,0) 70%), linear-gradient(145deg, #e140e6, #a832b3);
             border: none;
             border-radius: 50%;
             cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            /* --- MODIFIED: Exaggerated Animation --- */
+            transition: all 0.1s ease-out;
+            /* --- MODIFIED: Exaggerated Shadow --- */
+            box-shadow: 5px 5px 0px #000;
             -webkit-tap-highlight-color: transparent;
             outline: none;
 
@@ -167,9 +184,22 @@
         }
 
         .round-button:active {
-            background: linear-gradient(145deg, #a832b3, #e140e6);
-            transform: scale(0.95);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+            /* --- MODIFIED: Exaggerated Animation --- */
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), rgba(255,255,255,0) 70%), linear-gradient(145deg, #a832b3, #e140e6);
+            transform: translate(5px, 5px);
+            box-shadow: none;
+        }
+
+        /* --- NEW: Spinning/Wobble State --- */
+        .round-button.spinning {
+            /* Apply the 'pressed' style */
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), rgba(255,255,255,0) 70%), linear-gradient(145deg, #a832b3, #e140e6);
+            transform: translate(5px, 5px);
+            box-shadow: none;
+            /* Add the wobble animation */
+            animation: wobble 0.2s infinite linear;
+            cursor: not-allowed;
+            pointer-events: none; /* Disable clicks */
         }
 
     </style>
@@ -226,21 +256,15 @@
 
     <script>
         // --- Viewport Height Fix ---
-        // This ensures the app container fits the visible window,
-        // avoiding the mobile URL bar.
         const appContainer = document.getElementById('app-container');
-
         function updateAppHeight() {
             if (appContainer) {
                 appContainer.style.height = `${window.innerHeight}px`;
             }
         }
-
-        // Run on load and whenever the window is resized
-        // (e.g., orientation change, URL bar appears/hides)
         window.addEventListener('resize', updateAppHeight);
         window.addEventListener('load', updateAppHeight);
-        updateAppHeight(); // Initial call
+        updateAppHeight();
         // --- End Viewport Height Fix ---
 
 
@@ -266,42 +290,24 @@
         const fruits = ['🍒', '🍋', '🍉', '🍇', '🍓', '🍊', '🍍'];
         const spinButton = document.getElementById('spin-button');
 
-        // Get all slot elements from each reel
         const reel1Slots = document.querySelectorAll('#reel1 .slot');
         const reel2Slots = document.querySelectorAll('#reel2 .slot');
 
-        let isSpinning = false; // Prevent multiple spins at once
+        let isSpinning = false;
 
-        /**
-         * Returns a random item from any array
-         */
         function getRandomItem(arr) {
             return arr[Math.floor(Math.random() * arr.length)];
         }
 
-        /**
-         * Simulates spinning a single reel
-         * @param {NodeList} reelSlots - The .slot elements of the reel to spin
-         */
         function spinReel(reelSlots) {
-            // Loop through each slot in the reel
             reelSlots.forEach((slot, i) => {
-
-                // Total spin duration for this slot
-                // We'll stagger them: 1st slot = 500ms, 2nd = 600ms, etc.
                 const spinDuration = 500 + (i * 100);
-
-                // This interval will create the "blur" effect
                 const spinInterval = setInterval(() => {
-                    // Show a random fruit
                     slot.textContent = getRandomItem(fruits);
-                }, 50); // Change emoji every 50ms
+                }, 50);
 
-
-                // After the spin duration, stop the interval and set the final fruit
                 setTimeout(() => {
                     clearInterval(spinInterval);
-                    // Set the final fruit
                     slot.textContent = getRandomItem(fruits);
                 }, spinDuration);
             });
@@ -311,28 +317,28 @@
          * Handles the spin button click/tap
          */
         function handleSpin() {
-            if (isSpinning) return; // Don't spin if already spinning
+            if (isSpinning) return; 
             isSpinning = true;
+            // --- MODIFIED: Add spinning class for animation ---
+            spinButton.classList.add('spinning');
 
-            // Spin both reels
             spinReel(reel1Slots);
             spinReel(reel2Slots);
 
-            // Set a cooldown to re-enable the button
-            // Total time should be longest reel animation
-            // 5 slots * 100ms stagger + 500ms base = 900ms
             setTimeout(() => {
                 isSpinning = false;
-            }, 1000);
+                // --- MODIFIED: Remove spinning class ---
+                spinButton.classList.remove('spinning');
+            }, 1000); 
         }
 
-        // Add listeners for both click (desktop) and touchend (mobile)
         spinButton.addEventListener('click', handleSpin);
         spinButton.addEventListener('touchend', (e) => {
-            e.preventDefault(); // Prevent 'click' from firing after
+            e.preventDefault();
             handleSpin();
         });
 
     </script>
 </body>
 </html>
+
