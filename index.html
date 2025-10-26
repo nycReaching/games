@@ -21,14 +21,15 @@
             overflow: hidden; /* Prevents scrolling on the body */
             font-family: 'Inter', sans-serif;
             background-color: #111; /* Darker background for desktop view */
-            touch-action: none;
+            /* --- MODIFIED: Allow scrolling/panning inside the app --- */
+            touch-action: manipulation; /* Was 'none' */
         }
 
         /* The main application container */
         #app-container {
             display: flex;
             flex-direction: column; /* Stacks the sections vertically */
-            height: 100vh; /* Fills 100% of the viewport height */
+            height: 100vh; /* Fills 100% of the viewport height. JS will override this. */
             width: 100%;  /* Fills 100% of its container (up to max-width) */
             max-width: 480px; /* Constrains width on large screens */
             margin: 0 auto;   /* Centers the container horizontally */
@@ -45,7 +46,8 @@
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            border-bottom: 2px solid #555;
+            /* --- MODIFIED: Removed border --- */
+            /* border-bottom: 2px solid #555; */
         }
 
         /* Main middle section for game visuals */
@@ -75,23 +77,28 @@
             /* --- MODIFIED: Stack slots horizontally --- */
             flex-direction: row; /* Was column */
             gap: 0.5rem;
-            background-color: #111;
-            border: 2px solid #555;
-            border-radius: 10px;
-            padding: 0.5rem;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            /* --- MODIFIED: Removed container styling --- */
+            /* background-color: #111; */
+            /* border: 2px solid #555; */
+            /* border-radius: 10px; */
+            /* padding: 0.5rem; */
+            /* box-shadow: inset 0 0 10px rgba(0,0,0,0.5); */
         }
 
         .slot {
-            width: 60px;
-            height: 60px;
-            background-color: #333;
+            /* --- MODIFIED: Larger size --- */
+            width: 70px; /* Was 60px */
+            height: 70px; /* Was 60px */
+            /* --- MODIFIED: Match square button color --- */
+            background-color: #555; /* Was #333 */
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem; /* Larger emoji */
-            border: 1px solid #444;
+            /* --- MODIFIED: Larger emoji --- */
+            font-size: 3rem; /* Was 2.5rem */
+            /* --- MODIFIED: Removed border --- */
+            border: none; /* Was 1px solid #444 */
             /* --- NEW: Transition for spin effect --- */
             transition: transform 0.1s ease-in-out, opacity 0.1s ease-in-out;
         }
@@ -114,7 +121,8 @@
             align-items: center;
             justify-content: space-between; 
             font-weight: bold;
-            border-top: 2px solid #555;
+            /* --- MODIFIED: Removed border --- */
+            /* border-top: 2px solid #555; */
             padding: 1rem; 
             box-sizing: border-box; 
         }
@@ -122,16 +130,19 @@
         /* Left side 2x2 grid container */
         #left-controls {
             display: grid;
-            grid-template-columns: repeat(2, 55px); 
-            grid-template-rows: repeat(2, 55px);    
+            /* --- MODIFIED: Increased grid button size --- */
+            grid-template-columns: repeat(2, 60px); /* Was 55px */
+            grid-template-rows: repeat(2, 60px);    /* Was 55px */
             gap: 0.5rem; 
         }
 
         .square-button {
-            width: 55px;  
-            height: 55px; 
+            /* --- MODIFIED: Increased button size --- */
+            width: 60px;  /* Was 55px */
+            height: 60px; /* Was 55px */
             background-color: #555;
-            border: 2px solid #777;
+            /* --- MODIFIED: Removed border --- */
+            border: none; /* Was 2px solid #777 */
             border-radius: 8px; 
             cursor: pointer;
             transition: background-color 0.2s;
@@ -151,10 +162,12 @@
         }
 
         .round-button {
-            width: 75px;  
-            height: 75px; 
+            /* --- MODIFIED: Increased button size --- */
+            width: 80px;  /* Was 75px */
+            height: 80px; /* Was 75px */
             background: linear-gradient(145deg, #e140e6, #a832b3);
-            border: 2px solid #f0abfc;
+            /* --- MODIFIED: Removed border --- */
+            border: none; /* Was 2px solid #f0abfc */
             border-radius: 50%; 
             cursor: pointer;
             transition: all 0.2s;
@@ -233,6 +246,25 @@
 
     <!-- --- NEW: JavaScript for Slot Machine --- -->
     <script>
+        // --- NEW: Viewport Height Fix ---
+        // This ensures the app container fits the visible window,
+        // avoiding the mobile URL bar.
+        const appContainer = document.getElementById('app-container');
+
+        function updateAppHeight() {
+            if (appContainer) {
+                appContainer.style.height = `${window.innerHeight}px`;
+            }
+        }
+
+        // Run on load and whenever the window is resized
+        // (e.g., orientation change, URL bar appears/hides)
+        window.addEventListener('resize', updateAppHeight);
+        window.addEventListener('load', updateAppHeight);
+        updateAppHeight(); // Initial call
+        // --- End Viewport Height Fix ---
+
+
         // --- Prevent double-tap zoom on buttons ---
         // This is a common issue on mobile web games
         document.addEventListener('touchstart', function(event) {
@@ -326,5 +358,9 @@
     </script>
 </body>
 </html>
+
+
+
+
 
 
