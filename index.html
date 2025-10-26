@@ -4,22 +4,37 @@
   <meta charset="UTF-8" />
   <meta name="viewport"
         content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-  <title>Game UI Shell v7</title>
+  <title>Game UI Shell v8 (Dark Modern)</title>
   <style>
     :root {
       --max-phone-width: 420px;
 
-      --top-height: 10vh;          /* slim resource HUD */
-      --inventory-height: 10vh;    /* 4 item slots row */
-      --bottom-height: 18vh;       /* meters + buttons */
+      --top-height: 12vh;          /* make room for huge counters */
+      --inventory-height: 10vh;
+      --bottom-height: 18vh;
 
-      --border-radius: 24px;
+      --border-radius-lg: 24px;
+      --border-radius-md: 12px;
 
-      --panel-bg: rgba(255,255,255,0.05);
-      --panel-border: rgba(255,255,255,0.08);
+      /* Deeper darks w/ subtle gradients */
+      --bg-page-start: #0a0f1b;
+      --bg-page-end: #000000;
 
-      --slot-bg: rgba(255,255,255,0.07);
-      --slot-border: rgba(255,255,255,0.15);
+      --device-gradient-start: #0f172a;
+      --device-gradient-end: #000814;
+
+      --panel-bg-start: rgba(30,41,59,0.6);
+      --panel-bg-end: rgba(2,6,23,0.4);
+
+      --panel-border: rgba(255,255,255,0.09);
+      --panel-inner-glow: rgba(255,255,255,0.06);
+
+      --slot-bg-start: rgba(148,163,184,0.12);
+      --slot-bg-end: rgba(15,23,42,0.6);
+      --slot-border: rgba(255,255,255,0.18);
+
+      --text-primary: #fff;
+      --text-dim: rgba(255,255,255,0.6);
     }
 
     * {
@@ -30,8 +45,8 @@
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", Roboto, sans-serif;
-      background: #0f172a;
-      color: #f8fafc;
+      background: radial-gradient(circle at 50% 10%, var(--bg-page-start) 0%, var(--bg-page-end) 70%);
+      color: var(--text-primary);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -42,125 +57,163 @@
       width: 100%;
       max-width: var(--max-phone-width);
       height: clamp(600px, 100dvh, 900px);
-      background: #111827;
-      border-radius: var(--border-radius);
+      background: radial-gradient(circle at 50% 0%, var(--device-gradient-start) 0%, var(--device-gradient-end) 80%);
+      border-radius: var(--border-radius-lg);
       overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow:
+        0 40px 120px rgba(0,0,0,0.9),
+        0 0 120px rgba(14,165,233,0.15),
+        0 0 240px rgba(168,85,247,0.07);
       display: flex;
       flex-direction: column;
+      position: relative;
     }
 
-    /* === TOP SECTION (RPG resource counters) ===
-       Updated:
-       - Larger text, no pill chrome
-       - Matches bottom meter typography style
-    */
+    /* === TOP SECTION (huge resource counters) === */
     .top-section {
       flex: 0 0 var(--top-height);
-      background: var(--panel-bg);
+      background: radial-gradient(circle at 50% 0%, var(--panel-bg-start) 0%, var(--panel-bg-end) 80%);
       border-bottom: 1px solid var(--panel-border);
+      box-shadow: inset 0 1px 0 var(--panel-inner-glow);
 
-      padding: calc(env(safe-area-inset-top) + 8px) 12px 8px;
+      padding: calc(env(safe-area-inset-top) + 12px) 16px 12px;
 
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-content: flex-start;
-      gap: 16px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 12px;
+      align-items: end;
+      text-align: center;
 
-      font-size: 0.8rem;
-      line-height: 1.2;
+      /* counters now feel like big stat cards */
     }
 
-    /* flattened HUD row items (no bubble) */
-    .resource-pill {
-      background: none;
-      border: 0;
-      border-radius: 0;
-      box-shadow: none;
-      padding: 0;
+    .resource-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.1;
+      min-width: 0;
 
+      /* subtle card chrome */
+      background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.07) 0%, rgba(0,0,0,0) 70%);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--border-radius-md);
+      padding: 8px 6px;
+      box-shadow:
+        0 12px 24px rgba(0,0,0,0.8),
+        0 1px 2px rgba(255,255,255,0.1) inset,
+        0 0 32px rgba(14,165,233,0.4);
+      background-clip: padding-box;
+    }
+
+    .resource-main-row {
       display: flex;
       align-items: baseline;
       gap: 6px;
-
-      font-size: 0.8rem;
-      line-height: 1.2;
-      font-weight: 500;
-      color: rgba(255,255,255,0.9);
-      min-width: max-content;
-    }
-
-    .resource-label {
-      display: flex;
-      gap: 6px;
+      color: var(--text-primary);
       font-weight: 600;
-      color: #fff;
-      font-size: 0.8rem;
+      font-size: 1rem; /* larger */
       white-space: nowrap;
     }
 
-    .resource-value {
-      color: rgba(255,255,255,0.7);
-      font-weight: 500;
-      font-size: 0.8rem;
+    .resource-emoji {
+      font-size: 1rem;
+      line-height: 1;
     }
 
-    .exp-col {
+    .resource-label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--text-dim);
+      line-height: 1.2;
+    }
+
+    .resource-value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.1;
+    }
+
+    /* level/XP block slightly different formatting */
+    .exp-card {
       display: flex;
       flex-direction: column;
-      line-height: 1.2;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.1;
+      background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.07) 0%, rgba(0,0,0,0) 70%);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--border-radius-md);
+      padding: 8px 6px;
+      box-shadow:
+        0 12px 24px rgba(0,0,0,0.8),
+        0 1px 2px rgba(255,255,255,0.1) inset,
+        0 0 32px rgba(168,85,247,0.4);
     }
 
     .exp-top-row {
       display: flex;
       align-items: baseline;
       gap: 6px;
+      color: var(--text-primary);
       font-weight: 600;
-      font-size: 0.8rem;
-      color: #fff;
+      font-size: 1rem; /* larger */
     }
 
     .exp-bottom-row {
       font-size: 0.7rem;
-      color: rgba(255,255,255,0.7);
+      color: var(--text-dim);
       font-weight: 500;
     }
 
-    /* === MIDDLE GAME AREA ===
-       Full band = playfield
-    */
+    /* === MIDDLE GAME AREA === */
     .middle-section {
       flex: 1;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: radial-gradient(circle at 50% 40%, #1e293b 0%, #0f172a 80%);
+      background:
+        radial-gradient(circle at 50% 35%, rgba(148,163,184,0.18) 0%, rgba(0,0,0,0) 60%),
+        radial-gradient(circle at 50% 50%, #1e1e2f 0%, #000 80%);
+      position: relative;
+    }
+
+    /* faint holographic ring vibe */
+    .middle-section::after {
+      content: "";
+      position: absolute;
+      width: 60%;
+      height: 30%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 50%, rgba(14,165,233,0.5) 0%, rgba(0,0,0,0) 70%);
+      filter: blur(40px);
+      opacity: 0.18;
     }
 
     .placeholder {
-      /* No border, no frame, just debug text */
-      border: 0;
-      border-radius: 0;
-      width: auto;
-      height: auto;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
       color: rgba(255,255,255,0.6);
       text-align: center;
       font-size: 0.8rem;
       opacity: 0.6;
       user-select: none;
+      position: relative;
+      z-index: 1;
+      letter-spacing: 0.08em;
     }
 
-    /* === INVENTORY ROW (4 item slots) === */
+    /* === INVENTORY ROW === */
     .inventory-row {
       flex: 0 0 var(--inventory-height);
-      background: rgba(255,255,255,0.03);
-      border-top: 1px solid rgba(255,255,255,0.06);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: radial-gradient(circle at 50% 0%, rgba(30,41,59,0.4) 0%, rgba(2,6,23,0.15) 70%);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        0 -20px 40px rgba(0,0,0,0.9);
+
       display: flex;
       justify-content: space-around;
       align-items: center;
@@ -172,41 +225,45 @@
     .slot {
       width: 56px;
       height: 56px;
-      background: var(--slot-bg);
+      background: radial-gradient(circle at 50% 0%, var(--slot-bg-start) 0%, var(--slot-bg-end) 70%);
       border: 1px solid var(--slot-border);
-      border-radius: 8px;
+      border-radius: 10px;
       display: flex;
       justify-content: center;
       align-items: center;
       font-size: 1.5rem;
       color: #fff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+      box-shadow:
+        0 8px 16px rgba(0,0,0,0.8),
+        0 1px 2px rgba(255,255,255,0.2) inset;
       user-select: none;
     }
 
     /* === BOTTOM SECTION (meters + action buttons) === */
     .bottom-section {
       flex: 0 0 var(--bottom-height);
-      background: var(--panel-bg);
+      background: radial-gradient(circle at 50% 100%, var(--panel-bg-start) 0%, var(--panel-bg-end) 70%);
       border-top: 1px solid var(--panel-border);
+      box-shadow:
+        inset 0 1px 0 var(--panel-inner-glow),
+        0 -40px 80px rgba(0,0,0,0.9);
 
-      padding: 12px 16px calc(env(safe-area-inset-bottom) + 12px);
+      padding: 16px 16px calc(env(safe-area-inset-bottom) + 16px);
 
       display: flex;
       gap: 16px;
-      align-items: center; /* vertically align buttons vs meters */
+      align-items: center;
       justify-content: space-between;
       -webkit-user-select: none;
       user-select: none;
     }
 
-    /* Left side: meters stacked */
     .meters-area {
       flex: 1;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      gap: 10px;
+      gap: 12px;
       min-width: 0;
     }
 
@@ -224,76 +281,76 @@
       line-height: 1.2;
       color: rgba(255,255,255,0.8);
       font-weight: 500;
+      letter-spacing: 0.05em;
     }
 
+    /* square meters now */
     .meter-bar-outer {
       width: 100%;
-      height: 8px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.15);
-      box-shadow: 0 1px 2px rgba(0,0,0,0.8) inset;
+      height: 10px; /* slightly thicker */
+      border-radius: 4px; /* squared ends instead of pills */
+      background: rgba(15,23,42,0.8);
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow:
+        0 1px 2px rgba(0,0,0,0.9) inset,
+        0 0 12px rgba(14,165,233,0.4);
       overflow: hidden;
+      position: relative;
+    }
+
+    .meter-bar-inner {
+      height: 100%;
+      border-radius: 0; /* hard edge fill */
+      box-shadow: 0 0 12px rgba(255,255,255,0.4);
     }
 
     /* demo fill widths */
     .meter-bar-inner.hp {
       width: 80%;
-      height: 100%;
-      background: linear-gradient(
-        to right,
-        #ef4444,
-        #dc2626
-      );
+      background: linear-gradient(to right, #b91c1c 0%, #ef4444 100%);
     }
     .meter-bar-inner.energy {
       width: 45%;
-      height: 100%;
-      background: linear-gradient(
-        to right,
-        #38bdf8,
-        #0ea5e9
-      );
+      background: linear-gradient(to right, #0369a1 0%, #38bdf8 100%);
     }
     .meter-bar-inner.xp {
       width: 60%;
-      height: 100%;
-      background: linear-gradient(
-        to right,
-        #a3e635,
-        #65a30d
-      );
+      background: linear-gradient(to right, #3f6212 0%, #a3e635 100%);
     }
 
-    /* Right side: two vertical round buttons */
+    /* action buttons */
     .buttons-area {
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
     }
 
     .round-btn {
       width: 64px;
       height: 64px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.15);
-      box-shadow: 0 6px 14px rgba(0,0,0,0.5);
+      background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.16) 0%, rgba(0,0,0,0) 70%);
+      border: 1px solid rgba(255,255,255,0.22);
+      box-shadow:
+        0 18px 32px rgba(0,0,0,0.9),
+        0 2px 4px rgba(255,255,255,0.2) inset,
+        0 0 64px rgba(14,165,233,0.5);
       display: flex;
       justify-content: center;
       align-items: center;
       font-size: 1.1rem;
       color: #fff;
+      font-weight: 600;
       user-select: none;
       touch-action: manipulation;
-      transition: transform 0.1s ease;
+      transition: transform 0.08s ease;
     }
 
     .round-btn:active {
       transform: scale(0.94);
-      background: rgba(255,255,255,0.12);
+      background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.22) 0%, rgba(0,0,0,0) 70%);
     }
 
     .round-btn.secondary {
@@ -301,48 +358,39 @@
       height: 54px;
       font-size: 0.9rem;
       opacity: 0.9;
+      box-shadow:
+        0 14px 28px rgba(0,0,0,0.8),
+        0 2px 4px rgba(255,255,255,0.15) inset,
+        0 0 48px rgba(168,85,247,0.5);
     }
   </style>
 </head>
 <body>
   <main class="device">
-    <!-- TOP: RPG-style resource counters (larger, still flat) -->
+    <!-- TOP: huge counters as stat cards -->
     <header class="top-section">
-      <div class="resource-pill">
-        <div class="resource-label">
-          <span>💰</span><span>Gold</span>
-        </div>
-        <div class="resource-value">1,234</div>
+      <div class="resource-card">
+        <div class="resource-main-row"><span class="resource-emoji">💰</span><span class="resource-value">1,234</span></div>
+        <div class="resource-label">Gold</div>
       </div>
 
-      <div class="resource-pill">
-        <div class="resource-label">
-          <span>💎</span><span>Gems</span>
-        </div>
-        <div class="resource-value">56</div>
+      <div class="resource-card">
+        <div class="resource-main-row"><span class="resource-emoji">💎</span><span class="resource-value">56</span></div>
+        <div class="resource-label">Gems</div>
       </div>
 
-      <div class="resource-pill">
-        <div class="resource-label">
-          <span>🪵</span><span>Mats</span>
-        </div>
-        <div class="resource-value">12</div>
+      <div class="resource-card">
+        <div class="resource-main-row"><span class="resource-emoji">🪵</span><span class="resource-value">12</span></div>
+        <div class="resource-label">Mats</div>
       </div>
 
-      <div class="resource-pill">
-        <div class="exp-col">
-          <div class="exp-top-row">
-            <span>⭐</span>
-            <span>Lv&nbsp;3</span>
-          </div>
-          <div class="exp-bottom-row">
-            12,340&nbsp;XP
-          </div>
-        </div>
+      <div class="exp-card">
+        <div class="exp-top-row"><span>⭐</span><span>Lv&nbsp;3</span></div>
+        <div class="exp-bottom-row">12,340&nbsp;XP</div>
       </div>
     </header>
 
-    <!-- MIDDLE GAME AREA (full playable surface; no border box) -->
+    <!-- MIDDLE: play surface -->
     <section class="middle-section">
       <div class="placeholder">GAME AREA</div>
     </section>
@@ -355,42 +403,25 @@
       <div class="slot">🍗</div>
     </div>
 
-    <!-- BOTTOM: meters (left) + buttons (right) -->
+    <!-- BOTTOM: meters + buttons -->
     <nav class="bottom-section">
-      <!-- meters -->
       <section class="meters-area">
         <div class="meter-block">
-          <div class="meter-label-row">
-            <span>HP</span>
-            <span>80 / 100</span>
-          </div>
-          <div class="meter-bar-outer">
-            <div class="meter-bar-inner hp"></div>
-          </div>
+          <div class="meter-label-row"><span>HP</span><span>80 / 100</span></div>
+          <div class="meter-bar-outer"><div class="meter-bar-inner hp"></div></div>
         </div>
 
         <div class="meter-block">
-          <div class="meter-label-row">
-            <span>ENERGY</span>
-            <span>45%</span>
-          </div>
-          <div class="meter-bar-outer">
-            <div class="meter-bar-inner energy"></div>
-          </div>
+          <div class="meter-label-row"><span>ENERGY</span><span>45%</span></div>
+          <div class="meter-bar-outer"><div class="meter-bar-inner energy"></div></div>
         </div>
 
         <div class="meter-block">
-          <div class="meter-label-row">
-            <span>XP</span>
-            <span>12 / 20</span>
-          </div>
-          <div class="meter-bar-outer">
-            <div class="meter-bar-inner xp"></div>
-          </div>
+          <div class="meter-label-row"><span>XP</span><span>12 / 20</span></div>
+          <div class="meter-bar-outer"><div class="meter-bar-inner xp"></div></div>
         </div>
       </section>
 
-      <!-- buttons -->
       <section class="buttons-area">
         <button class="round-btn">A</button>
         <button class="round-btn secondary">B</button>
