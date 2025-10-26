@@ -2,570 +2,394 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Deep Rogue RPG</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portrait Game UI Demo</title>
+    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Import 'Inter' font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
     <style>
-        /* Base styling */
-        html {
+        /* * 1. GLOBAL & FONT SETUP
+         * We use the 'Inter' font and set a dark background.
+         * 'overflow: hidden' prevents scrolling, which is crucial for a game.
+         * We use 'dvh' (dynamic viewport height) to ensure the UI fills the screen
+         * on mobile browsers, even when the address bar appears/disappears.
+         */
+        html, body {
             height: 100%;
-        }
-        body {
+            margin: 0;
+            padding: 0;
             font-family: 'Inter', sans-serif;
-            overscroll-behavior: none;
-            
-            /* * NEW DESKTOP CENTERING:
-             * This makes the entire page a flex container to center the game.
-            */
+            background-color: #111827; /* dark gray-blue */
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        body {
             display: flex;
-            align-items: center;
             justify-content: center;
-            min-height: 100dvh; /* Full viewport height */
-            background-color: #0c0a2e; /* Dark bg for the *entire* page */
-            padding: 1rem; /* Spacing for desktop view */
-            color: #e2e8f0; /* Default text color (slate-200) */
+            align-items: center;
         }
 
-        /* * GAME CONTAINER STYLING 
-         * This now defines the "phone" shape on desktop.
-        */
-        #game-container {
+        /* * 2. ORIENTATION LOCK
+         * This element is hidden by default and becomes a flex container
+         * (taking up the whole screen) ONLY in landscape orientation.
+         * This forces the user to rotate their device.
+         */
+        #orientation-lock {
+            display: none; /* Hidden by default (in portrait) */
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background-color: #111827;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        
+        /* The SVG icon for rotation */
+        #orientation-lock svg {
+            width: 8vmin;
+            height: 8vmin;
+            margin-bottom: 1.5rem;
+            animation: rotate-device 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+        }
+
+        @keyframes rotate-device {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(90deg); }
+        }
+
+        /* * MEDIA QUERY: This is the magic.
+         * If the orientation is landscape, hide the game and show the lock screen.
+         */
+        @media (orientation: landscape) {
+            #orientation-lock {
+                display: flex;
+            }
+            #game-wrapper {
+                display: none;
+            }
+        }
+
+        /* * 3. GAME WRAPPER
+         * This is the main container for our portrait game.
+         * It uses flex-column to stack Header, Main (Canvas), and Footer.
+         * It has a max-width to look good on tablets/desktops.
+         * 'height: 100dvh' is the key for full-screen on mobile.
+         */
+        #game-wrapper {
+            display: flex;
+            flex-direction: column;
             width: 100%;
-            max-width: 420px; /* A realistic phone width */
-            
-            /* * Define a "phone" aspect ratio for desktop.
-             * This creates the tall, narrow frame.
-            */
-            height: 880px; /* A tall height */
-            max-height: 95vh; /* But don't let it overflow the viewport */
-            aspect-ratio: 9 / 19.5; /* Force a tall screen ratio */
-
-            /* Visuals for the "device" frame */
-            @apply flex flex-col mx-auto bg-indigo-900/40 shadow-2xl shadow-black/40
-                   rounded-3xl overflow-hidden border-2 border-indigo-800/30;
-        }
-        
-        /* * MOBILE OVERRIDE:
-         * This media query removes the "phone" frame when on a real phone.
-        */
-        @media (max-width: 640px) {
-            body {
-                padding: 0; /* No padding on mobile */
-            }
-            #game-container {
-                width: 100%;
-                max-width: 100%;
-                height: 100dvh; /* Use dynamic viewport height for mobile */
-                max-height: 100dvh;
-                border-radius: 0;
-                border: none;
-                aspect-ratio: auto; /* Unset the aspect ratio */
-            }
+            height: 100dvh;
+            max-width: 500px; /* Common max-width for portrait apps */
+            background-color: #1F2937; /* dark gray */
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* This is the main content area, it will now grow to fill all available space */
-        #game-content {
-            @apply flex-grow flex flex-col items-center justify-center p-4 sm:p-6 text-center
-                   transition-opacity duration-500 ease-in-out;
-            /* Ensure content can scroll if it overflows on a small screen */
-            overflow-y: auto;
+        /* * 4. UI SECTIONS (HEADER, MAIN, FOOTER)
+         */
+        
+        /* Header & Footer are locked, non-shrinking bars */
+        #game-header, #game-footer {
+            flex-shrink: 0;
+            padding: 0.75rem 1rem;
+            background-color: rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        
+        #game-header { border-bottom: 1px solid #374151; }
+        #game-footer { border-top: 1px solid #374151; }
+
+        /* Main game area fills all remaining space */
+        #game-canvas-container {
+            flex-grow: 1; /* This is the most important part! */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; /* Prevent canvas from overflowing */
+            position: relative;
         }
 
-        /* --- KEYFRAME ANIMATIONS --- */
-
-        /* Pulsing glow for sacrifice choices */
-        @keyframes pulse-red {
-            0%, 100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.4), 0 0 10px rgba(239, 68, 68, 0.3) inset; }
-            50% { box-shadow: 0 0 45px rgba(239, 68, 68, 0.9), 0 0 15px rgba(239, 68, 68, 0.5) inset; }
-        }
-        @keyframes pulse-blue {
-            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.4), 0 0 10px rgba(59, 130, 246, 0.3) inset; }
-            50% { box-shadow: 0 0 45px rgba(59, 130, 246, 0.9), 0 0 15px rgba(59, 130, 246, 0.5) inset; }
-        }
-        
-        /* Glowing golden button for "Tempt Fate" */
-        @keyframes glow-gold {
-            0%, 100% { box-shadow: 0 0 15px rgba(252, 211, 77, 0.5), 0 0 10px rgba(252, 211, 77, 0.3) inset; }
-            50% { box-shadow: 0 0 30px rgba(252, 211, 77, 1), 0 0 15px rgba(252, 211, 77, 0.5) inset; }
+        /* * 5. GAME CANVAS
+         * The canvas itself. Its size is set by JavaScript to maintain
+         * the aspect ratio, but it's centered in its container.
+         * The 'object-fit' property isn't used here since JS
+         * is setting the style, but 'max-width/height' are good fallbacks.
+         */
+        #game-canvas {
+            background: #374151;
+            max-width: 100%;
+            max-height: 100%;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-crisp-edges;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
         }
 
-        /* Dramatic text entrance */
-        @keyframes fade-in-up {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* Slot machine reel spin (fast emoji change) */
-        @keyframes spin {
-            0% { opacity: 0.5; transform: translateY(-15px) rotateX(45deg); }
-            100% { opacity: 1; transform: translateY(0) rotateX(0deg); }
-        }
-        
-        /* Slot machine reel landing "thud" */
-        @keyframes thud {
-            0% { transform: scale(1.1) translateY(-10px); }
-            50% { transform: scale(0.95) translateY(5px); }
-            100% { transform: scale(1) translateY(0); }
+        /* * 6. RESPONSIVE COMPONENTS
+         */
+
+        /* Icons: We use 'vmin' to make icons scale with the
+         * smallest viewport dimension, ensuring they are always
+         * a good size in any portrait-like aspect ratio.
+         */
+        .stat-icon {
+            width: 5vmin;
+            height: 5vmin;
+            max-width: 24px;
+            max-height: 24px;
+            min-width: 18px;
+            min-height: 18px;
         }
 
-        /* --- DRAMATIC UI STYLES --- */
-        
-        /* Wrapper for the two-choice sacrifice screen */
-        .sacrifice-wrapper {
-            @apply w-full flex-1 flex flex-col items-center justify-center gap-4;
-            /* We need to set a min-height to ensure flex-1 works */
-            min-height: 300px;
+        /* * Action Buttons: This demonstrates the clamp() function.
+         * Font size will be 4vmin (scales with viewport).
+         * ...but it will NOT go below 0.875rem (14px).
+         * ...and it will NOT go above 1.125rem (18px).
+         * This gives us fluid scaling with safe boundaries.
+         */
+        .game-button {
+            font-size: clamp(0.875rem, 4vmin, 1.125rem);
+            transition: all 0.1s ease-in-out;
         }
 
-        /* Gigantic sacrifice panels */
-        .sacrifice-panel {
-            @apply flex-1 w-full flex flex-col items-center justify-center p-8 rounded-3xl cursor-pointer
-                   transition-all duration-300 ease-in-out border-4 border-transparent shadow-2xl;
-            /* "Squish" and glow effect on tap */
-            @apply active:scale-95 active:brightness-125;
-            /* Hover glow for desktop */
-            @apply hover:brightness-110;
-        }
-        .sacrifice-hp {
-            @apply bg-gradient-to-t from-red-800 via-red-700 to-red-600 text-white;
-            animation: pulse-red 2.5s infinite ease-in-out;
-        }
-        .sacrifice-hp:hover { @apply border-red-300; }
-        
-        .sacrifice-mp {
-            @apply bg-gradient-to-b from-blue-800 via-blue-700 to-blue-600 text-white;
-            animation: pulse-blue 2.5s infinite ease-in-out;
-        }
-        .sacrifice-mp:hover { @apply border-blue-300; }
-
-        .sacrifice-emoji { @apply text-7xl sm:text-8xl drop-shadow-lg; }
-        .sacrifice-text { @apply text-3xl sm:text-4xl font-black uppercase tracking-tighter; }
-
-        /* Massive slot machine reels */
-        .reel {
-            @apply bg-black/40 w-28 h-36 sm:w-32 sm:h-40 rounded-2xl flex 
-                   items-center justify-center text-7xl sm:text-8xl shadow-inner 
-                   border-4 border-black/30 transition-all duration-300;
-            font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-        }
-        .reel-spinning {
-            animation: spin 0.05s linear infinite alternate;
-        }
-        .reel-landed {
-            animation: thud 0.3s ease-out;
-        }
-        
-        /* Epic "Tempt Fate" button */
-        .btn-reveal-fortune {
-            @apply w-full max-w-sm p-5 sm:p-6 text-2xl sm:text-3xl font-black tracking-tighter 
-                   uppercase rounded-xl shadow-lg border-b-4 transition-all duration-150 ease-in-out;
-            @apply active:scale-95 active:border-b-2 active:translate-y-px;
-            @apply bg-gradient-to-b from-amber-400 to-amber-600 border-amber-800 text-black shadow-amber-300/50;
-            animation: glow-gold 1.5s infinite alternate;
-        }
-        .btn-reveal-fortune:hover { @apply brightness-110; }
-
-        /* Large, glowing choice buttons for fortune */
-        .btn-fortune-choice {
-             @apply bg-gradient-to-b from-slate-700 to-slate-900 border-4 border-slate-900 text-white 
-                    shadow-2xl shadow-black/30 w-full p-4 rounded-2xl text-6xl 
-                    flex flex-col items-center justify-center gap-2 cursor-pointer;
-            @apply hover:border-cyan-400 hover:brightness-110 focus:border-cyan-400;
-            @apply active:scale-95 transition-all duration-150;
-        }
-        
-        /* Animated text utility */
-        .text-fade-in-up {
-            animation: fade-in-up 0.5s ease-out 0.1s;
-            /* Delay the animation slightly */
-            animation-fill-mode: backwards;
-        }
-        
-        /* Header bar styling */
-        #status-bar {
-            @apply w-full p-3 sm:p-4 bg-black/30 backdrop-blur-md border-b border-indigo-700/50
-                   flex-shrink-0; /* Prevent header from shrinking */
-            /* Note: sticky top-0 is removed as it's complex inside a flex-grow container */
-        }
-        
-        /* Footer styling */
-        #log-area {
-            @apply w-full p-3 text-center bg-black/20 border-t border-indigo-700/50 
-                   h-16 flex items-center justify-center flex-shrink-0; /* Prevent footer from shrinking */
+        /* * 7. MODAL (Pop-up)
+         * A standard, hidden-by-default modal pattern.
+         * It uses 'inset-0' to fill its parent (#game-wrapper).
+         * We use CSS classes (e.g., '.hidden') to toggle visibility.
+         */
+        #settings-modal {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            z-index: 100;
         }
     </style>
 </head>
-
-<!-- 
-  The body tag is now just for initialization.
-  All styling is handled in the <style> block.
--->
-<body onload="init()">
+<body class="bg-gray-900">
 
     <!-- 
-      This is the main container.
-      It will be centered on desktop and full-screen on mobile.
+      ORIENTATION LOCK SCREEN 
+      This is hidden by default and only shown via CSS @media query
     -->
-    <div id="game-container">
-
-        <!-- 
-          STATUS HEADER 
-        -->
-        <header id="status-bar">
-            <div class="grid grid-cols-2 gap-x-4 gap-y-2">
-                
-                <!-- HP Bar -->
-                <div class="col-span-1">
-                    <div class="flex justify-between items-end mb-1">
-                        <span class="font-bold text-lg leading-none text-red-400">❤️ HP</span>
-                        <span id="hp-text" class="font-bold text-sm leading-none">100/100</span>
-                    </div>
-                    <div class="w-full bg-black/30 rounded-full h-3 sm:h-4 border border-red-900/50">
-                        <div id="hp-bar" class="bg-gradient-to-r from-red-600 to-red-400 h-full rounded-full transition-all duration-300 ease-out" style="width: 100%;"></div>
-                    </div>
-                </div>
-
-                <!-- MP Bar -->
-                <div class="col-span-1">
-                    <div class="flex justify-between items-end mb-1">
-                        <span class="font-bold text-lg leading-none text-blue-400">💧 MP</span>
-                        <span id="mp-text" class="font-bold text-sm leading-none">50/50</span>
-                    </div>
-                    <div class="w-full bg-black/30 rounded-full h-3 sm:h-4 border border-blue-900/50">
-                        <div id="mp-bar" class="bg-gradient-to-r from-blue-600 to-blue-400 h-full rounded-full transition-all duration-300 ease-out" style="width: 100%;"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Other Stats -->
-            <div class="flex justify-around items-center mt-3 pt-3 border-t border-indigo-800/30">
-                <div class="text-center">
-                    <span class="text-2xl">⚔️</span>
-                    <div id="atk-text" class="font-bold text-xl">5</div>
-                </div>
-                <div class="text-center">
-                    <span class="text-2xl">🛡️</span>
-                    <div id="armor-text" class="font-bold text-xl">5</div>
-                </div>
-                <div class="text-center">
-                    <span class="text-2xl">✨</span>
-                    <div id="spirit-text" class="font-bold text-xl">5</div>
-                </div>
-            </div>
-        </header>
-
-        <!-- 
-          MAIN GAME CONTENT
-          - flex-grow: Makes this section fill all available vertical space.
-        -->
-        <main id="game-content">
-            <!-- Game content is dynamically inserted here by JavaScript -->
-            <div class="text-2xl animate-pulse">Loading...</div>
-        </main>
-
-        <!-- 
-          LOG FOOTER
-        -->
-        <footer id="log-area">
-            <span id="log-text" class="text-slate-400 italic transition-all duration-150">Welcome, adventurer.</span>
-        </footer>
+    <div id="orientation-lock">
+        <!-- Rotate SVG Icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+        </svg>
+        <h2 class="text-2xl font-bold">Please rotate your device</h2>
+        <p class="text-lg text-gray-400 mt-2">This game is best played in portrait mode.</p>
     </div>
 
+    <!-- 
+      GAME WRAPPER
+      This is the main container for the game, visible only in portrait.
+    -->
+    <div id="game-wrapper">
+
+        <!-- 1. HEADER (Top UI Bar) -->
+        <header id="game-header" class="flex items-center justify-between">
+            <!-- Left Stats: Score & Gems -->
+            <div class="flex items-center space-x-4">
+                <!-- Score -->
+                <div class="flex items-center space-x-2 bg-gray-900 px-3 py-1 rounded-full">
+                    <!-- Coin SVG -->
+                    <svg class="stat-icon text-yellow-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 11.21 12.77 10.5 12 10.5s-1.536.71-2.121 1.256c-1.172.879-1.172 2.303 0 3.182z" />
+                    </svg>
+                    <span id="score-display" class="text-lg font-bold">1,250</span>
+                </div>
+                <!-- Gems -->
+                <div class="flex items-center space-x-2 bg-gray-900 px-3 py-1 rounded-full">
+                    <!-- Gem SVG -->
+                    <svg class="stat-icon text-purple-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c.667 0 1.333.224 2 .667V6.5A2.5 2.5 0 0011.5 4L12 3.5 12.5 4A2.5 2.5 0 0115 6.5v2.167c.667-.443 1.333-.667 2-.667h1.5a2.5 2.5 0 012.5 2.5v.5c0 .667-.224 1.333-.667 2L20.5 15h-1.167c-.667 0-1.333.224-2 .667v2.167A2.5 2.5 0 0114.5 20l-.5.5-.5-.5A2.5 2.5 0 0111 17.833V15.667c-.667-.443-1.333-.667-2-.667H7.5A2.5 2.5 0 015 12.5v-.5c0-.667.224-1.333.667-2L3.5 10h1.167c.667 0 1.333-.224 2-.667V7.167A2.5 2.5 0 019.5 4l.5-.5.5.5A2.5 2.5 0 0113 7.167V9.333c-.667-.443-1.333-.667-2-.667H9.5A2.5 2.5 0 007 10.5v.5c0 .667.224 1.333.667 2L5.5 13h1.167c.667 0 1.333.224 2 .667v2.167a2.5 2.5 0 002.5 2.5l.5.5.5-.5a2.5 2.5 0 002.5-2.5V13.667c.667-.443 1.333-.667 2-.667h1.167l-2.167-1.5c-.443-.667-.667-1.333-.667-2v-.5a2.5 2.5 0 012.5-2.5h-1.5z" />
+                    </svg>
+                    <span id="gem-display" class="text-lg font-bold">48</span>
+                </div>
+            </div>
+            
+            <!-- Right Side: Settings Button -->
+            <button id="settings-btn" class="p-2 rounded-full hover:bg-gray-600 transition-colors">
+                <!-- Cog SVG -->
+                <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-1.007 1.11-.902l.11.02a11.985 11.985 0 013.67 1.63M9.594 3.94L8.25 15.006M14.406 3.94L15.75 15.006M14.406 3.94c-.09.542-.56 1.007-1.11.902l-.11-.02a11.985 11.985 0 00-3.67 1.63M14.406 3.94L15.75 15.006M14.406 3.94L13.06 15.006M9.594 3.94L10.94 15.006m2.12-11.066c.09-.542.56-1.007 1.11-.902l.11.02a11.985 11.985 0 013.67 1.63m-4.78 0L8.25 15.006m4.78-11.066L15.75 15.006m-4.78-11.066L13.06 15.006m-2.12 11.066c-.09.542-.56 1.007-1.11.902l-.11-.02a11.985 11.985 0 00-3.67-1.63m4.78 0L15.75 15.006m-4.78 0L13.06 15.006m0 0L8.25 15.006m4.78 0L15.75 15.006" />
+                </svg>
+            </button>
+        </header>
+
+        <!-- 2. MAIN GAME AREA (Canvas Container) -->
+        <main id="game-canvas-container">
+            <canvas id="game-canvas"></canvas>
+        </main>
+
+        <!-- 3. FOOTER (Action Bar) -->
+        <footer id="game-footer">
+            <div class="grid grid-cols-3 gap-2 sm:gap-4">
+                <!-- 
+                  These buttons demonstrate:
+                  1. Input Abstraction: They use 'data-action' to define their logic.
+                  2. 'game-button' class: Uses clamp() for responsive fonts.
+                  3. Tailwind: For all other styling.
+                -->
+                <button data-action="ability-1" class="game-button bg-blue-600 text-white font-bold p-3 rounded-lg shadow-lg hover:bg-blue-500 active:bg-blue-700">Ability 1</button>
+                <button data-action="attack" class="game-button bg-red-600 text-white font-bold p-3 rounded-lg shadow-lg hover:bg-red-500 active:bg-red-700">Attack</button>
+                <button data-action="inventory" class="game-button bg-gray-600 text-white font-bold p-3 rounded-lg shadow-lg hover:bg-gray-500 active:bg-gray-700">Items</button>
+            </div>
+        </footer>
+
+        <!-- 
+          4. MODAL (Settings) 
+          This is hidden by default and sits on top of the #game-wrapper
+        -->
+        <div id="settings-modal" class="hidden items-center justify-center p-4">
+            <div class="bg-white text-gray-900 w-full max-w-sm rounded-lg shadow-2xl p-6">
+                <h2 class="text-2xl font-bold mb-4">Settings</h2>
+                <div class="space-y-4">
+                    <label class="flex items-center justify-between">
+                        <span class="text-lg">Music</span>
+                        <input type="checkbox" class="form-checkbox h-6 w-6 text-blue-600 rounded" checked>
+                    </label>
+                    <label class="flex items-center justify-between">
+                        <span class="text-lg">Sound FX</span>
+                        <input type="checkbox" class="form-checkbox h-6 w-6 text-blue-600 rounded" checked>
+                    </label>
+                    <div class="pt-2">
+                        <span class="text-lg">Volume</span>
+                        <input type="range" class="w-full mt-1" min="0" max="100" value="75">
+                    </div>
+                </div>
+                <button id="close-modal-btn" class="game-button w-full mt-6 bg-blue-600 text-white font-bold p-3 rounded-lg hover:bg-blue-500">
+                    Close
+                </button>
+            </div>
+        </div>
+
+    </div> <!-- End #game-wrapper -->
 
     <script>
-        // --- GAME STATE ---
-        
-        let gameState = {
-            hp: 100,
-            mp: 50,
-            atk: 5,
-            armor: 5,
-            spirit: 5
-        };
-        const maxStats = { hp: 100, mp: 50 };
-        let currentPhase = 'sacrifice';
-        let spinningIntervals = []; // To store slot machine intervals
-        
-        // The 3 boons for the fortune phase
-        const fortuneOptions = [
-            { key: 'atk', emoji: '⚔️', text: '+1 Attack' },
-            { key: 'armor', emoji: '🛡️', text: '+1 Armor' },
-            { key: 'spirit', emoji: '✨', text: '+1 Spirit' }
-        ];
-        // All emojis that can appear on the spinning reels
-        const allReelEmojis = ['⚔️', '🛡️', '✨', '💔', '💧', '💰', '💀', '🍀', '🔥', '💎'];
+        window.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('game-canvas');
+            const ctx = canvas.getContext('2d');
+            const canvasContainer = document.getElementById('game-canvas-container');
 
-        // --- DOM ELEMENTS ---
-        let hpText, hpBar, mpText, mpBar, atkText, armorText, spiritText, gameContent, logText;
+            // --- 1. FIXED ASPECT RATIO (9:16) ---
+            // We define a base internal resolution for the game.
+            // This is NOT the canvas's size in pixels, but its logical size.
+            const GAME_ASPECT_RATIO = 9 / 16;
+            canvas.width = 1080;  // 9 * 120
+            canvas.height = 1920; // 16 * 120
 
-        
-        // --- INITIALIZATION ---
-        
-        function init() {
-            // Cache all our DOM elements
-            hpText = document.getElementById('hp-text');
-            hpBar = document.getElementById('hp-bar');
-            mpText = document.getElementById('mp-text');
-            mpBar = document.getElementById('mp-bar');
-            atkText = document.getElementById('atk-text');
-            armorText = document.getElementById('armor-text');
-            spiritText = document.getElementById('spirit-text');
-            gameContent = document.getElementById('game-content');
-            logText = document.getElementById('log-text');
-            
-            // Render the first phase
-            updateStatsUI();
-            renderPhase(currentPhase);
-        }
+            function resizeCanvas() {
+                const containerWidth = canvasContainer.clientWidth;
+                const containerHeight = canvasContainer.clientHeight;
+                const containerRatio = containerWidth / containerHeight;
 
-        
-        // --- UI & STATE UPDATERS ---
+                let newWidth, newHeight;
 
-        /**
-         * Updates the header (HP, MP, stats) to reflect the current gameState.
-         */
-        function updateStatsUI() {
-            const hpPercent = (gameState.hp / maxStats.hp) * 100;
-            const mpPercent = (gameState.mp / maxStats.mp) * 100;
+                // Compare container ratio to game ratio to decide scaling
+                if (containerRatio < GAME_ASPECT_RATIO) {
+                    // Container is TALLER than game (fit to width)
+                    newWidth = containerWidth;
+                    newHeight = containerWidth / GAME_ASPECT_RATIO;
+                } else {
+                    // Container is WIDER than game (fit to height)
+                    newHeight = containerHeight;
+                    newWidth = containerHeight * GAME_ASPECT_RATIO;
+                }
 
-            hpText.textContent = `${gameState.hp}/${maxStats.hp}`;
-            mpText.textContent = `${gameState.mp}/${maxStats.mp}`;
-            hpBar.style.width = `${hpPercent}%`;
-            mpBar.style.width = `${mpPercent}%`;
-            atkText.textContent = gameState.atk;
-            armorText.textContent = gameState.armor;
-            spiritText.textContent = gameState.spirit;
-        }
+                // Apply the new size to the canvas's STYLE
+                // This scales the 1080x1920 canvas to fit the space.
+                canvas.style.width = `${Math.floor(newWidth)}px`;
+                canvas.style.height = `${Math.floor(newHeight)}px`;
+            }
 
-        /**
-         * Renders the HTML for the current game phase.
-         * @param {string} phaseName - The key of the phase to render.
-         */
-        function renderPhase(phaseName) {
-            currentPhase = phaseName;
-            let html = '';
+            // Resize canvas on initial load and on window resize
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
 
-            switch (phaseName) {
-                case 'sacrifice':
-                    html = `
-                        <h1 class="text-4xl font-black text-cyan-300 drop-shadow-md text-fade-in-up">A SACRIFICE</h1>
-                        <p class="text-lg text-slate-300 mb-4 text-fade-in-up" style="animation-delay: 0.2s;">The path demands a price. What will you offer?</p>
-                        
-                        <!-- This wrapper makes the panels fill the remaining space -->
-                        <div class="sacrifice-wrapper">
-                            <div class="sacrifice-panel sacrifice-hp" onclick="handleSacrifice('hp')">
-                                <div class="sacrifice-emoji">💔</div>
-                                <div class="sacrifice-text">Offer Blood</div>
-                                <div class="font-bold text-red-200 text-lg">-5 HP</div>
-                            </div>
-                            
-                            <div class="sacrifice-panel sacrifice-mp" onclick="handleSacrifice('mp')">
-                                <div class="sacrifice-emoji">💧</div>
-                                <div class="sacrifice-text">Offer Spirit</div>
-                                <div class="font-bold text-blue-200 text-lg">-5 MP</div>
-                            </div>
-                        </div>
-                    `;
-                    break;
+            // --- 2. HYPOTHETICAL GAME LOOP ---
+            // Simple animation to show the canvas is live and scaled.
+            let playerY = canvas.height * 0.75;
+            let enemyY = canvas.height * 0.25;
+            let time = 0;
+
+            function gameLoop() {
+                time += 0.05;
                 
-                case 'fortune':
-                    html = `
-                        <h1 class="text-4xl font-black text-amber-300 drop-shadow-md text-fade-in-up">A FORTUNE</h1>
-                        <p class="text-lg text-slate-300 mb-6 text-fade-in-up" style="animation-delay: 0.2s;">Fate holds its breath. Reveal your destiny.</p>
-                        
-                        <!-- The massive slot machine reels -->
-                        <div class="flex justify-center gap-2 sm:gap-4 my-4">
-                            <div id="reel-1" class="reel">❓</div>
-                            <div id="reel-2" class="reel">❓</div>
-                            <div id="reel-3" class="reel">❓</div>
-                        </div>
-
-                        <button id="reveal-btn" class="btn-reveal-fortune mt-6" onclick="handleFortuneReveal()">
-                            <span class="text-4xl">🎰</span>
-                            <div>Tempt Fate</div>
-                        </button>
-                    `;
-                    break;
+                // Clear the canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
-                case 'fortune-choice':
-                    // This phase is rendered *after* the spinning stops.
-                    html = `
-                        <h1 class="text-4xl font-black text-amber-300 drop-shadow-md text-fade-in-up">CHOOSE YOUR BOON</h1>
-                        <p class="text-lg text-slate-300 mb-6 text-fade-in-up" style="animation-delay: 0.2s;">Destiny is revealed. Which path will you walk?</p>
-                        
-                        <div class="grid grid-cols-3 gap-2 sm:gap-4 w-full max-w-sm mt-4">
-                            <button class="btn-fortune-choice" onclick="handleFortuneChoice(0)" style="animation-delay: 0.3s;">
-                                <span>${fortuneOptions[0].emoji}</span>
-                                <span class="text-base font-bold">${fortuneOptions[0].text}</span>
-                            </button>
-                            <button class="btn-fortune-choice" onclick="handleFortuneChoice(1)" style="animation-delay: 0.4s;">
-                                <span>${fortuneOptions[1].emoji}</span>
-                                <span class="text-base font-bold">${fortuneOptions[1].text}</span>
-                            </button>
-                            <button class="btn-fortune-choice" onclick="handleFortuneChoice(2)" style="animation-delay: 0.5s;">
-                                <span>${fortuneOptions[2].emoji}</span>
-                                <span class="text-base font-bold">${fortuneOptions[2].text}</span>
-                            </button>
-                        </div>
-                    `;
-                    break;
-            }
-            
-            gameContent.innerHTML = html;
-        }
+                // Draw "Player"
+                ctx.fillStyle = '#3B82F6'; // blue
+                ctx.fillRect(canvas.width / 2 - 50, playerY + Math.sin(time) * 10 - 50, 100, 100);
+                ctx.fillStyle = 'white';
+                ctx.font = '80px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText('P', canvas.width / 2, playerY + 25);
+                
+                // Draw "Enemy"
+                ctx.fillStyle = '#DC2626'; // red
+                ctx.fillRect(canvas.width / 2 - 50, enemyY + Math.cos(time) * 10 - 50, 100, 100);
+                ctx.fillStyle = 'white';
+                ctx.fillText('E', canvas.width / 2, enemyY + 25);
 
-        /**
-         * Fades the game content out, renders the new phase, and fades it back in.
-         * @param {string} newPhase - The key of the phase to transition to.
-         */
-        function transitionToPhase(newPhase) {
-            gameContent.classList.add('opacity-0');
-            
-            // Wait for fade out, then render new content and fade in
-            setTimeout(() => {
-                renderPhase(newPhase);
-                // Scroll to top of content, important for mobile
-                gameContent.scrollTop = 0; 
-                gameContent.classList.remove('opacity-0');
-            }, 500); // 500ms matches the transition duration
-        }
-
-        /**
-         * Shows a message in the footer log area.
-         * @param {string} message - The text to display.
-         */
-        function logMessage(message) {
-            // "Juicy" feedback: pop the text
-            logText.classList.remove('scale-100');
-            logText.classList.add('scale-110', 'text-white', 'font-bold');
-            logText.textContent = message;
-            
-            // Return to normal
-            setTimeout(() => {
-                logText.classList.remove('scale-110', 'text-white', 'font-bold');
-                logText.classList.add('scale-100');
-            }, 200); // A slightly longer pop
-        }
-
-        
-        // --- GAME LOGIC HANDLERS ---
-
-        /**
-         * Handles the player's choice in the 'sacrifice' phase.
-         * @param {'hp' | 'mp'} type - The stat to sacrifice.
-         */
-        function handleSacrifice(type) {
-            if (type === 'hp') {
-                gameState.hp -= 5;
-                logMessage("You offered blood. -5 HP 💔");
-            } else {
-                gameState.mp -= 5;
-                logMessage("You offered spirit. -5 MP 💧");
-            }
-            
-            // (In a real game, you'd check for death/OOM here)
-            
-            updateStatsUI();
-            transitionToPhase('fortune');
-        }
-
-        /**
-         * Handles the 'Tempt Fate' button press. Starts the slot machine animation.
-         */
-        function handleFortuneReveal() {
-            // Disable button to prevent re-clicks
-            const revealBtn = document.getElementById('reveal-btn');
-            if (revealBtn) {
-                revealBtn.disabled = true;
-                revealBtn.innerHTML = '<span>Spinning...</span>';
-                revealBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                revealBtn.style.animation = 'none'; // Stop the glow
+                requestAnimationFrame(gameLoop);
             }
 
-            const reels = [
-                document.getElementById('reel-1'),
-                document.getElementById('reel-2'),
-                document.getElementById('reel-3')
-            ];
+            gameLoop();
 
-            // Clear any old intervals
-            spinningIntervals.forEach(clearInterval);
-            spinningIntervals = [];
+            // --- 3. INPUT ABSTRACTION (Pointer Events) ---
+            // We listen for 'pointerdown' which works for BOTH mouse clicks and touch taps.
+            
+            // Modal controls
+            const settingsModal = document.getElementById('settings-modal');
+            const settingsButton = document.getElementById('settings-btn');
+            const closeModalButton = document.getElementById('close-modal-btn');
 
-            // Start spinning each reel
-            reels.forEach((reel, index) => {
-                if (!reel) return;
-                reel.classList.add('reel-spinning');
-                const interval = setInterval(() => {
-                    reel.textContent = allReelEmojis[Math.floor(Math.random() * allReelEmojis.length)];
-                }, 50); // Spin very fast
-                spinningIntervals.push(interval);
+            settingsButton.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                settingsModal.classList.remove('hidden');
+                settingsModal.classList.add('flex');
             });
 
-            // Stop the reels one by one for dramatic effect
-            setTimeout(() => stopReel(reels[0], fortuneOptions[0].emoji), 1500); // Stop reel 1
-            setTimeout(() => stopReel(reels[1], fortuneOptions[1].emoji), 2000); // Stop reel 2
-            setTimeout(() => stopReel(reels[2], fortuneOptions[2].emoji), 2500); // Stop reel 3
-            
-            // After the last reel stops, transition to the choice phase
-            setTimeout(() => {
-                transitionToPhase('fortune-choice');
-            }, 3000); // A small delay after the last reel stops
-        }
+            closeModalButton.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                settingsModal.classList.add('hidden');
+                settingsModal.classList.remove('flex');
+            });
 
-        /**
-         * Helper function to stop a single reel.
-         * @param {HTMLElement} reel - The reel element.
-         * @param {string} finalEmoji - The emoji to land on.
-         */
-        function stopReel(reel, finalEmoji) {
-            if (spinningIntervals.length > 0) {
-                clearInterval(spinningIntervals.shift()); // Stop the oldest interval
-            }
-            if(reel) {
-                reel.classList.remove('reel-spinning');
-                reel.textContent = finalEmoji;
+            // Game action buttons
+            const actionButtons = document.querySelectorAll('.game-button[data-action]');
+            actionButtons.forEach(button => {
+                button.addEventListener('pointerdown', (e) => {
+                    e.preventDefault(); // Prevents double-firing 'click'
+                    const action = e.currentTarget.dataset.action;
+                    console.log(`Action triggered: ${action}`);
+                    
+                    // Add a simple visual feedback
+                    e.currentTarget.style.transform = 'scale(0.95)';
+                });
                 
-                // "Thud" landing effect
-                reel.classList.add('reel-landed');
-                // Clean up animation class after it runs
-                setTimeout(() => reel.classList.remove('reel-landed'), 300);
-            }
-        }
-        
-        /**
-         * Handles the player's choice in the 'fortune-choice' phase.
-         * @param {number} choiceIndex - The index (0, 1, or 2) of the chosen boon.
-         */
-        function handleFortuneChoice(choiceIndex) {
-            const choice = fortuneOptions[choiceIndex];
-            
-            switch (choice.key) {
-                case 'atk':
-                    gameState.atk += 1;
-                    logMessage("You feel stronger! +1 Attack. ⚔️");
-                    break;
-                case 'armor':
-                    gameState.armor += 1;
-                    logMessage("You feel tougher! +1 Armor. 🛡️");
-                    break;
-                case 'spirit':
-                    gameState.spirit += 1;
-                    logMessage("You feel wiser! +1 Spirit. ✨");
-                    break;
-            }
-            
-            updateStatsUI();
-            
-            // Loop back to the start
-            transitionToPhase('sacrifice');
-        }
-
+                // Reset visual feedback on pointer up
+                button.addEventListener('pointerup', (e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                });
+                button.addEventListener('pointerleave', (e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                });
+            });
+        });
     </script>
+
 </body>
 </html>
-
