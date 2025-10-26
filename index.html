@@ -1,62 +1,474 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Compact Game UI</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  />
+  <title>Game UI Prototype</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root{
+      /* Theme */
+      --bg-0: #0b0f1a;
+      --bg-1: #0f172a;
+      --bg-2: #131c33;
+      --panel: #0e1629cc; /* translucent for subtle glass */
+      --card: #111b31cc;
+      --line: #223055;
+      --text: #e6e9f5;
+      --text-dim: #a9b4d0;
+      --primary: #5cc8ff;
+      --primary-2: #2ab3ff;
+      --accent: #a67cff;
+      --danger: #ff6b6b;
+      --success: #5df2a6;
+      --warning: #ffd166;
+
+      --radius: 14px;
+      --radius-sm: 10px;
+      --radius-lg: 18px;
+
+      --shadow-1: 0 6px 24px rgba(0,0,0,.35);
+      --shadow-2: 0 12px 38px rgba(0,0,0,.4);
+
+      --pad: 14px;
+      --gap: 12px;
+      --gap-lg: 18px;
+
+      --focus: 0 0 0 3px rgba(92,200,255,.35);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin:0;
+      font-family: Outfit, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 800px at 80% -20%, #1a2442 0%, transparent 60%),
+        radial-gradient(900px 700px at -10% 110%, #1a2c55 0%, transparent 60%),
+        linear-gradient(180deg, var(--bg-0), var(--bg-1) 40%, var(--bg-2));
+      overflow: hidden;
+    }
+
+    /* Subtle grid overlay for a pro vibe */
+    body::before{
+      content:"";
+      position:fixed; inset:0;
+      background-image: linear-gradient(to right, rgba(255,255,255,.04) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: radial-gradient(1200px 800px at 50% 30%, rgba(0,0,0,.65), transparent 70%);
+      pointer-events:none;
+    }
+
+    .app{
+      height: 100%;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      grid-template-columns: 100%;
+    }
+
+    /* Top bar */
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between;
+      padding: 12px 16px;
+      background: linear-gradient(0deg, transparent, rgba(255,255,255,.06));
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(8px);
+    }
+    .brand{
+      display:flex; align-items:center; gap: 10px; letter-spacing:.4px;
+      font-weight:700;
+    }
+    .brand-icon{
+      width: 28px; height:28px; border-radius:8px;
+      background: radial-gradient(circle at 30% 30%, var(--primary), var(--accent));
+      box-shadow: 0 0 20px rgba(92,200,255,.45), inset 0 0 18px rgba(166,124,255,.35);
+      position:relative;
+    }
+    .brand-icon::after{
+      content:""; position:absolute; inset:6px; border-radius:6px;
+      border:1px solid rgba(255,255,255,.35);
+    }
+
+    .top-actions{ display:flex; gap:8px; }
+
+    .btn{
+      appearance:none; border:none; border-radius: 10px;
+      padding:10px 14px; font-weight:600; letter-spacing:.3px;
+      background: #101a30; color: var(--text);
+      border:1px solid #1c2a4d; box-shadow: var(--shadow-1);
+      transform: translateZ(0);
+      transition: transform .08s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
+      cursor: pointer;
+    }
+    .btn:hover{ transform: translateY(-1px); }
+    .btn:active{ transform: translateY(0); }
+    .btn:focus-visible{ outline:none; box-shadow: var(--focus); }
+
+    .btn.primary{
+      background: linear-gradient(180deg, var(--primary), var(--primary-2));
+      color:#051120; border-color: transparent;
+      text-shadow: 0 1px 0 rgba(255,255,255,.25);
+    }
+    .btn.ghost{
+      background: transparent; border-color: #2a3a66; color: var(--text);
+    }
+
+    /* Shell layout */
+    .shell{
+      display:grid;
+      grid-template-columns: 280px 1fr 320px;
+      gap: var(--gap);
+      padding: var(--gap) var(--gap);
+      height: calc(100vh - 58px - 42px); /* minus topbar & footer approximate */
+    }
+    @media (max-width: 1100px){
+      .shell{ grid-template-columns: 260px 1fr; }
+      .right{ display:none; }
+    }
+    @media (max-width: 820px){
+      .shell{ grid-template-columns: 1fr; }
+      .left{ order: 2; }
+      .center{ order: 1; }
+    }
+
+    .panel{
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-2);
+      backdrop-filter: blur(10px);
+      overflow: hidden;
+      display:flex; flex-direction:column;
+      min-height:0;
+    }
+    .panel-header{
+      display:flex; align-items:center; justify-content:space-between;
+      padding: 12px 14px; border-bottom:1px solid rgba(255,255,255,.08);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), transparent);
+      font-weight:600; letter-spacing:.3px;
+    }
+    .panel-body{
+      padding: 12px; gap: 12px; display:flex; flex-direction:column; min-height:0;
+    }
+    .scroll{ overflow:auto; scrollbar-width: thin; }
+    .scroll::-webkit-scrollbar{ width: 10px; height:10px; }
+    .scroll::-webkit-scrollbar-thumb{
+      background: #2a3a66; border-radius: 999px; border: 2px solid transparent; background-clip: content-box;
+    }
+
+    /* HUD bars */
+    .hud{
+      display:grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    }
+    .bar{
+      background: #0c1324; border: 1px solid #21315c; border-radius: 10px;
+      height: 14px; position:relative; overflow:hidden;
+    }
+    .bar .fill{
+      position:absolute; inset:0; width:60%;
+      background: linear-gradient(90deg, rgba(255,255,255,.08), transparent 30%) repeat-x,
+                  linear-gradient(180deg, var(--accent), #6a8cff);
+      background-size: 40px 100%, 100% 100%;
+      animation: move 2.5s linear infinite;
+    }
+    .bar.health .fill{ background: linear-gradient(90deg, rgba(255,255,255,.08), transparent 30%) repeat-x,
+                                   linear-gradient(180deg, #ff8080, #ff4d6d); }
+    .bar.energy .fill{ background: linear-gradient(90deg, rgba(255,255,255,.08), transparent 30%) repeat-x,
+                                   linear-gradient(180deg, #ffd166, #ffb703); }
+
+    @keyframes move { from{ background-position: 0 0, 0 0 } to{ background-position: 40px 0, 0 0 } }
+    @media (prefers-reduced-motion: reduce){
+      .bar .fill{ animation: none; }
+    }
+
+    /* List & cards */
+    .card{
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      display:flex; gap:12px; align-items:center; justify-content:space-between;
+      transition: transform .08s ease, border-color .2s ease, background .2s ease;
+    }
+    .card:hover{ transform: translateY(-1px); border-color:#39508f; }
+
+    .label{ font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing:.5px; }
+
+    /* Tabs */
+    .tabs{ display:flex; gap:8px; }
+    .tab{
+      padding:8px 12px; border-radius: 999px; border:1px solid #2b3a62; cursor:pointer; font-weight:600;
+      background: #0f1830; transition: background .2s ease, border-color .2s ease, transform .08s ease;
+    }
+    .tab[aria-selected="true"]{
+      background: linear-gradient(180deg, #394a7d, #293a66); border-color:#4a68ad;
+    }
+    .tab:focus-visible{ outline:none; box-shadow: var(--focus); }
+
+    /* Controls */
+    .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .input{
+      background:#0e1529; border:1px solid #25335e; color:var(--text);
+      border-radius: 10px; padding:10px 12px; min-width: 220px;
+    }
+    .slider{ width: 200px; accent-color: var(--accent); }
+    .switch{
+      --h: 24px; position:relative; display:inline-block; width:44px; height:var(--h);
+    }
+    .switch input{ display:none; }
+    .toggle{
+      position:absolute; inset:0; border-radius:999px; background:#17203b; border:1px solid #2b3a62;
+    }
+    .knob{
+      position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%;
+      background: linear-gradient(180deg, #fff, #b8c3e0);
+      box-shadow: 0 2px 8px rgba(0,0,0,.4);
+      transition: left .2s ease;
+    }
+    .switch input:checked + .toggle .knob{ left:23px; }
+    .switch input:checked + .toggle{ border-color:#5a82e5; }
+
+    /* Modal */
+    .modal-backdrop{
+      position:fixed; inset:0; background:rgba(0,0,0,.55);
+      display:none; align-items:center; justify-content:center; padding: 16px;
+    }
+    .modal{
+      width:min(560px, 96vw);
+      background: var(--panel);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius-lg); box-shadow: var(--shadow-2);
+      backdrop-filter: blur(10px);
+    }
+    .modal .panel-header{ border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+    .modal .panel-body{ padding: 16px; }
+    .modal[open] + .modal-backdrop{ display:flex; }
+
+    /* Footer */
+    .footer{
+      height: 42px; display:flex; align-items:center; justify-content:space-between;
+      padding: 0 12px; border-top:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), transparent);
+    }
+
+    /* Utility */
+    .muted{ color: var(--text-dim); }
+    .grow{ flex:1; }
+    .spacer{ height:6px; }
+    .tiny{ font-size:12px; }
+  </style>
 </head>
-<body class="bg-gray-900 text-white flex justify-center items-center h-screen">
-  <div id="game-wrapper" class="flex flex-col w-full max-w-[500px] h-[100dvh] bg-gray-800 shadow-lg">
-
-    <!-- Compact Header -->
-    <header id="game-header" class="p-2 border-b border-gray-700 flex flex-col space-y-2">
-
-      <!-- Level + Player Info (condensed) -->
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-2">
-          <div class="bg-gray-900 border border-blue-500 rounded-full w-10 h-10 flex items-center justify-center text-blue-400 font-bold text-sm">8</div>
-          <span class="text-sm font-semibold">Player_123</span>
+<body>
+  <div class="app">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true"></div>
+        <div>
+          <div>Project: <span class="muted">Codename</span></div>
+          <div class="tiny muted">Prototype UI Shell</div>
         </div>
-        <span class="text-xs text-blue-300 italic">"The Brave"</span>
       </div>
-
-      <!-- Thin Bars -->
-      <div class="w-full h-2 bg-gray-900 rounded-full overflow-hidden border border-gray-700">
-        <div class="bg-green-500 h-full w-[75%]"></div>
+      <div class="top-actions">
+        <button class="btn ghost" id="btn-settings">Settings</button>
+        <button class="btn primary" id="btn-play">Play</button>
       </div>
-      <div class="w-full h-1.5 bg-gray-900 rounded-full overflow-hidden border border-gray-700">
-        <div class="bg-sky-500 h-full w-[90%]"></div>
-      </div>
-
-      <!-- Slim Currency Row -->
-      <div class="flex justify-between text-sm font-bold">
-        <div class="flex items-center space-x-1"><div class="w-3 h-3 bg-yellow-400 rounded-full"></div><span>1250</span></div>
-        <div class="flex items-center space-x-1"><div class="w-3 h-3 bg-violet-400 rotate-45"></div><span>48</span></div>
-        <div class="flex items-center space-x-1"><div class="w-3 h-3 bg-amber-800 rounded"></div><span>300</span></div>
-        <div class="flex items-center space-x-1"><div class="w-3 h-3 bg-stone-500 rounded"></div><span>150</span></div>
-      </div>
-
     </header>
 
-    <!-- Main Game Area -->
-    <main id="game-canvas-container" class="flex-grow flex items-center justify-center bg-gray-700">
-      <canvas id="game-canvas" class="max-w-full max-h-full"></canvas>
+    <!-- Main Shell -->
+    <main class="shell">
+      <!-- Left: Profile & Stats -->
+      <section class="panel left">
+        <div class="panel-header">
+          <span>Profile</span>
+          <span class="label">v0.1</span>
+        </div>
+        <div class="panel-body">
+          <div class="card">
+            <div>
+              <div style="font-weight:700">Player One</div>
+              <div class="tiny muted">Ranger • Lvl 12</div>
+            </div>
+            <button class="btn">Edit</button>
+          </div>
+
+          <div class="hud">
+            <div>
+              <div class="tiny muted">Health</div>
+              <div class="bar health"><div class="fill" style="width:82%"></div></div>
+            </div>
+            <div>
+              <div class="tiny muted">Shield</div>
+              <div class="bar"><div class="fill" style="width:40%"></div></div>
+            </div>
+            <div>
+              <div class="tiny muted">Energy</div>
+              <div class="bar energy"><div class="fill" style="width:68%"></div></div>
+            </div>
+          </div>
+
+          <div class="spacer"></div>
+
+          <div class="label">Loadout</div>
+          <div class="card">
+            <div class="muted">Primary: Arc Bow</div>
+            <button class="btn ghost tiny">Change</button>
+          </div>
+          <div class="card">
+            <div class="muted">Secondary: Pulse Pistol</div>
+            <button class="btn ghost tiny">Change</button>
+          </div>
+
+          <div class="spacer"></div>
+
+          <div class="label">Settings</div>
+          <div class="row">
+            <input class="input" placeholder="Search…" aria-label="Search">
+            <input class="slider" type="range" min="0" max="100" value="65" aria-label="Music volume">
+            <label class="switch" aria-label="Enable VSync">
+              <input type="checkbox" checked>
+              <span class="toggle"><span class="knob"></span></span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Center: Primary content -->
+      <section class="panel center">
+        <div class="panel-header">
+          <nav class="tabs" role="tablist" aria-label="Main tabs">
+            <button class="tab" role="tab" aria-selected="true">Play</button>
+            <button class="tab" role="tab" aria-selected="false">Loadouts</button>
+            <button class="tab" role="tab" aria-selected="false">Leaderboard</button>
+          </nav>
+          <div class="row">
+            <button class="btn ghost tiny">Tutorial</button>
+            <button class="btn primary tiny">Quick Start</button>
+          </div>
+        </div>
+        <div class="panel-body scroll">
+          <div class="card">
+            <div>
+              <div style="font-weight:700">Solo Mission</div>
+              <div class="tiny muted">Recommended: Lvl 10+</div>
+            </div>
+            <div class="row">
+              <button class="btn">Details</button>
+              <button class="btn primary">Launch</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div>
+              <div style="font-weight:700">Strike (3-Player)</div>
+              <div class="tiny muted">Matchmaking enabled</div>
+            </div>
+            <div class="row">
+              <button class="btn">Details</button>
+              <button class="btn primary">Queue</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div>
+              <div style="font-weight:700">Custom Game</div>
+              <div class="tiny muted">Private lobby • Ruleset: Standard</div>
+            </div>
+            <div class="row">
+              <button class="btn">Configure</button>
+              <button class="btn primary">Host</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Activity / Quests -->
+      <aside class="panel right">
+        <div class="panel-header">
+          <span>Quests</span>
+          <button class="btn ghost tiny" id="btn-new">New</button>
+        </div>
+        <div class="panel-body scroll">
+          <div class="label">Active</div>
+          <div class="card">
+            <div>
+              <div style="font-weight:700">Echoes in the Deep</div>
+              <div class="tiny muted">Objectives: 2/5</div>
+            </div>
+            <button class="btn tiny">Track</button>
+          </div>
+
+          <div class="card">
+            <div>
+              <div style="font-weight:700">The Shattered Relay</div>
+              <div class="tiny muted">Objectives: 4/7</div>
+            </div>
+            <button class="btn tiny">Track</button>
+          </div>
+
+          <div class="label" style="margin-top:6px">Recent</div>
+          <div class="card">
+            <div class="muted">Completed “Orion’s Trial”</div>
+            <span class="tiny muted">2h ago</span>
+          </div>
+        </div>
+      </aside>
     </main>
 
-    <!-- Compact Footer with Round Buttons -->
-    <footer id="game-footer" class="p-3 border-t border-gray-700 flex items-center justify-between">
-      <div class="flex space-x-2">
-        <div class="item-slot w-12 h-12 bg-gray-900 border border-gray-700 rounded"></div>
-        <div class="item-slot w-12 h-12 bg-gray-900 border border-gray-700 rounded"></div>
-        <div class="item-slot w-12 h-12 bg-gray-900 border border-gray-700 rounded"></div>
-      </div>
-      <div class="flex space-x-3">
-        <button class="w-12 h-12 bg-red-600 rounded-full shadow-md active:scale-95"></button>
-        <button class="w-12 h-12 bg-blue-600 rounded-full shadow-md active:scale-95"></button>
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="tiny muted">Build 0.1.0 • Pre-alpha</div>
+      <div class="row">
+        <button class="btn ghost tiny">Patch Notes</button>
+        <button class="btn ghost tiny" id="btn-open-modal">Credits</button>
       </div>
     </footer>
-
   </div>
+
+  <!-- Modal (example) -->
+  <dialog id="credits-modal" class="modal">
+    <div class="panel-header">
+      <span>Credits</span>
+      <button class="btn ghost tiny" id="btn-close-modal">Close</button>
+    </div>
+    <div class="panel-body">
+      <p class="muted tiny">
+        Placeholder content. You can populate this with your team and contributors later.
+      </p>
+    </div>
+  </dialog>
+  <div class="modal-backdrop" id="backdrop"></div>
+
+  <script>
+    // Minimal behavior for modal demo
+    const modal = document.getElementById('credits-modal');
+    const backdrop = document.getElementById('backdrop');
+    const openBtn = document.getElementById('btn-open-modal');
+    const closeBtn = document.getElementById('btn-close-modal');
+
+    function openModal(){ modal.setAttribute('open',''); backdrop.style.display='flex'; }
+    function closeModal(){ modal.removeAttribute('open'); backdrop.style.display='none'; }
+
+    openBtn.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+    backdrop.addEventListener('click', closeModal);
+
+    // Example: “Play” button micro-feedback
+    document.getElementById('btn-play').addEventListener('click', (e)=>{
+      e.currentTarget.animate(
+        [{ transform: 'translateY(0)' }, { transform: 'translateY(-2px)' }, { transform: 'translateY(0)' }],
+        { duration: 160, easing: 'ease-out' }
+      );
+    });
+  </script>
 </body>
 </html>
