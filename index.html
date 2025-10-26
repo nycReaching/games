@@ -2,351 +2,570 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Slot Machine</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Deep Rogue RPG</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     
     <style>
+        /* Base styling */
+        html {
+            height: 100%;
+        }
         body {
             font-family: 'Inter', sans-serif;
-            /* Prevent pull-to-refresh on mobile */
-            overscroll-behavior-y: contain;
-        }
-        
-        /* ===== Slot Machine Styles ===== */
-
-        .reel {
-            width: 60px; /* Fixed width for each reel */
-            height: 80px; /* Fixed height to show ONE symbol */
-            overflow: hidden;
-            border: 2px solid #4b5563; /* gray-600 */
-            border-radius: 0.5rem; /* rounded-lg */
-            background-color: #1f2937; /* gray-800 */
-            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.5);
+            overscroll-behavior: none;
             
-            /* Gentle floaty animation for the whole reel */
-            animation: float 3s ease-in-out infinite;
-        }
-
-        .reel.spinning {
-            /* Disable float when spinning */
-            animation: none;
-        }
-        
-        .reel-strip {
-            /* The 'spinning' animation is a cubic-bezier ease-out */
-            /* This is applied by JS to make it 'snap' to the end position */
-            transition: transform 3s cubic-bezier(0.33, 1, 0.68, 1);
-        }
-        
-        .symbol {
-            width: 100%;
-            height: 80px; /* Must match reel height */
+            /* * NEW DESKTOP CENTERING:
+             * This makes the entire page a flex container to center the game.
+            */
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem; /* 40px */
-            user-select: none; /* Prevent text selection */
-            cursor: pointer;
-            
-            /* Add a sharp 'inset' look to symbols */
-            text-shadow: 0 2px 2px rgba(0,0,0,0.4);
-            transition: transform 0.1s ease;
-        }
-        
-        /* Clickable effect for symbols after spin */
-        .symbol.clickable:hover {
-            transform: scale(1.1);
-        }
-        .symbol.clickable:active {
-            transform: scale(0.95);
+            min-height: 100dvh; /* Full viewport height */
+            background-color: #0c0a2e; /* Dark bg for the *entire* page */
+            padding: 1rem; /* Spacing for desktop view */
+            color: #e2e8f0; /* Default text color (slate-200) */
         }
 
-        /* The idle float animation */
-        @keyframes float {
-          0%, 100% { transform: translateY(-2px); }
-          50% { transform: translateY(2px); }
+        /* * GAME CONTAINER STYLING 
+         * This now defines the "phone" shape on desktop.
+        */
+        #game-container {
+            width: 100%;
+            max-width: 420px; /* A realistic phone width */
+            
+            /* * Define a "phone" aspect ratio for desktop.
+             * This creates the tall, narrow frame.
+            */
+            height: 880px; /* A tall height */
+            max-height: 95vh; /* But don't let it overflow the viewport */
+            aspect-ratio: 9 / 19.5; /* Force a tall screen ratio */
+
+            /* Visuals for the "device" frame */
+            @apply flex flex-col mx-auto bg-indigo-900/40 shadow-2xl shadow-black/40
+                   rounded-3xl overflow-hidden border-2 border-indigo-800/30;
+        }
+        
+        /* * MOBILE OVERRIDE:
+         * This media query removes the "phone" frame when on a real phone.
+        */
+        @media (max-width: 640px) {
+            body {
+                padding: 0; /* No padding on mobile */
+            }
+            #game-container {
+                width: 100%;
+                max-width: 100%;
+                height: 100dvh; /* Use dynamic viewport height for mobile */
+                max-height: 100dvh;
+                border-radius: 0;
+                border: none;
+                aspect-ratio: auto; /* Unset the aspect ratio */
+            }
+        }
+
+        /* This is the main content area, it will now grow to fill all available space */
+        #game-content {
+            @apply flex-grow flex flex-col items-center justify-center p-4 sm:p-6 text-center
+                   transition-opacity duration-500 ease-in-out;
+            /* Ensure content can scroll if it overflows on a small screen */
+            overflow-y: auto;
+        }
+
+        /* --- KEYFRAME ANIMATIONS --- */
+
+        /* Pulsing glow for sacrifice choices */
+        @keyframes pulse-red {
+            0%, 100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.4), 0 0 10px rgba(239, 68, 68, 0.3) inset; }
+            50% { box-shadow: 0 0 45px rgba(239, 68, 68, 0.9), 0 0 15px rgba(239, 68, 68, 0.5) inset; }
+        }
+        @keyframes pulse-blue {
+            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.4), 0 0 10px rgba(59, 130, 246, 0.3) inset; }
+            50% { box-shadow: 0 0 45px rgba(59, 130, 246, 0.9), 0 0 15px rgba(59, 130, 246, 0.5) inset; }
+        }
+        
+        /* Glowing golden button for "Tempt Fate" */
+        @keyframes glow-gold {
+            0%, 100% { box-shadow: 0 0 15px rgba(252, 211, 77, 0.5), 0 0 10px rgba(252, 211, 77, 0.3) inset; }
+            50% { box-shadow: 0 0 30px rgba(252, 211, 77, 1), 0 0 15px rgba(252, 211, 77, 0.5) inset; }
+        }
+
+        /* Dramatic text entrance */
+        @keyframes fade-in-up {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Slot machine reel spin (fast emoji change) */
+        @keyframes spin {
+            0% { opacity: 0.5; transform: translateY(-15px) rotateX(45deg); }
+            100% { opacity: 1; transform: translateY(0) rotateX(0deg); }
+        }
+        
+        /* Slot machine reel landing "thud" */
+        @keyframes thud {
+            0% { transform: scale(1.1) translateY(-10px); }
+            50% { transform: scale(0.95) translateY(5px); }
+            100% { transform: scale(1) translateY(0); }
+        }
+
+        /* --- DRAMATIC UI STYLES --- */
+        
+        /* Wrapper for the two-choice sacrifice screen */
+        .sacrifice-wrapper {
+            @apply w-full flex-1 flex flex-col items-center justify-center gap-4;
+            /* We need to set a min-height to ensure flex-1 works */
+            min-height: 300px;
+        }
+
+        /* Gigantic sacrifice panels */
+        .sacrifice-panel {
+            @apply flex-1 w-full flex flex-col items-center justify-center p-8 rounded-3xl cursor-pointer
+                   transition-all duration-300 ease-in-out border-4 border-transparent shadow-2xl;
+            /* "Squish" and glow effect on tap */
+            @apply active:scale-95 active:brightness-125;
+            /* Hover glow for desktop */
+            @apply hover:brightness-110;
+        }
+        .sacrifice-hp {
+            @apply bg-gradient-to-t from-red-800 via-red-700 to-red-600 text-white;
+            animation: pulse-red 2.5s infinite ease-in-out;
+        }
+        .sacrifice-hp:hover { @apply border-red-300; }
+        
+        .sacrifice-mp {
+            @apply bg-gradient-to-b from-blue-800 via-blue-700 to-blue-600 text-white;
+            animation: pulse-blue 2.5s infinite ease-in-out;
+        }
+        .sacrifice-mp:hover { @apply border-blue-300; }
+
+        .sacrifice-emoji { @apply text-7xl sm:text-8xl drop-shadow-lg; }
+        .sacrifice-text { @apply text-3xl sm:text-4xl font-black uppercase tracking-tighter; }
+
+        /* Massive slot machine reels */
+        .reel {
+            @apply bg-black/40 w-28 h-36 sm:w-32 sm:h-40 rounded-2xl flex 
+                   items-center justify-center text-7xl sm:text-8xl shadow-inner 
+                   border-4 border-black/30 transition-all duration-300;
+            font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+        }
+        .reel-spinning {
+            animation: spin 0.05s linear infinite alternate;
+        }
+        .reel-landed {
+            animation: thud 0.3s ease-out;
+        }
+        
+        /* Epic "Tempt Fate" button */
+        .btn-reveal-fortune {
+            @apply w-full max-w-sm p-5 sm:p-6 text-2xl sm:text-3xl font-black tracking-tighter 
+                   uppercase rounded-xl shadow-lg border-b-4 transition-all duration-150 ease-in-out;
+            @apply active:scale-95 active:border-b-2 active:translate-y-px;
+            @apply bg-gradient-to-b from-amber-400 to-amber-600 border-amber-800 text-black shadow-amber-300/50;
+            animation: glow-gold 1.5s infinite alternate;
+        }
+        .btn-reveal-fortune:hover { @apply brightness-110; }
+
+        /* Large, glowing choice buttons for fortune */
+        .btn-fortune-choice {
+             @apply bg-gradient-to-b from-slate-700 to-slate-900 border-4 border-slate-900 text-white 
+                    shadow-2xl shadow-black/30 w-full p-4 rounded-2xl text-6xl 
+                    flex flex-col items-center justify-center gap-2 cursor-pointer;
+            @apply hover:border-cyan-400 hover:brightness-110 focus:border-cyan-400;
+            @apply active:scale-95 transition-all duration-150;
+        }
+        
+        /* Animated text utility */
+        .text-fade-in-up {
+            animation: fade-in-up 0.5s ease-out 0.1s;
+            /* Delay the animation slightly */
+            animation-fill-mode: backwards;
+        }
+        
+        /* Header bar styling */
+        #status-bar {
+            @apply w-full p-3 sm:p-4 bg-black/30 backdrop-blur-md border-b border-indigo-700/50
+                   flex-shrink-0; /* Prevent header from shrinking */
+            /* Note: sticky top-0 is removed as it's complex inside a flex-grow container */
+        }
+        
+        /* Footer styling */
+        #log-area {
+            @apply w-full p-3 text-center bg-black/20 border-t border-indigo-700/50 
+                   h-16 flex items-center justify-center flex-shrink-0; /* Prevent footer from shrinking */
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white overflow-hidden">
 
-    <div id="game-container" class="flex flex-col h-screen max-w-lg mx-auto bg-gray-800 shadow-2xl">
+<!-- 
+  The body tag is now just for initialization.
+  All styling is handled in the <style> block.
+-->
+<body onload="init()">
 
-        <!-- ===== TOP SECTION (Unchanged) ===== -->
-        <header id="top-section" class="p-4 border-b border-gray-700 shadow-md">
-            <div class="flex justify-between items-center">
-                <div class="text-left">
-                    <span class="text-xs text-gray-400 font-medium tracking-wider uppercase">Level</span>
-                    <span class="block text-xl font-bold text-white">12</span>
+    <!-- 
+      This is the main container.
+      It will be centered on desktop and full-screen on mobile.
+    -->
+    <div id="game-container">
+
+        <!-- 
+          STATUS HEADER 
+        -->
+        <header id="status-bar">
+            <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+                
+                <!-- HP Bar -->
+                <div class="col-span-1">
+                    <div class="flex justify-between items-end mb-1">
+                        <span class="font-bold text-lg leading-none text-red-400">❤️ HP</span>
+                        <span id="hp-text" class="font-bold text-sm leading-none">100/100</span>
+                    </div>
+                    <div class="w-full bg-black/30 rounded-full h-3 sm:h-4 border border-red-900/50">
+                        <div id="hp-bar" class="bg-gradient-to-r from-red-600 to-red-400 h-full rounded-full transition-all duration-300 ease-out" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <!-- MP Bar -->
+                <div class="col-span-1">
+                    <div class="flex justify-between items-end mb-1">
+                        <span class="font-bold text-lg leading-none text-blue-400">💧 MP</span>
+                        <span id="mp-text" class="font-bold text-sm leading-none">50/50</span>
+                    </div>
+                    <div class="w-full bg-black/30 rounded-full h-3 sm:h-4 border border-blue-900/50">
+                        <div id="mp-bar" class="bg-gradient-to-r from-blue-600 to-blue-400 h-full rounded-full transition-all duration-300 ease-out" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other Stats -->
+            <div class="flex justify-around items-center mt-3 pt-3 border-t border-indigo-800/30">
+                <div class="text-center">
+                    <span class="text-2xl">⚔️</span>
+                    <div id="atk-text" class="font-bold text-xl">5</div>
                 </div>
                 <div class="text-center">
-                    <span class="text-xs text-gray-400 font-medium tracking-wider uppercase">Score</span>
-                    <span class="block text-2xl font-bold text-indigo-400">18,500</span>
+                    <span class="text-2xl">🛡️</span>
+                    <div id="armor-text" class="font-bold text-xl">5</div>
                 </div>
-                <button class="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 active:bg-gray-500 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                </button>
+                <div class="text-center">
+                    <span class="text-2xl">✨</span>
+                    <div id="spirit-text" class="font-bold text-xl">5</div>
+                </div>
             </div>
         </header>
 
-        <!-- ===== MIDDLE SECTION (Game Area) ===== -->
-        <main id="middle-section" class="flex-grow p-4 flex flex-col justify-center overflow-auto">
-            
-            <!-- Slot machine container -->
-            <div id="slot-machine" class="w-full flex justify-center items-center space-x-2 bg-gray-900/50 rounded-lg p-4 border border-gray-700 shadow-inner">
-                <!-- Reels will be injected by JS here -->
-            </div>
-            
-            <!-- Spin Button & Status Area -->
-            <div class="pt-6 flex flex-col items-center space-y-3">
-                <button id="spin-button" class="w-full max-w-xs py-3 px-6 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-lg font-bold rounded-lg shadow-lg transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
-                    SPIN
-                </button>
-                <p id="status-text" class="text-sm text-gray-400 h-4">Press Spin to start!</p>
-            </div>
+        <!-- 
+          MAIN GAME CONTENT
+          - flex-grow: Makes this section fill all available vertical space.
+        -->
+        <main id="game-content">
+            <!-- Game content is dynamically inserted here by JavaScript -->
+            <div class="text-2xl animate-pulse">Loading...</div>
         </main>
 
-        <!-- ===== BOTTOM SECTION (Dynamic Buttons) ===== -->
-        <footer id="bottom-section" class="p-3 border-t border-gray-700 shadow-inner bg-gray-900/70 backdrop-blur-sm">
-            <!-- Dynamic button container -->
-            <div id="button-container" class="flex justify-around items-center space-x-2 min-h-[70px]">
-                <!-- Buttons will be injected by JS here -->
-                <span id="button-placeholder" class="text-xs text-gray-500 transition-opacity duration-300">Buttons will appear here after spinning.</span>
-            </div>
+        <!-- 
+          LOG FOOTER
+        -->
+        <footer id="log-area">
+            <span id="log-text" class="text-slate-400 italic transition-all duration-150">Welcome, adventurer.</span>
         </footer>
-
     </div>
 
+
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- Game Configuration ---
-            const SYMBOLS = ['🍒', '🍋', '🍉', '🍓', '🍇', '🍊', '🍍', '🔔', '💎'];
-            const REEL_COUNT = 5;
-            const SYMBOLS_PER_REEL = 30; // How many symbols in the virtual strip
-            const SYMBOL_HEIGHT_PX = 80; // Must match CSS .symbol height
-            const MAX_BUTTONS = 3;
+        // --- GAME STATE ---
+        
+        let gameState = {
+            hp: 100,
+            mp: 50,
+            atk: 5,
+            armor: 5,
+            spirit: 5
+        };
+        const maxStats = { hp: 100, mp: 50 };
+        let currentPhase = 'sacrifice';
+        let spinningIntervals = []; // To store slot machine intervals
+        
+        // The 3 boons for the fortune phase
+        const fortuneOptions = [
+            { key: 'atk', emoji: '⚔️', text: '+1 Attack' },
+            { key: 'armor', emoji: '🛡️', text: '+1 Armor' },
+            { key: 'spirit', emoji: '✨', text: '+1 Spirit' }
+        ];
+        // All emojis that can appear on the spinning reels
+        const allReelEmojis = ['⚔️', '🛡️', '✨', '💔', '💧', '💰', '💀', '🍀', '🔥', '💎'];
 
-            // --- Game State ---
-            let isSpinning = false;
-            let currentButtons = []; // Stores the symbols, e.g., ['🍒', '🍋']
-            let currentResultSymbols = []; // Stores the actual symbol DOM elements
+        // --- DOM ELEMENTS ---
+        let hpText, hpBar, mpText, mpBar, atkText, armorText, spiritText, gameContent, logText;
 
-            // --- Element Selectors ---
-            const slotMachine = document.getElementById('slot-machine');
-            const spinButton = document.getElementById('spin-button');
-            const statusText = document.getElementById('status-text');
-            const buttonContainer = document.getElementById('button-container');
-            const buttonPlaceholder = document.getElementById('button-placeholder');
+        
+        // --- INITIALIZATION ---
+        
+        function init() {
+            // Cache all our DOM elements
+            hpText = document.getElementById('hp-text');
+            hpBar = document.getElementById('hp-bar');
+            mpText = document.getElementById('mp-text');
+            mpBar = document.getElementById('mp-bar');
+            atkText = document.getElementById('atk-text');
+            armorText = document.getElementById('armor-text');
+            spiritText = document.getElementById('spirit-text');
+            gameContent = document.getElementById('game-content');
+            logText = document.getElementById('log-text');
+            
+            // Render the first phase
+            updateStatsUI();
+            renderPhase(currentPhase);
+        }
 
-            /**
-             * Initializes the game, populating reels.
-             */
-            function init() {
-                // Clear any existing reels (for hot-reloads)
-                slotMachine.innerHTML = '';
-                
-                for (let i = 0; i < REEL_COUNT; i++) {
-                    // Create the reel container (for floating)
-                    const reel = document.createElement('div');
-                    reel.className = 'reel';
-                    
-                    // Create the reel strip (for spinning)
-                    const reelStrip = document.createElement('div');
-                    reelStrip.className = 'reel-strip';
-                    reel.appendChild(reelStrip);
+        
+        // --- UI & STATE UPDATERS ---
 
-                    // We build a "double" strip for seamless looping
-                    const stripSymbols = [];
-                    for (let j = 0; j < SYMBOLS_PER_REEL; j++) {
-                        stripSymbols.push(SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]);
-                    }
-                    
-                    // Create elements for the first half
-                    for (const symbol of stripSymbols) {
-                        reelStrip.appendChild(createSymbolElement(symbol));
-                    }
-                    // Create elements for the second (looping) half
-                    for (const symbol of stripSymbols) {
-                        reelStrip.appendChild(createSymbolElement(symbol));
-                    }
+        /**
+         * Updates the header (HP, MP, stats) to reflect the current gameState.
+         */
+        function updateStatsUI() {
+            const hpPercent = (gameState.hp / maxStats.hp) * 100;
+            const mpPercent = (gameState.mp / maxStats.mp) * 100;
 
-                    slotMachine.appendChild(reel);
-                }
-                
-                spinButton.addEventListener('click', spin);
-            }
+            hpText.textContent = `${gameState.hp}/${maxStats.hp}`;
+            mpText.textContent = `${gameState.mp}/${maxStats.mp}`;
+            hpBar.style.width = `${hpPercent}%`;
+            mpBar.style.width = `${mpPercent}%`;
+            atkText.textContent = gameState.atk;
+            armorText.textContent = gameState.armor;
+            spiritText.textContent = gameState.spirit;
+        }
 
-            /**
-             * Creates a single symbol DOM element.
-             */
-            function createSymbolElement(symbol) {
-                const el = document.createElement('div');
-                el.className = 'symbol';
-                el.textContent = symbol;
-                el.dataset.symbol = symbol;
-                el.addEventListener('click', handleSymbolClick);
-                return el;
-            }
+        /**
+         * Renders the HTML for the current game phase.
+         * @param {string} phaseName - The key of the phase to render.
+         */
+        function renderPhase(phaseName) {
+            currentPhase = phaseName;
+            let html = '';
 
-            /**
-             * Starts the spinning animation.
-             */
-            async function spin() {
-                if (isSpinning) return;
-                
-                isSpinning = true;
-                spinButton.disabled = true;
-                statusText.textContent = 'Spinning...';
-                currentResultSymbols = [];
-                
-                // Remove 'clickable' class from old symbols
-                document.querySelectorAll('.symbol.clickable').forEach(s => s.classList.remove('clickable'));
-                
-                const reels = slotMachine.querySelectorAll('.reel');
-                const spinPromises = [];
-
-                reels.forEach((reel, i) => {
-                    const strip = reel.querySelector('.reel-strip');
-                    reel.classList.add('spinning'); // Add spinning class to reel
-                    
-                    // Reset position to the top half instantly
-                    strip.style.transition = 'none';
-                    strip.style.transform = 'translateY(0)';
-                    
-                    // Force browser repaint
-                    strip.offsetHeight; 
-
-                    // Calculate random landing spot
-                    // Land in the *second* identical half
-                    const targetSymbolIndexInSecondHalf = Math.floor(Math.random() * SYMBOLS_PER_REEL) + SYMBOLS_PER_REEL;
-                    const targetY = -targetSymbolIndexInSecondHalf * SYMBOL_HEIGHT_PX;
-                    
-                    // --- FASTER DURATION ---
-                    // Reduced base duration from 3000ms to 1500ms and stagger from 200ms to 100ms
-                    const spinDuration = 1500 + i * 100; // Staggered spin duration
-                    
-                    // Set the transition and final transform
-                    strip.style.transition = `transform ${spinDuration / 1000}s cubic-bezier(0.33, 1, 0.68, 1)`;
-                    strip.style.transform = `translateY(${targetY}px)`;
-                    
-                    // --- FIX: Store the correct symbol ---
-                    // Store the *equivalent symbol from the first half* which will be visible after the snap-back
-                    const targetSymbolIndexInFirstHalf = targetSymbolIndexInSecondHalf - SYMBOLS_PER_REEL;
-                    currentResultSymbols.push(strip.children[targetSymbolIndexInFirstHalf]);
-
-                    // Create a promise that resolves when this reel's animation ends
-                    const spinPromise = new Promise(resolve => {
-                        setTimeout(() => {
-                            // Stop the float animation
-                            reel.classList.remove('spinning');
+            switch (phaseName) {
+                case 'sacrifice':
+                    html = `
+                        <h1 class="text-4xl font-black text-cyan-300 drop-shadow-md text-fade-in-up">A SACRIFICE</h1>
+                        <p class="text-lg text-slate-300 mb-4 text-fade-in-up" style="animation-delay: 0.2s;">The path demands a price. What will you offer?</p>
+                        
+                        <!-- This wrapper makes the panels fill the remaining space -->
+                        <div class="sacrifice-wrapper">
+                            <div class="sacrifice-panel sacrifice-hp" onclick="handleSacrifice('hp')">
+                                <div class="sacrifice-emoji">💔</div>
+                                <div class="sacrifice-text">Offer Blood</div>
+                                <div class="font-bold text-red-200 text-lg">-5 HP</div>
+                            </div>
                             
-                            // -- CRITICAL: Reset for next spin --
-                            // Invisibly snap back to the equivalent symbol in the *first* half
-                            strip.style.transition = 'none';
-                            // --- FIX: Snap back to the correct index in the first half ---
-                            strip.style.transform = `translateY(${-targetSymbolIndexInFirstHalf * SYMBOL_HEIGHT_PX}px)`;
-                            
-                            resolve();
-                        }, spinDuration + 50); // A small buffer
-                    });
-                    
-                    spinPromises.push(spinPromise);
-                });
+                            <div class="sacrifice-panel sacrifice-mp" onclick="handleSacrifice('mp')">
+                                <div class="sacrifice-emoji">💧</div>
+                                <div class="sacrifice-text">Offer Spirit</div>
+                                <div class="font-bold text-blue-200 text-lg">-5 MP</div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                
+                case 'fortune':
+                    html = `
+                        <h1 class="text-4xl font-black text-amber-300 drop-shadow-md text-fade-in-up">A FORTUNE</h1>
+                        <p class="text-lg text-slate-300 mb-6 text-fade-in-up" style="animation-delay: 0.2s;">Fate holds its breath. Reveal your destiny.</p>
+                        
+                        <!-- The massive slot machine reels -->
+                        <div class="flex justify-center gap-2 sm:gap-4 my-4">
+                            <div id="reel-1" class="reel">❓</div>
+                            <div id="reel-2" class="reel">❓</div>
+                            <div id="reel-3" class="reel">❓</div>
+                        </div>
 
-                // Wait for all animations to finish
-                await Promise.all(spinPromises);
+                        <button id="reveal-btn" class="btn-reveal-fortune mt-6" onclick="handleFortuneReveal()">
+                            <span class="text-4xl">🎰</span>
+                            <div>Tempt Fate</div>
+                        </button>
+                    `;
+                    break;
                 
-                isSpinning = false;
-                spinButton.disabled = false;
-                statusText.textContent = 'Tap a symbol to create a button!';
-                
-                // Make the resulting symbols clickable
-                currentResultSymbols.forEach(symbolEl => {
-                    symbolEl.classList.add('clickable');
-                });
+                case 'fortune-choice':
+                    // This phase is rendered *after* the spinning stops.
+                    html = `
+                        <h1 class="text-4xl font-black text-amber-300 drop-shadow-md text-fade-in-up">CHOOSE YOUR BOON</h1>
+                        <p class="text-lg text-slate-300 mb-6 text-fade-in-up" style="animation-delay: 0.2s;">Destiny is revealed. Which path will you walk?</p>
+                        
+                        <div class="grid grid-cols-3 gap-2 sm:gap-4 w-full max-w-sm mt-4">
+                            <button class="btn-fortune-choice" onclick="handleFortuneChoice(0)" style="animation-delay: 0.3s;">
+                                <span>${fortuneOptions[0].emoji}</span>
+                                <span class="text-base font-bold">${fortuneOptions[0].text}</span>
+                            </button>
+                            <button class="btn-fortune-choice" onclick="handleFortuneChoice(1)" style="animation-delay: 0.4s;">
+                                <span>${fortuneOptions[1].emoji}</span>
+                                <span class="text-base font-bold">${fortuneOptions[1].text}</span>
+                            </button>
+                            <button class="btn-fortune-choice" onclick="handleFortuneChoice(2)" style="animation-delay: 0.5s;">
+                                <span>${fortuneOptions[2].emoji}</span>
+                                <span class="text-base font-bold">${fortuneOptions[2].text}</span>
+                            </button>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            gameContent.innerHTML = html;
+        }
+
+        /**
+         * Fades the game content out, renders the new phase, and fades it back in.
+         * @param {string} newPhase - The key of the phase to transition to.
+         */
+        function transitionToPhase(newPhase) {
+            gameContent.classList.add('opacity-0');
+            
+            // Wait for fade out, then render new content and fade in
+            setTimeout(() => {
+                renderPhase(newPhase);
+                // Scroll to top of content, important for mobile
+                gameContent.scrollTop = 0; 
+                gameContent.classList.remove('opacity-0');
+            }, 500); // 500ms matches the transition duration
+        }
+
+        /**
+         * Shows a message in the footer log area.
+         * @param {string} message - The text to display.
+         */
+        function logMessage(message) {
+            // "Juicy" feedback: pop the text
+            logText.classList.remove('scale-100');
+            logText.classList.add('scale-110', 'text-white', 'font-bold');
+            logText.textContent = message;
+            
+            // Return to normal
+            setTimeout(() => {
+                logText.classList.remove('scale-110', 'text-white', 'font-bold');
+                logText.classList.add('scale-100');
+            }, 200); // A slightly longer pop
+        }
+
+        
+        // --- GAME LOGIC HANDLERS ---
+
+        /**
+         * Handles the player's choice in the 'sacrifice' phase.
+         * @param {'hp' | 'mp'} type - The stat to sacrifice.
+         */
+        function handleSacrifice(type) {
+            if (type === 'hp') {
+                gameState.hp -= 5;
+                logMessage("You offered blood. -5 HP 💔");
+            } else {
+                gameState.mp -= 5;
+                logMessage("You offered spirit. -5 MP 💧");
+            }
+            
+            // (In a real game, you'd check for death/OOM here)
+            
+            updateStatsUI();
+            transitionToPhase('fortune');
+        }
+
+        /**
+         * Handles the 'Tempt Fate' button press. Starts the slot machine animation.
+         */
+        function handleFortuneReveal() {
+            // Disable button to prevent re-clicks
+            const revealBtn = document.getElementById('reveal-btn');
+            if (revealBtn) {
+                revealBtn.disabled = true;
+                revealBtn.innerHTML = '<span>Spinning...</span>';
+                revealBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                revealBtn.style.animation = 'none'; // Stop the glow
             }
 
-            /**
-             * Handles clicking on a symbol after a spin.
-             */
-            function handleSymbolClick(e) {
-                // Can only click symbols if not spinning AND it's a 'clickable' result
-                if (isSpinning || !e.currentTarget.classList.contains('clickable')) {
-                    return;
-                }
-                
-                const symbol = e.currentTarget.dataset.symbol;
+            const reels = [
+                document.getElementById('reel-1'),
+                document.getElementById('reel-2'),
+                document.getElementById('reel-3')
+            ];
 
-                if (currentButtons.length >= MAX_BUTTONS) {
-                    statusText.textContent = 'Button bar is full!';
-                    return;
-                }
+            // Clear any old intervals
+            spinningIntervals.forEach(clearInterval);
+            spinningIntervals = [];
 
-                if (currentButtons.includes(symbol)) {
-                    statusText.textContent = 'That button already exists!';
-                    return;
-                }
+            // Start spinning each reel
+            reels.forEach((reel, index) => {
+                if (!reel) return;
+                reel.classList.add('reel-spinning');
+                const interval = setInterval(() => {
+                    reel.textContent = allReelEmojis[Math.floor(Math.random() * allReelEmojis.length)];
+                }, 50); // Spin very fast
+                spinningIntervals.push(interval);
+            });
 
-                // Add to state and UI
-                currentButtons.push(symbol);
-                addButtonToBar(symbol);
-                
-                // Update UI
-                if (currentButtons.length > 0) {
-                    buttonPlaceholder.style.opacity = '0';
-                }
-                statusText.textContent = 'Button added!';
+            // Stop the reels one by one for dramatic effect
+            setTimeout(() => stopReel(reels[0], fortuneOptions[0].emoji), 1500); // Stop reel 1
+            setTimeout(() => stopReel(reels[1], fortuneOptions[1].emoji), 2000); // Stop reel 2
+            setTimeout(() => stopReel(reels[2], fortuneOptions[2].emoji), 2500); // Stop reel 3
+            
+            // After the last reel stops, transition to the choice phase
+            setTimeout(() => {
+                transitionToPhase('fortune-choice');
+            }, 3000); // A small delay after the last reel stops
+        }
+
+        /**
+         * Helper function to stop a single reel.
+         * @param {HTMLElement} reel - The reel element.
+         * @param {string} finalEmoji - The emoji to land on.
+         */
+        function stopReel(reel, finalEmoji) {
+            if (spinningIntervals.length > 0) {
+                clearInterval(spinningIntervals.shift()); // Stop the oldest interval
             }
-
-            /**
-             * Creates and adds a new button to the bottom bar.
-             */
-            function addButtonToBar(symbol) {
-                const buttonEl = document.createElement('button');
-                buttonEl.className = 'flex-1 flex flex-col items-center py-2 px-3 rounded-lg text-gray-300 hover:text-white hover:bg-gray-700 active:bg-gray-600 transition-colors';
-                buttonEl.dataset.symbol = symbol;
+            if(reel) {
+                reel.classList.remove('reel-spinning');
+                reel.textContent = finalEmoji;
                 
-                buttonEl.innerHTML = `
-                    <span class="text-3xl">${symbol}</span>
-                    <span class="text-xs mt-1 font-medium">Use ${symbol}</span>
-                `;
-                
-                // Add click event to remove the button
-                buttonEl.addEventListener('click', () => {
-                    removeButtonFromBar(symbol, buttonEl);
-                });
-                
-                buttonContainer.appendChild(buttonEl);
+                // "Thud" landing effect
+                reel.classList.add('reel-landed');
+                // Clean up animation class after it runs
+                setTimeout(() => reel.classList.remove('reel-landed'), 300);
             }
-
-            /**
-             * Removes a button from the bottom bar.
-             */
-            function removeButtonFromBar(symbol, buttonEl) {
-                // Remove from state
-                currentButtons = currentButtons.filter(b => b !== symbol);
-                
-                // Remove from UI
-                buttonEl.remove();
-
-                // Show placeholder if empty
-                if (currentButtons.length === 0) {
-                    buttonPlaceholder.style.opacity = '1';
-                }
-                statusText.textContent = 'Button removed.';
+        }
+        
+        /**
+         * Handles the player's choice in the 'fortune-choice' phase.
+         * @param {number} choiceIndex - The index (0, 1, or 2) of the chosen boon.
+         */
+        function handleFortuneChoice(choiceIndex) {
+            const choice = fortuneOptions[choiceIndex];
+            
+            switch (choice.key) {
+                case 'atk':
+                    gameState.atk += 1;
+                    logMessage("You feel stronger! +1 Attack. ⚔️");
+                    break;
+                case 'armor':
+                    gameState.armor += 1;
+                    logMessage("You feel tougher! +1 Armor. 🛡️");
+                    break;
+                case 'spirit':
+                    gameState.spirit += 1;
+                    logMessage("You feel wiser! +1 Spirit. ✨");
+                    break;
             }
+            
+            updateStatsUI();
+            
+            // Loop back to the start
+            transitionToPhase('sacrifice');
+        }
 
-            // Start the game
-            init();
-        });
     </script>
 </body>
 </html>
-
 
