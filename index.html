@@ -6,7 +6,7 @@
     <title>Portrait Game UI Demo</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Import 'Inter' font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,7 +51,7 @@
             align-items: center;
             text-align: center;
         }
-        
+
         /* The SVG icon for rotation */
         #orientation-lock svg {
             width: 8vmin;
@@ -100,14 +100,14 @@
 
         /* * 4. UI SECTIONS (HEADER, MAIN, FOOTER)
          */
-        
+
         #game-header, #game-footer {
             flex-shrink: 0;
-            padding: 1rem 1.25rem;
+            padding: 0.75rem 1rem; /* Reduced padding for a slimmer feel */
             background-color: rgba(0,0,0,0.2);
             z-index: 10;
         }
-        
+
         #game-header { border-bottom: 1px solid #374151; }
         #game-footer { border-top: 1px solid #374151; }
 
@@ -136,33 +136,13 @@
         /* * 6. RESPONSIVE COMPONENTS
          */
 
-        /* * NEW: Header Stat Styles */
-        .stat-level-display {
-            width: clamp(50px, 15vmin, 70px);
-            height: clamp(50px, 15vmin, 70px);
-            border-radius: 9999px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background-color: #111827;
-            border: 2px solid #3B82F6;
-            box-shadow: 0 0 10px 0 rgba(59, 130, 246, 0.5);
-        }
-        .stat-level-display .level-number {
-            font-size: clamp(1.125rem, 5vmin, 1.5rem);
-            font-weight: 700;
-            line-height: 1;
-        }
-        .stat-level-display .level-label {
-            font-size: 0.75rem; /* 12px */
-            font-weight: 600;
-            color: #9CA3AF;
-            text-transform: uppercase;
-            line-height: 1;
-        }
+        /*
+         * REMOVED: .stat-level-display styles
+         * This class is no longer used as the level and player
+         * info is now a single, space-efficient text row.
+         */
 
-        /* * NEW: Stat Bars */
+        /* * NEW: Stat Bars (Thinner) */
         .stat-bar {
             width: 100%;
             background-color: #111827;
@@ -183,20 +163,19 @@
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            font-size: 0.875rem; /* 14px */
         }
-        
+
         /* HP Bar */
-        .stat-bar.hp { height: 24px; }
+        .stat-bar.hp { height: 18px; } /* Was 24px */
         .stat-bar.hp .stat-bar-inner { background-color: #22C55E; } /* green-500 */
-        .stat-bar.hp .stat-bar-text { color: #1F2937; }
+        .stat-bar.hp .stat-bar-text { color: #1F2937; font-size: 0.75rem; } /* 12px */
 
         /* Energy Bar */
-        .stat-bar.energy { height: 16px; }
+        .stat-bar.energy { height: 14px; } /* Was 16px */
         .stat-bar.energy .stat-bar-inner { background-color: #0EA5E9; } /* sky-500 */
         .stat-bar.energy .stat-bar-text { font-size: 0.75rem; color: #1F2937; } /* 12px */
 
-        /* * NEW: Currency Display */
+        /* * NEW: Currency Display Icons */
         .stat-currency-icon {
             width: 20px;
             height: 20px;
@@ -216,7 +195,6 @@
             border-radius: 4px;
         }
 
-        /* NEW Currency Icons */
         .stat-currency-icon.wood {
             background-color: #78350F; /* amber-900 */
             border: 2px solid #A16207; /* amber-700 */
@@ -228,44 +206,19 @@
             border-radius: 8px;
         }
 
-        /* NEW Currency Container */
-        .currency-item {
-            display: flex;
-            align-items: center;
-            background-color: rgba(17, 24, 39, 0.7); /* bg-gray-900 bg-opacity-70 */
-            padding: 0.25rem 0.75rem; /* px-3 py-1 */
-            border-radius: 9999px; /* rounded-full */
-            border: 1px solid #374151; /* border-gray-700 */
-        }
-        .currency-item .stat-currency-icon {
-            margin-right: 0.375rem; /* mr-1.5 */
-        }
-        .currency-item .currency-amount {
+        /* Currency amount text style (was part of .currency-item) */
+        .currency-amount {
             font-weight: 700; /* font-bold */
             font-size: 1rem; /* text-base */
         }
-
-        /* * NEW: Status Icons (REMOVED) */
+        
         /*
-        .status-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 0.375rem; /* 6px */
-            background-color: #374151;
-            border: 1px solid #4B5563;
-        }
-        .status-icon.buff {
-            background-color: #166534; /* green-800 */
-            border-color: #22C55E; /* green-500 */
-        }
-        .status-icon.debuff {
-            background-color: #991B1B; /* red-800 */
-            border-color: #EF4444; /* red-500 */
-        }
-        */
+         * REMOVED: .currency-item styles
+         * The bubble style is gone. We now have a single panel
+         * created with Tailwind classes in the HTML.
+         */
 
-
-        /* * Action Buttons Base Style
+        /* * Action Buttons Base Style (Original, for modals etc.)
          */
         .game-button {
             font-size: clamp(0.875rem, 4vmin, 1.125rem);
@@ -275,6 +228,17 @@
             border-radius: 0.5rem; /* 8px */
             transition: transform 75ms ease-out, box-shadow 75ms ease-out, background-color 75ms ease-out;
         }
+        
+        /* * NEW: Round Action Buttons (for footer) */
+        .action-button-round {
+            width: 60px;
+            height: 60px;
+            border-radius: 9999px; /* rounded-full */
+            font-weight: 700;
+            transition: transform 75ms ease-out, box-shadow 75ms ease-out, background-color 75ms ease-out;
+            /* We'll add icons here later if needed */
+        }
+
 
         /* * 3D Button Styles */
         .btn-red {
@@ -286,7 +250,7 @@
             transform: translateY(3px) scale(0.98);
             box-shadow: 0 1px 0 0 #B91C1C;
         }
-        
+
         .btn-blue {
             background-color: #2563EB; /* blue-600 */
             box-shadow: 0 4px 0 0 #1D4ED8; /* blue-800 */
@@ -320,8 +284,8 @@
 </head>
 <body class="bg-gray-900">
 
-    <!-- 
-      ORIENTATION LOCK SCREEN 
+    <!--
+      ORIENTATION LOCK SCREEN
       This is hidden by default and only shown via CSS @media query
     -->
     <div id="orientation-lock">
@@ -333,7 +297,7 @@
         <p class="text-lg text-gray-400 mt-2">This game is best played in portrait mode.</p>
     </div>
 
-    <!-- 
+    <!--
       GAME WRAPPER
       This is the main container for the game, visible only in portrait.
     -->
@@ -341,64 +305,53 @@
 
         <!-- 1. HEADER (Top UI Bar) - UPDATED -->
         <header id="game-header" class="flex flex-col space-y-3">
-            
-            <!-- Row 1: Level + Player Info -->
-            <div class="flex items-center justify-between">
-                <div class="stat-level-display">
-                    <span class="level-number">8</span>
-                    <span class="level-label">LVL</span>
+
+            <!-- Row 1: Level + Player Info (Space-efficient) -->
+            <div class="flex items-baseline justify-between text-base">
+                <div class="font-medium">
+                    <span class="text-lg font-bold text-blue-400">LVL 8</span>
+                    <span class="text-gray-500 mx-2">|</span>
+                    <span class="font-bold">Player_123</span>
                 </div>
-                <!-- NEW: Player Info -->
-                <div class="flex flex-col items-end ml-4">
-                    <span class="text-lg font-bold">Player_123</span>
-                    <span class="text-sm text-blue-300">"The Brave"</span>
-                </div>
+                <span class="text-sm text-blue-300 font-medium">"The Brave"</span>
             </div>
-            
-            <!-- Row 2: HP Bar -->
+
+            <!-- Row 2: HP Bar (Thinner) -->
             <div class="stat-bar hp">
                 <div class="stat-bar-inner" style="width: 75%;"></div>
                 <div class="stat-bar-text">750 / 1000</div>
             </div>
-            
-            <!-- Row 3: Energy Bar -->
+
+            <!-- Row 3: Energy Bar (Thinner) -->
             <div class="stat-bar energy">
                 <div class="stat-bar-inner" style="width: 90%;"></div>
                 <div class="stat-bar-text">90 / 100</div>
             </div>
 
-            <!-- Row 4: Currencies (Grid) -->
-            <div class="grid grid-cols-2 gap-x-3 gap-y-2">
+            <!-- Row 4: Currencies (Slim Panel) -->
+            <div class="flex items-center justify-around bg-gray-900/50 rounded-lg p-2 border border-gray-700">
                 <!-- Gold -->
-                <div class="currency-item">
+                <div class="flex items-center">
                     <div class="stat-currency-icon gold"></div>
                     <span class="currency-amount" id="score-display">1,250</span>
                 </div>
                 <!-- Gems -->
-                <div class="currency-item">
+                <div class="flex items-center">
                     <div class="stat-currency-icon gems"></div>
                     <span class="currency-amount" id="gem-display">48</span>
                 </div>
                 <!-- Wood -->
-                <div class="currency-item">
+                <div class="flex items-center">
                     <div class="stat-currency-icon wood"></div>
                     <span class="currency-amount" id="wood-display">300</span>
                 </div>
                 <!-- Stone -->
-                <div class="currency-item">
+                <div classall="flex items-center">
                     <div class="stat-currency-icon stone"></div>
                     <span class="currency-amount" id="stone-display">150</span>
                 </div>
             </div>
 
-            <!-- Row 5: Status Icons (REMOVED) -->
-            <!-- <div class="flex items-center space-x-2">
-                <div class="status-icon buff"></div>
-                <div class="status-icon debuff"></div>
-                <div class="status-icon"></div>
-                <div class="status-icon"></div>
-            </div> -->
-            
         </header>
 
         <!-- 2. MAIN GAME AREA (Canvas Container) -->
@@ -406,10 +359,10 @@
             <canvas id="game-canvas"></canvas>
         </main>
 
-        <!-- 3. FOOTER (Action Bar) -->
+        <!-- 3. FOOTER (Action Bar) - UPDATED -->
         <footer id="game-footer">
             <div class="flex items-center justify-between">
-                
+
                 <!-- Left Side: 3 Item Slots -->
                 <div class="flex space-x-2">
                     <div class="item-slot"></div>
@@ -417,15 +370,15 @@
                     <div class="item-slot"></div>
                 </div>
 
-                <!-- Right Side: 2 Stacked Buttons -->
-                <div class="flex flex-col space-y-2 w-1/2 ml-4">
-                    <button data-action="attack" class="game-button w-full text-white btn-red">Attack</button>
-                    <button data-action="ability-1" class="game-button w-full text-white btn-blue">Ability</button>
+                <!-- Right Side: 2 Round Buttons (Side-by-side) -->
+                <div class="flex space-x-3 ml-4">
+                    <button data-action="attack" class="action-button-round text-white btn-red"></button>
+                    <button data-action="ability-1" class="action-button-round text-white btn-blue"></button>
                 </div>
             </div>
         </footer>
- 
-        <!-- 
+
+        <!--
           REMOVED: Settings Modal
         -->
 
@@ -465,7 +418,7 @@
             resizeCanvas();
 
             // --- 2. "SCREENSAVER" GAME LOOP ---
-            
+
             // Logo properties, sized relative to the 1080x1920 internal canvas
             let logo = {
                 x: 150,
@@ -476,7 +429,7 @@
                 speedY: 5,
                 color: '#3B82F6' // Start blue
             };
-            
+
             function getRandomColor() {
                 const letters = '0123456789ABCDEF';
                 let color = '#';
@@ -493,7 +446,7 @@
 
                 // Collision detection with walls
                 let hitWall = false;
-                
+
                 // Left wall
                 if (logo.x < 0) {
                     logo.speedX *= -1;
@@ -525,14 +478,14 @@
                 }
 
                 // --- Draw everything ---
-                
+
                 // Clear the canvas
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
+
                 // Draw "LOGO" box
                 ctx.fillStyle = logo.color;
                 ctx.fillRect(logo.x, logo.y, logo.width, logo.height);
-                
+
                 // Draw text inside the box
                 ctx.fillStyle = '#FFFFFF'; // White text
                 ctx.font = 'bold 80px Inter';
@@ -546,11 +499,9 @@
             gameLoop();
 
             // --- 3. INPUT ABSTRACTION (Pointer Events) ---
-            
-            // REMOVED: Modal controls
- 
+
             // Game action buttons
-            const actionButtons = document.querySelectorAll('.game-button[data-action]');
+            const actionButtons = document.querySelectorAll('.action-button-round[data-action]');
             actionButtons.forEach(button => {
                 button.addEventListener('pointerdown', (e) => {
                     // CSS :active pseudo-class handles the animation.
@@ -564,8 +515,3 @@
 
 </body>
 </html>
-
-
-
-
-
