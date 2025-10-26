@@ -4,135 +4,113 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
   <meta name="theme-color" content="#0b0b0b" />
-  <title>Mobile Browser Game UI Shell</title>
+  <title>Mobile Browser Game UI Shell – Teal Outline (Solid Corners)</title>
   <style>
-    /*
-      ✅ Goals
-      - Full, stable view on mobile portrait (URL bar aware)
-      - Slim top & bottom bars, empty middle game stage
-      - Works on tablet & desktop without breaking layout
-    */
-
     :root {
-      /* Base heights; JS may update --app-height for older iOS */
-      --app-height: 100dvh; /* modern browsers use dynamic viewport */
-      --bar-h: 48px;        /* mobile default; adjusted via media queries */
-      --gap: 8px;
+      --app-height: 100dvh;
+      --bar-h: 60px; /* bigger top/bottom sections by default */
+      --gap: 0; /* no gaps; teal lines act as dividers */
 
       /* Colors */
       --bg: #0e0f12;
-      --panel: #181a20;
-      --border: #2a2e39;
+      --panel: #14171d;
       --fg-muted: #b5bcc9;
+      --teal: #10d6c2; /* thin teal accents */
     }
 
-    /* Safe, URL-bar-aware app wrapper */
     html, body {
-      padding: 0;
-      margin: 0;
-      height: 100%;
-      background: var(--bg);
-      color: white;
-      overscroll-behavior: none;            /* reduce pull-to-refresh jank */
+      padding: 0; margin: 0; height: 100%;
+      background: var(--bg); color: white;
+      overscroll-behavior: none;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
     }
 
     .app {
-      /* Prefer dynamic viewport if supported */
       height: var(--app-height);
-      min-height: 100svh; /* when URL bar is shown */
-      max-height: 100lvh; /* when URL bar is hidden */
+      min-height: 100svh;
+      max-height: 100lvh;
 
       display: grid;
       grid-template-rows: var(--bar-h) 1fr var(--bar-h);
       grid-template-columns: 100%;
       gap: var(--gap);
 
-      /* Safe area padding on notched devices */
+      /* Safe areas for notches */
       padding-top: env(safe-area-inset-top);
-      padding-bottom: calc(env(safe-area-inset-bottom));
+      padding-bottom: env(safe-area-inset-bottom);
       padding-left: env(safe-area-inset-left);
       padding-right: env(safe-area-inset-right);
 
       box-sizing: border-box;
       margin: 0 auto;
-      max-width: 700px; /* keep a tidy column on large screens */
+      max-width: 700px;
+
+      /* 🔹 Thin teal outline around the whole game */
+      border: 1px solid var(--teal);
+      border-radius: 14px; /* slightly larger to keep corners crisp */
+      overflow: hidden; /* ensure inner panels don't bleed over rounded corners */
+      background-clip: padding-box; /* keep border color solid on corners */
     }
 
+    header, main, footer { box-sizing: border-box; }
+
+    /* Panels without their own outlines */
     header, footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
       background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 0 12px;
-      box-sizing: border-box;
-      font-size: 14px;
+      padding: 0 16px; /* a bit more breathing room */
+      font-size: 15px;
       letter-spacing: .2px;
     }
 
-    header .title {
-      font-weight: 600;
-      opacity: .9;
-    }
+    /* 🔹 Thin teal horizontal dividers between sections */
+    main { border-top: 1px solid var(--teal); }
+    footer { border-top: 1px solid var(--teal); }
 
+    header .title { font-weight: 600; opacity: .9; }
     header .right, footer .right, header .left, footer .left {
-      display: inline-flex;
-      gap: 8px;
-      align-items: center;
-      opacity: .8;
-      color: var(--fg-muted);
+      display: inline-flex; gap: 10px; align-items: center;
+      opacity: .85; color: var(--fg-muted);
     }
 
+    /* Stage */
     main {
       position: relative;
       background: #0b0c10;
-      border: 1px dashed var(--border);
-      border-radius: 12px;
-      overflow: hidden; /* future canvas/webgl stays clipped */
+      /* no inner outline; the divider line above is enough */
+      overflow: hidden;
     }
-
-    /* Empty game stage placeholder */
     #game-stage {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      pointer-events: none; /* remove if you add UI inside */
-      user-select: none;
+      position: absolute; inset: 0; display: grid; place-items: center;
+      pointer-events: none; user-select: none;
       font: 500 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
       color: var(--fg-muted);
     }
 
     /* Tablet & desktop tweaks */
     @media (min-width: 600px) {
-      :root { --bar-h: 56px; --gap: 10px; }
-      header, footer { font-size: 15px; padding: 0 14px; }
+      :root { --bar-h: 68px; }
+      header, footer { font-size: 16px; padding: 0 18px; }
     }
-
     @media (min-width: 1024px) {
-      :root { --bar-h: 64px; --gap: 12px; }
-      header, footer { font-size: 16px; padding: 0 16px; }
+      :root { --bar-h: 72px; }
+      header, footer { font-size: 17px; padding: 0 20px; }
     }
 
-    /* Optional: lock portrait layout visuals (content remains usable in landscape) */
+    /* Landscape hint */
     @media (orientation: landscape) and (max-height: 540px) {
       main::after {
         content: "Best viewed in portrait";
-        position: absolute;
-        right: 8px;
-        bottom: 8px;
-        opacity: .5;
-        font-size: 11px;
-        pointer-events: none;
+        position: absolute; right: 8px; bottom: 8px; opacity: .5; font-size: 11px; pointer-events: none;
       }
     }
   </style>
 </head>
 <body>
-  <div class="app" role="application" aria-label="Game Shell">
+  <div class="app" role="application" aria-label="Game Shell (Teal Outline – Solid Corners)">
     <header aria-label="Top Bar">
       <div class="left">⟵</div>
       <div class="title">Game</div>
@@ -150,9 +128,7 @@
   </div>
 
   <script>
-    // --- Viewport stability helpers ---
-    // 1) Backfill --app-height for browsers without dvh/svh support, esp. iOS Safari
-    function setAppHeight() {
+    function setAppHeight(){
       const h = window.innerHeight;
       document.documentElement.style.setProperty('--app-height', h + 'px');
     }
@@ -160,21 +136,9 @@
     window.addEventListener('resize', setAppHeight);
     window.addEventListener('orientationchange', setAppHeight);
 
-    // 2) Prevent layout jump on virtual keyboard open for simple shells
-    //    Remove if your game needs the page to resize with the keyboard
     if ('virtualKeyboard' in navigator) {
-      try { navigator.virtualKeyboard.overlaysContent = true; } catch (e) {}
+      try { navigator.virtualKeyboard.overlaysContent = true; } catch(e){}
     }
-
-    // 3) Anti-scroll-bounce inside the stage (optional; uncomment if needed)
-    // document.getElementById('stage').addEventListener('touchmove', (e) => {
-    //   e.preventDefault();
-    // }, { passive: false });
-
-    // Placeholder: where you'd mount your canvas or game engine
-    // const canvas = document.createElement('canvas');
-    // Object.assign(canvas.style, { width: '100%', height: '100%', display: 'block' });
-    // document.getElementById('stage').appendChild(canvas);
   </script>
 </body>
 </html>
