@@ -2,177 +2,185 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Roguelike UI Shell</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- This meta tag is crucial for mobile responsiveness -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Mobile Game UI Shell</title>
+    
+    <!-- Load the Inter font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
-        body {
+        /* Reset browser defaults and set up base styles */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden; /* Prevents scrolling on the body */
             font-family: 'Inter', sans-serif;
-            touch-action: manipulation; /* Prevents double-tap zoom on mobile */
-            background-color: #0a0a0a;
+            background-color: #111; /* Darker background for desktop view */
         }
-        .hud-bar-container {
-            background-color: #1f2937; /* Dark background for empty portion of bar */
-            overflow: hidden;
+
+        /* The main application container */
+        #app-container {
+            display: flex;
+            flex-direction: column; /* Stacks the sections vertically */
+            height: 100vh; /* Fills 100% of the viewport height */
+            width: 100%;  /* Fills 100% of its container (up to max-width) */
+            
+            /* --- NEW RULES for Desktop Centering --- */
+            max-width: 480px; /* Constrains width on large screens */
+            margin: 0 auto;   /* Centers the container horizontally */
+            position: relative; /* Good for positioning child elements later */
+            box-shadow: 0 0 20px rgba(0,0,0,0.5); /* Adds shadow on desktop */
         }
-        .hud-bar {
-            height: 8px;
-            transition: width 0.3s ease-in-out;
+
+        /* Top section for stats */
+        #top-bar {
+            /* flex: 0 0 10%; 
+              - flex-grow: 0 (don't grow)
+              - flex-shrink: 0 (don't shrink)
+              - flex-basis: 10% (base height is 10% of the container)
+            */
+            flex: 0 0 10%;
+            background-color: #333;
+            color: white;
+            
+            /* Centering placeholder text */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border-bottom: 2px solid #555;
         }
-        .hp-bar {
-             background-color: #ef4444; /* Solid red */
+
+        /* Main middle section for game visuals */
+        #game-area {
+            /* flex: 1 1 auto;
+              - flex-grow: 1 (grow to fill available space)
+              - flex-shrink: 1 (shrink if needed)
+              - flex-basis: auto (size is determined by available space)
+              This is the magic part that makes it fill the middle.
+            */
+            flex: 1 1 auto;
+            background-color: #222;
+            color: #999;
+            
+            /* Centering placeholder text */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+
+            /* Allows this section to scroll internally if content overflows */
+            overflow-y: auto; 
         }
-        .mp-bar {
-            background-color: #3b82f6; /* Solid blue */
+
+        /* Bottom section for buttons */
+        #bottom-bar {
+            /* flex: 0 0 15%; 
+              - flex-basis: 15% (a bit larger for touch targets)
+            */
+            flex: 0 0 15%;
+            background-color: #333;
+            color: white;
+            
+            /* --- MODIFIED for button layout --- */
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Pushes left/right controls apart */
+            font-weight: bold;
+            border-top: 2px solid #555;
+            padding: 1rem; /* Add padding for spacing */
+            box-sizing: border-box; /* Include padding in height calculation */
         }
-        /* Base styles for all action buttons (if any are added later) */
-        .btn {
-            color: #ffffff;
-            border: 1px solid transparent;
-            transition: all 0.2s ease-in-out;
-            font-weight: 600;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+
+        /* --- NEW STYLES for buttons --- */
+
+        /* Left side 2x2 grid container */
+        #left-controls {
+            display: grid;
+            grid-template-columns: repeat(2, 50px); /* 2 columns, 50px wide */
+            grid-template-rows: repeat(2, 50px);    /* 2 rows, 50px high */
+            gap: 0.5rem; /* Space between grid buttons */
         }
-        .btn:active {
-            transform: scale(0.95);
+
+        .square-button {
+            width: 50px;
+            height: 50px;
+            background-color: #555;
+            border: 2px solid #777;
+            border-radius: 8px; /* Slightly rounded corners */
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
-        /* Animation styles removed */
+
+        .square-button:active {
+            background-color: #777; /* Feedback on click/tap */
+        }
+
+        /* Right side round button container */
+        #right-controls {
+            display: flex;
+            gap: 1rem; /* Space between round buttons */
+            align-items: center;
+        }
+
+        .round-button {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(145deg, #e140e6, #a832b3);
+            border: 2px solid #f0abfc;
+            border-radius: 50%; /* Makes it perfectly round */
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        }
+        
+        .round-button:active {
+            background: linear-gradient(145deg, #a832b3, #e140e6);
+            transform: scale(0.95); /* Feedback on click/tap */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+        }
+
     </style>
 </head>
-<body class="bg-black flex items-center justify-center h-screen">
+<body>
 
-    <!-- Game Container -->
-    <div id="game-container" class="w-full max-w-md h-full bg-gray-900 shadow-2xl flex flex-col text-gray-300 border-4 border-teal-500 rounded-lg overflow-hidden">
-
-        <!-- Main Content Area -->
-        <main class="flex-grow flex flex-col overflow-hidden">
-
-            <!-- Enemy Area (Top 1/4) - Reduced height -->
-            <div id="enemy-area" class="h-1/4 flex items-end justify-between p-3 bg-black">
-                <!-- Enemy Stats (Left) -->
-                <div class="w-1/3 flex flex-col items-start space-y-1 relative z-30">
-                    <h2 class="text-base font-bold text-white truncate">BABY DRAGON</h2>
-                    <div class="w-full">
-                        <div class="w-full hud-bar-container">
-                            <div id="enemy-hp-bar" class="hud-bar hp-bar" style="width: 100%;"></div>
-                        </div>
-                        <div class="flex justify-between text-xs px-2 mt-1 text-gray-400 font-semibold">
-                           <span>HP</span>
-                           <span id="enemy-hp-text">50/50</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Enemy Sprite (Right) -->
-                <div class="w-2/3 h-full flex justify-end items-center relative">
-                     <img id="enemy-sprite" src="babydragon.jpg" alt="Enemy" class="max-h-full object-contain" onerror="this.onerror=null;this.src='https://placehold.co/250x250/ef4444/ffffff?text=Dragon';">
-                </div>
+    <!-- This is the main container that holds all UI sections -->
+    <div id="app-container">
+        
+        <!-- TOP SECTION -->
+        <div id="top-bar">
+            STATS AREA
+        </div>
+        
+        <!-- MIDDLE SECTION (Fills remaining space) -->
+        <div id="game-area">
+            <p>GAME VISUALS AREA</p>
+        </div>
+        
+        <!-- BOTTOM SECTION -->
+        <div id="bottom-bar">
+            <!-- Left 2x2 Grid -->
+            <div id="left-controls">
+                <div class="square-button"></div>
+                <div class="square-button"></div>
+                <div class="square-button"></div>
+                <div class="square-button"></div>
             </div>
-
-            <!-- Middle Spacer Area (with background) -->
-            <div class="flex-grow bg-black relative">
-                <!-- Background Image Placeholder -->
-                <!-- TODO: Replace the src below with your image URL -->
-                <img src="https://placehold.co/400x600/1f2937/4b5563?text=Game+Background" 
-                     alt="Game Background" 
-                     class="absolute inset-0 w-full h-full object-cover opacity-30">
-                <!-- This area is now empty, separating enemy and player -->
+            
+            <!-- Right Round Buttons -->
+            <div id="right-controls">
+                <div class="round-button"></div>
+                <div class="round-button"></div>
             </div>
-
-            <!-- Player Area (Bottom 1/4) - Reduced height -->
-            <div id="player-area" class="h-1/4 flex items-start justify-between p-3 bg-black">
-                <!-- Player Sprite (Left) -->
-                <div class="w-2/3 h-full flex justify-start items-center relative">
-                    <img id="player-sprite" src="princess.jpg" alt="Player Character" class="max-h-full object-contain" onerror="this.onerror=null;this.src='https://placehold.co/250x250/3b82f6/ffffff?text=Princess';">
-                </div>
-                <!-- Player Stats and Items (Right) -->
-                <div class="w-1/3 flex flex-col items-end text-right space-y-3 relative z-30">
-                    <!-- Stats Group -->
-                    <div class="w-full">
-                        <h2 class="text-base font-bold text-white text-right">PRINCESS</h2>
-                        <div class="w-full mt-1">
-                            <div class="w-full hud-bar-container">
-                                <div id="player-hp-bar" class="hud-bar hp-bar" style="width: 100%;"></div>
-                            </div>
-                            <div class="flex justify-between text-xs px-2 mt-1 text-gray-400 font-semibold">
-                               <span>HP</span>
-                               <span id="player-hp-text">100/100</span>
-                            </div>
-                            <div class="w-full hud-bar-container mt-1">
-                                <div id="player-mp-bar" class="hud-bar mp-bar" style="width: 100%;"></div>
-                            </div>
-                             <div class="flex justify-between text-xs px-2 mt-1 text-gray-400 font-semibold">
-                               <span>MP</span>
-                               <span id="player-mp-text">30/30</span>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Equipment Slots Group (1x4 Grid) -->
-                    <div class="w-full grid grid-cols-4 gap-2">
-                        <div class="aspect-square bg-gray-800 border-2 border-gray-600 rounded-md">
-                            <!-- TODO: Replace the src below with your image URL for Item 1 -->
-                            <img id="item-slot-1" src="https://placehold.co/64x64/1f2937/4b5563?text=I" alt="Item 1" class="w-full h-full object-cover rounded-md">
-                        </div>
-                        <div class="aspect-square bg-gray-800 border-2 border-gray-600 rounded-md">
-                             <!-- TODO: Replace the src below with your image URL for Item 2 -->
-                            <img id="item-slot-2" src="https://placehold.co/64x64/1f2937/4b5563?text=I" alt="Item 2" class="w-full h-full object-cover rounded-md">
-                        </div>
-                        <div class="aspect-square bg-gray-800 border-2 border-gray-600 rounded-md">
-                             <!-- TODO: Replace the src below with your image URL for Item 3 -->
-                            <img id="item-slot-3" src="https://placehold.co/64x64/1f2937/4b5563?text=I" alt="Item 3" class="w-full h-full object-cover rounded-md">
-                        </div>
-                        <div class="aspect-square bg-gray-800 border-2 border-gray-600 rounded-md">
-                             <!-- TODO: Replace the src below with your image URL for Item 4 -->
-                            <img id="item-slot-4" src="https://placehold.co/64x64/1f2937/4b5563?text=I" alt="Item 4" class="w-full h-full object-cover rounded-md">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </main>
+        </div>
+        
     </div>
 
-    <!-- Modal Container (Removed) -->
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- Game State (Example) ---
-            const player = { maxHp: 100, currentHp: 100, maxMp: 30, currentMp: 30 };
-            const enemy = { maxHp: 50, currentHp: 50 };
-
-            // --- UI Elements ---
-            const playerHpText = document.getElementById('player-hp-text');
-            const playerHpBar = document.getElementById('player-hp-bar');
-            const playerMpText = document.getElementById('player-mp-text');
-            const playerMpBar = document.getElementById('player-mp-bar');
-            const enemyHpText = document.getElementById('enemy-hp-text');
-            const enemyHpBar = document.getElementById('enemy-hp-bar');
-            // Sprites are kept in case you want to animate them later
-            const playerSprite = document.getElementById('player-sprite');
-            const enemySprite = document.getElementById('enemy-sprite');
-
-            // --- Functions ---
-            function updateHud() {
-                // Player
-                playerHpText.textContent = `${player.currentHp}/${player.maxHp}`;
-                playerHpBar.style.width = `${(player.currentHp / player.maxHp) * 100}%`;
-                playerMpText.textContent = `${player.currentMp}/${player.maxMp}`;
-                playerMpBar.style.width = `${(player.currentMp / player.maxMp) * 100}%`;
-
-                // Enemy
-                enemyHpText.textContent = `${enemy.currentHp}/${enemy.maxHp}`;
-                enemyHpBar.style.width = `${(enemy.currentHp / enemy.maxHp) * 100}%`;
-            }
-
-            // --- Event Listeners (All combat/modal listeners removed) ---
-
-            // Initial UI setup
-            updateHud();
-        });
-    </script>
 </body>
 </html>
-
 
