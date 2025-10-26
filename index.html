@@ -2,505 +2,179 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>RogueSpin — Minimal Mobile Roguelike Mockup</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#0b0b0b" />
+  <title>Mobile Browser Game UI Shell</title>
   <style>
-    :root{
-      --bg:#0e0f12; --panel:#15171b; --panel-2:#1a1d22; --text:#e7ebf3; --muted:#9aa3b2;
-      --accent:#70f; --accent-2:#09f; --good:#2ecc71; --bad:#ff4757; --gold:#fdbb2d;
-      --radius:16px; --shadow:0 8px 24px rgba(0,0,0,.35);
-      --speed:240ms; --speed-slow:520ms; --speed-fast:140ms;
-    }
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html,body{height:100%;}
-    body{margin:0; font:16px/1.3 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Apple Color Emoji, Segoe UI Emoji; color:var(--text); background:radial-gradient(1200px 900px at 50% -10%, #1f2330 0%, var(--bg) 50%, #0a0b0d 100%);}    
-    /* Layout */
-    .app{max-width:480px; margin:0 auto; height:100%; display:grid; grid-template-rows:auto 1fr auto; gap:12px; padding:12px;}
-    header, footer{background:linear-gradient(180deg, var(--panel), var(--panel-2)); border-radius:var(--radius); box-shadow:var(--shadow); padding:10px 12px;}
-    main{position:relative; overflow:hidden; border-radius:var(--radius); background:linear-gradient(180deg,#14161a,#0f1115); box-shadow:var(--shadow);}    
-    /* HUD */
-    .hud{display:flex; align-items:center; justify-content:space-between; gap:10px}
-    .chip{display:flex; align-items:center; gap:8px; background:#0b0d11; padding:8px 10px; border-radius:999px; border:1px solid #20242c}
-    .bar{height:8px; width:96px; background:#20242c; border-radius:999px; overflow:hidden; box-shadow:inset 0 1px 2px rgba(0,0,0,.5)}
-    .bar>i{display:block; height:100%; background:linear-gradient(90deg,#ff4d6d,#ff6b6b); width:70%;}
-    .stat{font-weight:600}
-    /* Views */
-    .view{position:absolute; inset:0; padding:14px; display:grid; grid-template-rows:1fr auto; gap:12px; opacity:0; transform:translateY(8px) scale(.98); pointer-events:none; transition:opacity var(--speed-slow) ease, transform var(--speed-slow) ease;}
-    .view.active{opacity:1; transform:translateY(0) scale(1); pointer-events:auto}
-    /* Stage */
-    .stage{position:relative; border-radius:14px; background:linear-gradient(180deg,#121319,#0b0c10); border:1px solid #1b1f26; overflow:hidden}
-    .stage-inner{position:absolute; inset:0; display:grid; place-items:center}
-    .fade{
-      position:absolute; inset:0; background:radial-gradient(60% 40% at 50% 30%, rgba(255,255,255,.05), rgba(0,0,0,.6) 70%);
-      opacity:.0; transition:opacity var(--speed) ease;
-    }
-    /* Character/Enemy imagery placeholder tiles */
-    .card-img{width:88%; height:78%; border-radius:16px; background:linear-gradient(135deg,#1f2430,#12151c); border:1px solid #2a2f3a; box-shadow:0 10px 30px rgba(0,0,0,.5); display:grid; place-items:center; overflow:hidden; position:relative}
-    .img-title{position:absolute; bottom:8px; left:8px; right:8px; font-size:12px; color:#cbd5e1; background:rgba(0,0,0,.35); padding:6px 8px; border-radius:10px; text-align:center}
-    img.entity{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity var(--speed-slow) ease}
-    img.entity.show{opacity:.98}
-    .hit{position:absolute; inset:0; display:grid; place-items:center; font-size:32px; font-weight:800; opacity:0; transform:translateY(8px) scale(0.96); transition:all var(--speed-fast) ease}
-    .hit.show{opacity:1; transform:translateY(0) scale(1)}
-    /* Slot Machine */
-    .slots{height:140px; border-radius:14px; background:linear-gradient(180deg,#0f1218,#0a0c11); border:1px solid #1e2430; display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; padding:10px}
-    .reel{position:relative; border-radius:12px; overflow:hidden; border:1px solid #2a3140; background:#0d1016}
-    .reel::after{content:""; position:absolute; inset:0; pointer-events:none; background:linear-gradient(180deg, rgba(0,0,0,.45), transparent 25%, transparent 75%, rgba(0,0,0,.45));}
-    .reel.spinning{filter:blur(.6px);}    
-    .reel-track{position:absolute; left:0; right:0; top:0; will-change:transform}
-    .reel-item{height:54px; display:grid; place-items:center; font-weight:700; font-size:28px; line-height:1;}
-    .reel-item.bad{color:var(--bad)} .reel-item.good{color:var(--good)} .reel-item.rare{color:var(--gold)}
-    /* Controls */
-    .row{display:flex; gap:10px}
-    .btn{flex:1; display:inline-flex; justify-content:center; align-items:center; padding:14px 16px; background:linear-gradient(180deg,#1a1e29,#141821); border:1px solid #2b3240; color:#fff; border-radius:14px; font-weight:700; letter-spacing:.15px; box-shadow:var(--shadow); outline:none;}
-    .btn:active{transform:translateY(1px)}
-    .btn.primary{background:linear-gradient(180deg,var(--accent),var(--accent-2)); border:none}
-    .btn.gold{background:linear-gradient(180deg,#ffd166,#fca311); color:#1d1303; border:none}
-    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; background:#0b0e14; border:1px solid #262c38; border-radius:999px;color:#e2e8f0}
-    .muted{color:var(--muted)}
-    /* Footer nav */
-    .tabs{display:grid; grid-template-columns:repeat(3, 1fr); gap:10px}
-    .tab{padding:12px; text-align:center; border-radius:12px; background:linear-gradient(180deg,#10131a,#0b0d11); border:1px solid #1c2230; font-weight:600}
-    .tab.active{outline:2px solid #2b7cff}
-    /* Anim helpers */
-    .shake{animation:shake .22s ease both 2}
-    @keyframes shake{0%{transform:translateX(0)} 25%{transform:translateX(-2px)} 50%{transform:translateX(2px)} 75%{transform:translateX(-1px)} 100%{transform:translateX(0)}}
-    .pop{animation:pop .22s ease-out both}
-    @keyframes pop{0%{transform:scale(.96); opacity:.7} 100%{transform:scale(1); opacity:1}}
+    /*
+      ✅ Goals
+      - Full, stable view on mobile portrait (URL bar aware)
+      - Slim top & bottom bars, empty middle game stage
+      - Works on tablet & desktop without breaking layout
+    */
 
-    /* Respect reduced motion */
-    @media (prefers-reduced-motion: reduce){
-      .view{transition:none}
-      .hit, img.entity{transition:none}
+    :root {
+      /* Base heights; JS may update --app-height for older iOS */
+      --app-height: 100dvh; /* modern browsers use dynamic viewport */
+      --bar-h: 48px;        /* mobile default; adjusted via media queries */
+      --gap: 8px;
+
+      /* Colors */
+      --bg: #0e0f12;
+      --panel: #181a20;
+      --border: #2a2e39;
+      --fg-muted: #b5bcc9;
+    }
+
+    /* Safe, URL-bar-aware app wrapper */
+    html, body {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      background: var(--bg);
+      color: white;
+      overscroll-behavior: none;            /* reduce pull-to-refresh jank */
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .app {
+      /* Prefer dynamic viewport if supported */
+      height: var(--app-height);
+      min-height: 100svh; /* when URL bar is shown */
+      max-height: 100lvh; /* when URL bar is hidden */
+
+      display: grid;
+      grid-template-rows: var(--bar-h) 1fr var(--bar-h);
+      grid-template-columns: 100%;
+      gap: var(--gap);
+
+      /* Safe area padding on notched devices */
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: calc(env(safe-area-inset-bottom));
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+
+      box-sizing: border-box;
+      margin: 0 auto;
+      max-width: 700px; /* keep a tidy column on large screens */
+    }
+
+    header, footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0 12px;
+      box-sizing: border-box;
+      font-size: 14px;
+      letter-spacing: .2px;
+    }
+
+    header .title {
+      font-weight: 600;
+      opacity: .9;
+    }
+
+    header .right, footer .right, header .left, footer .left {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      opacity: .8;
+      color: var(--fg-muted);
+    }
+
+    main {
+      position: relative;
+      background: #0b0c10;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      overflow: hidden; /* future canvas/webgl stays clipped */
+    }
+
+    /* Empty game stage placeholder */
+    #game-stage {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      pointer-events: none; /* remove if you add UI inside */
+      user-select: none;
+      font: 500 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--fg-muted);
+    }
+
+    /* Tablet & desktop tweaks */
+    @media (min-width: 600px) {
+      :root { --bar-h: 56px; --gap: 10px; }
+      header, footer { font-size: 15px; padding: 0 14px; }
+    }
+
+    @media (min-width: 1024px) {
+      :root { --bar-h: 64px; --gap: 12px; }
+      header, footer { font-size: 16px; padding: 0 16px; }
+    }
+
+    /* Optional: lock portrait layout visuals (content remains usable in landscape) */
+    @media (orientation: landscape) and (max-height: 540px) {
+      main::after {
+        content: "Best viewed in portrait";
+        position: absolute;
+        right: 8px;
+        bottom: 8px;
+        opacity: .5;
+        font-size: 11px;
+        pointer-events: none;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="app" id="app">
-    <header>
-      <div class="hud">
-        <div class="chip"><span class="stat">LV <b id="lv">1</b></span></div>
-        <div class="chip" style="gap:12px">
-          <span style="font-weight:700">HP</span>
-          <div class="bar"><i id="hpbar" style="width:80%"></i></div>
-          <span id="hp" class="stat">80/100</span>
-        </div>
-        <div class="chip"><span>💰</span><span id="gold" class="stat">0</span></div>
-      </div>
+  <div class="app" role="application" aria-label="Game Shell">
+    <header aria-label="Top Bar">
+      <div class="left">⟵</div>
+      <div class="title">Game</div>
+      <div class="right">☰</div>
     </header>
 
-    <main>
-      <!-- BASE / CAMP VIEW -->
-      <section id="view-base" class="view active" aria-label="Base">
-        <div class="stage">
-          <div class="stage-inner">
-            <div class="card-img" id="base-image">
-              <img class="entity" id="base-hero" alt="Hero" />
-              <div class="img-title">Camp — manage gear & plan</div>
-            </div>
-            <div class="fade" id="base-fade"></div>
-          </div>
-        </div>
-        <div class="row">
-          <button class="btn primary" id="btn-battle">Venture Forth</button>
-          <button class="btn" id="btn-inventory">Inventory</button>
-        </div>
-      </section>
-
-      <!-- BATTLE VIEW -->
-      <section id="view-battle" class="view" aria-label="Battle">
-        <div class="stage">
-          <div class="stage-inner">
-            <div class="card-img" id="battle-image">
-              <img class="entity" id="enemy-img" alt="Enemy" />
-              <div class="img-title" id="enemy-title">??? appears</div>
-              <div class="hit" id="hit-fx"></div>
-            </div>
-            <div class="fade" id="battle-fade"></div>
-          </div>
-        </div>
-        <div class="stack" style="display:grid; gap:10px">
-          <div class="slots" id="slots">
-            <div class="reel"><div class="reel-track" data-reel="0"></div></div>
-            <div class="reel"><div class="reel-track" data-reel="1"></div></div>
-            <div class="reel"><div class="reel-track" data-reel="2"></div></div>
-          </div>
-          <div class="row">
-            <button class="btn gold" id="btn-spin">SPIN</button>
-            <button class="btn" id="btn-run">Retreat</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- INVENTORY VIEW -->
-      <section id="view-inv" class="view" aria-label="Inventory">
-        <div class="stage">
-          <div class="stage-inner" style="padding:10px">
-            <div style="display:grid; gap:10px; width:100%">
-              <div style="display:flex; justify-content:space-between; align-items:center">
-                <div class="pill">🎒 Inventory</div>
-                <label class="pill" style="cursor:pointer">
-                  <input id="img-upload" type="file" accept="image/*" multiple style="display:none" />
-                  Add Images
-                </label>
-              </div>
-              <div id="gallery" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px"></div>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <button class="btn" id="btn-back">Back</button>
-          <button class="btn primary" id="btn-equip">Auto-Equip</button>
-        </div>
-      </section>
+    <main id="stage" aria-label="Game Stage">
+      <div id="game-stage">(empty stage)</div>
     </main>
 
-    <footer>
-      <div class="tabs">
-        <div class="tab active" data-tab="base">Base</div>
-        <div class="tab" data-tab="battle">Battle</div>
-        <div class="tab" data-tab="inv">Inventory</div>
-      </div>
+    <footer aria-label="Bottom Bar">
+      <div class="left">◎</div>
+      <div class="right">⏻</div>
     </footer>
   </div>
 
   <script>
-  /*
-    RogueSpin — minimal, single-file mobile-first mockup
-    - Portrait-only layout, smooth view transitions
-    - Slot-machine reels to determine battle effects
-    - Fade-in/out character/enemy art (user-imported images supported)
-    - Haptics via navigator.vibrate (where available)
-    - No external assets or libs
-  */
-
-  const $ = (sel, el=document) => el.querySelector(sel);
-  const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
-
-  const views = {
-    base: $('#view-base'),
-    battle: $('#view-battle'),
-    inv: $('#view-inv')
-  };
-
-  const tabs = $$('.tab');
-  tabs.forEach(t=>t.addEventListener('click',()=>switchView(t.dataset.tab)));
-
-  function switchView(name){
-    Object.values(views).forEach(v=>v.classList.remove('active'));
-    views[name].classList.add('active');
-    tabs.forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
-  }
-
-  // STATE (minimal placeholder)
-  const state = {
-    lv: 1, hp: 80, hpMax: 100, gold: 0,
-    gallery: loadGallery(),
-    enemyPool: [
-      { name: 'Slime', tag:'common' },
-      { name: 'Bandit', tag:'common' },
-      { name: 'Wraith', tag:'rare' },
-      { name: 'Dragon Pup', tag:'epic' }
-    ],
-    lootPool: ['Potion', 'Dagger', 'Shield', 'Gold', 'Gem', 'Nothing'],
-    effectPool: ['Strike', 'Guard', 'Crit', 'Miss', 'Burn', 'Freeze']
-  };
-
-  // HUD bind
-  function syncHud(){
-    $('#lv').textContent = state.lv;
-    $('#hp').textContent = `${state.hp}/${state.hpMax}`;
-    $('#hpbar').style.width = `${Math.max(0, (state.hp/state.hpMax)*100)}%`;
-    $('#gold').textContent = state.gold;
-  }
-  syncHud();
-
-  // Base view: hero image = first gallery img (if any)
-  function renderHero(){
-    const hero = $('#base-hero');
-    const fade = $('#base-fade');
-    if(state.gallery.length){
-      hero.src = state.gallery[0];
-      requestAnimationFrame(()=>hero.classList.add('show'));
-    } else {
-      hero.removeAttribute('src');
-      hero.classList.remove('show');
-      fade.style.opacity=.05;
+    // --- Viewport stability helpers ---
+    // 1) Backfill --app-height for browsers without dvh/svh support, esp. iOS Safari
+    function setAppHeight() {
+      const h = window.innerHeight;
+      document.documentElement.style.setProperty('--app-height', h + 'px');
     }
-  }
-  renderHero();
+    setAppHeight();
+    window.addEventListener('resize', setAppHeight);
+    window.addEventListener('orientationchange', setAppHeight);
 
-  // Inventory Gallery
-  function renderGallery(){
-    const wrap = $('#gallery');
-    wrap.innerHTML = '';
-    state.gallery.forEach((src, idx)=>{
-      const cell = document.createElement('div');
-      cell.style.position='relative';
-      cell.style.aspectRatio='1/1';
-      cell.style.border='1px solid #242a36';
-      cell.style.borderRadius='10px';
-      cell.style.overflow='hidden';
-      const img = document.createElement('img');
-      img.src = src; img.alt = 'image';
-      img.style.width='100%'; img.style.height='100%'; img.style.objectFit='cover';
-      const del = document.createElement('button');
-      del.textContent='×';
-      del.setAttribute('aria-label','remove');
-      del.style.position='absolute'; del.style.top='6px'; del.style.right='6px';
-      del.style.background='rgba(0,0,0,.5)'; del.style.border='1px solid #2a3140'; del.style.borderRadius='999px'; del.style.color='#fff'; del.style.width='26px'; del.style.height='26px'; del.style.fontWeight='700';
-      del.addEventListener('click',()=>{ state.gallery.splice(idx,1); saveGallery(); renderGallery(); renderHero(); });
-      cell.appendChild(img); cell.appendChild(del);
-      wrap.appendChild(cell);
-    });
-  }
-  renderGallery();
-
-  // Image upload -> stored as data URLs in localStorage
-  $('#img-upload').addEventListener('change', async (e)=>{
-    const files = Array.from(e.target.files||[]).slice(0,24);
-    for(const f of files){
-      const data = await fileToDataURL(f);
-      state.gallery.push(data);
+    // 2) Prevent layout jump on virtual keyboard open for simple shells
+    //    Remove if your game needs the page to resize with the keyboard
+    if ('virtualKeyboard' in navigator) {
+      try { navigator.virtualKeyboard.overlaysContent = true; } catch (e) {}
     }
-    saveGallery(); renderGallery(); renderHero();
-  });
 
-  function fileToDataURL(file){
-    return new Promise((res, rej)=>{
-      const r = new FileReader();
-      r.onload = ()=> res(r.result);
-      r.onerror = rej;
-      r.readAsDataURL(file);
-    });
-  }
+    // 3) Anti-scroll-bounce inside the stage (optional; uncomment if needed)
+    // document.getElementById('stage').addEventListener('touchmove', (e) => {
+    //   e.preventDefault();
+    // }, { passive: false });
 
-  function saveGallery(){ localStorage.setItem('roguespin_gallery', JSON.stringify(state.gallery)); }
-  function loadGallery(){ try{ return JSON.parse(localStorage.getItem('roguespin_gallery')||'[]') }catch{ return [] } }
-
-  // Transitions & haptics
-  function vibrate(ms=20){ try{ if('vibrate' in navigator) navigator.vibrate(ms) }catch{} }
-
-  // BATTLE FLOW ------------------------------------------------------------
-  $('#btn-battle').addEventListener('click',()=>{ switchView('battle'); spawnEnemy(); });
-  $('#btn-run').addEventListener('click',()=>{ switchView('base'); });
-  $('#btn-inventory').addEventListener('click',()=>{ switchView('inv'); });
-  $('#btn-back').addEventListener('click',()=>{ switchView('base'); });
-  $('#btn-equip').addEventListener('click',()=>{ flashMsg('#view-inv', 'Auto-equipped best gear'); vibrate(10); });
-
-  function spawnEnemy(){
-    const roll = rand(state.enemyPool);
-    const img = $('#enemy-img');
-    const fade = $('#battle-fade');
-    const title = $('#enemy-title');
-    // pick any gallery image or use gradient placeholder
-    if(state.gallery.length){ img.src = rand(state.gallery); requestAnimationFrame(()=>img.classList.add('show')); }
-    else { img.removeAttribute('src'); img.classList.remove('show'); }
-    fade.style.opacity = .0; title.textContent = `${roll.name} (${roll.tag}) appears`;
-  }
-
-  // Slot setup (EMOJI REELS)
-  const reels = [$('#slots [data-reel="0"]'), $('#slots [data-reel="1"]'), $('#slots [data-reel="2"]')];
-  const reelsConfig = [
-    { symbols:['⚔️','🛡️','✨','❌','🔥','❄️'], values:['Strike','Guard','Crit','Miss','Burn','Freeze'] },
-    { symbols:['🧪','🗡️','🛡️','💰','💎','∅'], values:['Potion','Dagger','Shield','Gold','Gem','Nothing'] },
-    { symbols:['1️⃣','2️⃣','3️⃣','💖','💰'], values:['x1','x2','x3','Heal','Gold'] }
-  ];
-  reels.forEach((track, i)=>{
-    track.innerHTML = '';
-    const {symbols, values} = reelsConfig[i];
-    const repeat = 8;
-    for(let r=0;r<repeat;r++){
-      symbols.forEach((sym, idx)=>{
-        const val = values[idx];
-        const el = document.createElement('div');
-        el.className = 'reel-item ' + (/(Crit|Heal|Gem|Gold)/.test(val)?'rare':/(Strike|Shield|Dagger)/.test(val)?'good':'');
-        el.textContent = sym; el.dataset.value = val;
-        track.appendChild(el);
-      });
-    }
-  });
-
-  $('#btn-spin').addEventListener('click', async ()=>{
-    vibrate(8);
-    $('#btn-spin').disabled = true; $('#btn-spin').classList.add('shake');
-    const stops = await spinAll();
-    $('#btn-spin').disabled = false; $('#btn-spin').classList.remove('shake');
-    resolveOutcome(stops);
-  });
-
-  function spinAll(){
-    // spin each reel with different duration/offset and return the landing indices
-    const promises = reels.map((track,i)=>spinReel(track, i));
-    return Promise.all(promises);
-  }
-
-  function spinReel(track, idx){
-    // New approach: continuous modulo scrolling with a timed decel, then snap to a target cell.
-    return new Promise(resolve=>{
-      const cellH = 54; // .reel-item height
-      const setLen = reelsConfig[idx].values.length;
-      const total = track.children.length;
-      const totalH = total * cellH;
-      const targetIndex = Math.floor(Math.random()*setLen);
-      const reel = track.parentElement;
-      if(reel) reel.classList.add('spinning');
-
-      // Phase 1: spin with smooth decel
-      const spinMs = 900 + idx*200 + Math.floor(Math.random()*200);
-      const settleMs = 360 + idx*90; // short settle
-      const start = performance.now();
-      let virtualY = (Math.abs(currentY(track)) % totalH + totalH) % totalH; // normalize
-
-      function tick(now){
-        const t = Math.min(1, (now-start)/spinMs);
-        // Ease-out speed curve (starts fast, slows down)
-        const speed = (1 - easeOutQuart(t)) * 18 + 6; // px per frame ~ tuned
-        virtualY = (virtualY + speed) % totalH;
-        const shownY = -virtualY;
-        track.style.transform = `translateY(${shownY}px)`;
-        if(t < 1) requestAnimationFrame(tick); else settle();
-      }
-
-      function settle(){
-        // Bring the chosen symbol to the top
-        const desired = targetIndex * cellH; // top alignment
-        // distance to move forward (wrap positive)
-        const delta = (desired - virtualY + totalH) % totalH;
-        const base = virtualY;
-        const s0 = performance.now();
-        function easeToTarget(now){
-          const p = Math.min(1, (now - s0)/settleMs);
-          const d = delta * easeOutQuad(p);
-          const y = (base + d) % totalH;
-          track.style.transform = `translateY(${-y}px)`;
-          if(p < 1) requestAnimationFrame(easeToTarget); else finish(desired);
-        }
-        requestAnimationFrame(easeToTarget);
-      }
-
-      function finish(finalOffset){
-        // Snap exact and end
-        track.style.transform = `translateY(${-finalOffset}px)`;
-        if(reel) reel.classList.remove('spinning');
-        resolve(reelsConfig[idx].values[targetIndex]);
-      }
-
-      requestAnimationFrame(tick);
-    });
-  }
-
-  function resolveOutcome(stops){
-    // stops = [effect, loot, bonus]
-    const [effect, loot, bonus] = stops;
-    const title = $('#enemy-title');
-    const hit = $('#hit-fx');
-
-    let dmg = 0, heal = 0, gold = 0;
-    if(effect==='Crit') dmg = 20; else if(effect==='Strike') dmg = 10; else if(effect==='Miss') dmg = 0; else if(effect==='Guard') dmg = 4; else if(effect==='Burn' || effect==='Freeze') dmg = 8;
-
-    if(/x2|x3/.test(bonus)) dmg *= parseInt(bonus.substring(1));
-    if(bonus==='Heal') heal = 10;
-    if(bonus==='Gold') gold = 10;
-
-    if(loot==='Gold' || loot==='Gem') gold += loot==='Gold'?8:15;
-
-    if(heal){ state.hp = Math.min(state.hpMax, state.hp + heal); showHit(`+${heal} ❤`, true); }
-    if(dmg>0){ showHit(`-${dmg} ⚔`); }
-    if(gold>0){ state.gold += gold; flashMsg('#view-battle', `+${gold} gold`); }
-
-    // Fake defeat/clear message
-    if(dmg>=15){ title.textContent = 'Enemy staggered!'; } else if(dmg===0){ title.textContent = 'You hesitate...' } else { title.textContent = 'Clean hit.' }
-
-    syncHud();
-  }
-
-  function showHit(text, good=false){
-    const el = $('#hit-fx');
-    el.textContent = text; el.style.color = good? 'var(--good)':'var(--bad)';
-    el.classList.add('show'); vibrate(good?6:12);
-    setTimeout(()=> el.classList.remove('show'), 420);
-  }
-
-  // Helpers ----------------------------------------------------------------
-  function rand(arr){ return arr[Math.floor(Math.random()*arr.length)] }
-
-  function animate(el, props, dur=500, easing=(t)=>t){
-    // simple rAF tween, animates translateY only for performance
-    const start = performance.now();
-    const initY = currentY(el);
-    const deltaY = (props.y??0) - initY;
-    el.style.willChange = 'transform';
-    return new Promise(resolve=>{
-      (function step(now){
-        const t = Math.min(1, (now-start)/dur);
-        const k = easing(t);
-        const y = initY + deltaY*k;
-        el.style.transform = `translateY(${y}px)`;
-        if(t<1) requestAnimationFrame(step); else { el.style.willChange = 'auto'; resolve(); }
-      })(start);
-    });
-  }
-  function currentY(el){
-    const m = /translateY\(([-\d.]+)px\)/.exec(el.style.transform||'');
-    return m? parseFloat(m[1]) : 0;
-  }
-  const easeOutCubic = t=>1-Math.pow(1-t,3);
-  const easeOutQuart = t=>1-Math.pow(1-t,4);
-  const easeOutQuad = t=>1-(1-t)*(1-t);
-
-  function flashMsg(scopeSel, msg){
-    const scope = $(scopeSel);
-    const n = document.createElement('div');
-    n.textContent = msg;
-    Object.assign(n.style,{
-      position:'absolute', left:'50%', bottom:'18px', transform:'translateX(-50%)', padding:'10px 14px',
-      background:'rgba(0,0,0,.6)', border:'1px solid #2a3140', color:'#fff', borderRadius:'12px',
-      fontWeight:'700', boxShadow:'var(--shadow)', zIndex:5, opacity:'0'
-    });
-    scope.appendChild(n);
-    requestAnimationFrame(()=>{ n.style.transition='opacity 220ms ease, transform 220ms ease'; n.style.opacity='1'; n.style.transform='translate(-50%,-6px)'; });
-    setTimeout(()=>{ n.style.opacity='0'; n.style.transform='translate(-50%,0)'; setTimeout(()=>n.remove(),220); }, 1050);
-  }
-
-  // Keyboard helpers for desktop testing
-  window.addEventListener('keydown',(e)=>{
-    if(e.key==='1') switchView('base');
-    if(e.key==='2') { switchView('battle'); spawnEnemy(); }
-    if(e.key==='3') switchView('inv');
-    if(e.key===' ') { if($('.view.active')===views.battle) $('#btn-spin').click(); }
-  });
-
-  // Initial enemy preview if user switches early
-  $('#enemy-title').textContent = 'Find an enemy…';
-
-  /* --------------------------------------------------
-     Lightweight Dev Tests (open with #test or ?test=1)
-     - Does not alter gameplay; logs to console.
-  -------------------------------------------------- */
-  function runTests(){
-    const results=[]; const log=(name,pass)=>{results.push({name,pass}); if(!pass) throw new Error('Test failed: '+name)};
-    // 1) Reels config lengths match
-    reelsConfig.forEach((rc,i)=>log(`reel ${i} symbols==values`, rc.symbols.length===rc.values.length));
-    // 2) spinReel resolves to a valid value using a detached dummy reel
-    const dummyReel=document.createElement('div'); dummyReel.className='reel';
-    const track=document.createElement('div'); track.className='reel-track'; dummyReel.appendChild(track);
-    const {symbols, values}=reelsConfig[0];
-    for(let r=0;r<2;r++) symbols.forEach((sym, idx)=>{ const el=document.createElement('div'); el.className='reel-item'; el.textContent=sym; el.dataset.value=values[idx]; track.appendChild(el); });
-    return spinReel(track,0).then(val=>{ log('spinReel returns allowed value', reelsConfig[0].values.includes(val));
-      // 3) resolveOutcome executes without throwing
-      resolveOutcome(['Strike','Gold','x2']);
-      console.log('[RogueSpin Tests] All passed:', results);
-      if(location.hash.includes('test')||/[?&]test=1/.test(location.search)) flashMsg('#view-battle','Tests passed');
-      return results;
-    });
-  }
-  window.__runTests = runTests;
-  if(location.hash.includes('test')||/[?&]test=1/.test(location.search)){
-    // Ensure DOM is ready and a battle view exists
-    if($('.view.active')!==views.battle){ switchView('battle'); }
-    runTests().catch(err=>console.error(err));
-  }
-
+    // Placeholder: where you'd mount your canvas or game engine
+    // const canvas = document.createElement('canvas');
+    // Object.assign(canvas.style, { width: '100%', height: '100%', display: 'block' });
+    // document.getElementById('stage').appendChild(canvas);
   </script>
 </body>
 </html>
