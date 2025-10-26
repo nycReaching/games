@@ -97,10 +97,9 @@
         /* * 4. UI SECTIONS (HEADER, MAIN, FOOTER)
          */
         
-        /* Header & Footer are locked, non-shrinking bars */
         #game-header, #game-footer {
             flex-shrink: 0;
-            padding: 0.75rem 1rem;
+            padding: 1rem 1.25rem;
             background-color: rgba(0,0,0,0.2);
             z-index: 10;
         }
@@ -119,10 +118,6 @@
         }
 
         /* * 5. GAME CANVAS
-         * The canvas itself. Its size is set by JavaScript to maintain
-         * the aspect ratio, but it's centered in its container.
-         * The 'object-fit' property isn't used here since JS
-         * is setting the style, but 'max-width/height' are good fallbacks.
          */
         #game-canvas {
             background: #374151;
@@ -137,34 +132,147 @@
         /* * 6. RESPONSIVE COMPONENTS
          */
 
-        /* Icons: We use 'vmin' to make icons scale with the
-         * smallest viewport dimension, ensuring they are always
-         * a good size in any portrait-like aspect ratio.
-         */
-        .stat-icon {
-            width: 5vmin;
-            height: 5vmin;
-            max-width: 24px;
-            max-height: 24px;
-            min-width: 18px;
-            min-height: 18px;
+        /* * NEW: Header Stat Styles */
+        .stat-level-display {
+            width: clamp(50px, 15vmin, 70px);
+            height: clamp(50px, 15vmin, 70px);
+            border-radius: 9999px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #111827;
+            border: 2px solid #3B82F6;
+            box-shadow: 0 0 10px 0 rgba(59, 130, 246, 0.5);
+        }
+        .stat-level-display .level-number {
+            font-size: clamp(1.125rem, 5vmin, 1.5rem);
+            font-weight: 700;
+            line-height: 1;
+        }
+        .stat-level-display .level-label {
+            font-size: 0.75rem; /* 12px */
+            font-weight: 600;
+            color: #9CA3AF;
+            text-transform: uppercase;
+            line-height: 1;
         }
 
-        /* * Action Buttons: This demonstrates the clamp() function.
-         * Font size will be 4vmin (scales with viewport).
-         * ...but it will NOT go below 0.875rem (14px).
-         * ...and it will NOT go above 1.125rem (18px).
-         * This gives us fluid scaling with safe boundaries.
+        /* * NEW: Stat Bars */
+        .stat-bar {
+            width: 100%;
+            background-color: #111827;
+            border-radius: 9999px;
+            border: 1px solid #374151;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-bar-inner {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.3s ease;
+        }
+        .stat-bar-text {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem; /* 14px */
+        }
+        
+        /* HP Bar */
+        .stat-bar.hp { height: 24px; }
+        .stat-bar.hp .stat-bar-inner { background-color: #22C55E; } /* green-500 */
+        .stat-bar.hp .stat-bar-text { color: #1F2937; }
+
+        /* Energy Bar */
+        .stat-bar.energy { height: 16px; }
+        .stat-bar.energy .stat-bar-inner { background-color: #0EA5E9; } /* sky-500 */
+        .stat-bar.energy .stat-bar-text { font-size: 0.75rem; color: #1F2937; } /* 12px */
+
+        /* * NEW: Currency Display */
+        .stat-currency-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 9999px;
+            margin-right: 0.5rem; /* 8px */
+        }
+        .stat-currency-icon.gold {
+            background-color: #FACC15; /* yellow-400 */
+            border: 2px solid #FDE047; /* yellow-300 */
+        }
+        .stat-currency-icon.gems {
+            width: 18px;
+            height: 18px;
+            background-color: #A78BFA; /* violet-400 */
+            border: 2px solid #C4B5FD; /* violet-300 */
+            transform: rotate(45deg);
+            border-radius: 4px;
+        }
+
+        /* * NEW: Status Icons */
+        .status-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 0.375rem; /* 6px */
+            background-color: #374151;
+            border: 1px solid #4B5563;
+        }
+        .status-icon.buff {
+            background-color: #166534; /* green-800 */
+            border-color: #22C55E; /* green-500 */
+        }
+        .status-icon.debuff {
+            background-color: #991B1B; /* red-800 */
+            border-color: #EF4444; /* red-500 */
+        }
+
+
+        /* * Action Buttons Base Style
          */
         .game-button {
             font-size: clamp(0.875rem, 4vmin, 1.125rem);
-            transition: all 0.1s ease-in-out;
+            padding-top: 0.85rem;
+            padding-bottom: 0.85rem;
+            font-weight: 700;
+            border-radius: 0.5rem; /* 8px */
+            transition: transform 75ms ease-out, box-shadow 75ms ease-out, background-color 75ms ease-out;
         }
 
-        /* * 7. MODAL (Pop-up)
-         * A standard, hidden-by-default modal pattern.
-         * It uses 'inset-0' to fill its parent (#game-wrapper).
-         * We use CSS classes (e.g., '.hidden') to toggle visibility.
+        /* * 3D Button Styles */
+        .btn-red {
+            background-color: #DC2626; /* red-600 */
+            box-shadow: 0 4px 0 0 #B91C1C; /* red-700 */
+        }
+        .btn-red:active {
+            background-color: #EF4444; /* red-500 */
+            transform: translateY(3px) scale(0.98);
+            box-shadow: 0 1px 0 0 #B91C1C;
+        }
+        
+        .btn-blue {
+            background-color: #2563EB; /* blue-600 */
+            box-shadow: 0 4px 0 0 #1D4ED8; /* blue-800 */
+        }
+        .btn-blue:active {
+            background-color: #3B82F6; /* blue-500 */
+            transform: translateY(3px) scale(0.98);
+            box-shadow: 0 1px 0 0 #1D4ED8;
+        }
+
+        /* * Item Slot */
+        .item-slot {
+            width: clamp(48px, 14vmin, 64px);
+            height: clamp(48px, 14vmin, 64px);
+            background-color: #111827; /* Darker bg */
+            border: 2px solid #374151; /* Gray border */
+            border-radius: 0.5rem; /* 8px */
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.4); /* Inner shadow */
+        }
+
+        /* * MODAL (Pop-up)
          */
         #settings-modal {
             position: absolute;
@@ -196,35 +304,56 @@
     -->
     <div id="game-wrapper">
 
-        <!-- 1. HEADER (Top UI Bar) -->
-        <header id="game-header" class="flex items-center justify-between">
-            <!-- Left Stats: Score & Gems -->
-            <div class="flex items-center space-x-4">
-                <!-- Score -->
-                <div class="flex items-center space-x-2 bg-gray-900 px-3 py-1 rounded-full">
-                    <!-- Coin SVG -->
-                    <svg class="stat-icon text-yellow-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 11.21 12.77 10.5 12 10.5s-1.536.71-2.121 1.256c-1.172.879-1.172 2.303 0 3.182z" />
-                    </svg>
-                    <span id="score-display" class="text-lg font-bold">1,250</span>
+        <!-- 1. HEADER (Top UI Bar) - UPDATED -->
+        <header id="game-header" class="flex flex-col space-y-3">
+            
+            <!-- Row 1: Level + Settings -->
+            <div class="flex items-center justify-between">
+                <div class="stat-level-display">
+                    <span class="level-number">8</span>
+                    <span class="level-label">LVL</span>
                 </div>
-                <!-- Gems -->
-                <div class="flex items-center space-x-2 bg-gray-900 px-3 py-1 rounded-full">
-                    <!-- Gem SVG -->
-                    <svg class="stat-icon text-purple-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c.667 0 1.333.224 2 .667V6.5A2.5 2.5 0 0011.5 4L12 3.5 12.5 4A2.5 2.5 0 0115 6.5v2.167c.667-.443 1.333-.667 2-.667h1.5a2.5 2.5 0 012.5 2.5v.5c0 .667-.224 1.333-.667 2L20.5 15h-1.167c-.667 0-1.333.224-2 .667v2.167A2.5 2.5 0 0114.5 20l-.5.5-.5-.5A2.5 2.5 0 0111 17.833V15.667c-.667-.443-1.333-.667-2-.667H7.5A2.5 2.5 0 015 12.5v-.5c0-.667.224-1.333.667-2L3.5 10h1.167c.667 0 1.333-.224 2-.667V7.167A2.5 2.5 0 019.5 4l.5-.5.5.5A2.5 2.5 0 0113 7.167V9.333c-.667-.443-1.333-.667-2-.667H9.5A2.5 2.5 0 007 10.5v.5c0 .667.224 1.333.667 2L5.5 13h1.167c.667 0 1.333.224 2 .667v2.167a2.5 2.5 0 002.5 2.5l.5.5.5-.5a2.5 2.5 0 002.5-2.5V13.667c.667-.443 1.333-.667 2-.667h1.167l-2.167-1.5c-.443-.667-.667-1.333-.667-2v-.5a2.5 2.5 0 012.5-2.5h-1.5z" />
+                <!-- Settings Button -->
+                <button id="settings-btn" class="p-2 ml-2 rounded-full hover:bg-gray-600 transition-colors self-start">
+                    <!-- Cog SVG -->
+                    <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-1.007 1.11-.902l.11.02a11.985 11.985 0 013.67 1.63M9.594 3.94L8.25 15.006M14.406 3.94L15.75 15.006M14.406 3.94c-.09.542-.56 1.007-1.11.902l-.11-.02a11.985 11.985 0 00-3.67 1.63M14.406 3.94L15.75 15.006M14.406 3.94L13.06 15.006M9.594 3.94L10.94 15.006m2.12-11.066c.09-.542.56-1.007 1.11-.902l.11.02a11.985 11.985 0 013.67 1.63m-4.78 0L8.25 15.006m4.78-11.066L15.75 15.006m-4.78-11.066L13.06 15.006m-2.12 11.066c-.09.542-.56 1.007-1.11.902l-.11-.02a11.985 11.985 0 00-3.67-1.63m4.78 0L15.75 15.006m-4.78 0L13.06 15.006m0 0L8.25 15.006m4.78 0L15.75 15.006" />
                     </svg>
-                    <span id="gem-display" class="text-lg font-bold">48</span>
-                </div>
+                </button>
             </div>
             
-            <!-- Right Side: Settings Button -->
-            <button id="settings-btn" class="p-2 rounded-full hover:bg-gray-600 transition-colors">
-                <!-- Cog SVG -->
-                <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-1.007 1.11-.902l.11.02a11.985 11.985 0 013.67 1.63M9.594 3.94L8.25 15.006M14.406 3.94L15.75 15.006M14.406 3.94c-.09.542-.56 1.007-1.11.902l-.11-.02a11.985 11.985 0 00-3.67 1.63M14.406 3.94L15.75 15.006M14.406 3.94L13.06 15.006M9.594 3.94L10.94 15.006m2.12-11.066c.09-.542.56-1.007 1.11-.902l.11.02a11.985 11.985 0 013.67 1.63m-4.78 0L8.25 15.006m4.78-11.066L15.75 15.006m-4.78-11.066L13.06 15.006m-2.12 11.066c-.09.542-.56 1.007-1.11.902l-.11-.02a11.985 11.985 0 00-3.67-1.63m4.78 0L15.75 15.006m-4.78 0L13.06 15.006m0 0L8.25 15.006m4.78 0L15.75 15.006" />
-                </svg>
-            </button>
+            <!-- Row 2: HP Bar -->
+            <div class="stat-bar hp">
+                <div class="stat-bar-inner" style="width: 75%;"></div>
+                <div class="stat-bar-text">750 / 1000</div>
+            </div>
+            
+            <!-- Row 3: Energy Bar -->
+            <div class="stat-bar energy">
+                <div class="stat-bar-inner" style="width: 90%;"></div>
+                <div class="stat-bar-text">90 / 100</div>
+            </div>
+
+            <!-- Row 4: Currencies -->
+            <div class="flex items-center justify-between space-x-4">
+                <div class="flex items-center flex-grow bg-gray-900 bg-opacity-50 px-3 py-1 rounded-full">
+                    <div class="stat-currency-icon gold"></div>
+                    <span id="score-display" class="font-bold text-lg">1,250</span>
+                </div>
+                <div class="flex items-center flex-grow bg-gray-900 bg-opacity-50 px-3 py-1 rounded-full">
+                    <div class="stat-currency-icon gems"></div>
+                    <span id="gem-display" class="font-bold text-lg">48</span>
+                </div>
+            </div>
+
+            <!-- Row 5: Status Icons -->
+            <div class="flex items-center space-x-2">
+                <div class="status-icon buff"></div>
+                <div class="status-icon debuff"></div>
+                <div class="status-icon"></div>
+                <div class="status-icon"></div>
+            </div>
+            
         </header>
 
         <!-- 2. MAIN GAME AREA (Canvas Container) -->
@@ -234,16 +363,20 @@
 
         <!-- 3. FOOTER (Action Bar) -->
         <footer id="game-footer">
-            <div class="grid grid-cols-3 gap-2 sm:gap-4">
-                <!-- 
-                  These buttons demonstrate:
-                  1. Input Abstraction: They use 'data-action' to define their logic.
-                  2. 'game-button' class: Uses clamp() for responsive fonts.
-                  3. Tailwind: For all other styling.
-                -->
-                <button data-action="ability-1" class="game-button bg-blue-600 text-white font-bold p-3 rounded-lg shadow-lg hover:bg-blue-500 active:bg-blue-700">Ability 1</button>
-                <button data-action="attack" class="game-button bg-red-600 text-white font-bold p-3 rounded-lg shadow-lg hover:bg-red-500 active:bg-red-700">Attack</button>
-                <button data-action="inventory" class="game-button bg-gray-600 text-white font-bold p-3 rounded-lg shadow-lg hover:bg-gray-500 active:bg-gray-700">Items</button>
+            <div class="flex items-center justify-between">
+                
+                <!-- Left Side: 3 Item Slots -->
+                <div class="flex space-x-2">
+                    <div class="item-slot"></div>
+                    <div class="item-slot"></div>
+                    <div class="item-slot"></div>
+                </div>
+
+                <!-- Right Side: 2 Stacked Buttons -->
+                <div class="flex flex-col space-y-2 w-1/2 ml-4">
+                    <button data-action="attack" class="game-button w-full text-white btn-red">Attack</button>
+                    <button data-action="ability-1" class="game-button w-full text-white btn-blue">Ability</button>
+                </div>
             </div>
         </footer>
 
@@ -268,7 +401,7 @@
                         <input type="range" class="w-full mt-1" min="0" max="100" value="75">
                     </div>
                 </div>
-                <button id="close-modal-btn" class="game-button w-full mt-6 bg-blue-600 text-white font-bold p-3 rounded-lg hover:bg-blue-500">
+                <button id="close-modal-btn" class="game-button w-full mt-6 bg-blue-600 text-white font-bold p-3 rounded-lg hover:bg-blue-500 active:scale-95">
                     Close
                 </button>
             </div>
@@ -283,8 +416,6 @@
             const canvasContainer = document.getElementById('game-canvas-container');
 
             // --- 1. FIXED ASPECT RATIO (9:16) ---
-            // We define a base internal resolution for the game.
-            // This is NOT the canvas's size in pixels, but its logical size.
             const GAME_ASPECT_RATIO = 9 / 16;
             canvas.width = 1080;  // 9 * 120
             canvas.height = 1920; // 16 * 120
@@ -296,52 +427,96 @@
 
                 let newWidth, newHeight;
 
-                // Compare container ratio to game ratio to decide scaling
                 if (containerRatio < GAME_ASPECT_RATIO) {
-                    // Container is TALLER than game (fit to width)
                     newWidth = containerWidth;
                     newHeight = containerWidth / GAME_ASPECT_RATIO;
                 } else {
-                    // Container is WIDER than game (fit to height)
                     newHeight = containerHeight;
                     newWidth = containerHeight * GAME_ASPECT_RATIO;
                 }
 
-                // Apply the new size to the canvas's STYLE
-                // This scales the 1080x1920 canvas to fit the space.
                 canvas.style.width = `${Math.floor(newWidth)}px`;
                 canvas.style.height = `${Math.floor(newHeight)}px`;
             }
 
-            // Resize canvas on initial load and on window resize
             window.addEventListener('resize', resizeCanvas);
             resizeCanvas();
 
-            // --- 2. HYPOTHETICAL GAME LOOP ---
-            // Simple animation to show the canvas is live and scaled.
-            let playerY = canvas.height * 0.75;
-            let enemyY = canvas.height * 0.25;
-            let time = 0;
+            // --- 2. "SCREENSAVER" GAME LOOP ---
+            
+            // Logo properties, sized relative to the 1080x1920 internal canvas
+            let logo = {
+                x: 150,
+                y: 100,
+                width: 300,
+                height: 150,
+                speedX: 5,
+                speedY: 5,
+                color: '#3B82F6' // Start blue
+            };
+            
+            function getRandomColor() {
+                const letters = '0123456789ABCDEF';
+                let color = '#';
+                for (let i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            }
 
             function gameLoop() {
-                time += 0.05;
+                // Update position
+                logo.x += logo.speedX;
+                logo.y += logo.speedY;
+
+                // Collision detection with walls
+                let hitWall = false;
+                
+                // Left wall
+                if (logo.x < 0) {
+                    logo.speedX *= -1;
+                    logo.x = 0;
+                    hitWall = true;
+                }
+                // Right wall
+                if (logo.x + logo.width > canvas.width) {
+                    logo.speedX *= -1;
+                    logo.x = canvas.width - logo.width;
+                    hitWall = true;
+                }
+                // Top wall
+                if (logo.y < 0) {
+                    logo.speedY *= -1;
+                    logo.y = 0;
+                    hitWall = true;
+                }
+                // Bottom wall
+                if (logo.y + logo.height > canvas.height) {
+                    logo.speedY *= -1;
+                    logo.y = canvas.height - logo.height;
+                    hitWall = true;
+                }
+
+                // Change color on hit
+                if (hitWall) {
+                    logo.color = getRandomColor();
+                }
+
+                // --- Draw everything ---
                 
                 // Clear the canvas
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
-                // Draw "Player"
-                ctx.fillStyle = '#3B82F6'; // blue
-                ctx.fillRect(canvas.width / 2 - 50, playerY + Math.sin(time) * 10 - 50, 100, 100);
-                ctx.fillStyle = 'white';
-                ctx.font = '80px Inter';
-                ctx.textAlign = 'center';
-                ctx.fillText('P', canvas.width / 2, playerY + 25);
+                // Draw "LOGO" box
+                ctx.fillStyle = logo.color;
+                ctx.fillRect(logo.x, logo.y, logo.width, logo.height);
                 
-                // Draw "Enemy"
-                ctx.fillStyle = '#DC2626'; // red
-                ctx.fillRect(canvas.width / 2 - 50, enemyY + Math.cos(time) * 10 - 50, 100, 100);
-                ctx.fillStyle = 'white';
-                ctx.fillText('E', canvas.width / 2, enemyY + 25);
+                // Draw text inside the box
+                ctx.fillStyle = '#FFFFFF'; // White text
+                ctx.font = 'bold 80px Inter';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle'; // Center text vertically
+                ctx.fillText('LOGO', logo.x + logo.width / 2, logo.y + logo.height / 2);
 
                 requestAnimationFrame(gameLoop);
             }
@@ -349,7 +524,6 @@
             gameLoop();
 
             // --- 3. INPUT ABSTRACTION (Pointer Events) ---
-            // We listen for 'pointerdown' which works for BOTH mouse clicks and touch taps.
             
             // Modal controls
             const settingsModal = document.getElementById('settings-modal');
@@ -372,20 +546,10 @@
             const actionButtons = document.querySelectorAll('.game-button[data-action]');
             actionButtons.forEach(button => {
                 button.addEventListener('pointerdown', (e) => {
-                    e.preventDefault(); // Prevents double-firing 'click'
+                    // CSS :active pseudo-class handles the animation.
+                    // We just log the action.
                     const action = e.currentTarget.dataset.action;
                     console.log(`Action triggered: ${action}`);
-                    
-                    // Add a simple visual feedback
-                    e.currentTarget.style.transform = 'scale(0.95)';
-                });
-                
-                // Reset visual feedback on pointer up
-                button.addEventListener('pointerup', (e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                });
-                button.addEventListener('pointerleave', (e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
                 });
             });
         });
@@ -393,3 +557,4 @@
 
 </body>
 </html>
+
