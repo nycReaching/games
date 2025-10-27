@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-  <title>Game UI Shell v14 (unified)</title>
+  <title>Game UI Shell v15 (rect buttons, desc tap, blue armor)</title>
   <style>
     :root {
       --max-phone-width: 420px;
@@ -182,14 +182,15 @@
       box-shadow: 0 0 12px rgba(255,255,255,0.4);
     }
 
-    /* both HP and ARMOR half full (50%) */
+    /* HP: red */
     .meter-bar-inner.hp {
       background: linear-gradient(to right, #dc2626 0%, #f87171 100%);
       width: 50%;
     }
 
+    /* ARMOR: blue */
     .meter-bar-inner.armor {
-      background: linear-gradient(to right, #6366f1 0%, #c084fc 100%);
+      background: linear-gradient(to right, #0ea5e9 0%, #60a5fa 100%);
       width: 50%;
     }
 
@@ -198,7 +199,7 @@
       position: absolute;
       left: 0;
       right: 0;
-      bottom: var(--inventory-height); /* sit directly above inventory row, full bleed */
+      bottom: var(--inventory-height); /* sits above inventory */
 
       background: radial-gradient(circle at 50% 0%, rgba(20,30,55,0.8) 0%, rgba(0,0,0,0.4) 70%);
       border: 1px solid rgba(255,255,255,0.2);
@@ -214,7 +215,7 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      pointer-events: none;
+      pointer-events: none; /* only items are tappable */
     }
 
     .description-title {
@@ -250,7 +251,7 @@
       width: 56px;
       height: 56px;
       background: radial-gradient(circle at 50% 0%, var(--slot-bg-start) 0%, var(--slot-bg-end) 70%);
-      border: 1px solid var(--slot-border);
+      border: 2px solid rgba(255,255,255,0.7); /* thicker, brighter border */
       border-radius: 10px;
       display: flex;
       justify-content: center;
@@ -258,8 +259,15 @@
       font-size: 1.5rem;
       color: #fff;
       box-shadow: 0 8px 16px rgba(0,0,0,0.75),
-                  0 1px 2px rgba(255,255,255,0.22) inset;
+                  0 1px 2px rgba(255,255,255,0.22) inset,
+                  0 0 12px rgba(255,255,255,0.5);
       user-select: none;
+      cursor: pointer;
+    }
+
+    .slot.active {
+      outline: 2px solid #fff;
+      outline-offset: 2px;
     }
 
     /* overrides for specific equipment slots */
@@ -282,20 +290,22 @@
       background: radial-gradient(circle at 50% 100%, var(--panel-bg-start) 0%, var(--panel-bg-end) 70%);
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: stretch;
       padding: 6px 12px;
     }
 
     .buttons-area {
       display: flex;
-      gap: 20px;
-      align-items: center;
+      gap: 12px;
+      align-items: stretch;
+      width: 100%;
+      max-width: 360px;
     }
 
-    .round-btn {
-      width: 54px;
-      height: 54px;
-      border-radius: 50%;
+    /* WIDE RECT BUTTONS */
+    .action-btn {
+      flex: 1 1 0%;
+      border-radius: 10px;
       background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.18) 0%, rgba(0,0,0,0) 70%);
       border: 1px solid rgba(255,255,255,0.24);
       box-shadow: 0 14px 28px rgba(0,0,0,0.8),
@@ -304,16 +314,17 @@
       touch-action: manipulation;
       -webkit-user-select: none;
       appearance: none;
-      border-radius: 9999px;
-      border-width: 1px;
-      border-style: solid;
       cursor: pointer;
       position: relative;
       overflow: hidden;
+      min-height: 56px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
-    /* inner gradient layer for color */
-    .round-btn::before {
+    /* A button gradient */
+    .action-btn.primary::before {
       content: "";
       position: absolute;
       inset: 0;
@@ -323,31 +334,29 @@
       z-index: 0;
     }
 
-    .round-btn.secondary {
-      width: 64px;
-      height: 64px;
-      box-shadow: 0 18px 32px rgba(0,0,0,0.85),
-                  0 2px 4px rgba(255,255,255,0.22) inset;
-    }
-
-    .round-btn.secondary::before {
+    /* B button gradient */
+    .action-btn.secondary::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
       background: radial-gradient(circle at 50% 0%, var(--btn-purple-start) 0%, var(--btn-purple-end) 80%);
       box-shadow: 0 0 64px rgba(168,85,247,0.6);
+      z-index: 0;
     }
 
-    .round-btn-inner-label {
+    .btn-label {
       position: relative;
       z-index: 1;
-      font-size: 0.7rem;
+      font-size: 0.8rem;
       font-weight: 600;
       color: #fff;
       text-shadow: 0 1px 2px rgba(0,0,0,0.8);
       pointer-events: none;
     }
 
-    .round-btn:active {
-      transform: scale(0.94);
-      background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.24) 0%, rgba(0,0,0,0) 70%);
+    .action-btn:active {
+      transform: scale(0.96);
     }
   </style>
 </head>
@@ -374,37 +383,58 @@
       <section class="meters-area">
         <div class="meter-block">
           <div class="meter-label-row"><span>HP</span><span>5 / 10</span></div>
-          <div class="meter-bar-outer"><div class="meter-bar-inner hp"></div></div>
+          <div class="meter-bar-outer"><div class="meter-bar-inner hp" id="hpBar"></div></div>
         </div>
 
         <div class="meter-block">
           <div class="meter-label-row"><span>ARMOR</span><span>5 / 10</span></div>
-          <div class="meter-bar-outer"><div class="meter-bar-inner armor"></div></div>
+          <div class="meter-bar-outer"><div class="meter-bar-inner armor" id="armorBar"></div></div>
         </div>
       </section>
 
       <!-- full-width description box just above inventory -->
-      <div class="description-box">
-        <div class="description-title">Encounter</div>
-        <div class="description-body">A whisper moves through the ruins. Something is watching...</div>
+      <div class="description-box" id="descBox">
+        <div class="description-title" id="descTitle">Encounter</div>
+        <div class="description-body" id="descBody">Tap an item below to inspect it.</div>
       </div>
     </section>
 
     <!-- INVENTORY / EQUIPMENT -->
     <div class="inventory-row">
-      <div class="slot dagger">🗡️</div>
-      <div class="slot shield">🛡️</div>
-      <div class="slot diamond">💎</div>
-      <div class="slot poultry">🍗</div>
+      <div class="slot dagger" data-title="Steel Dagger" data-desc="Fast, light blade. +2 damage on backstab.">🗡️</div>
+      <div class="slot shield" data-title="Knight Shield" data-desc="Blocks frontal hits. Adds +3 armor.">🛡️</div>
+      <div class="slot diamond" data-title="Sun Gem" data-desc="Sells for a fortune. Rumored to open sealed doors.">💎</div>
+      <div class="slot poultry" data-title="Roast Meat" data-desc="Restores 4 HP when eaten.">🍗</div>
     </div>
 
     <!-- CONTROLS -->
     <nav class="bottom-section">
       <section class="buttons-area">
-        <button class="round-btn"><span class="round-btn-inner-label">A</span></button>
-        <button class="round-btn secondary"><span class="round-btn-inner-label">B</span></button>
+        <button class="action-btn primary"><span class="btn-label">A</span></button>
+        <button class="action-btn secondary"><span class="btn-label">B</span></button>
       </section>
     </nav>
   </main>
+
+  <script>
+    // tap items -> update description box
+    const slots = document.querySelectorAll('.slot');
+    const descTitle = document.getElementById('descTitle');
+    const descBody = document.getElementById('descBody');
+
+    slots.forEach(slot => {
+      slot.addEventListener('click', () => {
+        // visual active state
+        slots.forEach(s => s.classList.remove('active'));
+        slot.classList.add('active');
+
+        // update description panel
+        const title = slot.getAttribute('data-title') || 'Item';
+        const body = slot.getAttribute('data-desc') || '';
+        descTitle.textContent = title;
+        descBody.textContent = body;
+      });
+    });
+  </script>
 </body>
 </html>
