@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-  <title>Game UI Shell - light roguelike skin</title>
+  <title>Game UI Shell - light roguelike skin (fixed)</title>
   <style>
     :root {
       --max-phone-width: 420px;
@@ -89,7 +89,14 @@
       position: relative;
       width: 100%;
       max-width: var(--max-phone-width);
-      height: clamp(600px, 100dvh, 900px);
+      /*
+        IMPORTANT CHANGE:
+        Instead of a clamp() height that can become smaller than the
+        content (which caused the bottom UI to get cropped during
+        dynamic zoom/resize on mobile), we let the shell grow with
+        content and make sure the viewport itself can scroll.
+      */
+      min-height: 600px;           /* old clamp() min */
       background: radial-gradient(circle at 50% 0%, var(--device-bg-start) 0%, var(--device-bg-end) 70%);
       border-radius: 28px;
       border: 2px solid rgba(26,30,47,0.4);
@@ -100,6 +107,8 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
+      /* NEW: create an internal flex column that never visually
+         overlaps the bottom bar and can scroll if it needs to */
     }
 
     /* decorative corner screws / rivets for game feel */
@@ -123,8 +132,22 @@
     }
 
     /* =========================================================
-       TOP BAR: resources get "chips" instead of flat cards
+       LAYOUT FIX: MAIN CONTENT VS FIXED CONTROLS
+       We'll wrap the scrollable game stack (everything above the
+       buttons) in .game-body. The bottom controls bar will then be
+       stuck to the bottom of the device using flexbox and
+       safe-area padding.
        ========================================================= */
+    .game-body {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 0; /* required so the child can scroll */
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* TOP BAR */
     .top-section {
       flex: 0 0 var(--top-height);
       display: grid;
@@ -172,7 +195,7 @@
        PLAY AREA
        ========================================================= */
     .middle-section {
-      flex: 1;
+      flex: 0 0 auto;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -355,7 +378,6 @@
 
     /* =========================================================
        INVENTORY STRIP
-       Style it like console slots => toy-like plastic chips
        ========================================================= */
     .inventory-row {
       flex: 0 0 var(--inventory-height);
@@ -401,7 +423,6 @@
         0 8px 16px rgba(26,30,47,0.3);
     }
 
-    /* individual rarity / type tints like stickers */
     .slot.dagger {
       background: radial-gradient(circle at 50% 0%, #fff 0%, #ffe7c7 60%);
     }
@@ -416,16 +437,17 @@
     }
 
     /* =========================================================
-       BOTTOM CONTROLS
-       Buttons feel like handheld console face buttons
+       BOTTOM CONTROLS (now pinned at the bottom via flexbox)
        ========================================================= */
     .bottom-section {
-      flex: 0 0 var(--bottom-height);
+      flex: 0 0 auto;
       display: flex;
       justify-content: center;
       align-items: stretch;
       padding: 10px 16px calc(env(safe-area-inset-bottom) + 12px);
       background: radial-gradient(circle at 50% 100%, rgba(255,255,255,0.6) 0%, rgba(210,220,255,0.4) 70%);
+      border-top: var(--window-border);
+      box-shadow: 0 -4px 12px rgba(26,30,47,0.12);
     }
 
     .buttons-area {
@@ -488,71 +510,71 @@
 </head>
 <body>
   <main class="device">
-    <!-- TOP RESOURCES -->
-    <header class="top-section">
-      <div class="resource-card">
-        <div class="resource-main-row">💰 <span>1,234</span></div>
-        <div class="resource-label">Gold</div>
-      </div>
-      <div class="resource-card">
-        <div class="resource-main-row">✨ <span>56</span></div>
-        <div class="resource-label">Magic</div>
-      </div>
-      <div class="resource-card">
-        <div class="resource-main-row">🕊️ <span>12</span></div>
-        <div class="resource-label">Grace</div>
-      </div>
-    </header>
-
-    <!-- GAME / MIDDLE -->
-    <section class="middle-section">
-      <!-- meters area in its own styled window -->
-      <section class="meters-window">
-        <div class="meter-block">
-          <div class="meter-label-row"><span>HP</span><span>5 / 10</span></div>
-          <div class="meter-bar-outer"><div class="meter-bar-inner hp" id="hpBar"></div></div>
+    <section class="game-body"><!-- scrollable column -->
+      <!-- TOP RESOURCES -->
+      <header class="top-section">
+        <div class="resource-card">
+          <div class="resource-main-row">💰 <span>1,234</span></div>
+          <div class="resource-label">Gold</div>
         </div>
+        <div class="resource-card">
+          <div class="resource-main-row">✨ <span>56</span></div>
+          <div class="resource-label">Magic</div>
+        </div>
+        <div class="resource-card">
+          <div class="resource-main-row">🕊️ <span>12</span></div>
+          <div class="resource-label">Grace</div>
+        </div>
+      </header>
 
-        <div class="meter-block">
-          <div class="meter-label-row"><span>ARMOR</span><span>5 / 10</span></div>
-          <div class="meter-bar-outer"><div class="meter-bar-inner armor" id="armorBar"></div></div>
+      <!-- GAME / MIDDLE -->
+      <section class="middle-section">
+        <section class="meters-window">
+          <div class="meter-block">
+            <div class="meter-label-row"><span>HP</span><span>5 / 10</span></div>
+            <div class="meter-bar-outer"><div class="meter-bar-inner hp" id="hpBar"></div></div>
+          </div>
+
+          <div class="meter-block">
+            <div class="meter-label-row"><span>ARMOR</span><span>5 / 10</span></div>
+            <div class="meter-bar-outer"><div class="meter-bar-inner armor" id="armorBar"></div></div>
+          </div>
+        </section>
+
+        <section class="battle-window">
+          <div class="battle-side left">
+            <div class="fighter-emoji">🧙‍♂️</div>
+            <div class="fighter-name">You</div>
+            <div class="fighter-stats">HP 5/10 • ARM 5</div>
+          </div>
+          <div class="vs-col">VS</div>
+          <div class="battle-side right">
+            <div class="fighter-emoji">🐉</div>
+            <div class="fighter-name">Ancient Drake</div>
+            <div class="fighter-stats">HP 12/12 • ARM 2</div>
+          </div>
+          <div class="battle-log">The drake snarls and embers scatter across the stone floor...</div>
+        </section>
+      </section>
+
+      <!-- DESCRIPTION HUD BAND -->
+      <section class="lower-hud">
+        <div class="description-box" id="descBox">
+          <div class="description-title" id="descTitle">Encounter</div>
+          <div class="description-body" id="descBody">Tap an item below to inspect it.</div>
         </div>
       </section>
 
-      <!-- ENCOUNTER / BATTLE HUD window -->
-      <section class="battle-window">
-        <div class="battle-side left">
-          <div class="fighter-emoji">🧙‍♂️</div>
-          <div class="fighter-name">You</div>
-          <div class="fighter-stats">HP 5/10 • ARM 5</div>
-        </div>
-        <div class="vs-col">VS</div>
-        <div class="battle-side right">
-          <div class="fighter-emoji">🐉</div>
-          <div class="fighter-name">Ancient Drake</div>
-          <div class="fighter-stats">HP 12/12 • ARM 2</div>
-        </div>
-        <div class="battle-log">The drake snarls and embers scatter across the stone floor...</div>
-      </section>
-    </section>
-
-    <!-- DESCRIPTION HUD BAND -->
-    <section class="lower-hud">
-      <div class="description-box" id="descBox">
-        <div class="description-title" id="descTitle">Encounter</div>
-        <div class="description-body" id="descBody">Tap an item below to inspect it.</div>
+      <!-- INVENTORY / EQUIPMENT -->
+      <div class="inventory-row">
+        <div class="slot dagger" data-title="Steel Dagger" data-desc="Fast, light blade. +2 damage on backstab.">🗡️</div>
+        <div class="slot shield" data-title="Knight Shield" data-desc="Blocks frontal hits. Adds +3 armor.">🛡️</div>
+        <div class="slot diamond" data-title="Sun Gem" data-desc="Sells for a fortune. Rumored to open sealed doors.">💎</div>
+        <div class="slot poultry" data-title="Roast Meat" data-desc="Restores 4 HP when eaten.">🍗</div>
       </div>
     </section>
 
-    <!-- INVENTORY / EQUIPMENT -->
-    <div class="inventory-row">
-      <div class="slot dagger" data-title="Steel Dagger" data-desc="Fast, light blade. +2 damage on backstab.">🗡️</div>
-      <div class="slot shield" data-title="Knight Shield" data-desc="Blocks frontal hits. Adds +3 armor.">🛡️</div>
-      <div class="slot diamond" data-title="Sun Gem" data-desc="Sells for a fortune. Rumored to open sealed doors.">💎</div>
-      <div class="slot poultry" data-title="Roast Meat" data-desc="Restores 4 HP when eaten.">🍗</div>
-    </div>
-
-    <!-- CONTROLS -->
+    <!-- CONTROLS (always at device bottom) -->
     <nav class="bottom-section">
       <section class="buttons-area">
         <button class="action-btn primary"><span class="btn-label">A</span></button>
