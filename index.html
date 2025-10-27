@@ -2,49 +2,39 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-  <title>Game UI Shell v8 (Dark Modern)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <title>Game UI Shell v11 (Final Simplified)</title>
   <style>
     :root {
       --max-phone-width: 420px;
-
-      --top-height: 12vh;          /* make room for huge counters */
+      --top-height: 10vh;
       --inventory-height: 10vh;
-      --bottom-height: 18vh;
+      --bottom-height: 10vh; /* reduced bottom height */
 
       --border-radius-lg: 24px;
       --border-radius-md: 12px;
 
-      /* Deeper darks w/ subtle gradients */
-      --bg-page-start: #0a0f1b;
-      --bg-page-end: #000000;
+      --bg-page-start: #11182a;
+      --bg-page-end: #05080f;
+      --device-gradient-start: #1a253d;
+      --device-gradient-end: #0a0f1b;
 
-      --device-gradient-start: #0f172a;
-      --device-gradient-end: #000814;
+      --panel-bg-start: rgba(40,56,84,0.55);
+      --panel-bg-end: rgba(10,15,27,0.4);
+      --panel-border: rgba(255,255,255,0.12);
+      --panel-inner-glow: rgba(255,255,255,0.07);
 
-      --panel-bg-start: rgba(30,41,59,0.6);
-      --panel-bg-end: rgba(2,6,23,0.4);
-
-      --panel-border: rgba(255,255,255,0.09);
-      --panel-inner-glow: rgba(255,255,255,0.06);
-
-      --slot-bg-start: rgba(148,163,184,0.12);
-      --slot-bg-end: rgba(15,23,42,0.6);
-      --slot-border: rgba(255,255,255,0.18);
+      --slot-bg-start: rgba(180,192,212,0.16);
+      --slot-bg-end: rgba(30,41,68,0.55);
+      --slot-border: rgba(255,255,255,0.22);
 
       --text-primary: #fff;
-      --text-dim: rgba(255,255,255,0.6);
-    }
-
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
+      --text-dim: rgba(255,255,255,0.7);
     }
 
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", Roboto, sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Inter', Roboto, sans-serif;
       background: radial-gradient(circle at 50% 10%, var(--bg-page-start) 0%, var(--bg-page-end) 70%);
       color: var(--text-primary);
       display: flex;
@@ -60,32 +50,22 @@
       background: radial-gradient(circle at 50% 0%, var(--device-gradient-start) 0%, var(--device-gradient-end) 80%);
       border-radius: var(--border-radius-lg);
       overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.12);
-      box-shadow:
-        0 40px 120px rgba(0,0,0,0.9),
-        0 0 120px rgba(14,165,233,0.15),
-        0 0 240px rgba(168,85,247,0.07);
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow: 0 40px 120px rgba(0,0,0,0.85), 0 0 120px rgba(14,165,233,0.12), 0 0 240px rgba(168,85,247,0.06);
       display: flex;
       flex-direction: column;
-      position: relative;
     }
 
-    /* === TOP SECTION (huge resource counters) === */
     .top-section {
       flex: 0 0 var(--top-height);
       background: radial-gradient(circle at 50% 0%, var(--panel-bg-start) 0%, var(--panel-bg-end) 80%);
       border-bottom: 1px solid var(--panel-border);
-      box-shadow: inset 0 1px 0 var(--panel-inner-glow);
-
-      padding: calc(env(safe-area-inset-top) + 12px) 16px 12px;
-
       display: grid;
-      grid-template-columns: repeat(4, minmax(0,1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
       align-items: end;
       text-align: center;
-
-      /* counters now feel like big stat cards */
+      padding: calc(env(safe-area-inset-top) + 10px) 16px 10px;
     }
 
     .resource-card {
@@ -93,133 +73,91 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      line-height: 1.1;
-      min-width: 0;
-
-      /* subtle card chrome */
       background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.07) 0%, rgba(0,0,0,0) 70%);
-      border: 1px solid rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.16);
       border-radius: var(--border-radius-md);
       padding: 8px 6px;
-      box-shadow:
-        0 12px 24px rgba(0,0,0,0.8),
-        0 1px 2px rgba(255,255,255,0.1) inset,
-        0 0 32px rgba(14,165,233,0.4);
-      background-clip: padding-box;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.7), 0 1px 2px rgba(255,255,255,0.12) inset, 0 0 24px rgba(14,165,233,0.32);
     }
 
     .resource-main-row {
       display: flex;
       align-items: baseline;
       gap: 6px;
-      color: var(--text-primary);
       font-weight: 600;
-      font-size: 1rem; /* larger */
-      white-space: nowrap;
-    }
-
-    .resource-emoji {
       font-size: 1rem;
-      line-height: 1;
     }
 
     .resource-label {
       font-size: 0.7rem;
       font-weight: 500;
       color: var(--text-dim);
-      line-height: 1.2;
     }
 
-    .resource-value {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text-primary);
-      line-height: 1.1;
-    }
-
-    /* level/XP block slightly different formatting */
-    .exp-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      line-height: 1.1;
-      background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.07) 0%, rgba(0,0,0,0) 70%);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: var(--border-radius-md);
-      padding: 8px 6px;
-      box-shadow:
-        0 12px 24px rgba(0,0,0,0.8),
-        0 1px 2px rgba(255,255,255,0.1) inset,
-        0 0 32px rgba(168,85,247,0.4);
-    }
-
-    .exp-top-row {
-      display: flex;
-      align-items: baseline;
-      gap: 6px;
-      color: var(--text-primary);
-      font-weight: 600;
-      font-size: 1rem; /* larger */
-    }
-
-    .exp-bottom-row {
-      font-size: 0.7rem;
-      color: var(--text-dim);
-      font-weight: 500;
-    }
-
-    /* === MIDDLE GAME AREA === */
     .middle-section {
       flex: 1;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      background:
-        radial-gradient(circle at 50% 35%, rgba(148,163,184,0.18) 0%, rgba(0,0,0,0) 60%),
-        radial-gradient(circle at 50% 50%, #1e1e2f 0%, #000 80%);
+      justify-content: flex-start;
+      padding-top: 6px; /* meters even higher */
+      background: radial-gradient(circle at 50% 35%, rgba(180,192,212,0.22) 0%, rgba(0,0,0,0) 60%), radial-gradient(circle at 50% 50%, #2a2a44 0%, #000 80%);
       position: relative;
     }
 
-    /* faint holographic ring vibe */
-    .middle-section::after {
-      content: "";
-      position: absolute;
-      width: 60%;
-      height: 30%;
-      border-radius: 50%;
-      background: radial-gradient(circle at 50% 50%, rgba(14,165,233,0.5) 0%, rgba(0,0,0,0) 70%);
-      filter: blur(40px);
-      opacity: 0.18;
+    .meters-area {
+      width: calc(100% - 32px);
+      max-width: 320px;
+      margin-top: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
+
+    .meter-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .meter-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.85);
+    }
+
+    .meter-bar-outer {
+      width: 100%;
+      height: 10px;
+      border-radius: 4px;
+      background: rgba(20,30,55,0.8);
+      border: 1px solid rgba(255,255,255,0.22);
+      overflow: hidden;
+    }
+
+    .meter-bar-inner {
+      height: 100%;
+      box-shadow: 0 0 12px rgba(255,255,255,0.4);
+    }
+
+    .meter-bar-inner.hp { background: linear-gradient(to right, #dc2626 0%, #f87171 100%); width: 80%; }
+    .meter-bar-inner.energy { background: linear-gradient(to right, #0284c7 0%, #7dd3fc 100%); width: 45%; }
 
     .placeholder {
-      color: rgba(255,255,255,0.6);
+      margin-top: 16px;
+      color: rgba(255,255,255,0.7);
       text-align: center;
       font-size: 0.8rem;
-      opacity: 0.6;
-      user-select: none;
-      position: relative;
-      z-index: 1;
-      letter-spacing: 0.08em;
+      opacity: 0.7;
     }
 
-    /* === INVENTORY ROW === */
     .inventory-row {
       flex: 0 0 var(--inventory-height);
-      background: radial-gradient(circle at 50% 0%, rgba(30,41,59,0.4) 0%, rgba(2,6,23,0.15) 70%);
-      border-top: 1px solid rgba(255,255,255,0.07);
-      border-bottom: 1px solid rgba(255,255,255,0.07);
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.08),
-        0 -20px 40px rgba(0,0,0,0.9);
-
+      background: radial-gradient(circle at 50% 0%, rgba(40,56,84,0.4) 0%, rgba(10,15,27,0.18) 70%);
       display: flex;
       justify-content: space-around;
       align-items: center;
-      padding: 8px 0;
-      -webkit-user-select: none;
-      user-select: none;
     }
 
     .slot {
@@ -233,178 +171,49 @@
       align-items: center;
       font-size: 1.5rem;
       color: #fff;
-      box-shadow:
-        0 8px 16px rgba(0,0,0,0.8),
-        0 1px 2px rgba(255,255,255,0.2) inset;
-      user-select: none;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.75), 0 1px 2px rgba(255,255,255,0.22) inset;
     }
 
-    /* === BOTTOM SECTION (meters + action buttons) === */
     .bottom-section {
       flex: 0 0 var(--bottom-height);
       background: radial-gradient(circle at 50% 100%, var(--panel-bg-start) 0%, var(--panel-bg-end) 70%);
-      border-top: 1px solid var(--panel-border);
-      box-shadow:
-        inset 0 1px 0 var(--panel-inner-glow),
-        0 -40px 80px rgba(0,0,0,0.9);
-
-      padding: 16px 16px calc(env(safe-area-inset-bottom) + 16px);
-
       display: flex;
-      gap: 16px;
-      align-items: center;
-      justify-content: space-between;
-      -webkit-user-select: none;
-      user-select: none;
-    }
-
-    .meters-area {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
       justify-content: center;
-      gap: 12px;
-      min-width: 0;
+      align-items: center;
+      padding: 8px 12px; /* reduced padding */
     }
 
-    .meter-block {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      min-width: 0;
-    }
-
-    .meter-label-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.7rem;
-      line-height: 1.2;
-      color: rgba(255,255,255,0.8);
-      font-weight: 500;
-      letter-spacing: 0.05em;
-    }
-
-    /* square meters now */
-    .meter-bar-outer {
-      width: 100%;
-      height: 10px; /* slightly thicker */
-      border-radius: 4px; /* squared ends instead of pills */
-      background: rgba(15,23,42,0.8);
-      border: 1px solid rgba(255,255,255,0.18);
-      box-shadow:
-        0 1px 2px rgba(0,0,0,0.9) inset,
-        0 0 12px rgba(14,165,233,0.4);
-      overflow: hidden;
-      position: relative;
-    }
-
-    .meter-bar-inner {
-      height: 100%;
-      border-radius: 0; /* hard edge fill */
-      box-shadow: 0 0 12px rgba(255,255,255,0.4);
-    }
-
-    /* demo fill widths */
-    .meter-bar-inner.hp {
-      width: 80%;
-      background: linear-gradient(to right, #b91c1c 0%, #ef4444 100%);
-    }
-    .meter-bar-inner.energy {
-      width: 45%;
-      background: linear-gradient(to right, #0369a1 0%, #38bdf8 100%);
-    }
-    .meter-bar-inner.xp {
-      width: 60%;
-      background: linear-gradient(to right, #3f6212 0%, #a3e635 100%);
-    }
-
-    /* action buttons */
     .buttons-area {
       display: flex;
-      flex-direction: column;
-      justify-content: center;
+      gap: 20px;
       align-items: center;
-      gap: 14px;
     }
 
     .round-btn {
-      width: 64px;
-      height: 64px;
+      width: 54px;
+      height: 54px;
       border-radius: 50%;
-      background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.16) 0%, rgba(0,0,0,0) 70%);
-      border: 1px solid rgba(255,255,255,0.22);
-      box-shadow:
-        0 18px 32px rgba(0,0,0,0.9),
-        0 2px 4px rgba(255,255,255,0.2) inset,
-        0 0 64px rgba(14,165,233,0.5);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 1.1rem;
-      color: #fff;
-      font-weight: 600;
-      user-select: none;
-      touch-action: manipulation;
-      transition: transform 0.08s ease;
-    }
-
-    .round-btn:active {
-      transform: scale(0.94);
-      background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.22) 0%, rgba(0,0,0,0) 70%);
+      background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.18) 0%, rgba(0,0,0,0) 70%);
+      border: 1px solid rgba(255,255,255,0.24);
+      box-shadow: 0 14px 28px rgba(0,0,0,0.8), 0 2px 4px rgba(255,255,255,0.18) inset, 0 0 48px rgba(168,85,247,0.45);
     }
 
     .round-btn.secondary {
-      width: 54px;
-      height: 54px;
-      font-size: 0.9rem;
-      opacity: 0.9;
-      box-shadow:
-        0 14px 28px rgba(0,0,0,0.8),
-        0 2px 4px rgba(255,255,255,0.15) inset,
-        0 0 48px rgba(168,85,247,0.5);
+      width: 64px;
+      height: 64px;
+      box-shadow: 0 18px 32px rgba(0,0,0,0.85), 0 2px 4px rgba(255,255,255,0.22) inset, 0 0 64px rgba(14,165,233,0.45);
     }
   </style>
 </head>
 <body>
   <main class="device">
-    <!-- TOP: huge counters as stat cards -->
     <header class="top-section">
-      <div class="resource-card">
-        <div class="resource-main-row"><span class="resource-emoji">💰</span><span class="resource-value">1,234</span></div>
-        <div class="resource-label">Gold</div>
-      </div>
-
-      <div class="resource-card">
-        <div class="resource-main-row"><span class="resource-emoji">💎</span><span class="resource-value">56</span></div>
-        <div class="resource-label">Gems</div>
-      </div>
-
-      <div class="resource-card">
-        <div class="resource-main-row"><span class="resource-emoji">🪵</span><span class="resource-value">12</span></div>
-        <div class="resource-label">Mats</div>
-      </div>
-
-      <div class="exp-card">
-        <div class="exp-top-row"><span>⭐</span><span>Lv&nbsp;3</span></div>
-        <div class="exp-bottom-row">12,340&nbsp;XP</div>
-      </div>
+      <div class="resource-card"><div class="resource-main-row">💰 <span>1,234</span></div><div class="resource-label">Gold</div></div>
+      <div class="resource-card"><div class="resource-main-row">💎 <span>56</span></div><div class="resource-label">Gems</div></div>
+      <div class="resource-card"><div class="resource-main-row">🪵 <span>12</span></div><div class="resource-label">Mats</div></div>
     </header>
 
-    <!-- MIDDLE: play surface -->
     <section class="middle-section">
-      <div class="placeholder">GAME AREA</div>
-    </section>
-
-    <!-- INVENTORY ROW -->
-    <div class="inventory-row">
-      <div class="slot">🗡️</div>
-      <div class="slot">🛡️</div>
-      <div class="slot">💎</div>
-      <div class="slot">🍗</div>
-    </div>
-
-    <!-- BOTTOM: meters + buttons -->
-    <nav class="bottom-section">
       <section class="meters-area">
         <div class="meter-block">
           <div class="meter-label-row"><span>HP</span><span>80 / 100</span></div>
@@ -415,16 +224,22 @@
           <div class="meter-label-row"><span>ENERGY</span><span>45%</span></div>
           <div class="meter-bar-outer"><div class="meter-bar-inner energy"></div></div>
         </div>
-
-        <div class="meter-block">
-          <div class="meter-label-row"><span>XP</span><span>12 / 20</span></div>
-          <div class="meter-bar-outer"><div class="meter-bar-inner xp"></div></div>
-        </div>
       </section>
 
+      <div class="placeholder">GAME AREA</div>
+    </section>
+
+    <div class="inventory-row">
+      <div class="slot">🗡️</div>
+      <div class="slot">🛡️</div>
+      <div class="slot">💎</div>
+      <div class="slot">🍗</div>
+    </div>
+
+    <nav class="bottom-section">
       <section class="buttons-area">
-        <button class="round-btn">A</button>
-        <button class="round-btn secondary">B</button>
+        <button class="round-btn"></button>
+        <button class="round-btn secondary"></button>
       </section>
     </nav>
   </main>
