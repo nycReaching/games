@@ -3,14 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-  <title>Game UI Shell - large text mobile</title>
+  <title>Game UI Shell - large text mobile (fixed desc layout)</title>
   <style>
     :root {
-      /* phone layout */
       --max-phone-width: 420px;
-      --top-height: 11vh;          /* a touch taller so bigger text fits */
-      --inventory-height: 12vh;    /* bigger touch targets */
-      --bottom-height: 11vh;       /* bigger A/B buttons */
+
+      /* layout band heights */
+      --top-height: 11vh;
+      --inventory-height: 12vh;
+      --bottom-height: 11vh;
 
       --border-radius-lg: 24px;
       --border-radius-md: 16px;
@@ -35,7 +36,7 @@
       --btn-purple-start: #8240ff;
       --btn-purple-end: #3a0075;
 
-      /* type scale (bigger everywhere) */
+      /* type scale */
       --fs-xxs: 0.8rem;
       --fs-xs: 0.9rem;
       --fs-sm: 1rem;
@@ -105,7 +106,7 @@
       align-items: baseline;
       gap: 6px;
       font-weight: 600;
-      font-size: var(--fs-md); /* bigger numbers */
+      font-size: var(--fs-md);
       line-height: 1.1;
     }
 
@@ -137,10 +138,10 @@
     /* meters */
     .meters-area {
       width: calc(100% - 32px);
-      max-width: 360px; /* allow more width */
+      max-width: 360px;
       display: flex;
       flex-direction: column;
-      gap: 12px;       /* more breathing room */
+      gap: 12px;
     }
 
     .meter-block {
@@ -160,7 +161,7 @@
 
     .meter-bar-outer {
       width: 100%;
-      height: 14px; /* taller bar */
+      height: 14px;
       border-radius: 6px;
       background: rgba(20,30,55,0.8);
       border: 1px solid rgba(255,255,255,0.22);
@@ -206,7 +207,7 @@
     }
 
     .fighter-emoji {
-      font-size: var(--fs-xxl); /* giant emoji */
+      font-size: var(--fs-xxl);
       line-height: 1;
     }
 
@@ -247,23 +248,27 @@
     }
 
     /* DESCRIPTION BOX / ITEM INSPECT */
-    .description-box {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: var(--inventory-height);
+    /*
+      Instead of absolutely positioning this box floating near the bottom of middle-section,
+      we now treat it as its own fixed-height band ABOVE the inventory.
+      - It's no longer absolute.
+      - We create a new wrapper `.lower-hud` that sits between middle-section and inventory-row.
+    */
+    .lower-hud {
       background: radial-gradient(circle at 50% 0%, rgba(20,30,55,0.8) 0%, rgba(0,0,0,0.4) 70%);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 0;
-      box-shadow: none;
+      border-top: 1px solid rgba(255,255,255,0.2);
+      border-bottom: 1px solid rgba(255,255,255,0.2);
       padding: 14px 16px;
-      min-height: 80px;
-      max-height: 100px;
       color: var(--text-primary);
+      flex: 0 0 auto;
+    }
+
+    .description-box {
+      max-width: 420px;
+      margin: 0 auto;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      pointer-events: none;
     }
 
     .description-title {
@@ -306,7 +311,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: var(--fs-xl); /* bigger emoji */
+      font-size: var(--fs-xl);
       line-height: 1;
       color: #fff;
       box-shadow: none;
@@ -363,7 +368,7 @@
       cursor: pointer;
       position: relative;
       overflow: hidden;
-      min-height: 68px; /* bigger touch target */
+      min-height: 68px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -392,7 +397,7 @@
     .btn-label {
       position: relative;
       z-index: 1;
-      font-size: var(--fs-lg); /* bigger label */
+      font-size: var(--fs-lg);
       font-weight: 700;
       color: #fff;
       line-height: 1;
@@ -453,8 +458,10 @@
         </div>
         <div class="battle-log">The drake snarls and embers scatter across the stone floor...</div>
       </section>
+    </section>
 
-      <!-- description box just above inventory -->
+    <!-- DESCRIPTION HUD BAND (fixed position in layout, no overlap) -->
+    <section class="lower-hud">
       <div class="description-box" id="descBox">
         <div class="description-title" id="descTitle">Encounter</div>
         <div class="description-body" id="descBody">Tap an item below to inspect it.</div>
