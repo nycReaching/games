@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no" />
   <title>Game UI Shell - light roguelike skin</title>
   <style>
     :root {
@@ -70,18 +70,28 @@
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    /* prevent mobile bounce/zoom layout shifts */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden; /* lock viewport so UI doesn't "squish" on scroll */
     }
 
     body {
-      margin: 0;
       font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
       background: radial-gradient(circle at 50% 20%, var(--page-bg-start) 0%, var(--page-bg-end) 70%);
       color: var(--text-primary);
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100dvh;
       padding: 16px;
+      touch-action: none; /* reduce pinch/pan that can trigger resize on mobile */
     }
 
     /* phone shell - feels like a handheld console frame */
@@ -127,6 +137,7 @@
       align-items: center;
       text-align: center;
       min-height: 64px;
+      justify-content: center;
     }
 
     .resource-main-row {
@@ -140,15 +151,7 @@
       text-shadow: 0 1px 0 rgba(255,255,255,0.8);
     }
 
-    .resource-label {
-      font-size: var(--fs-xxs);
-      font-weight: 600;
-      color: var(--text-dim);
-      margin-top: 4px;
-      line-height: 1.2;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-    }
+    /* removed .resource-label text entirely */
 
     /* =========================================================
        PLAY AREA
@@ -440,6 +443,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      background: transparent;
     }
 
     .action-btn.primary {
@@ -477,15 +481,12 @@
     <header class="top-section">
       <div class="resource-card">
         <div class="resource-main-row">💰 <span>1,234</span></div>
-        <div class="resource-label">Gold</div>
       </div>
       <div class="resource-card">
         <div class="resource-main-row">✨ <span>56</span></div>
-        <div class="resource-label">Magic</div>
       </div>
       <div class="resource-card">
         <div class="resource-main-row">🕊️ <span>12</span></div>
-        <div class="resource-label">Grace</div>
       </div>
     </header>
 
@@ -559,6 +560,19 @@
   </main>
 
   <script>
+    // lock viewport height on load to avoid mobile browser UI chrome resize issues
+    // we'll capture the initial innerHeight and stick to it
+    (function() {
+      const setVH = () => {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+      };
+      setVH();
+      window.addEventListener('resize', () => {
+        // do nothing on resize to avoid layout jump
+      });
+    })();
+
     // tap items -> update description panel
     const slots = document.querySelectorAll('.slot');
     const descTitle = document.getElementById('descTitle');
