@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no" />
-  <title>Game UI Shell - frutiger aero pass</title>
+  <title>Game UI Shell - high contrast pass</title>
   <style>
     :root {
       --max-phone-width: 420px;
@@ -13,79 +13,75 @@
       --inventory-height: 12vh;
       --bottom-height: 11vh;
 
-      /* FRUTIGER AERO core: high gloss candy gradients, aqua glass, soft neon glows */
-      --page-bg-start: #8fd3ff;      /* sky cyan */
-      --page-bg-end: #ffe8a8;        /* warm sunrise yellow */
-      --page-bg-overlay: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 60%),
-                         radial-gradient(circle at 80% 70%, rgba(255,122,255,0.28) 0%, rgba(0,0,0,0) 70%);
+      /* NEW VISUAL GOALS -------------------------------------------------
+         - text + outlines must always sit on darker / flat surfaces
+         - higher contrast colors instead of candy pastels
+         - reduced bloom / glow
+         - all corners now SHARP (0px radius)
+      */
 
-      --device-shell-grad: radial-gradient(circle at 50% 0%, #ffffff 0%, #c5e3ff 40%, #7ab8ff 70%, #0040a8 100%);
-      --device-rim-color: rgba(0,40,120,0.6);
-      --device-inner-glow: 0 30px 80px rgba(0,40,120,0.45),
-                           0 0 30px rgba(255,255,255,0.8) inset,
-                           0 -4px 12px rgba(0,0,60,0.4) inset;
-      --device-radius: 32px;
+      /* page background: still playful gradient, but dimmed so UI pops */
+      --page-bg-start: #1a2a4a;      /* deep navy */
+      --page-bg-end: #3a7bd5;        /* strong blue */
+      --page-bg-overlay: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 60%),
+                         radial-gradient(circle at 80% 70%, rgba(255,122,255,0.15) 0%, rgba(0,0,0,0) 70%);
 
-      /* glass panel surface: watery + pearlescent */
-      --panel-bg: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.9) 0%, rgba(190,255,255,0.55) 45%, rgba(130,170,255,0.35) 70%);
-      --panel-stroke: rgba(0,40,120,0.4);
-      --panel-shadow: 0 10px 30px rgba(0,40,120,0.4), 0 2px 0 rgba(255,255,255,0.9) inset;
+      /* device shell: less chrome glare, more readable bezel */
+      --device-shell-grad: linear-gradient(160deg, #1b1d2a 0%, #2c3558 40%, #1a1f33 100%);
+      --device-rim-color: #3a4b86;
+      --device-inner-glow: 0 20px 40px rgba(0,0,0,0.8),
+                           0 0 12px rgba(255,255,255,0.15) inset,
+                           0 -4px 8px rgba(0,0,0,0.8) inset;
+      --device-radius: 0px; /* sharp */
 
-      /* chip / bubble counter style: bubbly aqua pill with chrome rim */
-      --chip-bg: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.95) 0%, rgba(180,255,255,0.6) 40%, rgba(130,200,255,0.4) 70%);
-      --chip-stroke: rgba(0,60,160,0.5);
-      --chip-shadow: 0 12px 24px rgba(0,60,160,0.4),
-                     0 2px 0 rgba(255,255,255,0.9) inset,
-                     0 -2px 6px rgba(0,0,80,0.4) inset;
+      /* panel surfaces: flatter, darker, so white text reads clean */
+      --panel-bg: linear-gradient(#1e2438 0%, #1a1f2f 100%);
+      --panel-stroke: #4fd6ff;
+      --panel-shadow: 0 8px 16px rgba(0,0,0,0.8), 0 0 16px rgba(79,214,255,0.4);
 
-      /* meters: candy-bar plastic shells */
-      --meter-shell-bg: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.4) 60%, rgba(80,120,255,0.25) 100%);
-      --meter-shell-border: rgba(0,50,140,0.6);
-      --meter-shell-shadow: 0 6px 12px rgba(0,40,120,0.45), 0 1px 0 rgba(255,255,255,0.9) inset;
+      /* resource chips: now high-contrast plates instead of glass bubbles */
+      --chip-bg: linear-gradient(#1e2438 0%, #1a1f2f 100%);
+      --chip-stroke: #4fd6ff;
+      --chip-shadow: 0 8px 16px rgba(0,0,0,0.8), 0 0 12px rgba(79,214,255,0.4);
 
-      --hp-grad: linear-gradient(90deg, #ff004c 0%, #ff7a7a 40%, #ffe2a8 100%);
+      /* meters: dark shell, neon bar */
+      --meter-shell-bg: #0f1424;
+      --meter-shell-border: #4fd6ff;
+      --meter-shell-shadow: 0 8px 16px rgba(0,0,0,0.9),0 0 16px rgba(79,214,255,0.4);
+
+      --hp-grad: linear-gradient(90deg, #ff0038 0%, #ff6b6b 40%, #ffd479 100%);
       --armor-grad: linear-gradient(90deg, #00f0ff 0%, #68b5ff 40%, #ffffff 100%);
 
-      --hp-glow: 0 0 8px rgba(255,0,76,0.7), 0 0 16px rgba(255,0,76,0.4);
-      --armor-glow: 0 0 8px rgba(0,240,255,0.7), 0 0 16px rgba(0,240,255,0.4);
+      --hp-glow: 0 0 4px rgba(255,0,56,0.8);
+      --armor-glow: 0 0 4px rgba(0,240,255,0.8);
 
-      /* battle arena glass */
-      --arena-bg: radial-gradient(circle at 50% 40%, rgba(255,255,255,0.9) 0%, rgba(180,255,255,0.4) 50%, rgba(120,200,255,0.25) 80%);
-      --arena-stroke: rgba(0,40,120,0.5);
-      --arena-shadow: 0 20px 40px rgba(0,40,120,0.5),
-                      0 2px 0 rgba(255,255,255,0.9) inset,
-                      0 -4px 8px rgba(0,0,60,0.4) inset,
-                      0 0 40px rgba(0,200,255,0.45);
+      /* battle arena shell */
+      --arena-bg: radial-gradient(circle at 50% 40%, #1e2438 0%, #0f1424 80%);
+      --arena-stroke: #4fd6ff;
+      --arena-shadow: 0 16px 24px rgba(0,0,0,0.9), 0 0 24px rgba(79,214,255,0.4);
 
-      /* orbs row glass capsules */
-      --orbs-bg: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.95) 0%, rgba(200,255,245,0.55) 45%, rgba(150,200,255,0.35) 70%);
-      --orbs-stroke: rgba(0,60,160,0.5);
-      --orbs-shadow: 0 16px 32px rgba(0,60,160,0.5),
-                     0 2px 0 rgba(255,255,255,0.9) inset,
-                     0 -3px 6px rgba(0,0,60,0.45) inset,
-                     0 0 24px rgba(0,255,200,0.5);
+      /* orbs row */
+      --orbs-bg: linear-gradient(#1e2438 0%, #0f1424 100%);
+      --orbs-stroke: #4fd6ff;
+      --orbs-shadow: 0 16px 24px rgba(0,0,0,0.9), 0 0 24px rgba(79,214,255,0.4);
 
-      /* neon status blobs */
-      --orb-core-grad: radial-gradient(circle at 30% 30%, #ffffff 0%, #9dfff2 40%, #47ffe2 60%, #00a088 100%);
-      --orb-core-ring: rgba(0,80,60,0.5);
-      --orb-core-glow: 0 0 12px rgba(0,255,200,0.8), 0 0 32px rgba(0,255,200,0.5);
+      /* orb core: keep readable glow but clamp bloom */
+      --orb-core-grad: radial-gradient(circle at 30% 30%, #ffffff 0%, #9dfff2 40%, #00ffd1 60%, #00735f 100%);
+      --orb-core-ring: #00ffd1;
+      --orb-core-glow: 0 0 8px rgba(0,255,200,0.8), 0 0 16px rgba(0,255,200,0.4);
 
-      /* inventory slots: translucent plastic capsules */
-      --slot-bg: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.95) 0%, rgba(210,240,255,0.6) 60%, rgba(130,170,255,0.4) 100%);
-      --slot-stroke: rgba(0,40,120,0.6);
-      --slot-shadow: 0 12px 24px rgba(0,40,120,0.4),
-                     0 2px 0 rgba(255,255,255,0.9) inset,
-                     0 -3px 6px rgba(0,0,60,0.45) inset;
+      /* inventory slots */
+      --slot-bg: linear-gradient(#1e2438 0%, #0f1424 100%);
+      --slot-stroke: #4fd6ff;
+      --slot-shadow: 0 12px 20px rgba(0,0,0,0.9), 0 0 16px rgba(79,214,255,0.4);
 
-      /* buttons: Game Boy Advance SP + iPod Mini mashup */
-      --btn-a-grad: radial-gradient(circle at 30% 20%, #fff 0%, #fff6b8 30%, #ffe200 60%, #ff8a00 100%);
-      --btn-b-grad: radial-gradient(circle at 30% 20%, #fff 0%, #ffe0ff 30%, #c29bff 60%, #5a00ff 100%);
-      --btn-border: rgba(30,0,120,0.6);
-      --btn-shadow: 0 16px 32px rgba(0,0,80,0.55),
-                    0 2px 0 rgba(255,255,255,0.9) inset,
-                    0 -3px 6px rgba(0,0,60,0.45) inset;
+      /* buttons: keep A/B hues but flatten, reduce bloom */
+      --btn-a-grad: radial-gradient(circle at 30% 20%, #ffd400 0%, #ff6b00 100%);
+      --btn-b-grad: radial-gradient(circle at 30% 20%, #a47aff 0%, #4700ff 100%);
+      --btn-border: #ffffff;
+      --btn-shadow: 0 12px 20px rgba(0,0,0,0.9), 0 0 16px rgba(255,255,255,0.2);
 
-      /* type scale */
+      /* TYPE SCALE */
       --fs-xxs: 0.7rem;
       --fs-xs: 0.8rem;
       --fs-sm: 0.9rem;
@@ -96,15 +92,17 @@
       --fs-mega: 3.5rem;
       --fs-giga: 5rem;
 
-      --border-radius-card: 22px;
-      --border-radius-win: 20px;
-      --border-radius-slot: 16px;
-      --border-radius-btn: 18px;
+      /* CORNERS NOW SHARP */
+      --border-radius-card: 0px;
+      --border-radius-win: 0px;
+      --border-radius-slot: 0px;
+      --border-radius-btn: 0px;
       --pixel-gap: 12px;
 
-      --text-primary: #00224d;
-      --text-bright: #001230;
-      --text-glow: 0 0 6px rgba(0,255,255,0.8), 0 0 12px rgba(0,255,200,0.5);
+      /* text colors now high-contrast on dark plates */
+      --text-primary: #ffffff;
+      --text-bright: #ffffff;
+      --text-glow: 0 0 4px rgba(79,214,255,0.9);
     }
 
     * {
@@ -126,7 +124,7 @@
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Inter', Roboto, sans-serif;
       background: radial-gradient(circle at 50% 20%, var(--page-bg-start) 0%, var(--page-bg-end) 70%);
       background-image: var(--page-bg-overlay), radial-gradient(circle at 50% 20%, var(--page-bg-start) 0%, var(--page-bg-end) 70%);
-      background-blend-mode: screen;
+      background-blend-mode: normal;
       color: var(--text-primary);
       display: flex;
       justify-content: center;
@@ -148,17 +146,18 @@
       display: flex;
       flex-direction: column;
       position: relative;
+      outline: 2px solid #4fd6ff; /* crisp bezel line */
     }
 
-    /* subtle screen bevel / shine ribbon */
     .device::after {
+      /* remove intense lens ribbon; keep subtle edge highlight */
       content: "";
       position: absolute;
       inset: 0;
       border-radius: inherit;
       pointer-events: none;
-      background: radial-gradient(circle at 10% 0%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 60%),
-                  radial-gradient(circle at 80% 100%, rgba(0,0,80,0.4) 0%, rgba(0,0,80,0) 70%);
+      background: radial-gradient(circle at 10% 0%, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 60%),
+                  radial-gradient(circle at 80% 100%, rgba(0,0,80,0.3) 0%, rgba(0,0,80,0) 70%);
       mix-blend-mode: screen;
     }
 
@@ -172,18 +171,9 @@
       position: relative;
     }
 
-    /* lens flare strip */
+    /* strip glare removed entirely to avoid obscuring text */
     .top-section::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 40px;
-      background: radial-gradient(circle at 20% 0%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%),
-                  radial-gradient(circle at 80% 0%, rgba(255,200,255,0.4) 0%, rgba(255,200,255,0) 70%);
-      mix-blend-mode: screen;
-      pointer-events: none;
+      content: none;
     }
 
     .resource-bubble {
@@ -200,7 +190,7 @@
       align-items: center;
       font-weight: 600;
       color: var(--text-bright);
-      text-shadow: 0 0 6px rgba(0,255,255,0.6), 0 1px 0 rgba(255,255,255,0.9);
+      text-shadow: none; /* remove glow haze that was lowering clarity */
       font-size: var(--fs-md);
       line-height: 1.1;
       gap: 16px;
@@ -208,20 +198,15 @@
     }
 
     .resource-bubble::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      pointer-events: none;
-      border: 2px solid rgba(255,255,255,0.8);
-      mix-blend-mode: screen;
+      /* kill white overlay rim, which was washing out borders */
+      content: none;
     }
 
     .resource-item {
       display: flex;
       align-items: baseline;
       gap: 6px;
-      filter: drop-shadow(0 0 4px rgba(0,255,255,0.8));
+      filter: none; /* remove drop-shadow glow */
     }
 
     /* ====================== MID SECTION ===================== */
@@ -235,19 +220,18 @@
       padding-bottom: 8px;
       position: relative;
       width: 100%;
+      color: var(--text-primary);
     }
 
-    /* floating soft bokeh behind play area */
+    /* bokeh removed / softened so it doesn't compete with fight area */
     .middle-section::before {
       content: "";
       position: absolute;
       inset: 0;
-      background:
-        radial-gradient(circle at 25% 30%, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0) 60%),
-        radial-gradient(circle at 75% 60%, rgba(0,255,200,0.25) 0%, rgba(0,255,200,0) 70%),
-        radial-gradient(circle at 50% 80%, rgba(0,120,255,0.2) 0%, rgba(0,120,255,0) 70%);
+      background: radial-gradient(circle at 25% 30%, rgba(79,214,255,0.15) 0%, rgba(0,0,0,0) 60%),
+                  radial-gradient(circle at 75% 60%, rgba(0,255,200,0.1) 0%, rgba(0,0,0,0) 70%);
       mix-blend-mode: screen;
-      filter: blur(20px);
+      filter: blur(12px);
       pointer-events: none;
     }
 
@@ -264,16 +248,11 @@
       flex-direction: column;
       gap: 10px;
       position: relative;
+      color: var(--text-primary);
     }
 
     .meters-window::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      border: 2px solid rgba(255,255,255,0.8);
-      mix-blend-mode: screen;
-      pointer-events: none;
+      content: none; /* no glossy overlay */
     }
 
     .meter-row {
@@ -284,7 +263,7 @@
       font-size: var(--fs-sm);
       font-weight: 600;
       color: var(--text-primary);
-      text-shadow: 0 0 6px rgba(0,255,255,0.6), 0 1px 0 rgba(255,255,255,0.9);
+      text-shadow: none;
     }
 
     .meter-stats {
@@ -300,17 +279,17 @@
     .meter-bar-outer {
       flex: 1 1 auto;
       height: 10px;
-      border-radius: 8px;
-      background: rgba(0,0,40,0.4);
-      border: 2px solid rgba(0,50,140,0.6);
-      box-shadow: 0 0 8px rgba(0,255,255,0.5), 0 2px 0 rgba(255,255,255,0.8) inset;
+      border-radius: 0;
+      background: #000; /* flat black channel for contrast */
+      border: 2px solid #4fd6ff;
+      box-shadow: 0 0 4px rgba(79,214,255,0.7);
       overflow: hidden;
       position: relative;
     }
 
     .meter-bar-inner {
       height: 100%;
-      border-radius: 6px;
+      border-radius: 0;
       position: relative;
     }
 
@@ -355,18 +334,9 @@
       position: relative;
     }
 
-    /* faint scanline shine across the arena */
+    /* remove aggressive white scanline that washed the character */
     .battle-window::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 20%;
-      height: 30%;
-      background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 70%);
-      mix-blend-mode: screen;
-      filter: blur(10px);
-      pointer-events: none;
+      content: none;
     }
 
     .battle-side {
@@ -375,14 +345,13 @@
       align-items: center;
       text-align: center;
       min-width: 0;
+      color: var(--text-primary);
     }
 
     .fighter-emoji {
       font-size: var(--fs-giga);
       line-height: 1;
-      filter:
-        drop-shadow(0 0 8px rgba(0,255,255,0.8))
-        drop-shadow(0 8px 6px rgba(0,0,60,0.5));
+      filter: drop-shadow(0 0 4px rgba(79,214,255,0.8));
     }
 
     .vs-col {
@@ -390,7 +359,7 @@
       font-size: var(--fs-md);
       line-height: 1;
       color: var(--text-primary);
-      text-shadow: var(--text-glow), 0 1px 0 rgba(255,255,255,0.9);
+      text-shadow: 0 0 4px rgba(79,214,255,0.9);
     }
 
     /* ORBS STRIP */
@@ -416,25 +385,33 @@
       align-items: center;
       gap: 24px;
       position: relative;
+      min-height: 64px;
+      font-size: var(--fs-xl);
+      font-weight: 700;
+      line-height: 1;
+      color: var(--text-primary);
+      text-shadow: 0 0 4px rgba(79,214,255,0.9);
     }
 
     .orbs-row::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      border: 2px solid rgba(255,255,255,0.8);
-      mix-blend-mode: screen;
-      pointer-events: none;
+      content: none;
     }
 
     .orb {
       width: 48px;
       height: 48px;
-      border-radius: 50%;
+      border-radius: 0; /* sharp */
       background: var(--orb-core-grad);
       border: 2px solid var(--orb-core-ring);
       box-shadow: var(--orb-core-glow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--fs-xl);
+      font-weight: 700;
+      line-height: 1;
+      color: #000;
+      text-shadow: none;
     }
 
     /* LOWER HUD */
@@ -450,14 +427,7 @@
     }
 
     .lower-hud::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: 0;
-      pointer-events: none;
-      border-top: 2px solid rgba(255,255,255,0.8);
-      border-bottom: 2px solid rgba(255,255,255,0.8);
-      mix-blend-mode: screen;
+      content: none;
     }
 
     .description-box {
@@ -466,7 +436,7 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      text-shadow: 0 0 6px rgba(0,255,255,0.6), 0 1px 0 rgba(255,255,255,0.9);
+      text-shadow: none;
       color: var(--text-primary);
     }
 
@@ -477,6 +447,7 @@
       letter-spacing: 0.08em;
       margin-bottom: 4px;
       line-height: 1.2;
+      color: var(--text-primary);
     }
 
     .description-body {
@@ -484,6 +455,7 @@
       line-height: 1.4;
       max-height: 3.6em;
       overflow: hidden;
+      color: var(--text-primary);
     }
 
     /* INVENTORY */
@@ -496,13 +468,11 @@
       z-index: 2;
       padding: 8px 0;
       gap: 4px;
-      background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.6) 0%, rgba(210,220,255,0.4) 70%);
-      background-image: radial-gradient(circle at 20% 0%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 60%),
-                        radial-gradient(circle at 80% 100%, rgba(0,255,200,0.3) 0%, rgba(0,255,200,0) 70%),
-                        radial-gradient(circle at 50% 50%, rgba(0,120,255,0.25) 0%, rgba(0,120,255,0) 70%);
+      background: #0f1424;
       border-top: 2px solid var(--panel-stroke);
       border-bottom: 2px solid var(--panel-stroke);
       box-shadow: var(--panel-shadow);
+      color: var(--text-primary);
     }
 
     .slot {
@@ -521,29 +491,31 @@
       user-select: none;
       cursor: pointer;
       position: relative;
-      text-shadow: var(--text-glow), 0 1px 0 rgba(255,255,255,0.9);
+      text-shadow: 0 0 4px rgba(79,214,255,0.9);
     }
 
     .slot.active {
-      outline: 3px solid rgba(255,255,255,0.8);
-      outline-offset: 3px;
-      box-shadow:
-        0 0 12px rgba(0,255,200,0.9),
-        0 8px 16px rgba(0,0,60,0.6);
+      outline: 2px solid #ffffff;
+      outline-offset: 2px;
+      box-shadow: 0 0 8px rgba(255,255,255,0.8), 0 8px 16px rgba(0,0,0,0.8);
     }
 
-    /* themed slot tints for vibe */
+    /* themed slot tints flattened for clarity */
     .slot.dagger {
-      background: radial-gradient(circle at 30% 20%, #fff 0%, #fff0c2 40%, #ffc46b 70%, #ff7a00 100%);
+      background: linear-gradient(#2a1a1a 0%, #000 100%);
+      border-color: #ff4d00;
     }
     .slot.shield {
-      background: radial-gradient(circle at 30% 20%, #fff 0%, #e8fffa 40%, #8ffff1 70%, #00a088 100%);
+      background: linear-gradient(#002a2a 0%, #000 100%);
+      border-color: #00ffd1;
     }
     .slot.diamond {
-      background: radial-gradient(circle at 30% 20%, #fff 0%, #fff7d1 40%, #ffe200 70%, #ff8a00 100%);
+      background: linear-gradient(#2a2000 0%, #000 100%);
+      border-color: #ffd400;
     }
     .slot.poultry {
-      background: radial-gradient(circle at 30% 20%, #fff 0%, #fff8e0 40%, #ffd38a 70%, #ff752b 100%);
+      background: linear-gradient(#2a1400 0%, #000 100%);
+      border-color: #ff6b00;
     }
 
     /* BUTTONS */
@@ -553,12 +525,10 @@
       justify-content: center;
       align-items: stretch;
       padding: 10px 16px calc(env(safe-area-inset-bottom) + 12px);
-      background: radial-gradient(circle at 50% 100%, rgba(255,255,255,0.6) 0%, rgba(210,220,255,0.4) 70%);
-      background-image: radial-gradient(circle at 20% 0%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 60%),
-                        radial-gradient(circle at 80% 100%, rgba(255,122,255,0.28) 0%, rgba(0,0,0,0) 70%),
-                        radial-gradient(circle at 50% 50%, rgba(0,255,200,0.3) 0%, rgba(0,255,200,0) 70%);
+      background: #0f1424;
       box-shadow: var(--panel-shadow);
       border-top: 2px solid var(--panel-stroke);
+      color: var(--text-primary);
     }
 
     .buttons-area {
@@ -586,10 +556,12 @@
       justify-content: center;
       align-items: center;
       background: transparent;
+      color: var(--text-primary);
     }
 
     .action-btn.primary {
       background: var(--btn-a-grad);
+      color: #000;
     }
 
     .action-btn.secondary {
@@ -601,15 +573,10 @@
       font-size: var(--fs-lg);
       font-weight: 800;
       line-height: 1;
-      color: var(--text-primary);
-      text-shadow: var(--text-glow), 0 1px 0 rgba(255,255,255,0.9);
+      color: currentColor;
+      text-shadow: none;
       letter-spacing: 0.03em;
       pointer-events: none;
-    }
-
-    .action-btn.secondary .btn-label {
-      color: #fff;
-      text-shadow: var(--text-glow), 0 1px 0 rgba(255,255,255,0.9);
     }
 
     .action-btn:active {
@@ -665,12 +632,12 @@
         </div>
       </section>
 
-      <!-- status orbs -->
+            <!-- SLOT MACHINE -->
       <section class="orbs-section">
-        <div class="orbs-row">
-          <div class="orb"></div>
-          <div class="orb"></div>
-          <div class="orb"></div>
+        <div class="orbs-row slot-machine" id="slotMachine">
+          <div class="orb reel" data-reel="0">❔</div>
+          <div class="orb reel" data-reel="1">❔</div>
+          <div class="orb reel" data-reel="2">❔</div>
         </div>
       </section>
     </section>
@@ -695,7 +662,7 @@
     <nav class="bottom-section">
       <section class="buttons-area">
         <button class="action-btn primary"><span class="btn-label">A</span></button>
-        <button class="action-btn secondary"><span class="btn-label">B</span></button>
+        <button class="action-btn secondary" id="spinButton"><span class="btn-label">B</span></button>
       </section>
     </nav>
   </main>
@@ -722,6 +689,75 @@
         descBody.textContent  = slot.getAttribute('data-desc')  || '';
       });
     });
+      const spinButton = document.getElementById('spinButton');
+    const reels = document.querySelectorAll('.reel');
+    const machine = document.getElementById('slotMachine');
+
+    // pool of prize emojis
+    const symbols = [
+      '💎','🍗','🗡️','🛡️','🔥','💰','✨','🍀','💊','🔮','🧪','⭐','📜','🏆','🧠','🦴','🥩','🪙','🎲','☠️'
+    ];
+
+    let spinning = false;
+
+    function randomSymbol() {
+      return symbols[Math.floor(Math.random() * symbols.length)];
+    }
+
+    function spinOnce() {
+      // instantly assign randoms to each reel
+      reels.forEach(r => {
+        r.textContent = randomSymbol();
+      });
+    }
+
+    function startSpin() {
+      if (spinning) return;
+      spinning = true;
+      machine.classList.add('spinning');
+      descTitle.textContent = 'Spinning…';
+      descBody.textContent = 'Good luck! 🍀';
+
+      let ticks = 0;
+      const maxTicks = 20 + Math.floor(Math.random()*10); // quick fake animation steps
+      const interval = setInterval(() => {
+        spinOnce();
+        ticks++;
+        if (ticks >= maxTicks) {
+          clearInterval(interval);
+          finishSpin();
+        }
+      }, 60);
+    }
+
+    function finishSpin() {
+      // final settled values already in reels
+      const results = Array.from(reels).map(r => r.textContent);
+
+      // simple win check: all match, or any pair match
+      let message;
+      if (results[0] === results[1] && results[1] === results[2]) {
+        message = `JACKPOT ${results[0]} ${results[1]} ${results[2]}!!!`;
+      } else if (
+        results[0] === results[1] ||
+        results[1] === results[2] ||
+        results[0] === results[2]
+      ) {
+        message = `Nice pull: ${results.join(' ')} (pair!)`;
+      } else {
+        message = `You got ${results.join(' ')}`;
+      }
+
+      descTitle.textContent = 'Slot Result';
+      descBody.textContent = message;
+
+      machine.classList.remove('spinning');
+      spinning = false;
+    }
+
+    if (spinButton) {
+      spinButton.addEventListener('click', startSpin);
+    }
   </script>
 </body>
 </html>
