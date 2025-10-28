@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <title>Mobile Portrait Game UI — Taupe Theme (v2)</title>
-  <meta name="theme-color" content="#d4c6b9" />
+  <meta name="theme-color" content="#c7b8aa" /> <!-- <-- Darker theme color -->
   <style>
     /*
       Taupe / Cream / Dark Brown theme (v2)
@@ -15,8 +15,8 @@
 
     :root {
       /* Palette */
-      --bg: #d4c6b9;                /* taupe background (darker) */
-      --bg-2: #cfc2b6;              /* darker mid taupe for gradient */
+      --bg: #c7b8aa;                /* taupe background (darker) */
+      --bg-2: #bfae9e;              /* darker mid taupe for gradient */
       --surface: #fbf6ec;           /* cream surfaces (tiles, cards) */
       --muted: #f3eadc;             /* subtle fills */
       --line: rgba(74, 50, 36, 0.18);  /* hairline borders (dark brown, soft) */
@@ -80,12 +80,12 @@
     }
     .brand .dot {
       width: 10px; height: 10px; border-radius: 50%;
-      background: radial-gradient(120% 120% at 50% 10%, #e9dccd 0%, #6b4e3a 100%);
+      background: radial-gradient(120% 120% at 50% 10%, #fff 0%, #6b4e3a 100%); /* <-- Intensified highlight */
       box-shadow: 0 0 0 4px rgba(107, 78, 58, 0.18);
     }
     .stats { display: flex; gap: 12px; align-items: center; color: var(--subtle-text); font-size: 13px; }
     .pill {
-      background: linear-gradient(180deg, #fcf8f0 0%, #fff 100%);
+      background: linear-gradient(180deg, #fff 0%, #fcf8f0 100%); /* <-- Brighter highlight */
       border: 1px solid var(--dark-line); /* <-- Use dark line */
       border-radius: 999px;
       padding: 6px 10px;
@@ -193,7 +193,7 @@
       box-shadow: var(--shadow-elev); /* <-- Added shadow to faces */
       
       /* Moved background to faces */
-      background: linear-gradient(180deg, #fffaf0 0%, var(--surface) 100%); 
+      background: linear-gradient(180deg, #fff 0%, var(--surface) 100%); /* <-- Brighter highlight */
     }
     
     .cell__face--front {
@@ -269,8 +269,8 @@
       border-radius: 50%;
       border: 1px solid var(--dark-line); /* <-- Use dark line */
       background:
-        radial-gradient(120% 120% at 50% 0%, #f6eee2 0%, #fff 70%) padding-box,
-        conic-gradient(from 180deg, rgba(107,78,58,0.12), rgba(107,78,58,0.24), rgba(107,78,58,0.12)) border-box;
+        radial-gradient(120% 120% at 50% 0%, #fff 0%, #f6eee2 70%) padding-box, /* <-- Brighter highlight */
+        conic-gradient(from 180deg, rgba(107,78,58,0.18), rgba(107,78,58,0.35), rgba(107,78,58,0.18)) border-box; /* <-- Intensified border */
       box-shadow: 0 26px 68px rgba(74, 50, 36, 0.38), 0 12px 32px rgba(107, 78, 58, 0.20);
       display: grid; place-items: center;
       font-weight: 700; letter-spacing: 0.4px; color: var(--text);
@@ -342,7 +342,7 @@
               <span class="chip" aria-label="Timer"><span class="chip-icon">⏱</span><strong id="timer">01:23</strong></span>
             </div>
             <div class="mini-group" aria-label="Top icons">
-              <button class="icon-btn" aria-label="Sound"><span aria-hidden="true">🔊</span></button>
+              <!-- Removed Speaker Button -->
               <button class="icon-btn" aria-label="Settings"><span aria-hidden="true">⚙️</span></button>
             </div>
           </div>
@@ -414,7 +414,7 @@
               <span class="chip" aria-label="Stars"><span class="chip-icon">⭐️</span><strong id="stars">5</strong></span>
             </div>
             <div class="mini-group" aria-label="Bottom icons">
-              <button class="icon-btn" aria-label="Info"><span aria-hidden="true">ℹ️</span></button>
+              <!-- Removed Info Button -->
               <button class="icon-btn" aria-label="Help"><span aria-hidden="true">❔</span></button>
             </div>
           </div>
@@ -556,5 +556,6 @@
   </script>
 </body>
 </html>
+
 
 
