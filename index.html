@@ -3,584 +3,257 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no" />
-  <title>Game UI Shell - high contrast pass</title>
+  <title>Game UI — Modern Minimal Redesign</title>
   <style>
-    :root {
-      --max-phone-width: 420px;
+    /*
+      Ultra‑polished, professional, modern aesthetic inspired by Apple / Notion.
+      — Calm neutrals, clear hierarchy, generous white space
+      — Subtle depth via soft shadows + 1px keylines
+      — Rounded, friendly geometry (12–20px radii)
+      — Light/Dark theme support
+      — Motion-safe transitions
+    */
 
-      /* layout band heights */
+    :root {
+      /* Layout */
+      --max-phone-width: 420px;
       --top-height: 11vh;
       --inventory-height: 12vh;
       --bottom-height: 11vh;
 
-      /* NEW VISUAL GOALS -------------------------------------------------
-         - text + outlines must always sit on darker / flat surfaces
-         - higher contrast colors instead of candy pastels
-         - reduced bloom / glow
-         - all corners now SHARP (0px radius)
-      */
+      /* Palette (Light) */
+      --bg: #f7f8fb;               /* app background */
+      --card: #ffffff;             /* surfaces */
+      --elevated: #ffffff;         /* elevated surfaces */
+      --keyline: #e7e9ef;          /* 1px borders */
+      --muted: #6b7280;            /* secondary text */
+      --text: #0b0f19;             /* primary text */
+      --accent: #0b84fe;           /* primary accent */
+      --accent-2: #8b5cf6;         /* secondary accent */
+      --good: #12b886;             /* success */
+      --warn: #ff8800;             /* warning */
+      --danger: #ef4444;           /* danger */
 
-      /* page background: still playful gradient, but dimmed so UI pops */
-      --page-bg-start: #1a2a4a;      /* deep navy */
-      --page-bg-end: #3a7bd5;        /* strong blue */
-      --page-bg-overlay: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 60%),
-                         radial-gradient(circle at 80% 70%, rgba(255,122,255,0.15) 0%, rgba(0,0,0,0) 70%);
+      /* Elevation */
+      --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.06);
+      --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.08);
+      --shadow-md: 0 10px 24px rgba(15, 23, 42, 0.10);
 
-      /* device shell: less chrome glare, more readable bezel */
-      --device-shell-grad: linear-gradient(160deg, #1b1d2a 0%, #2c3558 40%, #1a1f33 100%);
-      --device-rim-color: #3a4b86;
-      --device-inner-glow: 0 20px 40px rgba(0,0,0,0.8),
-                           0 0 12px rgba(255,255,255,0.15) inset,
-                           0 -4px 8px rgba(0,0,0,0.8) inset;
-      --device-radius: 0px; /* sharp */
+      /* Radii */
+      --r-sm: 10px;
+      --r-md: 14px;
+      --r-lg: 18px;
 
-      /* panel surfaces: flatter, darker, so white text reads clean */
-      --panel-bg: linear-gradient(#1e2438 0%, #1a1f2f 100%);
-      --panel-stroke: #4fd6ff;
-      --panel-shadow: 0 8px 16px rgba(0,0,0,0.8), 0 0 16px rgba(79,214,255,0.4);
-
-      /* resource chips: now high-contrast plates instead of glass bubbles */
-      --chip-bg: linear-gradient(#1e2438 0%, #1a1f2f 100%);
-      --chip-stroke: #4fd6ff;
-      --chip-shadow: 0 8px 16px rgba(0,0,0,0.8), 0 0 12px rgba(79,214,255,0.4);
-
-      /* meters: dark shell, neon bar */
-      --meter-shell-bg: #0f1424;
-      --meter-shell-border: #4fd6ff;
-      --meter-shell-shadow: 0 8px 16px rgba(0,0,0,0.9),0 0 16px rgba(79,214,255,0.4);
-
-      --hp-grad: linear-gradient(90deg, #ff0038 0%, #ff6b6b 40%, #ffd479 100%);
-      --armor-grad: linear-gradient(90deg, #00f0ff 0%, #68b5ff 40%, #ffffff 100%);
-
-      --hp-glow: 0 0 4px rgba(255,0,56,0.8);
-      --armor-glow: 0 0 4px rgba(0,240,255,0.8);
-
-      /* battle arena shell */
-      --arena-bg: radial-gradient(circle at 50% 40%, #1e2438 0%, #0f1424 80%);
-      --arena-stroke: #4fd6ff;
-      --arena-shadow: 0 16px 24px rgba(0,0,0,0.9), 0 0 24px rgba(79,214,255,0.4);
-
-      /* orbs row */
-      --orbs-bg: linear-gradient(#1e2438 0%, #0f1424 100%);
-      --orbs-stroke: #4fd6ff;
-      --orbs-shadow: 0 16px 24px rgba(0,0,0,0.9), 0 0 24px rgba(79,214,255,0.4);
-
-      /* orb core: keep readable glow but clamp bloom */
-      --orb-core-grad: radial-gradient(circle at 30% 30%, #ffffff 0%, #9dfff2 40%, #00ffd1 60%, #00735f 100%);
-      --orb-core-ring: #00ffd1;
-      --orb-core-glow: 0 0 8px rgba(0,255,200,0.8), 0 0 16px rgba(0,255,200,0.4);
-
-      /* inventory slots */
-      --slot-bg: linear-gradient(#1e2438 0%, #0f1424 100%);
-      --slot-stroke: #4fd6ff;
-      --slot-shadow: 0 12px 20px rgba(0,0,0,0.9), 0 0 16px rgba(79,214,255,0.4);
-
-      /* buttons: keep A/B hues but flatten, reduce bloom */
-      --btn-a-grad: radial-gradient(circle at 30% 20%, #ffd400 0%, #ff6b00 100%);
-      --btn-b-grad: radial-gradient(circle at 30% 20%, #a47aff 0%, #4700ff 100%);
-      --btn-border: #ffffff;
-      --btn-shadow: 0 12px 20px rgba(0,0,0,0.9), 0 0 16px rgba(255,255,255,0.2);
-
-      /* TYPE SCALE */
-      --fs-xxs: 0.7rem;
+      /* Type scale */
+      --fs-xxs: 0.72rem;
       --fs-xs: 0.8rem;
-      --fs-sm: 0.9rem;
+      --fs-sm: 0.92rem;
       --fs-md: 1rem;
-      --fs-lg: 1.1rem;
-      --fs-xl: 1.4rem;
-      --fs-xxl: 2.2rem;
-      --fs-mega: 3.5rem;
-      --fs-giga: 5rem;
-
-      /* CORNERS NOW SHARP */
-      --border-radius-card: 0px;
-      --border-radius-win: 0px;
-      --border-radius-slot: 0px;
-      --border-radius-btn: 0px;
-      --pixel-gap: 12px;
-
-      /* text colors now high-contrast on dark plates */
-      --text-primary: #ffffff;
-      --text-bright: #ffffff;
-      --text-glow: 0 0 4px rgba(79,214,255,0.9);
+      --fs-lg: 1.12rem;
+      --fs-xl: 1.35rem;
+      --fs-xxl: 1.9rem;
+      --fs-giga: clamp(3rem, 9vw, 4.75rem);
     }
 
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-      -webkit-user-select: none;
-      user-select: none;
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0b0f14;
+        --card: #0f1420;
+        --elevated: #121826;
+        --keyline: #202635;
+        --muted: #9aa3b2;
+        --text: #f5f7fb;
+        --accent: #4ba3ff;
+        --accent-2: #a68bff;
+        --good: #24d3a0;
+        --warn: #ffb454;
+        --danger: #ff6b6b;
+        --shadow-xs: 0 1px 2px rgba(0,0,0,0.3);
+        --shadow-sm: 0 6px 18px rgba(0,0,0,0.35);
+        --shadow-md: 0 14px 30px rgba(0,0,0,0.45);
+      }
     }
 
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; }
+    html { background: var(--bg); }
 
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Inter', Roboto, sans-serif;
-      background: radial-gradient(circle at 50% 20%, var(--page-bg-start) 0%, var(--page-bg-end) 70%);
-      background-image: var(--page-bg-overlay), radial-gradient(circle at 50% 20%, var(--page-bg-start) 0%, var(--page-bg-end) 70%);
-      background-blend-mode: normal;
-      color: var(--text-primary);
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", Roboto, Segoe UI, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      display: grid;
+      place-items: center;
       padding: 16px;
-      touch-action: none;
     }
 
+    /* Device shell — minimal chrome */
     .device {
       position: relative;
       width: 100%;
       max-width: var(--max-phone-width);
       height: clamp(600px, 100dvh, 900px);
-      background: var(--device-shell-grad);
-      border-radius: var(--device-radius);
-      border: 2px solid var(--device-rim-color);
-      box-shadow: var(--device-inner-glow);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      outline: 2px solid #4fd6ff; /* crisp bezel line */
+      background: var(--card);
+      border-radius: 22px;
+      border: 1px solid var(--keyline);
+      box-shadow: var(--shadow-md);
+      display: flex; flex-direction: column;
+      overflow: clip;
     }
 
-    .device::after {
-      /* remove intense lens ribbon; keep subtle edge highlight */
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      pointer-events: none;
-      background: radial-gradient(circle at 10% 0%, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 60%),
-                  radial-gradient(circle at 80% 100%, rgba(0,0,80,0.3) 0%, rgba(0,0,80,0) 70%);
-      mix-blend-mode: screen;
-    }
-
-    /* ========================= TOP BAR ====================== */
+    /* Top resources — understated pill chips */
     .top-section {
       flex: 0 0 var(--top-height);
       display: flex;
       align-items: end;
       justify-content: center;
-      padding: calc(env(safe-area-inset-top) + 12px) 16px 12px;
-      position: relative;
-    }
-
-    /* strip glare removed entirely to avoid obscuring text */
-    .top-section::before {
-      content: none;
+      padding: calc(env(safe-area-inset-top) + 10px) 18px 12px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.00), rgba(0,0,0,0.03));
     }
 
     .resource-bubble {
-      background: var(--chip-bg);
-      border-radius: var(--border-radius-card);
-      padding: 10px 16px;
-      border: 2px solid var(--chip-stroke);
-      box-shadow: var(--chip-shadow);
-      min-height: 64px;
+      background: var(--elevated);
+      border: 1px solid var(--keyline);
+      border-radius: 999px;
+      box-shadow: var(--shadow-sm);
+      padding: 10px 14px;
+      min-height: 48px;
       min-width: 100%;
       max-width: 360px;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      font-weight: 600;
-      color: var(--text-bright);
-      text-shadow: none; /* remove glow haze that was lowering clarity */
-      font-size: var(--fs-md);
-      line-height: 1.1;
-      gap: 16px;
-      position: relative;
+      display: flex; gap: 14px; justify-content: center; align-items: center;
+      font-weight: 600; font-size: var(--fs-sm);
     }
+    .resource-item { display: inline-flex; align-items: baseline; gap: 6px; color: var(--text); }
+    .resource-item span { font-variant-numeric: tabular-nums; color: var(--muted); }
 
-    .resource-bubble::after {
-      /* kill white overlay rim, which was washing out borders */
-      content: none;
-    }
+    /* Middle section */
+    .middle-section { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 6px 0 0; }
 
-    .resource-item {
-      display: flex;
-      align-items: baseline;
-      gap: 6px;
-      filter: none; /* remove drop-shadow glow */
-    }
-
-    /* ====================== MID SECTION ===================== */
-    .middle-section {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      padding-top: 10px;
-      padding-bottom: 8px;
-      position: relative;
-      width: 100%;
-      color: var(--text-primary);
-    }
-
-    /* bokeh removed / softened so it doesn't compete with fight area */
-    .middle-section::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at 25% 30%, rgba(79,214,255,0.15) 0%, rgba(0,0,0,0) 60%),
-                  radial-gradient(circle at 75% 60%, rgba(0,255,200,0.1) 0%, rgba(0,0,0,0) 70%);
-      mix-blend-mode: screen;
-      filter: blur(12px);
-      pointer-events: none;
-    }
-
-    /* Meters */
+    /* Meters card */
     .meters-window {
       width: calc(100% - 32px);
       max-width: 360px;
-      background: var(--meter-shell-bg);
-      border-radius: var(--border-radius-win);
-      border: 2px solid var(--meter-shell-border);
-      box-shadow: var(--meter-shell-shadow);
+      background: var(--elevated);
+      border: 1px solid var(--keyline);
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow-sm);
       padding: 12px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      position: relative;
-      color: var(--text-primary);
+      display: grid; gap: 12px;
     }
 
-    .meters-window::after {
-      content: none; /* no glossy overlay */
-    }
-
-    .meter-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-width: 0;
-      font-size: var(--fs-sm);
-      font-weight: 600;
-      color: var(--text-primary);
-      text-shadow: none;
-    }
-
-    .meter-stats {
-      flex: 0 0 auto;
-      white-space: nowrap;
-      line-height: 1.2;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-variant-numeric: tabular-nums;
-    }
+    .meter-row { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; }
+    .meter-stats { font-size: var(--fs-sm); font-weight: 600; display: inline-grid; grid-auto-flow: column; gap: 6px; }
 
     .meter-bar-outer {
-      flex: 1 1 auto;
-      height: 10px;
-      border-radius: 0;
-      background: #000; /* flat black channel for contrast */
-      border: 2px solid #4fd6ff;
-      box-shadow: 0 0 4px rgba(79,214,255,0.7);
-      overflow: hidden;
-      position: relative;
+      height: 10px; border-radius: 999px; position: relative; overflow: hidden;
+      background: linear-gradient(180deg, rgba(0,0,0,0.06), rgba(255,255,255,0.06));
+      border: 1px solid var(--keyline);
+      box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
     }
+    .meter-bar-inner { height: 100%; border-radius: 999px; position: relative; }
+    .meter-bar-inner.hp { width: 50%; background: linear-gradient(90deg, #ff6b6b, #ff9a76); }
+    .meter-bar-inner.armor { width: 50%; background: linear-gradient(90deg, #42c7ff, #a4d3ff); }
 
-    .meter-bar-inner {
-      height: 100%;
-      border-radius: 0;
-      position: relative;
-    }
-
-    .meter-bar-inner.hp {
-      background: var(--hp-grad);
-      box-shadow: var(--hp-glow);
-      width: 50%;
-    }
-
-    .meter-bar-inner.armor {
-      background: var(--armor-grad);
-      box-shadow: var(--armor-glow);
-      width: 50%;
-    }
-
-    /* BATTLE ARENA */
-    .battle-wrapper {
-      flex: 1;
-      width: 100%;
-      max-width: 360px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 8px 16px 0;
-      position: relative;
-    }
+    /* Battle stage — simple balanced layout */
+    .battle-wrapper { flex: 1; width: 100%; max-width: 360px; display: flex; align-items: center; justify-content: center; padding: 4px 16px 0; }
 
     .battle-window {
-      flex: 1;
-      background: var(--arena-bg);
-      border-radius: var(--border-radius-win);
-      border: 2px solid var(--arena-stroke);
-      box-shadow: var(--arena-shadow);
-      height: 100%;
-      min-height: 120px;
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      justify-items: center;
+      width: 100%; height: 100%; min-height: 120px;
+      display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; justify-items: center;
+      background: var(--elevated);
+      border: 1px solid var(--keyline);
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow-sm);
       padding: 16px;
-      color: var(--text-primary);
-      position: relative;
     }
 
-    /* remove aggressive white scanline that washed the character */
-    .battle-window::after {
-      content: none;
-    }
+    .battle-side { display: grid; place-items: center; gap: 8px; min-width: 0; text-align: center; }
+    .fighter-emoji { font-size: var(--fs-giga); line-height: 1; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.15)); }
+    .vs-col { font-weight: 800; font-size: var(--fs-md); color: var(--muted); }
 
-    .battle-side {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      min-width: 0;
-      color: var(--text-primary);
-    }
-
-    .fighter-emoji {
-      font-size: var(--fs-giga);
-      line-height: 1;
-      filter: drop-shadow(0 0 4px rgba(79,214,255,0.8));
-    }
-
-    .vs-col {
-      font-weight: 800;
-      font-size: var(--fs-md);
-      line-height: 1;
-      color: var(--text-primary);
-      text-shadow: 0 0 4px rgba(79,214,255,0.9);
-    }
-
-    /* ORBS STRIP */
-    .orbs-section {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 12px 0;
-      position: relative;
-    }
-
+    /* Orbs / slot machine */
+    .orbs-section { width: 100%; display: flex; justify-content: center; align-items: center; padding: 10px 0; }
     .orbs-row {
-      width: calc(100% - 32px);
-      max-width: 360px;
-      background: var(--orbs-bg);
-      border-radius: var(--border-radius-win);
-      border: 2px solid var(--orbs-stroke);
-      box-shadow: var(--orbs-shadow);
-      padding: 16px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 24px;
-      position: relative;
-      min-height: 64px;
-      font-size: var(--fs-xl);
-      font-weight: 700;
-      line-height: 1;
-      color: var(--text-primary);
-      text-shadow: 0 0 4px rgba(79,214,255,0.9);
-    }
-
-    .orbs-row::after {
-      content: none;
+      width: calc(100% - 32px); max-width: 360px; min-height: 64px;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; align-items: stretch;
+      background: var(--elevated);
+      border: 1px solid var(--keyline);
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow-sm);
+      padding: 12px;
     }
 
     .orb {
-      width: 48px;
-      height: 48px;
-      border-radius: 0; /* sharp */
-      background: var(--orb-core-grad);
-      border: 2px solid var(--orb-core-ring);
-      box-shadow: var(--orb-core-glow);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: var(--fs-xl);
-      font-weight: 700;
-      line-height: 1;
-      color: #000;
-      text-shadow: none;
+      display: grid; place-items: center;
+      border-radius: var(--r-md);
+      background: var(--card);
+      border: 1px solid var(--keyline);
+      box-shadow: var(--shadow-xs);
+      font-size: var(--fs-xxl);
+      user-select: none;
     }
 
-    /* LOWER HUD */
+    /* Description / HUD band */
     .lower-hud {
-      background: var(--panel-bg);
-      border-top: 2px solid var(--panel-stroke);
-      border-bottom: 2px solid var(--panel-stroke);
-      box-shadow: var(--panel-shadow);
-      padding: 14px 16px;
-      color: var(--text-primary);
-      flex: 0 0 auto;
-      position: relative;
+      background: var(--card);
+      border-top: 1px solid var(--keyline);
+      color: var(--text);
+      padding: 12px 16px;
     }
+    .description-box { max-width: 420px; margin: 0 auto; display: grid; gap: 6px; }
+    .description-title { font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 700; }
+    .description-body { font-size: var(--fs-sm); line-height: 1.45; color: var(--text); }
 
-    .lower-hud::after {
-      content: none;
-    }
-
-    .description-box {
-      max-width: 420px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      text-shadow: none;
-      color: var(--text-primary);
-    }
-
-    .description-title {
-      font-size: var(--fs-xs);
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 4px;
-      line-height: 1.2;
-      color: var(--text-primary);
-    }
-
-    .description-body {
-      font-size: var(--fs-sm);
-      line-height: 1.4;
-      max-height: 3.6em;
-      overflow: hidden;
-      color: var(--text-primary);
-    }
-
-    /* INVENTORY */
+    /* Inventory */
     .inventory-row {
       flex: 0 0 var(--inventory-height);
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      position: relative;
-      z-index: 2;
-      padding: 8px 0;
-      gap: 4px;
-      background: #0f1424;
-      border-top: 2px solid var(--panel-stroke);
-      border-bottom: 2px solid var(--panel-stroke);
-      box-shadow: var(--panel-shadow);
-      color: var(--text-primary);
+      display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 10px; align-items: center; justify-content: center;
+      padding: 10px 14px; background: var(--elevated); border-top: 1px solid var(--keyline); border-bottom: 1px solid var(--keyline);
     }
 
     .slot {
-      width: 64px;
-      height: 64px;
-      border-radius: var(--border-radius-slot);
-      background: var(--slot-bg);
-      border: 2px solid var(--slot-stroke);
-      box-shadow: var(--slot-shadow);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: var(--fs-xl);
-      line-height: 1;
-      color: var(--text-primary);
-      user-select: none;
-      cursor: pointer;
-      position: relative;
-      text-shadow: 0 0 4px rgba(79,214,255,0.9);
+      height: 64px; border-radius: var(--r-md); display: grid; place-items: center; font-size: var(--fs-xxl);
+      background: var(--card); border: 1px solid var(--keyline); box-shadow: var(--shadow-xs); cursor: pointer; color: var(--text);
+      transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
     }
+    .slot:active { transform: scale(0.98); }
+    .slot.active { border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 12%, transparent); }
 
-    .slot.active {
-      outline: 2px solid #ffffff;
-      outline-offset: 2px;
-      box-shadow: 0 0 8px rgba(255,255,255,0.8), 0 8px 16px rgba(0,0,0,0.8);
-    }
+    /* Subtle thematic tints for variety */
+    .slot.dagger  { background: linear-gradient(180deg, color-mix(in oklab, var(--card) 88%, #ffdede), var(--card)); }
+    .slot.shield  { background: linear-gradient(180deg, color-mix(in oklab, var(--card) 88%, #def7ff), var(--card)); }
+    .slot.diamond { background: linear-gradient(180deg, color-mix(in oklab, var(--card) 88%, #fff5d6), var(--card)); }
+    .slot.poultry { background: linear-gradient(180deg, color-mix(in oklab, var(--card) 88%, #ffe7d6), var(--card)); }
 
-    /* themed slot tints flattened for clarity */
-    .slot.dagger {
-      background: linear-gradient(#2a1a1a 0%, #000 100%);
-      border-color: #ff4d00;
-    }
-    .slot.shield {
-      background: linear-gradient(#002a2a 0%, #000 100%);
-      border-color: #00ffd1;
-    }
-    .slot.diamond {
-      background: linear-gradient(#2a2000 0%, #000 100%);
-      border-color: #ffd400;
-    }
-    .slot.poultry {
-      background: linear-gradient(#2a1400 0%, #000 100%);
-      border-color: #ff6b00;
-    }
-
-    /* BUTTONS */
+    /* Bottom controls */
     .bottom-section {
       flex: 0 0 var(--bottom-height);
-      display: flex;
-      justify-content: center;
-      align-items: stretch;
+      display: flex; justify-content: center; align-items: stretch;
       padding: 10px 16px calc(env(safe-area-inset-bottom) + 12px);
-      background: #0f1424;
-      box-shadow: var(--panel-shadow);
-      border-top: 2px solid var(--panel-stroke);
-      color: var(--text-primary);
+      background: var(--card); border-top: 1px solid var(--keyline);
     }
 
-    .buttons-area {
-      display: flex;
-      gap: 16px;
-      align-items: stretch;
-      width: 100%;
-      max-width: 400px;
-    }
+    .buttons-area { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; max-width: 400px; }
 
     .action-btn {
-      flex: 1 1 0%;
-      position: relative;
-      min-height: 68px;
-      border-radius: var(--border-radius-btn);
-      border: 2px solid var(--btn-border);
-      box-shadow: var(--btn-shadow);
-      user-select: none;
-      touch-action: manipulation;
-      -webkit-user-select: none;
-      appearance: none;
-      cursor: pointer;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: transparent;
-      color: var(--text-primary);
+      appearance: none; border: 1px solid var(--keyline); background: var(--text); color: #fff;
+      border-radius: 999px; min-height: 60px; font-weight: 700; letter-spacing: 0.02em; cursor: pointer;
+      box-shadow: var(--shadow-sm); display: grid; place-items: center; transition: transform 120ms ease, filter 120ms ease, box-shadow 120ms ease;
     }
+    .action-btn.secondary { background: #fff; color: var(--text); }
+    @media (prefers-color-scheme: dark) { .action-btn.secondary { background: #121826; color: var(--text); } }
 
-    .action-btn.primary {
-      background: var(--btn-a-grad);
-      color: #000;
-    }
+    .action-btn:hover { box-shadow: 0 6px 20px rgba(15,23,42,0.12); }
+    .action-btn:active { transform: translateY(1px) scale(0.995); }
 
-    .action-btn.secondary {
-      background: var(--btn-b-grad);
-      color: #fff;
-    }
+    .action-btn.primary { background: linear-gradient(180deg, color-mix(in oklab, var(--accent) 96%, #fff), var(--accent)); }
+    .action-btn.secondary { border-color: var(--keyline); background: var(--elevated); }
 
-    .btn-label {
-      font-size: var(--fs-lg);
-      font-weight: 800;
-      line-height: 1;
-      color: currentColor;
-      text-shadow: none;
-      letter-spacing: 0.03em;
-      pointer-events: none;
-    }
+    .btn-label { font-size: var(--fs-lg); font-weight: 800; }
 
-    .action-btn:active {
-      transform: scale(0.96);
+    /* Accessibility niceties */
+    @media (prefers-reduced-motion: reduce) {
+      .slot, .action-btn { transition: none; }
     }
   </style>
 </head>
@@ -600,39 +273,25 @@
       <!-- meters window -->
       <section class="meters-window">
         <div class="meter-row">
-          <div class="meter-stats">
-            <span>❤️</span>
-            <span>5 / 10</span>
-          </div>
-          <div class="meter-bar-outer">
-            <div class="meter-bar-inner hp" id="hpBar"></div>
-          </div>
+          <div class="meter-stats"><span>❤️</span><span>5 / 10</span></div>
+          <div class="meter-bar-outer"><div class="meter-bar-inner hp" id="hpBar"></div></div>
         </div>
         <div class="meter-row">
-          <div class="meter-stats">
-            <span>🛡️</span>
-            <span>5 / 10</span>
-          </div>
-          <div class="meter-bar-outer">
-            <div class="meter-bar-inner armor" id="armorBar"></div>
-          </div>
+          <div class="meter-stats"><span>🛡️</span><span>5 / 10</span></div>
+          <div class="meter-bar-outer"><div class="meter-bar-inner armor" id="armorBar"></div></div>
         </div>
       </section>
 
       <!-- battle arena -->
       <section class="battle-wrapper">
         <div class="battle-window">
-          <div class="battle-side left">
-            <div class="fighter-emoji">🧙‍♂️</div>
-          </div>
+          <div class="battle-side left"><div class="fighter-emoji">🧙‍♂️</div></div>
           <div class="vs-col">VS</div>
-          <div class="battle-side right">
-            <div class="fighter-emoji">🐉</div>
-          </div>
+          <div class="battle-side right"><div class="fighter-emoji">🐉</div></div>
         </div>
       </section>
 
-            <!-- SLOT MACHINE -->
+      <!-- SLOT MACHINE -->
       <section class="orbs-section">
         <div class="orbs-row slot-machine" id="slotMachine">
           <div class="orb reel" data-reel="0">❔</div>
@@ -668,14 +327,14 @@
   </main>
 
   <script>
+    // Maintain viewport comfort on mobile
     (function() {
       const vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty('--vh', `${vh}px`);
-      window.addEventListener('resize', () => {
-        // keep initial vh feel
-      });
+      window.addEventListener('resize', () => {});
     })();
 
+    // Inventory interactions
     const slots = document.querySelectorAll('.slot');
     const descTitle = document.getElementById('descTitle');
     const descBody  = document.getElementById('descBody');
@@ -684,32 +343,21 @@
       slot.addEventListener('click', () => {
         slots.forEach(s => s.classList.remove('active'));
         slot.classList.add('active');
-
         descTitle.textContent = slot.getAttribute('data-title') || 'Item';
         descBody.textContent  = slot.getAttribute('data-desc')  || '';
       });
     });
-      const spinButton = document.getElementById('spinButton');
+
+    // Slot machine behavior (unchanged)
+    const spinButton = document.getElementById('spinButton');
     const reels = document.querySelectorAll('.reel');
     const machine = document.getElementById('slotMachine');
 
-    // pool of prize emojis
-    const symbols = [
-      '💎','🍗','🗡️','🛡️','🔥','💰','✨','🍀','💊','🔮','🧪','⭐','📜','🏆','🧠','🦴','🥩','🪙','🎲','☠️'
-    ];
-
+    const symbols = ['💎','🍗','🗡️','🛡️','🔥','💰','✨','🍀','💊','🔮','🧪','⭐','📜','🏆','🧠','🦴','🥩','🪙','🎲','☠️'];
     let spinning = false;
 
-    function randomSymbol() {
-      return symbols[Math.floor(Math.random() * symbols.length)];
-    }
-
-    function spinOnce() {
-      // instantly assign randoms to each reel
-      reels.forEach(r => {
-        r.textContent = randomSymbol();
-      });
-    }
+    function randomSymbol() { return symbols[Math.floor(Math.random() * symbols.length)]; }
+    function spinOnce() { reels.forEach(r => { r.textContent = randomSymbol(); }); }
 
     function startSpin() {
       if (spinning) return;
@@ -719,45 +367,31 @@
       descBody.textContent = 'Good luck! 🍀';
 
       let ticks = 0;
-      const maxTicks = 20 + Math.floor(Math.random()*10); // quick fake animation steps
+      const maxTicks = 20 + Math.floor(Math.random()*10);
       const interval = setInterval(() => {
         spinOnce();
         ticks++;
-        if (ticks >= maxTicks) {
-          clearInterval(interval);
-          finishSpin();
-        }
+        if (ticks >= maxTicks) { clearInterval(interval); finishSpin(); }
       }, 60);
     }
 
     function finishSpin() {
-      // final settled values already in reels
       const results = Array.from(reels).map(r => r.textContent);
-
-      // simple win check: all match, or any pair match
       let message;
       if (results[0] === results[1] && results[1] === results[2]) {
         message = `JACKPOT ${results[0]} ${results[1]} ${results[2]}!!!`;
-      } else if (
-        results[0] === results[1] ||
-        results[1] === results[2] ||
-        results[0] === results[2]
-      ) {
+      } else if (results[0] === results[1] || results[1] === results[2] || results[0] === results[2]) {
         message = `Nice pull: ${results.join(' ')} (pair!)`;
       } else {
         message = `You got ${results.join(' ')}`;
       }
-
       descTitle.textContent = 'Slot Result';
       descBody.textContent = message;
-
       machine.classList.remove('spinning');
       spinning = false;
     }
 
-    if (spinButton) {
-      spinButton.addEventListener('click', startSpin);
-    }
+    if (spinButton) { spinButton.addEventListener('click', startSpin); }
   </script>
 </body>
 </html>
