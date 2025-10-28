@@ -3,13 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <title>Mobile Portrait Game UI — Taupe Theme</title>
+  <title>Mobile Portrait Game UI — Taupe Theme (v2)</title>
   <meta name="theme-color" content="#d4c6b9" />
   <style>
     /*
-      Taupe / Cream / Dark Brown theme
-      – Single-file HTML/CSS/JS (GitHub Pages friendly)
-      – Portrait-first, fixed 9:16 frame on any device
+      Taupe / Cream / Dark Brown theme (v2)
+      – Wider top/bottom strips flanking the board for counters & icons
+      – Primary button populates the 3x3 grid with softly animated emojis
+      – Removed footer side hints
     */
 
     :root {
@@ -28,6 +29,7 @@
       --radius-lg: 18px;
       --radius-md: 16px;
       --gap: 14px;
+      --strip-height: clamp(36px, 5.5vmin, 52px); /* wider slim bars */
     }
 
     * { box-sizing: border-box; }
@@ -94,11 +96,11 @@
     .middle { display: grid; place-items: center; }
 
 
-    /* Stack around the board: slim sections above and below */
+    /* Stack around the board: wider sections above and below */
     .board-stack {
       width: 100%;
       display: grid;
-      grid-template-rows: 18px 1fr 18px; /* slimmer strips */
+      grid-template-rows: var(--strip-height) 1fr var(--strip-height);
       gap: 8px;
     }
     .strip {
@@ -106,7 +108,28 @@
       border: 1px solid var(--line);
       border-radius: var(--radius-md);
       box-shadow: var(--shadow-soft);
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
     }
+
+    /* Mini-bar content (chips + icons) */
+    .mini-bar { width: 100%; display: flex; align-items: center; justify-content: space-between; }
+    .mini-group { display: inline-flex; align-items: center; gap: 8px; }
+    .chip {
+      background: var(--muted);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      box-shadow: var(--shadow-soft);
+    }
+    .chip .chip-icon { font-size: 14px; line-height: 1; }
+    .icon-btn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; background: #fff; box-shadow: var(--shadow-soft); cursor: pointer; }
+    .icon-btn:active { transform: translateY(1px); }
 
     .board {
       width: 100%;
@@ -142,15 +165,17 @@
       opacity: 0.8;
     }
 
+    /* Emoji appearance (soft animation) */
+    .emoji { font-size: clamp(20px, 6vmin, 40px); opacity: 0; transform: translateY(8px) scale(0.9); animation: emoji-in 420ms cubic-bezier(.2,.8,.2,1) forwards; will-change: transform, opacity; }
+    @keyframes emoji-in { 0% {opacity: 0; transform: translateY(8px) scale(0.9);} 60% {opacity: 1; transform: translateY(-2px) scale(1.04);} 100% {opacity: 1; transform: translateY(0) scale(1);} }
+    @media (prefers-reduced-motion: reduce) { .emoji { animation: none; opacity: 1; transform: none; } }
+
     /* BOTTOM: compact bar with a large round primary button */
     .bottom {
       display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      gap: 10px;
+      place-items: center; /* center the round button; text hints removed */
       padding: 0; /* keep tight so the button isn't pushed down */
     }
-    .hint { color: var(--subtle-text); font-size: 12px; opacity: 0.85; }
 
     .action-wrap { display: grid; place-items: center; }
 
@@ -226,7 +251,20 @@
     <!-- Middle: centered 3x3 grid board -->
     <main class="middle" aria-label="Game board">
       <div class="board-stack" aria-label="Board stack">
-        <div class="strip strip--top" aria-hidden="true"></div>
+        <div class="strip strip--top" aria-label="Top strip">
+          <div class="mini-bar">
+            <div class="mini-group" aria-label="Top counters">
+              <span class="chip" aria-label="Lives"><span class="chip-icon">❤️</span><strong id="lives">3</strong></span>
+              <span class="chip" aria-label="Gems"><span class="chip-icon">💎</span><strong id="gems">12</strong></span>
+              <span class="chip" aria-label="Timer"><span class="chip-icon">⏱</span><strong id="timer">01:23</strong></span>
+            </div>
+            <div class="mini-group" aria-label="Top icons">
+              <button class="icon-btn" aria-label="Sound"><span aria-hidden="true">🔊</span></button>
+              <button class="icon-btn" aria-label="Settings"><span aria-hidden="true">⚙️</span></button>
+            </div>
+          </div>
+        </div>
+
         <section class="board" aria-label="3 by 3 grid">
           <button class="cell" aria-label="Cell 1"></button>
           <button class="cell" aria-label="Cell 2"></button>
@@ -238,19 +276,29 @@
           <button class="cell" aria-label="Cell 8"></button>
           <button class="cell" aria-label="Cell 9"></button>
         </section>
-        <div class="strip strip--bottom" aria-hidden="true"></div>
+
+        <div class="strip strip--bottom" aria-label="Bottom strip">
+          <div class="mini-bar">
+            <div class="mini-group" aria-label="Bottom counters">
+              <span class="chip" aria-label="Streak"><span class="chip-icon">🔥</span><strong id="streak">x2</strong></span>
+              <span class="chip" aria-label="Stars"><span class="chip-icon">⭐️</span><strong id="stars">5</strong></span>
+            </div>
+            <div class="mini-group" aria-label="Bottom icons">
+              <button class="icon-btn" aria-label="Info"><span aria-hidden="true">ℹ️</span></button>
+              <button class="icon-btn" aria-label="Help"><span aria-hidden="true">❔</span></button>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
 
-    <!-- Bottom: small bar with prominent round button -->
+    <!-- Bottom: centered prominent round button (hints removed) -->
     <footer class="bottom" aria-label="Actions">
-      <div class="hint" style="justify-self:start">Tap tiles to interact</div>
       <div class="action-wrap">
         <button class="action-btn" id="primaryAction" aria-label="Primary action">
           <span class="sr-only">Primary Action</span>
         </button>
       </div>
-      <div class="hint" style="justify-self:end">Hold for boost</div>
     </footer>
   </div>
 
@@ -272,9 +320,26 @@
       c.addEventListener('click', () => c.classList.toggle('--glow'));
     });
 
-    // Primary action button ripple
+    // Primary action button ripple + emoji populate
     const actionBtn = document.getElementById('primaryAction');
+
+    // Emoji set for the grid
+    const EMOJIS = ['🍎','🍋','🍇','🍫','🍪','⭐️','💎','🔥','🌸','🍀','🎈','🧸','🪄','⚡️','🎯','🧩'];
+
+    function populateEmojisSoft() {
+      // Clear any existing emojis and add new ones with a soft staggered animation
+      cells.forEach((c, i) => {
+        c.querySelectorAll('.emoji').forEach(el => el.remove());
+        const span = document.createElement('span');
+        span.className = 'emoji';
+        span.textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+        span.style.animationDelay = (i * 30) + 'ms'; // gentle cascade
+        c.appendChild(span);
+      });
+    }
+
     actionBtn.addEventListener('click', (e) => {
+      // ripple
       const rect = actionBtn.getBoundingClientRect();
       const size = Math.max(rect.width, rect.height);
       const ripple = document.createElement('span');
@@ -286,6 +351,9 @@
       ripple.style.top = y + 'px';
       actionBtn.appendChild(ripple);
       ripple.addEventListener('animationend', () => ripple.remove());
+
+      // populate emojis with soft animation
+      populateEmojisSoft();
     });
 
     // Optional: demo pulse on center tile after load
