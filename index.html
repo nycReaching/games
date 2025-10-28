@@ -1,397 +1,279 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no" />
-  <title>Game UI — Modern Minimal Redesign</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>Mobile Portrait Game UI</title>
+  <meta name="theme-color" content="#f6f8fb" />
   <style>
     /*
-      Ultra‑polished, professional, modern aesthetic inspired by Apple / Notion.
-      — Calm neutrals, clear hierarchy, generous white space
-      — Subtle depth via soft shadows + 1px keylines
-      — Rounded, friendly geometry (12–20px radii)
-      — Light/Dark theme support
-      — Motion-safe transitions
+      Sleek, modern, soft/light UI for a portrait mobile web game
+      – Single-file HTML/CSS/JS (GitHub Pages friendly)
+      – Update colors in :root to reskin
     */
 
     :root {
-      /* Layout */
-      --max-phone-width: 420px;
-      --top-height: 11vh;
-      --inventory-height: 12vh;
-      --bottom-height: 11vh;
-
-      /* Palette (Light) */
-      --bg: #f7f8fb;               /* app background */
-      --card: #ffffff;             /* surfaces */
-      --elevated: #ffffff;         /* elevated surfaces */
-      --keyline: #e7e9ef;          /* 1px borders */
-      --muted: #6b7280;            /* secondary text */
-      --text: #0b0f19;             /* primary text */
-      --accent: #0b84fe;           /* primary accent */
-      --accent-2: #8b5cf6;         /* secondary accent */
-      --good: #12b886;             /* success */
-      --warn: #ff8800;             /* warning */
-      --danger: #ef4444;           /* danger */
-
-      /* Elevation */
-      --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.06);
-      --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.08);
-      --shadow-md: 0 10px 24px rgba(15, 23, 42, 0.10);
-
-      /* Radii */
-      --r-sm: 10px;
-      --r-md: 14px;
-      --r-lg: 18px;
-
-      /* Type scale */
-      --fs-xxs: 0.72rem;
-      --fs-xs: 0.8rem;
-      --fs-sm: 0.92rem;
-      --fs-md: 1rem;
-      --fs-lg: 1.12rem;
-      --fs-xl: 1.35rem;
-      --fs-xxl: 1.9rem;
-      --fs-giga: clamp(3rem, 9vw, 4.75rem);
+      /* Soft, airy palette */
+      --bg: #f6f8fb;              /* App background */
+      --surface: #ffffff;          /* Cards / tiles */
+      --muted: #eef2f8;            /* Subtle fills */
+      --line: rgba(31, 42, 68, 0.08);   /* Hairline borders */
+      --text: #1f2a44;             /* Primary text */
+      --subtle-text: #6b7280;      /* Secondary text */
+      --primary: #7aa7ff;          /* Accent */
+      --primary-press: #6a96ee;    /* Pressed accent */
+      --shadow-elev: 0 12px 36px rgba(31, 42, 68, 0.08);
+      --shadow-soft: 0 8px 24px rgba(31, 42, 68, 0.06);
+      --radius-lg: 18px;
+      --radius-md: 16px;
+      --gap: 14px;
     }
 
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #0b0f14;
-        --card: #0f1420;
-        --elevated: #121826;
-        --keyline: #202635;
-        --muted: #9aa3b2;
-        --text: #f5f7fb;
-        --accent: #4ba3ff;
-        --accent-2: #a68bff;
-        --good: #24d3a0;
-        --warn: #ffb454;
-        --danger: #ff6b6b;
-        --shadow-xs: 0 1px 2px rgba(0,0,0,0.3);
-        --shadow-sm: 0 6px 18px rgba(0,0,0,0.35);
-        --shadow-md: 0 14px 30px rgba(0,0,0,0.45);
-      }
-    }
+    * { box-sizing: border-box; }
 
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body { height: 100%; }
-    html { background: var(--bg); }
 
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Inter", Roboto, Segoe UI, Helvetica, Arial, sans-serif;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
       color: var(--text);
+      background: linear-gradient(180deg, #f7faff 0%, #fbfdff 50%, #ffffff 100%);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Root app layout: small top, large middle, small bottom */
+    .app {
+      min-height: 100dvh;                /* modern mobile viewport */
+      height: var(--app-height, 100dvh); /* JS fallback for iOS */
       display: grid;
-      place-items: center;
-      padding: 16px;
+      grid-template-rows: 56px 1fr 128px;  /* small / large / small */
+      gap: var(--gap);
+      padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
+      max-width: 520px;
+      margin: 0 auto;
     }
 
-    /* Device shell — minimal chrome */
-    .device {
-      position: relative;
-      width: 100%;
-      max-width: var(--max-phone-width);
-      height: clamp(600px, 100dvh, 900px);
-      background: var(--card);
-      border-radius: 22px;
-      border: 1px solid var(--keyline);
-      box-shadow: var(--shadow-md);
-      display: flex; flex-direction: column;
-      overflow: clip;
-    }
-
-    /* Top resources — understated pill chips */
-    .top-section {
-      flex: 0 0 var(--top-height);
+    /* TOP: slim status/header */
+    .top {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
       display: flex;
-      align-items: end;
-      justify-content: center;
-      padding: calc(env(safe-area-inset-top) + 10px) 18px 12px;
-      background: linear-gradient(180deg, rgba(0,0,0,0.00), rgba(0,0,0,0.03));
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
     }
-
-    .resource-bubble {
-      background: var(--elevated);
-      border: 1px solid var(--keyline);
+    .brand {
+      display: flex; gap: 10px; align-items: center;
+      letter-spacing: 0.2px; font-weight: 600;
+    }
+    .brand .dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: radial-gradient(120% 120% at 50% 10%, #cfe0ff 0%, #7aa7ff 100%);
+      box-shadow: 0 0 0 4px rgba(122, 167, 255, 0.15);
+    }
+    .stats { display: flex; gap: 12px; align-items: center; color: var(--subtle-text); font-size: 13px; }
+    .pill {
+      background: linear-gradient(180deg, #f9fbff 0%, #ffffff 100%);
+      border: 1px solid var(--line);
       border-radius: 999px;
-      box-shadow: var(--shadow-sm);
-      padding: 10px 14px;
-      min-height: 48px;
-      min-width: 100%;
-      max-width: 360px;
-      display: flex; gap: 14px; justify-content: center; align-items: center;
-      font-weight: 600; font-size: var(--fs-sm);
+      padding: 6px 10px;
+      display: inline-flex; gap: 6px; align-items: center;
     }
-    .resource-item { display: inline-flex; align-items: baseline; gap: 6px; color: var(--text); }
-    .resource-item span { font-variant-numeric: tabular-nums; color: var(--muted); }
+    .pill svg { opacity: 0.7; }
 
-    /* Middle section */
-    .middle-section { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 6px 0 0; }
-
-    /* Meters card */
-    .meters-window {
-      width: calc(100% - 32px);
-      max-width: 360px;
-      background: var(--elevated);
-      border: 1px solid var(--keyline);
-      border-radius: var(--r-lg);
-      box-shadow: var(--shadow-sm);
-      padding: 12px 14px;
-      display: grid; gap: 12px;
-    }
-
-    .meter-row { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; }
-    .meter-stats { font-size: var(--fs-sm); font-weight: 600; display: inline-grid; grid-auto-flow: column; gap: 6px; }
-
-    .meter-bar-outer {
-      height: 10px; border-radius: 999px; position: relative; overflow: hidden;
-      background: linear-gradient(180deg, rgba(0,0,0,0.06), rgba(255,255,255,0.06));
-      border: 1px solid var(--keyline);
-      box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
-    }
-    .meter-bar-inner { height: 100%; border-radius: 999px; position: relative; }
-    .meter-bar-inner.hp { width: 50%; background: linear-gradient(90deg, #ff6b6b, #ff9a76); }
-    .meter-bar-inner.armor { width: 50%; background: linear-gradient(90deg, #42c7ff, #a4d3ff); }
-
-    /* Battle stage — simple balanced layout */
-    .battle-wrapper { flex: 1; width: 100%; max-width: 360px; display: flex; align-items: center; justify-content: center; padding: 4px 16px 0; }
-
-    .battle-window {
-      width: 100%; height: 100%; min-height: 120px;
-      display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; justify-items: center;
-      background: var(--elevated);
-      border: 1px solid var(--keyline);
-      border-radius: var(--r-lg);
-      box-shadow: var(--shadow-sm);
-      padding: 16px;
-    }
-
-    .battle-side { display: grid; place-items: center; gap: 8px; min-width: 0; text-align: center; }
-    .fighter-emoji { font-size: var(--fs-giga); line-height: 1; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.15)); }
-    .vs-col { font-weight: 800; font-size: var(--fs-md); color: var(--muted); }
-
-    /* Orbs / slot machine */
-    .orbs-section { width: 100%; display: flex; justify-content: center; align-items: center; padding: 10px 0; }
-    .orbs-row {
-      width: calc(100% - 32px); max-width: 360px; min-height: 64px;
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; align-items: stretch;
-      background: var(--elevated);
-      border: 1px solid var(--keyline);
-      border-radius: var(--r-lg);
-      box-shadow: var(--shadow-sm);
-      padding: 12px;
-    }
-
-    .orb {
+    /* MIDDLE: big area with centered 3x3 board */
+    .middle {
       display: grid; place-items: center;
-      border-radius: var(--r-md);
-      background: var(--card);
-      border: 1px solid var(--keyline);
-      box-shadow: var(--shadow-xs);
-      font-size: var(--fs-xxl);
+    }
+
+    .board {
+      width: min(92vw, 460px);
+      aspect-ratio: 1 / 1; /* perfect square */
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .cell {
+      position: relative;
+      background: linear-gradient(180deg, #ffffff 0%, #f8faff 100%);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-elev);
+      display: grid; place-items: center;
+      font-size: 20px; font-weight: 600; letter-spacing: 0.3px;
       user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 80ms ease, box-shadow 240ms ease, border-color 240ms ease, background-color 240ms ease;
+      overflow: hidden;
+    }
+    .cell:active { transform: scale(0.985); box-shadow: 0 10px 28px rgba(31, 42, 68, 0.08); }
+    .cell.--glow { border-color: rgba(122, 167, 255, 0.85); box-shadow: 0 14px 40px rgba(122, 167, 255, 0.34); }
+
+    /* Subtle inner shine */
+    .cell::before {
+      content: "";
+      position: absolute; inset: 0;
+      background: radial-gradient(120% 120% at 50% 0%, rgba(122,167,255,0.12) 0%, rgba(122,167,255,0.06) 35%, rgba(122,167,255,0) 60%);
+      pointer-events: none;
+      opacity: 0.8;
     }
 
-    /* Description / HUD band */
-    .lower-hud {
-      background: var(--card);
-      border-top: 1px solid var(--keyline);
-      color: var(--text);
-      padding: 12px 16px;
+    /* BOTTOM: compact bar with a large round primary button */
+    .bottom {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 12px;
     }
-    .description-box { max-width: 420px; margin: 0 auto; display: grid; gap: 6px; }
-    .description-title { font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 700; }
-    .description-body { font-size: var(--fs-sm); line-height: 1.45; color: var(--text); }
+    .hint { color: var(--subtle-text); font-size: 12px; opacity: 0.85; }
 
-    /* Inventory */
-    .inventory-row {
-      flex: 0 0 var(--inventory-height);
-      display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 10px; align-items: center; justify-content: center;
-      padding: 10px 14px; background: var(--elevated); border-top: 1px solid var(--keyline); border-bottom: 1px solid var(--keyline);
-    }
-
-    .slot {
-      height: 64px; border-radius: var(--r-md); display: grid; place-items: center; font-size: var(--fs-xxl);
-      background: var(--card); border: 1px solid var(--keyline); box-shadow: var(--shadow-xs); cursor: pointer; color: var(--text);
-      transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
-    }
-    .slot:active { transform: scale(0.98); }
-    .slot.active { border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 12%, transparent); }
-
-    /* Subtle thematic tints for variety */
-    .slot.dagger  { background: linear-gradient(180deg, color-mix(in oklab, var(--card) 88%, #ffdede), var(--card)); }
-    .slot.shield  { background: linear-gradient(180deg, color-mix(in oklab, var(--card) 88%, #def7ff), var(--card)); }
-    .slot.diamond { background: linear-gradient(180deg, color-mix(in oklab, var(--card) 88%, #fff5d6), var(--card)); }
-    .slot.poultry { background: linear-gradient(180deg, color-mix(in oklab, var(--card) 88%, #ffe7d6), var(--card)); }
-
-    /* Bottom controls */
-    .bottom-section {
-      flex: 0 0 var(--bottom-height);
-      display: flex; justify-content: center; align-items: stretch;
-      padding: 10px 16px calc(env(safe-area-inset-bottom) + 12px);
-      background: var(--card); border-top: 1px solid var(--keyline);
-    }
-
-    .buttons-area { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; max-width: 400px; }
+    .action-wrap { display: grid; place-items: center; }
 
     .action-btn {
-      appearance: none; border: 1px solid var(--keyline); background: var(--text); color: #fff;
-      border-radius: 999px; min-height: 60px; font-weight: 700; letter-spacing: 0.02em; cursor: pointer;
-      box-shadow: var(--shadow-sm); display: grid; place-items: center; transition: transform 120ms ease, filter 120ms ease, box-shadow 120ms ease;
+      --size: 92px;
+      width: var(--size);
+      height: var(--size);
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background:
+        radial-gradient(120% 120% at 50% 0%, #eaf2ff 0%, #ffffff 70%) padding-box,
+        conic-gradient(from 180deg, rgba(122,167,255,0.12), rgba(122,167,255,0.24), rgba(122,167,255,0.12)) border-box;
+      box-shadow: 0 14px 38px rgba(122, 167, 255, 0.28), var(--shadow-soft);
+      display: grid; place-items: center;
+      font-weight: 700; letter-spacing: 0.4px; color: var(--text);
+      cursor: pointer;
+      position: relative; overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 80ms ease, box-shadow 240ms ease;
     }
-    .action-btn.secondary { background: #fff; color: var(--text); }
-    @media (prefers-color-scheme: dark) { .action-btn.secondary { background: #121826; color: var(--text); } }
+    .action-btn:active { transform: translateY(1px) scale(0.99); box-shadow: 0 10px 28px rgba(122, 167, 255, 0.22), var(--shadow-soft); }
+    .action-btn:focus-visible { outline: 3px solid rgba(122,167,255,0.35); outline-offset: 4px; }
 
-    .action-btn:hover { box-shadow: 0 6px 20px rgba(15,23,42,0.12); }
-    .action-btn:active { transform: translateY(1px) scale(0.995); }
-
-    .action-btn.primary { background: linear-gradient(180deg, color-mix(in oklab, var(--accent) 96%, #fff), var(--accent)); }
-    .action-btn.secondary { border-color: var(--keyline); background: var(--elevated); }
-
-    .btn-label { font-size: var(--fs-lg); font-weight: 800; }
-
-    /* Accessibility niceties */
-    @media (prefers-reduced-motion: reduce) {
-      .slot, .action-btn { transition: none; }
+    /* Ripple effect element */
+    .ripple {
+      position: absolute; border-radius: 50%; transform: scale(0);
+      background: rgba(122, 167, 255, 0.22);
+      animation: ripple 550ms ease-out; pointer-events: none;
     }
+    @keyframes ripple { to { transform: scale(3.2); opacity: 0; } }
+
+    /* Orientation guard: nudge users back to portrait */
+    .rotate-overlay {
+      position: fixed; inset: 0; display: none;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(3px);
+      z-index: 50; color: var(--text);
+      align-items: center; justify-content: center;
+      text-align: center; padding: 32px;
+    }
+    @media (orientation: landscape) { .rotate-overlay { display: flex; } }
+
+    /* Tiny helper icons */
+    .icon { width: 16px; height: 16px; }
+
+    /* Safe tappable areas */
+    button { border: 0; background: none; }
   </style>
 </head>
 <body>
-  <main class="device">
-    <!-- TOP RESOURCES -->
-    <header class="top-section">
-      <div class="resource-bubble">
-        <div class="resource-item">💰 <span>1,234</span></div>
-        <div class="resource-item">✨ <span>56</span></div>
-        <div class="resource-item">🕊️ <span>12</span></div>
+  <div class="app" role="application" aria-label="Mobile Portrait Game UI">
+    <!-- Top: slim status/header bar -->
+    <header class="top" aria-label="Game header">
+      <div class="brand" aria-label="Brand">
+        <span class="dot" aria-hidden="true"></span>
+        <span>Nova Grid</span>
+      </div>
+      <div class="stats" aria-label="Stats">
+        <span class="pill" title="Level">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 12h14M5 12a7 7 0 0 1 7-7v0a7 7 0 0 1 7 7M5 12a7 7 0 0 0 7 7v0a7 7 0 0 0 7-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <strong>Lv 3</strong>
+        </span>
+        <span class="pill" title="Score">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 6v12m6-6H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          1,250
+        </span>
       </div>
     </header>
 
-    <!-- GAME / MIDDLE -->
-    <section class="middle-section">
-      <!-- meters window -->
-      <section class="meters-window">
-        <div class="meter-row">
-          <div class="meter-stats"><span>❤️</span><span>5 / 10</span></div>
-          <div class="meter-bar-outer"><div class="meter-bar-inner hp" id="hpBar"></div></div>
-        </div>
-        <div class="meter-row">
-          <div class="meter-stats"><span>🛡️</span><span>5 / 10</span></div>
-          <div class="meter-bar-outer"><div class="meter-bar-inner armor" id="armorBar"></div></div>
-        </div>
+    <!-- Middle: centered 3x3 grid board -->
+    <main class="middle" aria-label="Game board">
+      <section class="board" aria-label="3 by 3 grid">
+        <button class="cell" aria-label="Cell 1"></button>
+        <button class="cell" aria-label="Cell 2"></button>
+        <button class="cell" aria-label="Cell 3"></button>
+        <button class="cell" aria-label="Cell 4"></button>
+        <button class="cell" aria-label="Cell 5"></button>
+        <button class="cell" aria-label="Cell 6"></button>
+        <button class="cell" aria-label="Cell 7"></button>
+        <button class="cell" aria-label="Cell 8"></button>
+        <button class="cell" aria-label="Cell 9"></button>
       </section>
+    </main>
 
-      <!-- battle arena -->
-      <section class="battle-wrapper">
-        <div class="battle-window">
-          <div class="battle-side left"><div class="fighter-emoji">🧙‍♂️</div></div>
-          <div class="vs-col">VS</div>
-          <div class="battle-side right"><div class="fighter-emoji">🐉</div></div>
-        </div>
-      </section>
-
-      <!-- SLOT MACHINE -->
-      <section class="orbs-section">
-        <div class="orbs-row slot-machine" id="slotMachine">
-          <div class="orb reel" data-reel="0">❔</div>
-          <div class="orb reel" data-reel="1">❔</div>
-          <div class="orb reel" data-reel="2">❔</div>
-        </div>
-      </section>
-    </section>
-
-    <!-- description band -->
-    <section class="lower-hud">
-      <div class="description-box" id="descBox">
-        <div class="description-title" id="descTitle">Encounter</div>
-        <div class="description-body" id="descBody">Tap an item below to inspect it.</div>
+    <!-- Bottom: small bar with prominent round button -->
+    <footer class="bottom" aria-label="Actions">
+      <div class="hint" style="justify-self:start">Tap tiles to interact</div>
+      <div class="action-wrap">
+        <button class="action-btn" id="primaryAction" aria-label="Primary action">
+          <span class="sr-only">Primary Action</span>
+          START
+        </button>
       </div>
-    </section>
+      <div class="hint" style="justify-self:end">Hold for boost</div>
+    </footer>
+  </div>
 
-    <!-- inventory -->
-    <div class="inventory-row">
-      <div class="slot dagger" data-title="Steel Dagger" data-desc="Fast, light blade. +2 damage on backstab.">🗡️</div>
-      <div class="slot shield" data-title="Knight Shield" data-desc="Blocks frontal hits. Adds +3 armor.">🛡️</div>
-      <div class="slot diamond" data-title="Sun Gem" data-desc="Sells for a fortune. Rumored to open sealed doors.">💎</div>
-      <div class="slot poultry" data-title="Roast Meat" data-desc="Restores 4 HP when eaten.">🍗</div>
+  <!-- Landscape orientation overlay -->
+  <div class="rotate-overlay" aria-live="polite">
+    <div>
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M7 7h10a2 2 0 0 1 2 2v6m-2 2H7a2 2 0 0 1-2-2V9m10-5 4 4m0-4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <div style="margin-top:12px; font-weight:600">Please rotate your device</div>
+      <div style="margin-top:6px; color:var(--subtle-text)">This game is best in portrait.</div>
     </div>
-
-    <!-- controls -->
-    <nav class="bottom-section">
-      <section class="buttons-area">
-        <button class="action-btn primary"><span class="btn-label">A</span></button>
-        <button class="action-btn secondary" id="spinButton"><span class="btn-label">B</span></button>
-      </section>
-    </nav>
-  </main>
+  </div>
 
   <script>
-    // Maintain viewport comfort on mobile
-    (function() {
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
-      window.addEventListener('resize', () => {});
-    })();
+    // iOS 100vh fix (sets --app-height) & safe resize
+    function setAppHeight() { document.documentElement.style.setProperty('--app-height', window.innerHeight + 'px'); }
+    window.addEventListener('resize', setAppHeight);
+    window.addEventListener('orientationchange', setAppHeight);
+    setAppHeight();
 
-    // Inventory interactions
-    const slots = document.querySelectorAll('.slot');
-    const descTitle = document.getElementById('descTitle');
-    const descBody  = document.getElementById('descBody');
+    // Minimal interactivity examples (replace with your game logic)
+    const cells = Array.from(document.querySelectorAll('.cell'));
 
-    slots.forEach(slot => {
-      slot.addEventListener('click', () => {
-        slots.forEach(s => s.classList.remove('active'));
-        slot.classList.add('active');
-        descTitle.textContent = slot.getAttribute('data-title') || 'Item';
-        descBody.textContent  = slot.getAttribute('data-desc')  || '';
-      });
+    // Tap to toggle a gentle glow highlight
+    cells.forEach((c) => {
+      c.addEventListener('click', () => c.classList.toggle('--glow'));
     });
 
-    // Slot machine behavior (unchanged)
-    const spinButton = document.getElementById('spinButton');
-    const reels = document.querySelectorAll('.reel');
-    const machine = document.getElementById('slotMachine');
+    // Primary action button ripple
+    const actionBtn = document.getElementById('primaryAction');
+    actionBtn.addEventListener('click', (e) => {
+      const rect = actionBtn.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple';
+      ripple.style.width = ripple.style.height = size + 'px';
+      const x = e.clientX - rect.left - size / 2;
+      const y = e.clientY - rect.top - size / 2;
+      ripple.style.left = x + 'px';
+      ripple.style.top = y + 'px';
+      actionBtn.appendChild(ripple);
+      ripple.addEventListener('animationend', () => ripple.remove());
+    });
 
-    const symbols = ['💎','🍗','🗡️','🛡️','🔥','💰','✨','🍀','💊','🔮','🧪','⭐','📜','🏆','🧠','🦴','🥩','🪙','🎲','☠️'];
-    let spinning = false;
-
-    function randomSymbol() { return symbols[Math.floor(Math.random() * symbols.length)]; }
-    function spinOnce() { reels.forEach(r => { r.textContent = randomSymbol(); }); }
-
-    function startSpin() {
-      if (spinning) return;
-      spinning = true;
-      machine.classList.add('spinning');
-      descTitle.textContent = 'Spinning…';
-      descBody.textContent = 'Good luck! 🍀';
-
-      let ticks = 0;
-      const maxTicks = 20 + Math.floor(Math.random()*10);
-      const interval = setInterval(() => {
-        spinOnce();
-        ticks++;
-        if (ticks >= maxTicks) { clearInterval(interval); finishSpin(); }
-      }, 60);
-    }
-
-    function finishSpin() {
-      const results = Array.from(reels).map(r => r.textContent);
-      let message;
-      if (results[0] === results[1] && results[1] === results[2]) {
-        message = `JACKPOT ${results[0]} ${results[1]} ${results[2]}!!!`;
-      } else if (results[0] === results[1] || results[1] === results[2] || results[0] === results[2]) {
-        message = `Nice pull: ${results.join(' ')} (pair!)`;
-      } else {
-        message = `You got ${results.join(' ')}`;
-      }
-      descTitle.textContent = 'Slot Result';
-      descBody.textContent = message;
-      machine.classList.remove('spinning');
-      spinning = false;
-    }
-
-    if (spinButton) { spinButton.addEventListener('click', startSpin); }
+    // Optional: demo pulse on center tile after load
+    window.setTimeout(() => {
+      const center = cells[4];
+      center.classList.add('--glow');
+      setTimeout(() => center.classList.remove('--glow'), 1200);
+    }, 450);
   </script>
 </body>
 </html>
