@@ -20,6 +20,7 @@
       --surface: #fbf6ec;           /* cream surfaces (tiles, cards) */
       --muted: #f3eadc;             /* subtle fills */
       --line: rgba(74, 50, 36, 0.18);  /* hairline borders (dark brown, soft) */
+      --dark-line: rgba(107, 78, 58, 0.85); /* New dark border for all elements */
       --text: #4a3224;              /* dark brown text */
       --subtle-text: #6d5342;       /* secondary text */
       --primary: #6b4e3a;           /* brown highlight */
@@ -65,7 +66,7 @@
     /* TOP: slim status/header */
     .top {
       background: var(--surface);
-      border: 1px solid var(--line);
+      border: 1px solid var(--dark-line); /* <-- Use dark line */
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-soft);
       display: flex;
@@ -85,7 +86,7 @@
     .stats { display: flex; gap: 12px; align-items: center; color: var(--subtle-text); font-size: 13px; }
     .pill {
       background: linear-gradient(180deg, #fcf8f0 0%, #fff 100%);
-      border: 1px solid var(--line);
+      border: 1px solid var(--dark-line); /* <-- Use dark line */
       border-radius: 999px;
       padding: 6px 10px;
       display: inline-flex; gap: 6px; align-items: center;
@@ -105,7 +106,7 @@
     }
     .strip {
       background: var(--surface);
-      border: 1px solid var(--line);
+      border: 1px solid var(--dark-line); /* <-- Use dark line */
       border-radius: var(--radius-md);
       box-shadow: var(--shadow-soft);
       padding: 0 10px;
@@ -118,17 +119,28 @@
     .mini-group { display: inline-flex; align-items: center; gap: 8px; }
     .chip {
       background: var(--muted);
-      border: 1px solid var(--line);
+      border: 1px solid var(--dark-line); /* <-- Use dark line */
       border-radius: 999px;
-      padding: 6px 10px;
+      padding: 6px 12px; /* <-- Adjusted padding */
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      font-size: 13px;
+      font-size: 14px; /* <-- Adjusted font size */
       box-shadow: var(--shadow-soft);
     }
-    .chip .chip-icon { font-size: 14px; line-height: 1; }
-    .icon-btn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; background: #fff; box-shadow: var(--shadow-soft); cursor: pointer; }
+    .chip .chip-icon { font-size: 15px; line-height: 1; } /* <-- Adjusted icon size */
+    .icon-btn {
+      width: 32px; /* <-- Adjusted size */
+      height: 32px; /* <-- Adjusted size */
+      font-size: 15px; /* <-- Adjusted icon size */
+      border-radius: 50%;
+      border: 1px solid var(--dark-line); /* <-- Use dark line */
+      display: grid;
+      place-items: center;
+      background: #fff;
+      box-shadow: var(--shadow-soft);
+      cursor: pointer;
+    }
     .icon-btn:active { transform: translateY(1px); }
 
     .board {
@@ -142,31 +154,102 @@
 
     .cell {
       position: relative;
-      background: linear-gradient(180deg, #fffaf0 0%, var(--surface) 100%); /* cream */
-      border: 1px solid var(--line);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-elev);
-      display: grid; place-items: center;
+      background: none; /* <-- Removed background, moved to faces */
+      border: none; /* <-- Removed border from parent */
+      border-radius: 0; /* <-- Removed radius from parent */
+      box-shadow: none; /* <-- Removed shadow from parent */
+      /* display: grid; place-items: center; */ /* <-- Removed, flipper handles layout */
+      padding: 0; /* <-- Added to remove button padding */
       font-size: 20px; font-weight: 600; letter-spacing: 0.3px;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
-      transition: transform 80ms ease, box-shadow 240ms ease, border-color 240ms ease, background-color 240ms ease;
-      overflow: hidden;
+      transition: transform 80ms ease, box-shadow 240ms ease;
+      overflow: visible; /* <-- Changed from hidden to allow flip */
+      perspective: 1000px; /* <-- Added for 3D effect */
     }
     .cell:active { transform: scale(0.985); box-shadow: 0 10px 28px rgba(74, 50, 36, 0.08); }
-    .cell.--glow { border-color: rgba(107, 78, 58, 0.85); box-shadow: 0 14px 40px rgba(107, 78, 58, 0.26); }
-
-    /* Subtle inner shine */
-    .cell::before {
-      content: "";
-      position: absolute; inset: 0;
-      background: radial-gradient(120% 120% at 50% 0%, rgba(107, 78, 58, 0.12) 0%, rgba(107, 78, 58, 0.06) 35%, rgba(107, 78, 58, 0) 60%);
-      pointer-events: none;
-      opacity: 0.8;
+    
+    /* Flipper styles */
+    .cell__flipper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.4s ease; /* <-- Faster, smoother transition */
+      transform-style: preserve-3d;
     }
 
+    .cell.is-flipped .cell__flipper {
+      transform: rotateY(180deg);
+    }
+
+    .cell__face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      overflow: hidden; /* Ensure content respects border radius */
+      border-radius: var(--radius-md); /* Moved radius to faces */
+      border: 1px solid var(--dark-line); /* <-- Added border to faces */
+      box-shadow: var(--shadow-elev); /* <-- Added shadow to faces */
+      
+      /* Moved background to faces */
+      background: linear-gradient(180deg, #fffaf0 0%, var(--surface) 100%); 
+    }
+    
+    .cell__face--front {
+      /* This is the default, face-forward */
+      display: grid;
+      place-items: center;
+    }
+
+    .cell__face--back {
+      /* This is the back, rotated */
+      transform: rotateY(180deg);
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      color: var(--subtle-text);
+      text-align: left;
+    }
+    
+    .info-content {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .info-emoji {
+      font-size: 24px;
+      line-height: 1;
+      align-self: flex-start;
+    }
+
+    .info-divider {
+      width: 100%;
+      height: 1px;
+      background: var(--line);
+      margin: 6px 0;
+    }
+
+    .info-text {
+      font-size: 11px; /* Made it smaller to fit */
+      line-height: 1.4;
+      margin: 0;
+      font-weight: 500; /* Lighter than header */
+    }
+
+
+    /* Subtle inner shine (Removed, was on cell, now faces) */
+    /* .cell::before { ... } */
+
     /* Emoji appearance (soft animation) */
-    .emoji { font-size: clamp(20px, 6vmin, 40px); opacity: 0; transform: translateY(8px) scale(0.9); animation: emoji-in 420ms cubic-bezier(.2,.8,.2,1) forwards; will-change: transform, opacity; }
+    .emoji {
+      font-size: clamp(32px, 10vmin, 64px); /* <-- Larger emojis */
+      opacity: 0;
+      transform: translateY(8px) scale(0.9);
+      animation: emoji-in 420ms cubic-bezier(.2,.8,.2,1) forwards;
+      will-change: transform, opacity;
+    }
     @keyframes emoji-in { 0% {opacity: 0; transform: translateY(8px) scale(0.9);} 60% {opacity: 1; transform: translateY(-2px) scale(1.04);} 100% {opacity: 1; transform: translateY(0) scale(1);} }
     @media (prefers-reduced-motion: reduce) { .emoji { animation: none; opacity: 1; transform: none; } }
 
@@ -184,7 +267,7 @@
       width: var(--size);
       height: var(--size);
       border-radius: 50%;
-      border: 1px solid var(--line);
+      border: 1px solid var(--dark-line); /* <-- Use dark line */
       background:
         radial-gradient(120% 120% at 50% 0%, #f6eee2 0%, #fff 70%) padding-box,
         conic-gradient(from 180deg, rgba(107,78,58,0.12), rgba(107,78,58,0.24), rgba(107,78,58,0.12)) border-box;
@@ -265,17 +348,64 @@
           </div>
         </div>
 
+        <!-- Updated HTML structure for cells -->
         <section class="board" aria-label="3 by 3 grid">
-          <button class="cell" aria-label="Cell 1"></button>
-          <button class="cell" aria-label="Cell 2"></button>
-          <button class="cell" aria-label="Cell 3"></button>
-          <button class="cell" aria-label="Cell 4"></button>
-          <button class="cell" aria-label="Cell 5"></button>
-          <button class="cell" aria-label="Cell 6"></button>
-          <button class="cell" aria-label="Cell 7"></button>
-          <button class="cell" aria-label="Cell 8"></button>
-          <button class="cell" aria-label="Cell 9"></button>
+          <button class="cell" aria-label="Cell 1" aria-pressed="false">
+            <div class="cell__flipper">
+              <div class="cell__face cell__face--front"></div>
+              <div class="cell__face cell__face--back"></div>
+            </div>
+          </button>
+          <button class="cell" aria-label="Cell 2" aria-pressed="false">
+            <div class="cell__flipper">
+              <div class="cell__face cell__face--front"></div>
+              <div class="cell__face cell__face--back"></div>
+            </div>
+          </button>
+          <button class="cell" aria-label="Cell 3" aria-pressed="false">
+            <div class="cell__flipper">
+              <div class="cell__face cell__face--front"></div>
+              <div class="cell__face cell__face--back"></div>
+            </div>
+          </button>
+          <button class="cell" aria-label="Cell 4" aria-pressed="false">
+            <div class="cell__flipper">
+              <div class="cell__face cell__face--front"></div>
+              <div class="cell__face cell__face--back"></div>
+            </div>
+          </button>
+          <button class="cell" aria-label="Cell 5" aria-pressed="false">
+            <div class="cell__flipper">
+              <div class="cell__face cell__face--front"></div>
+              <div class="cell__face cell__face--back"></div>
+            </div>
+          </button>
+          <button class="cell" aria-label="Cell 6" aria-pressed="false">
+            <div class="cell__flipper">
+              <div class="cell__face cell__face--front"></div>
+              <div class="cell__face cell__face--back"></div>
+            </div>
+          </button>
+          <button class="cell" aria-label="Cell 7" aria-pressed="false">
+            <div class="cell__flipper">
+              <div class="cell__face cell__face--front"></div>
+              <div class="cell__face cell__face--back"></div>
+            </div>
+          </button>
+          <button class="cell" aria-label="Cell 8" aria-pressed="false">
+            <div class="cell__flipper">
+              <div class="cell__face cell__face--front"></div>
+              <div class="cell__face cell__face--back"></div>
+            </div>
+          </button>
+          <button class="cell" aria-label="Cell 9" aria-pressed="false">
+            <div class="cell__flipper">
+              <div class="cell__face cell__face--front"></div>
+              <div class="cell__face cell__face--back"></div>
+            </div>
+          </button>
         </section>
+        <!-- End of updated HTML structure -->
 
         <div class="strip strip--bottom" aria-label="Bottom strip">
           <div class="mini-bar">
@@ -315,9 +445,17 @@
     // Minimal interactivity examples (replace with your game logic)
     const cells = Array.from(document.querySelectorAll('.cell'));
 
-    // Tap to toggle a gentle glow highlight
+    // Tap to toggle the flip
     cells.forEach((c) => {
-      c.addEventListener('click', () => c.classList.toggle('--glow'));
+      c.addEventListener('click', () => {
+        c.classList.toggle('is-flipped');
+        // Update ARIA
+        if (c.classList.contains('is-flipped')) {
+            c.setAttribute('aria-pressed', 'true');
+        } else {
+            c.setAttribute('aria-pressed', 'false');
+        }
+      });
     });
 
     // Primary action button ripple + emoji populate
@@ -325,16 +463,66 @@
 
     // Emoji set for the grid
     const EMOJIS = ['🍎','🍋','🍇','🍫','🍪','⭐️','💎','🔥','🌸','🍀','🎈','🧸','🪄','⚡️','🎯','🧩'];
+    
+    // Emoji descriptions
+    const EMOJI_INFO = {
+      '🍎': 'A crisp red apple. Good for health!',
+      '🍋': 'A sour yellow lemon. Makes great lemonade.',
+      '🍇': 'A bunch of sweet grapes. Wine is made from this.',
+      '🍫': 'A bar of milk chocolate. A tasty treat!',
+      '🍪': 'A chocolate chip cookie. Goes well with milk.',
+      '⭐️': 'A shining gold star. You\'re a superstar!',
+      '💎': 'A sparkling diamond. The hardest gemstone.',
+      '🔥': 'A hot fire. Be careful, don\'t get burned!',
+      '🌸': 'A pink cherry blossom. A sign of spring.',
+      '🍀': 'A lucky four-leaf clover. Make a wish!',
+      '🎈': 'A red balloon. Floats up, up, and away!',
+      '🧸': 'A cuddly teddy bear. A classic toy.',
+      '🪄': 'A magic wand. Swish and flick!',
+      '⚡️': 'A lightning bolt. High voltage!',
+      '🎯': 'A target bullseye. Right on the mark!',
+      '🧩': 'A puzzle piece. It all fits together.'
+    };
+
 
     function populateEmojisSoft() {
       // Clear any existing emojis and add new ones with a soft staggered animation
       cells.forEach((c, i) => {
-        c.querySelectorAll('.emoji').forEach(el => el.remove());
+        // Find faces
+        const frontFace = c.querySelector('.cell__face--front');
+        const backFace = c.querySelector('.cell__face--back');
+
+        // Always unflip when populating
+        c.classList.remove('is-flipped');
+        c.setAttribute('aria-pressed', 'false');
+
+        // Clear old content
+        if (frontFace) frontFace.innerHTML = '';
+        if (backFace) backFace.innerHTML = '';
+
+        // Get random emoji
+        const emoji = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+        const description = EMOJI_INFO[emoji] || 'No info available.';
+
+        // Populate front face
         const span = document.createElement('span');
         span.className = 'emoji';
-        span.textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+        span.textContent = emoji;
         span.style.animationDelay = (i * 30) + 'ms'; // gentle cascade
-        c.appendChild(span);
+        if (frontFace) frontFace.appendChild(span);
+
+        // Populate back face
+        const infoContainer = document.createElement('div');
+        infoContainer.className = 'info-content';
+        infoContainer.innerHTML = `
+          <span class="info-emoji" aria-hidden="true">${emoji}</span>
+          <div class="info-divider"></div>
+          <p class="info-text">${description}</p>
+        `;
+        if (backFace) backFace.appendChild(infoContainer);
+
+        // Update ARIA label
+        c.setAttribute('aria-label', `Cell ${i + 1}, ${emoji}, tap to see info`);
       });
     }
 
@@ -355,13 +543,18 @@
       // populate emojis with soft animation
       populateEmojisSoft();
     });
-
-    // Optional: demo pulse on center tile after load
+ 
+    /* Optional: demo pulse on center tile after load */
+    /* Removed the demo flip on load */
+    /*
     window.setTimeout(() => {
       const center = cells[4];
-      center.classList.add('--glow');
-      setTimeout(() => center.classList.remove('--glow'), 1200);
+      center.classList.add('is-flipped'); // <-- Changed to use flip
+      setTimeout(() => center.classList.remove('is-flipped'), 1200); // <-- Changed to use flip
     }, 450);
+    */
   </script>
 </body>
 </html>
+
+
