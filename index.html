@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Ultra Minimal Mobile Game UI</title>
+    <title>Mobile Game UI (Framed)</title>
     <style>
       :root {
         --bg: #000;
@@ -15,12 +15,28 @@
         padding: 0;
       }
       body {
-        background: var(--bg);
-        color: #fff;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        height: 100vh;
+        background: #000;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      /* outer frame to keep mobile aspect on desktop */
+      .app-shell {
+        width: min(100vw, 480px);
+        aspect-ratio: 9 / 16;
+        background: #000;
         display: flex;
         flex-direction: column;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      @media (max-width: 480px) {
+        .app-shell {
+          width: 100vw;
+          height: 100vh;
+          aspect-ratio: auto;
+          border: none;
+        }
       }
       .top-bar {
         background: var(--accent);
@@ -39,14 +55,13 @@
         flex-direction: column;
         min-height: 0;
       }
-      /* empty panel */
       .panel {
         height: 42px;
         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         border-top: 1px solid rgba(255, 255, 255, 0.04);
       }
       .icons {
-        flex: 0 0 25vh;
+        flex: 0 0 25%;
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         grid-template-rows: repeat(2, 1fr);
@@ -68,7 +83,7 @@
         object-fit: contain;
       }
       .character-wrap {
-        flex: 0 0 25vh;
+        flex: 0 0 25%;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -79,41 +94,34 @@
         max-width: 40%;
         object-fit: contain;
       }
-      /* space above icons should grow/shrink */
       .spacer {
         flex: 1 1 auto;
-      }
-      @media (min-height: 900px) {
-        .icons {
-          flex-basis: 23vh;
-        }
-        .character-wrap {
-          flex-basis: 23vh;
-        }
       }
     </style>
   </head>
   <body>
-    <div class="top-bar">
-      <div>HP: 100</div>
-      <div>Score: 00000</div>
-      <div>00:42</div>
-    </div>
-    <div class="game-shell">
-      <div class="panel"></div>
-      <div class="spacer"></div>
-      <div class="icons">
-        <div class="icon-cell"><img src="animals/bear-head.png" alt="Bear" /></div>
-        <div class="icon-cell"><img src="animals/frog.png" alt="Frog" /></div>
-        <div class="icon-cell"><img src="animals/jellyfish.png" alt="Jellyfish" /></div>
-        <div class="icon-cell"><img src="animals/pig.png" alt="Pig" /></div>
-        <div class="icon-cell"><img src="animals/rat.png" alt="Rat" /></div>
-        <div class="icon-cell"><img src="animals/raven.png" alt="Raven" /></div>
-        <div class="icon-cell"><img src="animals/snail.png" alt="Snail" /></div>
-        <div class="icon-cell"><img src="animals/tortoise.png" alt="Tortoise" /></div>
+    <div class="app-shell">
+      <div class="top-bar">
+        <div>HP: 100</div>
+        <div>Score: 00000</div>
+        <div>00:42</div>
       </div>
-      <div class="character-wrap">
-        <img src="New Folder/flower.jpg" alt="Character" />
+      <div class="game-shell">
+        <div class="panel"></div>
+        <div class="spacer"></div>
+        <div class="icons">
+          <div class="icon-cell"><img src="animals/bear-head.png" alt="Bear" /></div>
+          <div class="icon-cell"><img src="animals/frog.png" alt="Frog" /></div>
+          <div class="icon-cell"><img src="animals/jellyfish.png" alt="Jellyfish" /></div>
+          <div class="icon-cell"><img src="animals/pig.png" alt="Pig" /></div>
+          <div class="icon-cell"><img src="animals/rat.png" alt="Rat" /></div>
+          <div class="icon-cell"><img src="animals/raven.png" alt="Raven" /></div>
+          <div class="icon-cell"><img src="animals/snail.png" alt="Snail" /></div>
+          <div class="icon-cell"><img src="animals/tortoise.png" alt="Tortoise" /></div>
+        </div>
+        <div class="character-wrap">
+          <img src="New Folder/flower.jpg" alt="Character" />
+        </div>
       </div>
     </div>
   </body>
