@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Mobile Game UI (Framed) – Updated v2</title>
+    <title>Mobile Game UI (Framed) – Updated v3</title>
     <style>
       :root {
         --bg: #000;
@@ -56,16 +56,13 @@
         flex-direction: column;
         min-height: 0;
       }
-      /* MAIN PANEL: full border now */
+      /* MAIN AREA: make this an open / undeveloped space (no border, no line) */
       .panel {
-        height: 30px;
-        background: var(--panel-bg);
-        border: 1px solid var(--panel-border);
-        border-left: 0; /* flush to screen edges inside app-shell */
-        border-right: 0;
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+        height: 0;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
       }
-      /* icon grid */
       .icons {
         flex: 0 0 17%;
         display: grid;
@@ -94,7 +91,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 10px;
+        gap: 16px; /* more breathing room so side squares sit farther away */
         padding: 6px 10px 14px;
       }
       .character-frame {
@@ -113,22 +110,22 @@
         height: 100%;
         object-fit: cover;
       }
-      /* side columns: center the two squares vertically + give same border language */
+      /* side columns */
       .side-column {
-        flex: 0 0 12%;
+        flex: 0 0 13%; /* slightly wider so the squares can be bigger and still centered */
         display: flex;
         flex-direction: column;
-        align-items: center; /* <-- center left/right in the column */
-        justify-content: center; /* <-- center vertically in character area */
-        gap: 7px;
+        align-items: center;
+        justify-content: center;
+        gap: 10px; /* more gap so they feel centered vertically */
         height: 100%;
       }
       .side-cell {
-        width: 78%; /* smaller so it isn't hugging edges */
+        width: 92%; /* bigger than before */
         aspect-ratio: 1 / 1;
         background: var(--panel-bg);
-        border: 1px solid var(--panel-border); /* match icon/panel styling */
-        border-radius: 8px;
+        border: 1px solid var(--panel-border);
+        border-radius: 9px;
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
       }
       .spacer {
