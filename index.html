@@ -56,9 +56,49 @@
         flex-direction: column;
         min-height: 0;
       }
+      /* meters just above the icon grid */
+      .meters {
+        padding: 3px 8px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .meter-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .meter-label {
+        width: 54px;
+        font-size: 0.6rem;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.85);
+      }
+      .meter-bar {
+        flex: 1;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.03);
+        border-radius: 999px;
+        overflow: hidden;
+      }
+      .meter-fill {
+        height: 100%;
+        width: 82%;
+      }
+      .meter-hp .meter-fill {
+        background: #ff3945;
+      }
+      .meter-armor .meter-fill {
+        background: #3b82f6;
+      }
+      .meter-magic .meter-fill {
+        background: #f97316;
+      }
       /* MAIN AREA: make this an open / undeveloped space (no border, no line) */
       .panel {
-        height: 0;
+        height: 120px; /* large placeholder area for future content */
         border: 0;
         background: transparent;
         box-shadow: none;
@@ -142,7 +182,21 @@
       </div>
       <div class="game-shell">
         <div class="panel"></div>
-        <div class="spacer"></div>
+        $1
+        <div class="meters">
+          <div class="meter-row meter-hp">
+            <span class="meter-label">HP</span>
+            <div class="meter-bar"><div class="meter-fill"></div></div>
+          </div>
+          <div class="meter-row meter-armor">
+            <span class="meter-label">Armor</span>
+            <div class="meter-bar"><div class="meter-fill"></div></div>
+          </div>
+          <div class="meter-row meter-magic">
+            <span class="meter-label">Magic</span>
+            <div class="meter-bar"><div class="meter-fill"></div></div>
+          </div>
+        </div>
         <div class="icons">
           <div class="icon-cell"><img src="animals/bear-head.png" alt="Bear" /></div>
           <div class="icon-cell"><img src="animals/frog.png" alt="Frog" /></div>
@@ -159,7 +213,7 @@
             <div class="side-cell"></div>
           </div>
           <div class="character-frame">
-            <img src="New Folder/cross.jpg" alt="Character" />
+            <img src="New Folder/flower.jpg" alt="Character" />
           </div>
           <div class="side-column">
             <div class="side-cell"></div>
@@ -170,4 +224,3 @@
     </div>
   </body>
 </html>
-
