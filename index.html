@@ -3,103 +3,105 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Mobile Game UI – Top Gap Version</title>
+    <title>Mobile Game UI – Bordered Top Window</title>
     <style>
       :root {
         --bg: #000;
         --accent: #ffd500;
         --panel-border: rgba(255, 213, 0, 0.4);
         --panel-bg: rgba(0, 0, 0, 0.32);
+        --safe-top: env(safe-area-inset-top, 0px);
+        --safe-bottom: env(safe-area-inset-bottom, 0px);
+        --top-window-border: #064e3b; /* dark green */
       }
       * { box-sizing: border-box; margin: 0; padding: 0; }
-      html, body { min-height: 100%; background: #000; }
+      html, body { height: 100%; background: #000; }
       body {
+        min-height: 100vh;
         display: flex;
         justify-content: center;
+        background: #000;
       }
-      /* the app itself should only be as tall as the content */
       .app-shell {
-        width: min(100vw, 480px);
+        width: 100vw;
+        max-width: 540px;
+        min-height: 100vh;
         background: #000;
         display: flex;
         flex-direction: column;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        padding-bottom: 0; /* game ends at character image */
+        padding-bottom: calc(0px + var(--safe-bottom));
       }
-      @media (max-width: 480px) {
-        .app-shell { width: 100vw; border: none; }
-      }
-      /* TOP BAR – 4 big tappable buttons */
       .top-bar {
         background: var(--accent);
         height: 70px;
+        padding-top: var(--safe-top);
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 0 16px;
+        padding-inline: 16px;
+        box-shadow: 0 4px 16px rgba(0,0,0,.35);
+        z-index: 10;
       }
-      .top-buttons {
-        display: flex;
-        gap: 16px;
-      }
+      .top-buttons { display: flex; gap: 16px; }
       .top-btn {
         width: 60px;
         height: 46px;
         border-radius: 14px;
         border: 0;
-        outline: none;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 4px 10px rgba(0,0,0,0.15);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 4px 10px rgba(0,0,0,.15);
       }
       .top-btn.purple { background: #7c3aed; }
       .top-btn.teal { background: #14b8a6; }
       .top-btn.pink { background: #ec4899; }
       .top-btn.white { background: #fff; }
 
-      /* NEW: big, intentional blank space directly under top bar */
+      /* Bordered window under the yellow bar */
       .top-blank-space {
-        height: 140px; /* adjust to taste */
-        background: #000;
+        height: clamp(200px, 26vh, 300px);
+        margin: 10px 10px 0;
+        background: rgba(0, 0, 0, 0.35);
+        border: 2px solid var(--top-window-border);
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.35);
       }
 
       .game-shell {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 6px;
       }
-      .panel { display: none; }
-      .spacer { display: none; }
       .info-panel {
-        margin: 6px 8px 3px;
-        background: rgba(0, 0, 0, 0.4);
+        margin: 10px 10px 3px;
+        background: rgba(0, 0, 0, 0.45);
         border: 1px solid var(--panel-border);
-        border-radius: 10px;
-        padding: 8px 12px 10px;
+        border-radius: 12px;
+        padding: 10px 14px 12px;
         display: flex;
         flex-direction: column;
         gap: 4px;
       }
-      .info-title { font-size: .8rem; color: #fff; }
-      .info-body { font-size: .7rem; line-height: 1.25; color: rgba(255, 255, 255, 0.85); }
+      .info-title { font-size: .85rem; color: #fff; }
+      .info-body { font-size: .72rem; line-height: 1.25; color: rgba(255, 255, 255, 0.85); }
       .meters {
-        padding: 1px 8px 0;
+        padding: 2px 10px 0;
         display: flex;
         flex-direction: column;
-        gap: 3px;
+        gap: 4px;
       }
       .meters-inner {
-        width: 56%;
-        min-width: 210px;
+        width: 64%;
+        min-width: 220px;
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 5px;
       }
       .meter-row { display: flex; align-items: center; gap: 6px; }
       .meter-label {
-        width: 106px;
-        font-size: .68rem;
+        width: 110px;
+        font-size: .7rem;
         text-transform: uppercase;
         color: rgba(255, 255, 255, .9);
         display: flex;
@@ -120,15 +122,15 @@
 
       .icons {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        grid-template-rows: repeat(2, minmax(42px, 1fr));
-        gap: 4px;
-        padding: 3px 6px 0;
+        grid-template-columns: repeat(4, minmax(54px, 1fr));
+        grid-template-rows: repeat(2, minmax(48px, 1fr));
+        gap: 5px;
+        padding: 4px 8px 0;
       }
       .icon-cell {
         background: var(--panel-bg);
         border: 1px solid var(--panel-border);
-        border-radius: 7px;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -141,27 +143,28 @@
         align-items: center;
         justify-content: flex-start;
         gap: 12px;
-        padding: 6px 10px 0px;
+        padding: 10px 12px 0px 10px;
       }
       .side-column-left {
-        flex: 0 0 14%;
+        flex: 0 0 13%;
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 8px;
       }
       .side-cell {
-        width: 92%;
+        width: 90%;
         aspect-ratio: 1/1;
         background: var(--panel-bg);
         border: 1px solid var(--panel-border);
-        border-radius: 9px;
+        border-radius: 11px;
       }
       .character-frame {
-        flex: 0 0 56%;
+        flex: 1 1 auto;
+        max-width: 280px;
         aspect-ratio: 1/1;
         background: rgba(255, 255, 255, 0.02);
         border: 1px solid rgba(255, 255, 255, 0.04);
-        border-radius: 12px;
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -172,16 +175,36 @@
       }
       .action-button {
         margin-left: auto;
-        margin-right: 6px;
-        width: 60px;
-        height: 60px;
+        margin-right: 8px;
+        align-self: center;
+        width: 78px;
+        height: 78px;
         border-radius: 999px;
         background: radial-gradient(circle at 30% 30%, #fff3b0, #ffb800 55%, #d98200 95%);
-        border: 1px solid rgba(255, 255, 255, .35);
+        border: 1px solid rgba(255, 255, 255, .52);
+        box-shadow: 0 10px 25px rgba(0,0,0,.5);
+        transition: transform .12s ease-out;
       }
-      /* cap the game right after the character row */
+      .action-button:active {
+        transform: scale(.92);
+      }
+      /* dramatic tap animation */
+      @keyframes pulse-burst {
+        0% { transform: scale(1); box-shadow: 0 10px 25px rgba(255,184,0,.3); }
+        30% { transform: scale(1.12); box-shadow: 0 18px 40px rgba(255,184,0,.6); }
+        60% { transform: scale(1.02); box-shadow: 0 10px 25px rgba(255,184,0,.3); }
+        100% { transform: scale(1); box-shadow: 0 10px 25px rgba(0,0,0,.5); }
+      }
+      .action-button.is-pulsing {
+        animation: pulse-burst .45s ease-out;
+      }
       .character-wrap + * {
         display: none;
+      }
+      @media (max-width: 420px) {
+        .app-shell { max-width: 100vw; }
+        .top-blank-space { height: clamp(140px, 20vh, 220px); }
+        .character-frame { max-width: 240px; }
       }
     </style>
   </head>
@@ -242,6 +265,17 @@
             infoPanel.innerHTML = `<div class="info-title">${animal}</div><div class="info-body">is a great companion.</div>`;
           }
         });
+      });
+      // dramatic action button animation
+      const actionBtn = document.querySelector('.action-button');
+      if (actionBtn) {
+        actionBtn.addEventListener('click', () => {
+          actionBtn.classList.remove('is-pulsing');
+          // force reflow to restart animation
+          void actionBtn.offsetWidth;
+          actionBtn.classList.add('is-pulsing');
+        });
+      }
       });
     </script>
   </body>
