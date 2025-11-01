@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Mobile Game UI – Panel + Larger Info + Right Button</title>
+    <title>Mobile Game UI – No Scroll, Centered Button, Animated Tap</title>
     <style>
       :root {
         --bg: #000;
@@ -18,24 +18,25 @@
       }
       body {
         background: #000;
-        min-height: 100vh;
+        height: 100vh;
         display: flex;
         justify-content: center;
         align-items: center;
+        overflow: hidden; /* prevent scroll on body */
       }
       .app-shell {
         width: min(100vw, 480px);
-        aspect-ratio: 9 / 16;
+        height: 100vh; /* lock to viewport */
         background: #000;
         display: flex;
         flex-direction: column;
         border: 1px solid rgba(255, 255, 255, 0.08);
+        overflow: hidden; /* no inside scroll */
       }
       @media (max-width: 480px) {
         .app-shell {
           width: 100vw;
           height: 100vh;
-          aspect-ratio: auto;
           border: none;
         }
       }
@@ -47,7 +48,6 @@
         align-items: center;
         justify-content: space-between;
         padding: 0 12px;
-        font-size: 0.9rem;
       }
       .game-shell {
         flex: 1;
@@ -55,48 +55,48 @@
         flex-direction: column;
         min-height: 0;
       }
+      /* shrink the blank area so everything fits */
       .panel {
-        flex: 0 0 34%;
-        min-height: 150px;
+        flex: 0 0 23%; /* was 34%, makes whole layout too tall */
+        min-height: 105px;
       }
       .spacer {
-        flex: 0 0 4px;
-        height: 4px;
+        height: 3px;
+        flex: 0 0 3px;
       }
-      /* BIGGER info panel */
+      /* keep info panel large-ish but not too tall */
       .info-panel {
-        margin: 0 8px 4px;
+        margin: 0 8px 3px;
         background: rgba(0, 0, 0, 0.4);
         border: 1px solid var(--panel-border);
         border-radius: 10px;
-        padding: 10px 12px 12px;
+        padding: 8px 12px 10px;
         display: flex;
         flex-direction: column;
-        gap: 5px;
-        min-height: 96px; /* bigger description window */
+        gap: 4px;
+        min-height: 82px; /* slightly smaller than v2 so we keep 1 screen */
       }
       .info-title {
-        font-size: 0.82rem;
+        font-size: 0.8rem;
         color: #fff;
-        text-transform: capitalize;
       }
       .info-body {
-        font-size: 0.72rem;
+        font-size: 0.7rem;
         line-height: 1.25;
         color: rgba(255, 255, 255, 0.85);
       }
       .meters {
-        padding: 4px 8px 0;
+        padding: 3px 8px 0;
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 3px;
       }
       .meters-inner {
         width: 56%;
         min-width: 210px;
         display: flex;
         flex-direction: column;
-        gap: 5px;
+        gap: 4px;
       }
       .meter-row {
         display: flex;
@@ -105,7 +105,7 @@
       }
       .meter-label {
         width: 106px;
-        font-size: 0.7rem;
+        font-size: 0.68rem;
         text-transform: uppercase;
         color: rgba(255, 255, 255, 0.9);
         display: flex;
@@ -113,7 +113,7 @@
       }
       .meter-bar {
         flex: 1;
-        height: 10px;
+        height: 9px;
         background: rgba(255, 255, 255, 0.03);
         border: 1px solid rgba(255, 255, 255, 0.03);
         border-radius: 999px;
@@ -129,7 +129,7 @@
         grid-template-columns: repeat(4, 1fr);
         grid-template-rows: repeat(2, minmax(42px, 1fr));
         gap: 4px;
-        padding: 4px 6px 2px;
+        padding: 3px 6px 2px;
       }
       .icon-cell {
         background: var(--panel-bg);
@@ -157,7 +157,7 @@
         align-items: center;
         justify-content: flex-start;
         gap: 12px;
-        padding: 6px 10px 14px;
+        padding: 4px 10px 10px;
       }
       .side-column-left {
         flex: 0 0 14%;
@@ -176,7 +176,7 @@
         border-radius: 9px;
       }
       .character-frame {
-        flex: 0 0 58%;
+        flex: 0 0 56%;
         aspect-ratio: 1 / 1;
         background: rgba(255, 255, 255, 0.02);
         border: 1px solid rgba(255, 255, 255, 0.04);
@@ -191,9 +191,10 @@
         height: 100%;
         object-fit: cover;
       }
-      /* move button further right */
+      /* button now slightly left of the hard edge to look centered in its area */
       .action-button {
-        margin-left: auto; /* push to far right */
+        margin-left: auto;
+        margin-right: 6px; /* pull it in from the edge */
         width: 60px;
         height: 60px;
         border-radius: 999px;
@@ -205,9 +206,16 @@
         justify-content: center;
         outline: none;
         touch-action: manipulation;
+        transform-origin: center;
       }
-      .action-button:active {
-        transform: translateY(1px);
+      /* obvious tap animation */
+      @keyframes buttonTap {
+        0% { transform: scale(1); box-shadow: 0 6px 12px rgba(255, 184, 0, 0.4); }
+        40% { transform: scale(0.9); box-shadow: 0 2px 6px rgba(255, 184, 0, 0.25); }
+        100% { transform: scale(1); box-shadow: 0 6px 12px rgba(255, 184, 0, 0.4); }
+      }
+      .action-button.is-tapped {
+        animation: buttonTap 220ms ease-out;
       }
     </style>
   </head>
@@ -260,7 +268,6 @@
           <div class="character-frame">
             <img src="New Folder/flower.jpg" alt="Character" />
           </div>
-          <!-- button now has no icon/text -->
           <button class="action-button" type="button" aria-label="Primary Action"></button>
         </div>
       </div>
@@ -284,6 +291,11 @@
           if (infoPanel) {
             infoPanel.innerHTML = `\n              <div class="info-title">Primary Action</div>\n              <div class="info-body">You tapped the main button.</div>\n            `;
           }
+          // trigger obvious tap animation
+          primaryButton.classList.remove("is-tapped");
+          // force reflow so animation restarts
+          void primaryButton.offsetWidth;
+          primaryButton.classList.add("is-tapped");
         });
       }
     </script>
