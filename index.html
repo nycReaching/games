@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Mobile Game UI – Fixed Layout</title>
+    <title>Mobile Game UI – No Extra Space</title>
     <style>
       :root {
         --bg: #000;
@@ -11,62 +11,46 @@
         --panel-border: rgba(255, 213, 0, 0.4);
         --panel-bg: rgba(0, 0, 0, 0.32);
       }
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-      html,
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body { min-height: 100%; background: #000; }
       body {
-        height: 100%;
-      }
-      body {
-        background: #000;
-        min-height: 100vh;
-        height: 100dvh; /* mobile-safe */
         display: flex;
         justify-content: center;
       }
+      /* the app itself should only be as tall as the content */
       .app-shell {
         width: min(100vw, 480px);
-        min-height: 100dvh; /* let content grow, but match dynamic viewport */
         background: #000;
         display: flex;
         flex-direction: column;
         border: 1px solid rgba(255, 255, 255, 0.08);
-        overflow-y: auto; /* allow scroll if content overflows instead of cutting off */
-        padding-bottom: env(safe-area-inset-bottom, 14px);
       }
       @media (max-width: 480px) {
-        .app-shell {
-          width: 100vw;
-          border: none;
-        }
+        .app-shell { width: 100vw; border: none; }
       }
-      /* TOP BAR ----------------------------------------------------- */
+      /* TOP BAR – 4 big tappable buttons */
       .top-bar {
         background: var(--accent);
-        height: 58px;
+        height: 70px;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 10px;
-        padding: 0 12px;
+        padding: 0 16px;
       }
       .top-buttons {
         display: flex;
-        gap: 10px;
+        gap: 16px;
       }
       .top-btn {
-        width: 38px;
-        height: 38px;
-        border-radius: 9px;
+        width: 60px;
+        height: 46px;
+        border-radius: 14px;
         border: 0;
         outline: none;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 4px 10px rgba(0,0,0,0.15);
       }
       .top-btn.purple { background: #7c3aed; }
       .top-btn.teal { background: #14b8a6; }
@@ -74,23 +58,15 @@
       .top-btn.white { background: #fff; }
 
       .game-shell {
-        flex: 1;
         display: flex;
         flex-direction: column;
-        min-height: 0;
-        gap: 2px;
+        gap: 4px;
       }
-      /* shrink the blank area so everything fits */
-      .panel {
-        flex: 0 0 20%;
-        min-height: 90px;
-      }
-      .spacer {
-        height: 3px;
-        flex: 0 0 3px;
-      }
+      /* remove that mysterious blank flex panel from before */
+      .panel { display: none; }
+      .spacer { display: none; }
       .info-panel {
-        margin: 0 8px 3px;
+        margin: 6px 8px 3px;
         background: rgba(0, 0, 0, 0.4);
         border: 1px solid var(--panel-border);
         border-radius: 10px;
@@ -98,17 +74,9 @@
         display: flex;
         flex-direction: column;
         gap: 4px;
-        min-height: 70px;
       }
-      .info-title {
-        font-size: 0.8rem;
-        color: #fff;
-      }
-      .info-body {
-        font-size: 0.7rem;
-        line-height: 1.25;
-        color: rgba(255, 255, 255, 0.85);
-      }
+      .info-title { font-size: .8rem; color: #fff; }
+      .info-body { font-size: .7rem; line-height: 1.25; color: rgba(255, 255, 255, 0.85); }
       .meters {
         padding: 1px 8px 0;
         display: flex;
@@ -122,16 +90,12 @@
         flex-direction: column;
         gap: 4px;
       }
-      .meter-row {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      }
+      .meter-row { display: flex; align-items: center; gap: 6px; }
       .meter-label {
         width: 106px;
-        font-size: 0.68rem;
+        font-size: .68rem;
         text-transform: uppercase;
-        color: rgba(255, 255, 255, 0.9);
+        color: rgba(255, 255, 255, .9);
         display: flex;
         justify-content: space-between;
       }
@@ -147,14 +111,13 @@
       .meter-hp .meter-fill { background: #ff3945; }
       .meter-armor .meter-fill { background: #3b82f6; }
       .meter-magic .meter-fill { background: #f97316; }
+
       .icons {
-        /* keep grid tight under meters */
-        flex: 0 0 auto;
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         grid-template-rows: repeat(2, minmax(42px, 1fr));
         gap: 4px;
-        padding: 3px 6px 1px;
+        padding: 3px 6px 0;
       }
       .icon-cell {
         background: var(--panel-bg);
@@ -163,47 +126,33 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        cursor: pointer;
-        transition: transform 0.12s ease-out, box-shadow 0.12s ease-out;
-      }
-      .icon-cell:active {
-        transform: scale(0.95);
-        box-shadow: 0 0 0 2px rgba(255, 213, 0, 0.28);
       }
       .icon-cell img {
-        width: 62%;
-        max-height: 62%;
-        object-fit: contain;
-        pointer-events: none;
+        width: 62%; max-height: 62%; object-fit: contain; pointer-events: none;
       }
-      /* character area should HUG the grid, not float */
       .character-wrap {
-        flex: 0 0 auto; /* stop it from stretching and creating a giant gap */
         display: flex;
         align-items: center;
         justify-content: flex-start;
         gap: 12px;
-        padding: 4px 10px 10px;
+        padding: 6px 10px 10px;
       }
       .side-column-left {
         flex: 0 0 14%;
         display: flex;
         flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        height: 100%;
+        gap: 6px;
       }
       .side-cell {
         width: 92%;
-        aspect-ratio: 1 / 1;
+        aspect-ratio: 1/1;
         background: var(--panel-bg);
         border: 1px solid var(--panel-border);
         border-radius: 9px;
       }
       .character-frame {
         flex: 0 0 56%;
-        aspect-ratio: 1 / 1;
+        aspect-ratio: 1/1;
         background: rgba(255, 255, 255, 0.02);
         border: 1px solid rgba(255, 255, 255, 0.04);
         border-radius: 12px;
@@ -213,9 +162,7 @@
         overflow: hidden;
       }
       .character-frame img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+        width: 100%; height: 100%; object-fit: cover;
       }
       .action-button {
         margin-left: auto;
@@ -224,23 +171,10 @@
         height: 60px;
         border-radius: 999px;
         background: radial-gradient(circle at 30% 30%, #fff3b0, #ffb800 55%, #d98200 95%);
-        border: 1px solid rgba(255, 255, 255, 0.35);
-        box-shadow: 0 6px 12px rgba(255, 184, 0, 0.4);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        outline: none;
-        touch-action: manipulation;
-        transform-origin: center;
+        border: 1px solid rgba(255, 255, 255, .35);
       }
-      @keyframes buttonTap {
-        0% { transform: scale(1); box-shadow: 0 6px 12px rgba(255, 184, 0, 0.4); }
-        40% { transform: scale(0.9); box-shadow: 0 2px 6px rgba(255, 184, 0, 0.25); }
-        100% { transform: scale(1); box-shadow: 0 6px 12px rgba(255, 184, 0, 0.4); }
-      }
-      .action-button.is-tapped {
-        animation: buttonTap 220ms ease-out;
-      }
+      /* remove bottom padding so the game literally ends after character row */
+      .app-shell { padding-bottom: 0; }
     </style>
   </head>
   <body>
@@ -254,26 +188,15 @@
         </div>
       </div>
       <div class="game-shell">
-        <div class="panel"></div>
-        <div class="spacer"></div>
         <div class="info-panel" id="icon-info">
           <div class="info-title">Companion Info</div>
           <div class="info-body">Tap an animal below to learn why it's a great companion.</div>
         </div>
         <div class="meters">
           <div class="meters-inner">
-            <div class="meter-row meter-hp">
-              <span class="meter-label"><span>HP</span><span>20/20</span></span>
-              <div class="meter-bar"><div class="meter-fill"></div></div>
-            </div>
-            <div class="meter-row meter-armor">
-              <span class="meter-label"><span>Armor</span><span>20/20</span></span>
-              <div class="meter-bar"><div class="meter-fill"></div></div>
-            </div>
-            <div class="meter-row meter-magic">
-              <span class="meter-label"><span>Magic</span><span>20/20</span></span>
-              <div class="meter-bar"><div class="meter-fill"></div></div>
-            </div>
+            <div class="meter-row meter-hp"><span class="meter-label"><span>HP</span><span>20/20</span></span><div class="meter-bar"><div class="meter-fill"></div></div></div>
+            <div class="meter-row meter-armor"><span class="meter-label"><span>Armor</span><span>20/20</span></span><div class="meter-bar"><div class="meter-fill"></div></div></div>
+            <div class="meter-row meter-magic"><span class="meter-label"><span>Magic</span><span>20/20</span></span><div class="meter-bar"><div class="meter-fill"></div></div></div>
           </div>
         </div>
         <div class="icons" id="icon-grid">
@@ -307,21 +230,10 @@
           const img = cell.querySelector("img");
           const animal = img ? img.alt : "This animal";
           if (infoPanel) {
-            infoPanel.innerHTML = `\n              <div class="info-title">${animal}</div>\n              <div class="info-body">is a great companion.</div>\n            `;
+            infoPanel.innerHTML = `<div class="info-title">${animal}</div><div class="info-body">is a great companion.</div>`;
           }
         });
       });
-      const primaryButton = document.querySelector(".action-button");
-      if (primaryButton) {
-        primaryButton.addEventListener("click", () => {
-          if (infoPanel) {
-            infoPanel.innerHTML = `\n              <div class="info-title">Primary Action</div>\n              <div class="info-body">You tapped the main button.</div>\n            `;
-          }
-          primaryButton.classList.remove("is-tapped");
-          void primaryButton.offsetWidth;
-          primaryButton.classList.add("is-tapped");
-        });
-      }
     </script>
   </body>
 </html>
