@@ -1,415 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Emoji Rogue v2</title>
-    <!-- 1. Load Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- 2. Load Inter font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    
-    <!-- 3. Custom Styles -->
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Ultra Minimal Mobile Game UI</title>
     <style>
-        /* Use Inter as the default font */
-        body {
-            font-family: 'Inter', sans-serif;
-            /* Prevent pull-to-refresh */
-            overscroll-behavior-y: contain;
+      :root {
+        --bg: #000;
+        --accent: #ffd500;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: var(--bg);
+        color: #fff;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .top-bar {
+        background: var(--accent);
+        color: #000;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 12px;
+        font-size: 0.9rem;
+        letter-spacing: 0.03em;
+      }
+      .game-shell {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+      /* empty panel */
+      .panel {
+        height: 42px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        border-top: 1px solid rgba(255, 255, 255, 0.04);
+      }
+      .icons {
+        flex: 0 0 25vh;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        gap: 6px;
+        padding: 6px;
+      }
+      .icon-cell {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        border-radius: 7px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .icon-cell img {
+        width: 70%;
+        height: auto;
+        max-height: 70%;
+        object-fit: contain;
+      }
+      .character-wrap {
+        flex: 0 0 25vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 0 18px;
+      }
+      .character-wrap img {
+        max-height: 100%;
+        max-width: 40%;
+        object-fit: contain;
+      }
+      /* space above icons should grow/shrink */
+      .spacer {
+        flex: 1 1 auto;
+      }
+      @media (min-height: 900px) {
+        .icons {
+          flex-basis: 23vh;
         }
-        
-        /* Style for the translucent emoji being dragged */
-        .dragging {
-            opacity: 0.5;
-            transform: scale(1.2);
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        .character-wrap {
+          flex-basis: 23vh;
         }
-
-        /* Style for when an item is dragged over a valid drop zone */
-        .drag-over {
-            border-color: #34d399 !important; /* Tailwind's green-400 */
-            background-color: #374151 !important; /* Tailwind's gray-700 */
-        }
-
-        /* Base slot style */
-        .slot {
-            aspect-ratio: 1 / 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 0.5rem;
-            font-size: 1.875rem; /* text-3xl */
-            line-height: 2.25rem;
-            transition: all 0.15s ease-in-out;
-        }
-
-        /* Style for empty slots */
-        .slot-empty {
-            background-color: #1f2937; /* gray-800 */
-            border: 2px solid #374151; /* gray-700 */
-            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.2);
-        }
-        
-        /* Style for slots with items */
-        .slot-filled {
-            background-color: #374151; /* gray-700 */
-            border: 2px solid #4b5563; /* gray-600 */
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-            cursor: grab;
-        }
-        .slot-filled:active {
-            cursor: grabbing;
-        }
-
-        /* Hide screens by default */
-        .game-screen {
-            display: none;
-            flex-direction: column;
-            height: 100%;
-        }
-        
-        /* Show the active screen */
-        .game-screen.active {
-            display: flex;
-        }
-
-        /* Bottom nav styles */
-        .nav-button {
-            transition: all 0.15s ease-in-out;
-            transform: scale(1);
-        }
-        .nav-button.active {
-            color: #34d399; /* green-400 */
-            transform: scale(1.1);
-        }
+      }
     </style>
-</head>
-<body class="bg-black flex justify-center items-center h-screen overscroll-contain">
-
-    <!-- Mobile-first container -->
-    <div class="h-full w-full max-w-md mx-auto bg-gray-900 text-gray-100 flex flex-col overflow-hidden">
-
-        <!-- 1. Header: Player Stats (Stays on all screens) -->
-        <header class="flex-shrink-0 flex justify-between items-center bg-gray-800 p-3 rounded-b-xl shadow-lg z-10">
-            <div class="flex items-center space-x-3">
-                <span class="text-4xl">🧑‍🚀</span>
-                <div>
-                    <div class="text-sm font-bold text-green-400">HEALTH</div>
-                    <!-- Health Bar -->
-                    <div class="w-24 h-4 bg-gray-700 rounded-full overflow-hidden border border-gray-900">
-                        <div id="health-bar" class="w-3/4 h-full bg-green-500 transition-all duration-300"></div>
-                    </div>
-                </div>
-            </div>
-            <div classs="text-right">
-                <div class="text-sm text-yellow-400">GOLD: <span id="gold-amount" class="font-bold">120</span> 🪙</div>
-                <div class="text-sm text-blue-400">FLOOR: <span id="floor-number" class="font-bold">3</span>F</div>
-            </div>
-        </header>
-
-        <!-- 2. Main Content Area: Holds all screens -->
-        <div id="main-content" class="flex-1 p-4 space-y-4 overflow-y-auto">
-
-            <!-- SCREEN 1: GAME SCREEN -->
-            <div id="game-screen" class="game-screen active">
-                <!-- Game View: Enemy/Event -->
-                <main class="flex-1 bg-gray-800 rounded-xl shadow-lg flex flex-col items-center justify-center p-4 text-center relative overflow-hidden my-4">
-                    <div id="event-emoji" class="text-7xl mb-4 transition-transform duration-300">👻</div>
-                    <h2 id="event-title" class="text-2xl font-bold">A Spooky Ghost Appears!</h2>
-                    <p id="event-description" class="text-gray-400 mt-2 text-sm">It rattles its chains menacingly.</p>
-                </main>
-
-                <!-- Active Synergies Display -->
-                <section class="flex-shrink-0">
-                    <h3 class="text-sm font-semibold text-gray-400 mb-2 px-1">ACTIVE SYNERGIES</h3>
-                    <div id="synergy-display" class="bg-gray-800 rounded-lg p-2 min-h-[4rem] text-sm text-cyan-400 font-semibold">
-                        <p>Synergy: Fire Magic! (✨ + 🔥)</p>
-                    </div>
-                </section>
-
-                <!-- Action Buttons -->
-                <footer class="grid grid-cols-2 gap-3 flex-shrink-0 pt-4">
-                    <button class="w-full bg-red-600 text-white font-bold py-4 rounded-lg shadow-md hover:bg-red-500 transition-all active:scale-95">ATTACK ⚔️</button>
-                    <button class="w-full bg-blue-600 text-white font-bold py-4 rounded-lg shadow-md hover:bg-blue-500 transition-all active:scale-95">FLEE 🏃</button>
-                </footer>
-            </div>
-
-            <!-- SCREEN 2: INVENTORY SCREEN -->
-            <div id="inventory-screen" class="game-screen">
-                <h2 class="text-xl font-bold text-gray-200">Inventory (<span id="inv-count">6</span>/30)</h2>
-                <p class="text-sm text-gray-400 mb-2">Drag items to the synergy grid to equip them.</p>
-                <!-- Inventory slots -->
-                <div class="grid grid-cols-5 gap-3" id="inventory-grid">
-                    <!-- JS will populate this -->
-                </div>
-            </div>
-            
-            <!-- SCREEN 3: SYNERGY SCREEN -->
-            <div id="synergy-screen" class="game-screen">
-                <h2 class="text-xl font-bold text-gray-200">Synergy Grid</h2>
-                <p class="text-sm text-gray-400 mb-2">Combine items on the grid to unlock powerful synergies. Drag items back to your inventory to unequip.</p>
-                <!-- Synergy slots -->
-                <div class="grid grid-cols-4 gap-3" id="synergy-grid">
-                    <!-- JS will populate this -->
-                </div>
-                <div class="mt-4">
-                    <h3 class="text-sm font-semibold text-gray-400 mb-2 px-1">ACTIVE SYNERGIES</h3>
-                    <div id="synergy-details" class="bg-gray-800 rounded-lg p-3 min-h-[6rem] text-sm text-cyan-400 font-semibold">
-                        <!-- JS will populate this -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- SCREEN 4: MENU SCREEN -->
-            <div id="menu-screen" class="game-screen">
-                <h2 class="text-xl font-bold text-gray-200">Menu</h2>
-                <div class="space-y-3 mt-4">
-                    <button class="w-full bg-gray-700 text-white font-bold py-3 rounded-lg shadow-md hover:bg-gray-600 transition-all active:scale-95">Save Game</button>
-                    <button class="w-full bg-gray-700 text-white font-bold py-3 rounded-lg shadow-md hover:bg-gray-600 transition-all active:scale-95">Load Game</button>
-                    <button class="w-full bg-gray-700 text-white font-bold py-3 rounded-lg shadow-md hover:bg-gray-600 transition-all active:scale-95">Options</button>
-                    <button class="w-full bg-red-700 text-white font-bold py-3 rounded-lg shadow-md hover:bg-red-600 transition-all active:scale-95">Quit to Title</button>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- 3. Bottom Navigation Bar -->
-        <nav class="flex-shrink-0 grid grid-cols-4 gap-4 items-center bg-gray-800 p-4 rounded-t-xl shadow-lg">
-            <button id="nav-game" class="nav-button text-gray-400 text-3xl text-center active" data-screen="game-screen">⚔️</button>
-            <button id="nav-inventory" class="nav-button text-gray-400 text-3xl text-center" data-screen="inventory-screen">🎒</button>
-            <button id="nav-synergy" class="nav-button text-gray-400 text-3xl text-center" data-screen="synergy-screen">✨</button>
-            <button id="nav-menu" class="nav-button text-gray-400 text-3xl text-center" data-screen="menu-screen">⚙️</button>
-        </nav>
+  </head>
+  <body>
+    <div class="top-bar">
+      <div>HP: 100</div>
+      <div>Score: 00000</div>
+      <div>00:42</div>
     </div>
-
-    <!-- 4. JavaScript Logic -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            
-            // --- State ---
-            let draggedItem = null;
-            let sourceSlot = null;
-            const MAX_INV_SLOTS = 30;
-            const MAX_SYN_SLOTS = 16;
-            
-            // --- Initial Item Data (for demo) ---
-            const initialInventory = [
-                '🧊', '🛡️', '🔑', '🧪', '🍎', '💎', '🔥', '✨', '📖', '🧭'
-            ];
-            
-            // --- UI Elements ---
-            const mainContent = document.getElementById('main-content');
-            const navButtons = document.querySelectorAll('.nav-button');
-            const inventoryGrid = document.getElementById('inventory-grid');
-            const synergyGrid = document.getElementById('synergy-grid');
-            const invCountDisplay = document.getElementById('inv-count');
-            const synergyDisplay = document.getElementById('synergy-display');
-            const synergyDetails = document.getElementById('synergy-details');
-            const allSlots = new Set(); // To store all slot elements
-
-            // --- Initialization ---
-            function initialize() {
-                // Init Inventory
-                for (let i = 0; i < MAX_INV_SLOTS; i++) {
-                    const item = initialInventory[i] || null;
-                    const slot = createSlot('inv-slot', item);
-                    inventoryGrid.appendChild(slot);
-                    allSlots.add(slot);
-                }
-                
-                // Init Synergy Grid
-                for (let i = 0; i < MAX_SYN_SLOTS; i++) {
-                    const slot = createSlot('syn-slot', null);
-                    synergyGrid.appendChild(slot);
-                    allSlots.add(slot);
-                }
-                
-                // Set initial active nav
-                switchScreen('game-screen');
-                updateGameUI();
-                
-                // --- Event Listeners ---
-                setupNavListeners();
-                setupDragDropListeners();
-            }
-
-            // --- Slot Creation ---
-            function createSlot(typeClass, itemEmoji) {
-                const slot = document.createElement('div');
-                slot.classList.add('slot', typeClass);
-                
-                if (itemEmoji) {
-                    slot.innerText = itemEmoji;
-                    slot.dataset.item = itemEmoji;
-                    slot.setAttribute('draggable', 'true');
-                    slot.classList.add('slot-filled');
-                } else {
-                    slot.classList.add('slot-empty');
-                }
-                return slot;
-            }
-
-            // --- Navigation Logic ---
-            function setupNavListeners() {
-                navButtons.forEach(button => {
-                    button.addEventListener('click', () => {
-                        const screenId = button.dataset.screen;
-                        switchScreen(screenId);
-                    });
-                });
-            }
-
-            function switchScreen(screenId) {
-                // Hide all screens
-                document.querySelectorAll('.game-screen').forEach(screen => {
-                    screen.classList.remove('active');
-                });
-                
-                // Show the target screen
-                document.getElementById(screenId).classList.add('active');
-
-                // Update nav button active state
-                navButtons.forEach(button => {
-                    if (button.dataset.screen === screenId) {
-                        button.classList.add('active');
-                    } else {
-                        button.classList.remove('active');
-                    }
-                });
-            }
-
-            // --- Drag & Drop Logic ---
-            function setupDragDropListeners() {
-                // Use event delegation on the main content area
-                mainContent.addEventListener('dragstart', (e) => {
-                    // Check if the target is a draggable item
-                    if (e.target.hasAttribute('draggable') && e.target.dataset.item) {
-                        draggedItem = e.target;
-                        sourceSlot = e.target;
-                        
-                        e.dataTransfer.setData('text/plain', e.target.dataset.item);
-                        e.dataTransfer.effectAllowed = 'move';
-
-                        setTimeout(() => {
-                            e.target.classList.add('dragging');
-                        }, 0);
-                    }
-                });
-
-                mainContent.addEventListener('dragover', (e) => {
-                    const targetSlot = e.target.closest('.slot');
-                    if (targetSlot) {
-                        e.preventDefault(); // Allow dropping
-                        allSlots.forEach(s => s.classList.remove('drag-over'));
-                        targetSlot.classList.add('drag-over');
-                    }
-                });
-
-                mainContent.addEventListener('dragenter', (e) => {
-                    const targetSlot = e.target.closest('.slot');
-                    if (targetSlot) {
-                        e.preventDefault();
-                        targetSlot.classList.add('drag-over');
-                    }
-                });
-                
-                mainContent.addEventListener('dragleave', (e) => {
-                    const targetSlot = e.target.closest('.slot');
-                    if (targetSlot) {
-                        targetSlot.classList.remove('drag-over');
-                    }
-                });
-
-                mainContent.addEventListener('dragend', (e) => {
-                    if (draggedItem) {
-                        draggedItem.classList.remove('dragging');
-                    }
-                    allSlots.forEach(s => s.classList.remove('drag-over'));
-                    draggedItem = null;
-                    sourceSlot = null;
-                });
-
-                mainContent.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    const targetSlot = e.target.closest('.slot');
-
-                    if (targetSlot && draggedItem && sourceSlot) {
-                        const droppedItemEmoji = e.dataTransfer.getData('text/plain');
-                        const itemInTargetSlot = targetSlot.dataset.item || null;
-                        const emojiInTargetSlot = targetSlot.innerText;
-                        
-                        // --- Logic for swapping items ---
-                        
-                        // 1. Move the dragged item to the target slot
-                        targetSlot.innerText = droppedItemEmoji;
-                        targetSlot.dataset.item = droppedItemEmoji;
-                        targetSlot.setAttribute('draggable', 'true');
-                        targetSlot.classList.remove('slot-empty');
-                        targetSlot.classList.add('slot-filled');
-
-                        // 2. Move the item that was in the target slot (if any) to the source slot
-                        if (itemInTargetSlot) {
-                            sourceSlot.innerText = emojiInTargetSlot;
-                            sourceSlot.dataset.item = itemInTargetSlot;
-                            sourceSlot.setAttribute('draggable', 'true');
-                            sourceSlot.classList.remove('slot-empty');
-                            sourceSlot.classList.add('slot-filled');
-                        } else {
-                            // The target slot was empty, so empty the source slot
-                            sourceSlot.innerText = '';
-                            sourceSlot.removeAttribute('data-item');
-                            sourceSlot.removeAttribute('draggable');
-                            sourceSlot.classList.add('slot-empty');
-                            sourceSlot.classList.remove('slot-filled');
-                        }
-
-                        // Update UI (synergies, inv count, etc.)
-                        updateGameUI();
-                    }
-                    
-                    allSlots.forEach(s => s.classList.remove('drag-over'));
-                });
-            }
-
-            // --- UI Update Function ---
-            function updateGameUI() {
-                // 1. Check for synergies on the grid
-                const activeSynergyItems = Array.from(synergyGrid.querySelectorAll('.slot'))
-                                                .map(s => s.dataset.item)
-                                                .filter(Boolean); // Get all non-null items
-                
-                let synergyHTML = '';
-                
-                // Example synergy checks
-                if (activeSynergyItems.includes('✨') && activeSynergyItems.includes('🔥')) {
-                    synergyHTML += '<p>Synergy: Fire Magic! (✨ + 🔥)</p>';
-                }
-                if (activeSynergyItems.includes('🧊') && activeSynergyItems.includes('🛡️')) {
-                    synergyHTML += '<p>Synergy: Ice Barrier! (🧊 + 🛡️)</p>';
-                }
-                if (activeSynergyItems.includes('🍎') && activeSynergyItems.includes('🧪')) {
-                    synergyHTML += '<p>Synergy: Alchemist! (🍎 + 🧪)</p>';
-                }
-                
-                if (synergyHTML === '') {
-                    synergyHTML = '<p class="text-gray-400">No active synergies.</p>';
-                }
-                
-                synergyDisplay.innerHTML = synergyHTML;
-                synergyDetails.innerHTML = synergyHTML;
-                
-                // 2. Update inventory count
-                const invCount = Array.from(inventoryGrid.querySelectorAll('.slot'))
-                                    .filter(s => s.dataset.item).length;
-                invCountDisplay.innerText = `${invCount}/${MAX_INV_SLOTS}`;
-            }
-
-            // --- Start the app ---
-            initialize();
-        });
-    </script>
-</body>
+    <div class="game-shell">
+      <div class="panel"></div>
+      <div class="spacer"></div>
+      <div class="icons">
+        <div class="icon-cell"><img src="bear-head.png" alt="Bear" /></div>
+        <div class="icon-cell"><img src="frog.png" alt="Frog" /></div>
+        <div class="icon-cell"><img src="jellyfish.png" alt="Jellyfish" /></div>
+        <div class="icon-cell"><img src="pig.png" alt="Pig" /></div>
+        <div class="icon-cell"><img src="rat.png" alt="Rat" /></div>
+        <div class="icon-cell"><img src="raven.png" alt="Raven" /></div>
+        <div class="icon-cell"><img src="snail.png" alt="Snail" /></div>
+        <div class="icon-cell"><img src="tortoise.png" alt="Tortoise" /></div>
+      </div>
+      <div class="character-wrap">
+        <img src="flower.jpg" alt="Character" />
+      </div>
+    </div>
+  </body>
 </html>
