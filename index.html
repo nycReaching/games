@@ -3,11 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Mobile Game UI (Framed) – Updated</title>
+    <title>Mobile Game UI (Framed) – Updated v2</title>
     <style>
       :root {
         --bg: #000;
         --accent: #ffd500;
+        --panel-border: rgba(255, 213, 0, 0.4);
+        --panel-bg: rgba(0, 0, 0, 0.32);
       }
       * {
         box-sizing: border-box;
@@ -21,7 +23,6 @@
         justify-content: center;
         align-items: center;
       }
-      /* outer frame to keep mobile aspect on desktop */
       .app-shell {
         width: min(100vw, 480px);
         aspect-ratio: 9 / 16;
@@ -38,7 +39,6 @@
           border: none;
         }
       }
-      /* bigger yellow bar */
       .top-bar {
         background: var(--accent);
         color: #000;
@@ -56,35 +56,39 @@
         flex-direction: column;
         min-height: 0;
       }
-      /* smaller panel under yellow bar */
+      /* MAIN PANEL: full border now */
       .panel {
-        height: 28px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        border-top: 1px solid rgba(255, 255, 255, 0.04);
+        height: 30px;
+        background: var(--panel-bg);
+        border: 1px solid var(--panel-border);
+        border-left: 0; /* flush to screen edges inside app-shell */
+        border-right: 0;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
       }
-      /* slightly smaller icon grid */
+      /* icon grid */
       .icons {
-        flex: 0 0 20%;
+        flex: 0 0 17%;
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        grid-template-rows: repeat(2, 1fr);
-        gap: 5px;
+        grid-template-rows: repeat(2, minmax(42px, 1fr));
+        gap: 4px;
         padding: 4px 6px 2px;
       }
       .icon-cell {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.04);
-        border-radius: 6px;
+        background: var(--panel-bg);
+        border: 1px solid var(--panel-border);
+        border-radius: 7px;
         display: flex;
         align-items: center;
         justify-content: center;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
       }
       .icon-cell img {
-        width: 60%;
-        max-height: 60%;
+        width: 62%;
+        max-height: 62%;
         object-fit: contain;
       }
-      /* bigger character area */
+      /* character area */
       .character-wrap {
         flex: 0 0 30%;
         display: flex;
@@ -94,7 +98,7 @@
         padding: 6px 10px 14px;
       }
       .character-frame {
-        flex: 0 0 54%; /* big, centered square */
+        flex: 0 0 54%;
         aspect-ratio: 1 / 1;
         background: rgba(255, 255, 255, 0.02);
         border: 1px solid rgba(255, 255, 255, 0.04);
@@ -109,21 +113,23 @@
         height: 100%;
         object-fit: cover;
       }
-      /* side columns that use the extra horizontal space */
+      /* side columns: center the two squares vertically + give same border language */
       .side-column {
         flex: 0 0 12%;
-        height: 100%;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
-        gap: 6px;
+        align-items: center; /* <-- center left/right in the column */
+        justify-content: center; /* <-- center vertically in character area */
+        gap: 7px;
+        height: 100%;
       }
       .side-cell {
-        flex: 0 0 calc(50% - 3px);
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.04);
-        border-radius: 8px;
+        width: 78%; /* smaller so it isn't hugging edges */
         aspect-ratio: 1 / 1;
+        background: var(--panel-bg);
+        border: 1px solid var(--panel-border); /* match icon/panel styling */
+        border-radius: 8px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
       }
       .spacer {
         flex: 1 1 auto;
