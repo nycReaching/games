@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Mobile Game UI – Panel + Short Meters</title>
+    <title>Mobile Game UI – Panel + Short Meters + 3-left slots</title>
     <style>
       :root {
         --bg: #000;
@@ -70,18 +70,18 @@
       }
       /* meters just above the icon grid */
       .meters {
-        padding: 3px 8px 0;
+        padding: 4px 8px 0;
         display: flex;
         flex-direction: column;
         gap: 4px;
-        align-items: flex-start; /* so we can cap the width */
+        align-items: flex-start;
       }
       .meters-inner {
-        width: 52%; /* extend only to middle of the game screen */
-        min-width: 210px; /* so it doesn't get too tiny on very narrow viewports */
+        width: 52%;
+        min-width: 210px;
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 5px;
       }
       .meter-row {
         display: flex;
@@ -89,18 +89,18 @@
         gap: 6px;
       }
       .meter-label {
-        width: 94px; /* make room for text + number */
-        font-size: 0.6rem;
+        width: 106px; /* more room for label + 20/20 */
+        font-size: 0.7rem; /* larger text */
         letter-spacing: 0.03em;
         text-transform: uppercase;
-        color: rgba(255, 255, 255, 0.85);
+        color: rgba(255, 255, 255, 0.9);
         display: flex;
         justify-content: space-between;
-        gap: 4px;
+        gap: 6px;
       }
       .meter-bar {
         flex: 1;
-        height: 8px;
+        height: 10px; /* slightly taller */
         background: rgba(255, 255, 255, 0.03);
         border: 1px solid rgba(255, 255, 255, 0.03);
         border-radius: 999px;
@@ -108,7 +108,7 @@
       }
       .meter-fill {
         height: 100%;
-        width: 82%;
+        width: 100%; /* 20/20 = full */
       }
       .meter-hp .meter-fill { background: #ff3945; }
       .meter-armor .meter-fill { background: #3b82f6; }
@@ -143,8 +143,26 @@
         gap: 16px;
         padding: 6px 10px 14px;
       }
+      /* left column now has 3 slots */
+      .side-column-left {
+        flex: 0 0 14%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        height: 100%;
+      }
+      .side-cell {
+        width: 92%;
+        aspect-ratio: 1 / 1;
+        background: var(--panel-bg);
+        border: 1px solid var(--panel-border);
+        border-radius: 9px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+      }
       .character-frame {
-        flex: 0 0 54%;
+        flex: 0 0 58%; /* slightly more since right column is gone */
         aspect-ratio: 1 / 1;
         background: rgba(255, 255, 255, 0.02);
         border: 1px solid rgba(255, 255, 255, 0.04);
@@ -158,23 +176,6 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
-      }
-      .side-column {
-        flex: 0 0 13%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        height: 100%;
-      }
-      .side-cell {
-        width: 92%;
-        aspect-ratio: 1 / 1;
-        background: var(--panel-bg);
-        border: 1px solid var(--panel-border);
-        border-radius: 9px;
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
       }
     </style>
   </head>
@@ -216,17 +217,15 @@
           <div class="icon-cell"><img src="animals/tortoise.png" alt="Tortoise" /></div>
         </div>
         <div class="character-wrap">
-          <div class="side-column">
+          <div class="side-column-left">
+            <div class="side-cell"></div>
             <div class="side-cell"></div>
             <div class="side-cell"></div>
           </div>
           <div class="character-frame">
             <img src="New Folder/flower.jpg" alt="Character" />
           </div>
-          <div class="side-column">
-            <div class="side-cell"></div>
-            <div class="side-cell"></div>
-          </div>
+          <!-- right column removed -->
         </div>
       </div>
     </div>
