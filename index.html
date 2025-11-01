@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Mobile Game UI (Framed) – Updated v3</title>
+    <title>Mobile Game UI – Larger Panel</title>
     <style>
       :root {
         --bg: #000;
@@ -56,6 +56,19 @@
         flex-direction: column;
         min-height: 0;
       }
+      /* BIG blank panel for future content */
+      .panel {
+        flex: 0 0 42%;          /* take up real vertical space */
+        min-height: 190px;       /* ensures it's large even on short screens */
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+      }
+      /* thin spacer so meters don't stick to panel bottom */
+      .spacer {
+        flex: 0 0 4px;
+        height: 4px;
+      }
       /* meters just above the icon grid */
       .meters {
         padding: 3px 8px 0;
@@ -87,24 +100,11 @@
         height: 100%;
         width: 82%;
       }
-      .meter-hp .meter-fill {
-        background: #ff3945;
-      }
-      .meter-armor .meter-fill {
-        background: #3b82f6;
-      }
-      .meter-magic .meter-fill {
-        background: #f97316;
-      }
-      /* MAIN AREA: make this an open / undeveloped space (no border, no line) */
-      .panel {
-        height: 120px; /* large placeholder area for future content */
-        border: 0;
-        background: transparent;
-        box-shadow: none;
-      }
+      .meter-hp .meter-fill { background: #ff3945; }
+      .meter-armor .meter-fill { background: #3b82f6; }
+      .meter-magic .meter-fill { background: #f97316; }
       .icons {
-        flex: 0 0 17%;
+        flex: 0 0 15%;
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         grid-template-rows: repeat(2, minmax(42px, 1fr));
@@ -125,13 +125,12 @@
         max-height: 62%;
         object-fit: contain;
       }
-      /* character area */
       .character-wrap {
-        flex: 0 0 30%;
+        flex: 1 1 auto; /* let this take the remaining, but not create big empty bottom */
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 16px; /* more breathing room so side squares sit farther away */
+        gap: 16px;
         padding: 6px 10px 14px;
       }
       .character-frame {
@@ -150,26 +149,22 @@
         height: 100%;
         object-fit: cover;
       }
-      /* side columns */
       .side-column {
-        flex: 0 0 13%; /* slightly wider so the squares can be bigger and still centered */
+        flex: 0 0 13%;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 10px; /* more gap so they feel centered vertically */
+        gap: 10px;
         height: 100%;
       }
       .side-cell {
-        width: 92%; /* bigger than before */
+        width: 92%;
         aspect-ratio: 1 / 1;
         background: var(--panel-bg);
         border: 1px solid var(--panel-border);
         border-radius: 9px;
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
-      }
-      .spacer {
-        flex: 1 1 auto;
       }
     </style>
   </head>
@@ -181,8 +176,9 @@
         <div>00:42</div>
       </div>
       <div class="game-shell">
+        <!-- large blank content area for later -->
         <div class="panel"></div>
-        $1
+        <div class="spacer"></div>
         <div class="meters">
           <div class="meter-row meter-hp">
             <span class="meter-label">HP</span>
