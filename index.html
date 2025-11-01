@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Mobile Game UI – Larger Panel</title>
+    <title>Mobile Game UI – Panel + Short Meters</title>
     <style>
       :root {
         --bg: #000;
@@ -58,13 +58,12 @@
       }
       /* BIG blank panel for future content */
       .panel {
-        flex: 0 0 42%;          /* take up real vertical space */
-        min-height: 190px;       /* ensures it's large even on short screens */
+        flex: 0 0 42%;
+        min-height: 190px;
         border: 0;
         background: transparent;
         box-shadow: none;
       }
-      /* thin spacer so meters don't stick to panel bottom */
       .spacer {
         flex: 0 0 4px;
         height: 4px;
@@ -75,6 +74,14 @@
         display: flex;
         flex-direction: column;
         gap: 4px;
+        align-items: flex-start; /* so we can cap the width */
+      }
+      .meters-inner {
+        width: 52%; /* extend only to middle of the game screen */
+        min-width: 210px; /* so it doesn't get too tiny on very narrow viewports */
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
       }
       .meter-row {
         display: flex;
@@ -82,11 +89,14 @@
         gap: 6px;
       }
       .meter-label {
-        width: 54px;
+        width: 94px; /* make room for text + number */
         font-size: 0.6rem;
         letter-spacing: 0.03em;
         text-transform: uppercase;
         color: rgba(255, 255, 255, 0.85);
+        display: flex;
+        justify-content: space-between;
+        gap: 4px;
       }
       .meter-bar {
         flex: 1;
@@ -126,7 +136,7 @@
         object-fit: contain;
       }
       .character-wrap {
-        flex: 1 1 auto; /* let this take the remaining, but not create big empty bottom */
+        flex: 1 1 auto;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -180,17 +190,19 @@
         <div class="panel"></div>
         <div class="spacer"></div>
         <div class="meters">
-          <div class="meter-row meter-hp">
-            <span class="meter-label">HP</span>
-            <div class="meter-bar"><div class="meter-fill"></div></div>
-          </div>
-          <div class="meter-row meter-armor">
-            <span class="meter-label">Armor</span>
-            <div class="meter-bar"><div class="meter-fill"></div></div>
-          </div>
-          <div class="meter-row meter-magic">
-            <span class="meter-label">Magic</span>
-            <div class="meter-bar"><div class="meter-fill"></div></div>
+          <div class="meters-inner">
+            <div class="meter-row meter-hp">
+              <span class="meter-label"><span>HP</span><span>20/20</span></span>
+              <div class="meter-bar"><div class="meter-fill"></div></div>
+            </div>
+            <div class="meter-row meter-armor">
+              <span class="meter-label"><span>Armor</span><span>20/20</span></span>
+              <div class="meter-bar"><div class="meter-fill"></div></div>
+            </div>
+            <div class="meter-row meter-magic">
+              <span class="meter-label"><span>Magic</span><span>20/20</span></span>
+              <div class="meter-bar"><div class="meter-fill"></div></div>
+            </div>
           </div>
         </div>
         <div class="icons">
