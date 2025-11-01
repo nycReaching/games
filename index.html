@@ -32,8 +32,10 @@
         padding-bottom: calc(0px + var(--safe-bottom));
       }
       .top-bar {
-        background: var(--accent);
-        height: 70px;
+        /* background: var(--accent); */
+        background: linear-gradient(to bottom, #ffd500, #d98200); /* Dark yellow gradient */
+        /* height: 70px; */
+        height: 65px; /* Slightly smaller */
         padding-top: var(--safe-top);
         display: flex;
         align-items: center;
@@ -47,21 +49,26 @@
       /* --- UPDATED TOP BUTTONS --- */
       .top-btn {
         /* width: 60px; */ /* Removed fixed width */
-        padding-inline: 24px; /* Makes buttons wider */
-        height: 46px;
+        /* padding-inline: 24px; */ /* Makes buttons wider */
+        padding-inline: 30px; /* Wider */
+        /* height: 46px; */
+        height: 50px; /* Taller */
         border-radius: 14px;
-        /* border: 0; */ /* Removed */
-        border: 3px solid rgba(0, 0, 0, 0.2); /* Added strong border */
+        /* border: 3px solid rgba(0, 0, 0, 0.2); */ /* Added strong border */
+        border-width: 3px; /* Kept border size */
+        border-style: solid; /* Color will be set by class */
+        background: rgba(0, 0, 0, 0.4); /* Black inside */
         display: inline-flex;
         align-items: center;
         justify-content: center;
         /* Updated shadow for more depth */
-        box-shadow: inset 0 2px 1px rgba(255,255,255,.35), 0 4px 10px rgba(0,0,0,.25);
+        /* box-shadow: inset 0 2px 1px rgba(255,255,255,.35), 0 4px 10px rgba(0,0,0,.25); */
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.4), 0 4px 10px rgba(0,0,0,.25); /* Shadow for dark bg */
       }
-      .top-btn.purple { background: #7c3aed; }
-      .top-btn.teal { background: #14b8a6; }
-      .top-btn.pink { background: #ec4899; }
-      .top-btn.white { background: #fff; }
+      .top-btn.purple { /* background: #7c3aed; */ border-color: #7c3aed; }
+      .top-btn.teal { /* background: #14b8a6; */ border-color: #14b8a6; }
+      .top-btn.pink { /* background: #ec4899; */ border-color: #ec4899; }
+      .top-btn.white { /* background: #fff; */ border-color: #fff; }
 
       /* Bordered window under the yellow bar */
       .top-blank-space {
@@ -302,3 +309,4 @@
     </script>
   </body>
 </html>
+
