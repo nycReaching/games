@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Mobile Game UI (Framed)</title>
+    <title>Mobile Game UI (Framed) – Updated</title>
     <style>
       :root {
         --bg: #000;
@@ -38,10 +38,11 @@
           border: none;
         }
       }
+      /* bigger yellow bar */
       .top-bar {
         background: var(--accent);
         color: #000;
-        height: 42px;
+        height: 58px;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -55,44 +56,74 @@
         flex-direction: column;
         min-height: 0;
       }
+      /* smaller panel under yellow bar */
       .panel {
-        height: 42px;
+        height: 28px;
         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         border-top: 1px solid rgba(255, 255, 255, 0.04);
       }
+      /* slightly smaller icon grid */
       .icons {
-        flex: 0 0 25%;
+        flex: 0 0 20%;
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         grid-template-rows: repeat(2, 1fr);
-        gap: 6px;
-        padding: 6px;
+        gap: 5px;
+        padding: 4px 6px 2px;
       }
       .icon-cell {
         background: rgba(255, 255, 255, 0.02);
         border: 1px solid rgba(255, 255, 255, 0.04);
-        border-radius: 7px;
+        border-radius: 6px;
         display: flex;
         align-items: center;
         justify-content: center;
       }
       .icon-cell img {
-        width: 70%;
-        height: auto;
-        max-height: 70%;
+        width: 60%;
+        max-height: 60%;
         object-fit: contain;
       }
+      /* bigger character area */
       .character-wrap {
-        flex: 0 0 25%;
+        flex: 0 0 30%;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 10px 0 18px;
+        gap: 10px;
+        padding: 6px 10px 14px;
       }
-      .character-wrap img {
-        max-height: 100%;
-        max-width: 40%;
-        object-fit: contain;
+      .character-frame {
+        flex: 0 0 54%; /* big, centered square */
+        aspect-ratio: 1 / 1;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      .character-frame img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      /* side columns that use the extra horizontal space */
+      .side-column {
+        flex: 0 0 12%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 6px;
+      }
+      .side-cell {
+        flex: 0 0 calc(50% - 3px);
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        border-radius: 8px;
+        aspect-ratio: 1 / 1;
       }
       .spacer {
         flex: 1 1 auto;
@@ -120,7 +151,17 @@
           <div class="icon-cell"><img src="animals/tortoise.png" alt="Tortoise" /></div>
         </div>
         <div class="character-wrap">
-          <img src="New Folder/flower.jpg" alt="Character" />
+          <div class="side-column">
+            <div class="side-cell"></div>
+            <div class="side-cell"></div>
+          </div>
+          <div class="character-frame">
+            <img src="New Folder/flower.jpg" alt="Character" />
+          </div>
+          <div class="side-column">
+            <div class="side-cell"></div>
+            <div class="side-cell"></div>
+          </div>
         </div>
       </div>
     </div>
