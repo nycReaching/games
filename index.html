@@ -20,7 +20,6 @@
         --teal: #14b8a6;
         --pink: #ec4899;
         --white: #fff;
-        /* --- NEW: Colors for action buttons --- */
         --eat-red: #ef4444;
         --keep-green: #22c55e;
       }
@@ -131,7 +130,7 @@
         gap: 6px;
       }
 
-      /* --- UPDATED: Info Panel styles for flex layout --- */
+      /* --- UPDATED: Info Panel styles for flex row layout --- */
       .info-panel {
         margin: 10px 10px 3px;
         background: rgba(0, 0, 0, 0.45);
@@ -139,11 +138,11 @@
         border-radius: 12px;
         padding: 10px 14px 12px;
         display: flex;
-        flex-direction: row; /* Changed to row */
+        flex-direction: row; /* Horizontal layout */
         justify-content: space-between; /* Pushes content and actions apart */
         align-items: center; /* Vertically centers content */
         gap: 10px;
-        min-height: 58px; /* Added min-height to prevent jumpiness */
+        min-height: 58px; /* Maintain consistent height */
       }
       .info-panel-content {
         display: flex;
@@ -165,17 +164,24 @@
         color: rgba(255, 255, 255, 0.85);
       }
 
-      /* --- NEW: Action Button Styles --- */
+      /* --- UPDATED: Action Button Styles (now square) --- */
       .btn-action {
         background: rgba(0, 0, 0, 0.5);
         border: 1px solid;
         border-radius: 6px;
         color: white;
-        padding: 6px 10px;
-        font-size: 0.8rem;
-        font-weight: 500;
+        /* Make buttons square */
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        font-size: 1.2rem; /* Make emoji larger */
         cursor: pointer;
         transition: background-color 0.15s ease;
+        /* Center emoji */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
       }
       .btn-eat {
         border-color: var(--eat-red);
@@ -255,7 +261,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: opacity 0.3s ease, transform 0.3s ease; /* Added transition */
+        transition: opacity 0.3s ease, transform 0.3s ease;
         cursor: pointer;
       }
       .icon-cell img {
@@ -264,7 +270,6 @@
         object-fit: contain;
         pointer-events: none;
       }
-      /* --- NEW: Style for hidden icon cell --- */
       .icon-cell.hidden {
         opacity: 0;
         transform: scale(0.5);
@@ -278,25 +283,26 @@
         gap: 12px;
         padding: 10px 12px 0px 10px;
       }
+      /* --- Side column layout (original strict sizing) --- */
       .side-column-left {
         flex: 0 0 13%;
         display: flex;
         flex-direction: column;
         gap: 8px;
       }
+      /* --- Side cell (companion slot) --- */
       .side-cell {
         width: 90%;
         aspect-ratio: 1/1;
         background: var(--panel-bg);
         border: 1px solid var(--panel-border);
         border-radius: 11px;
-        /* --- NEW: Added padding and styles for image --- */
+        /* Added padding and flex to center image */
         padding: 6px;
         display: flex;
         align-items: center;
         justify-content: center;
       }
-      /* --- NEW: Style for image inside companion slot --- */
       .side-cell img {
         width: 100%;
         height: 100%;
@@ -445,6 +451,7 @@
       }
       /* --- End Modal Styles --- */
 
+      /* --- UPDATED: Removed responsive resizing --- */
       @media (max-width: 420px) {
         .app-shell {
           max-width: 100vw;
@@ -453,33 +460,9 @@
           height: clamp(140px, 20vh, 220px);
           font-size: 0.95rem;
         }
-        .character-frame {
-          max-width: 210px;
-        }
-        .character-wrap {
-          gap: 8px;
-          padding-left: 8px;
-          padding-right: 8px;
-        }
-        .action-button {
-          width: 72px;
-          height: 72px;
-          margin-right: 4px;
-        }
-        /* --- NEW: Stack info panel on small screens --- */
-        .info-panel {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 8px;
-          padding-bottom: 14px;
-        }
-        .info-panel-actions {
-          justify-content: space-around;
-        }
-        .btn-action {
-          flex-grow: 1;
-          text-align: center;
-        }
+        /* All responsive rules for .character-frame, .action-button, 
+           .character-wrap, and .info-panel have been REMOVED 
+           to maintain a strict, non-resizing layout. */
       }
     </style>
   </head>
@@ -521,7 +504,6 @@
         Choose one animal to eat, and another to keep as a companion.
       </div>
       <div class="game-shell">
-        <!-- UPDATED: Info panel structure changed -->
         <div class="info-panel" id="icon-info">
           <div class="info-panel-content">
             <div class="info-title">Companion Info</div>
@@ -574,8 +556,8 @@
           </div>
         </div>
         <div class="character-wrap">
-          <div classs="side-column-left" id="companion-slots">
-            <!-- UPDATED: Added IDs to the slots -->
+          <!-- UPDATED: Fixed typo from 'classs' to 'class' -->
+          <div class="side-column-left" id="companion-slots">
             <div class="side-cell" id="companion-slot-1"></div>
             <div class="side-cell" id="companion-slot-2"></div>
             <div class="side-cell" id="companion-slot-3"></div>
@@ -672,15 +654,15 @@
           const animal = img ? img.alt : "This animal";
           const imgSrc = img ? img.src : "";
 
-          // Update the info panel with title, body, and action buttons
+          // UPDATED: New innerHTML with square emoji buttons
           infoPanel.innerHTML = `
             <div class="info-panel-content">
               <div class="info-title">${animal}</div>
               <div class="info-body">What will you do with this ${animal}?</div>
             </div>
             <div class="info-panel-actions">
-              <button class="btn-action btn-eat" data-action="eat">🔪 Eat</button>
-              <button class="btn-action btn-keep" data-action="keep" data-img-src="${imgSrc}" data-animal-name="${animal}">🫴 Keep</button>
+              <button class="btn-action btn-eat" data-action="eat" title="Eat">🔪</button>
+              <button class="btn-action btn-keep" data-action="keep" data-img-src="${imgSrc}" data-animal-name="${animal}" title="Keep">🫴</button>
             </div>
           `;
         });
@@ -688,8 +670,11 @@
 
       // Use event delegation on the info panel to handle button clicks
       infoPanel.addEventListener("click", (e) => {
-        const action = e.target.dataset.action;
-        if (!action || !currentSelectedCell) return;
+        // Find the button that was clicked, even if the user clicked the emoji
+        const button = e.target.closest("[data-action]");
+        if (!button || !currentSelectedCell) return;
+
+        const action = button.dataset.action;
 
         if (action === "eat") {
           currentSelectedCell.classList.add("hidden"); // Hide the icon
@@ -706,9 +691,9 @@
 
           if (emptySlot) {
             // Get data from the "Keep" button
-            const imgSrc = e.target.dataset.imgSrc;
-            const animalName = e.target.dataset.animalName;
-            
+            const imgSrc = button.dataset.imgSrc;
+            const animalName = button.dataset.animalName;
+
             // Add the image to the empty slot
             emptySlot.innerHTML = `<img src="${imgSrc}" alt="${animalName}" />`;
 
