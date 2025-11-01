@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Mobile Game UI – No Scroll, Centered Button, Animated Tap</title>
+    <title>Mobile Game UI – Fixed Layout</title>
     <style>
       :root {
         --bg: #000;
@@ -16,55 +16,79 @@
         margin: 0;
         padding: 0;
       }
+      html,
+      body {
+        height: 100%;
+      }
       body {
         background: #000;
-        height: 100vh;
+        min-height: 100vh;
+        height: 100dvh; /* mobile-safe */
         display: flex;
         justify-content: center;
-        align-items: center;
-        overflow: hidden; /* prevent scroll on body */
       }
       .app-shell {
         width: min(100vw, 480px);
-        height: 100vh; /* lock to viewport */
+        min-height: 100dvh; /* let content grow, but match dynamic viewport */
         background: #000;
         display: flex;
         flex-direction: column;
         border: 1px solid rgba(255, 255, 255, 0.08);
-        overflow: hidden; /* no inside scroll */
+        overflow-y: auto; /* allow scroll if content overflows instead of cutting off */
+        padding-bottom: env(safe-area-inset-bottom, 14px);
       }
       @media (max-width: 480px) {
         .app-shell {
           width: 100vw;
-          height: 100vh;
           border: none;
         }
       }
+      /* TOP BAR ----------------------------------------------------- */
       .top-bar {
         background: var(--accent);
-        color: #000;
         height: 58px;
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        justify-content: center;
+        gap: 10px;
         padding: 0 12px;
       }
+      .top-buttons {
+        display: flex;
+        gap: 10px;
+      }
+      .top-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 9px;
+        border: 0;
+        outline: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      }
+      .top-btn.purple { background: #7c3aed; }
+      .top-btn.teal { background: #14b8a6; }
+      .top-btn.pink { background: #ec4899; }
+      .top-btn.white { background: #fff; }
+
       .game-shell {
         flex: 1;
         display: flex;
         flex-direction: column;
         min-height: 0;
+        gap: 2px;
       }
       /* shrink the blank area so everything fits */
       .panel {
-        flex: 0 0 23%; /* was 34%, makes whole layout too tall */
-        min-height: 105px;
+        flex: 0 0 20%;
+        min-height: 90px;
       }
       .spacer {
         height: 3px;
         flex: 0 0 3px;
       }
-      /* keep info panel large-ish but not too tall */
       .info-panel {
         margin: 0 8px 3px;
         background: rgba(0, 0, 0, 0.4);
@@ -74,7 +98,7 @@
         display: flex;
         flex-direction: column;
         gap: 4px;
-        min-height: 82px; /* slightly smaller than v2 so we keep 1 screen */
+        min-height: 70px;
       }
       .info-title {
         font-size: 0.8rem;
@@ -86,7 +110,7 @@
         color: rgba(255, 255, 255, 0.85);
       }
       .meters {
-        padding: 3px 8px 0;
+        padding: 1px 8px 0;
         display: flex;
         flex-direction: column;
         gap: 3px;
@@ -124,12 +148,13 @@
       .meter-armor .meter-fill { background: #3b82f6; }
       .meter-magic .meter-fill { background: #f97316; }
       .icons {
-        flex: 0 0 15%;
+        /* keep grid tight under meters */
+        flex: 0 0 auto;
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         grid-template-rows: repeat(2, minmax(42px, 1fr));
         gap: 4px;
-        padding: 3px 6px 2px;
+        padding: 3px 6px 1px;
       }
       .icon-cell {
         background: var(--panel-bg);
@@ -151,8 +176,9 @@
         object-fit: contain;
         pointer-events: none;
       }
+      /* character area should HUG the grid, not float */
       .character-wrap {
-        flex: 1 1 auto;
+        flex: 0 0 auto; /* stop it from stretching and creating a giant gap */
         display: flex;
         align-items: center;
         justify-content: flex-start;
@@ -191,10 +217,9 @@
         height: 100%;
         object-fit: cover;
       }
-      /* button now slightly left of the hard edge to look centered in its area */
       .action-button {
         margin-left: auto;
-        margin-right: 6px; /* pull it in from the edge */
+        margin-right: 6px;
         width: 60px;
         height: 60px;
         border-radius: 999px;
@@ -208,7 +233,6 @@
         touch-action: manipulation;
         transform-origin: center;
       }
-      /* obvious tap animation */
       @keyframes buttonTap {
         0% { transform: scale(1); box-shadow: 0 6px 12px rgba(255, 184, 0, 0.4); }
         40% { transform: scale(0.9); box-shadow: 0 2px 6px rgba(255, 184, 0, 0.25); }
@@ -222,9 +246,12 @@
   <body>
     <div class="app-shell">
       <div class="top-bar">
-        <div>HP: 100</div>
-        <div>Score: 00000</div>
-        <div>00:42</div>
+        <div class="top-buttons">
+          <button class="top-btn purple" aria-label="Purple action"></button>
+          <button class="top-btn teal" aria-label="Teal action"></button>
+          <button class="top-btn pink" aria-label="Pink action"></button>
+          <button class="top-btn white" aria-label="White action"></button>
+        </div>
       </div>
       <div class="game-shell">
         <div class="panel"></div>
@@ -284,16 +311,13 @@
           }
         });
       });
-
       const primaryButton = document.querySelector(".action-button");
       if (primaryButton) {
         primaryButton.addEventListener("click", () => {
           if (infoPanel) {
             infoPanel.innerHTML = `\n              <div class="info-title">Primary Action</div>\n              <div class="info-body">You tapped the main button.</div>\n            `;
           }
-          // trigger obvious tap animation
           primaryButton.classList.remove("is-tapped");
-          // force reflow so animation restarts
           void primaryButton.offsetWidth;
           primaryButton.classList.add("is-tapped");
         });
