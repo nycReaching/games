@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Mobile Game UI – Panel + Short Meters + 3-left slots</title>
+    <title>Mobile Game UI – Panel + Larger Info + Right Button</title>
     <style>
       :root {
         --bg: #000;
@@ -48,7 +48,6 @@
         justify-content: space-between;
         padding: 0 12px;
         font-size: 0.9rem;
-        letter-spacing: 0.03em;
       }
       .game-shell {
         flex: 1;
@@ -56,28 +55,44 @@
         flex-direction: column;
         min-height: 0;
       }
-      /* BIG blank panel for future content */
       .panel {
-        flex: 0 0 42%;
-        min-height: 190px;
-        border: 0;
-        background: transparent;
-        box-shadow: none;
+        flex: 0 0 34%;
+        min-height: 150px;
       }
       .spacer {
         flex: 0 0 4px;
         height: 4px;
       }
-      /* meters just above the icon grid */
+      /* BIGGER info panel */
+      .info-panel {
+        margin: 0 8px 4px;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid var(--panel-border);
+        border-radius: 10px;
+        padding: 10px 12px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        min-height: 96px; /* bigger description window */
+      }
+      .info-title {
+        font-size: 0.82rem;
+        color: #fff;
+        text-transform: capitalize;
+      }
+      .info-body {
+        font-size: 0.72rem;
+        line-height: 1.25;
+        color: rgba(255, 255, 255, 0.85);
+      }
       .meters {
         padding: 4px 8px 0;
         display: flex;
         flex-direction: column;
         gap: 4px;
-        align-items: flex-start;
       }
       .meters-inner {
-        width: 52%;
+        width: 56%;
         min-width: 210px;
         display: flex;
         flex-direction: column;
@@ -89,27 +104,22 @@
         gap: 6px;
       }
       .meter-label {
-        width: 106px; /* more room for label + 20/20 */
-        font-size: 0.7rem; /* larger text */
-        letter-spacing: 0.03em;
+        width: 106px;
+        font-size: 0.7rem;
         text-transform: uppercase;
         color: rgba(255, 255, 255, 0.9);
         display: flex;
         justify-content: space-between;
-        gap: 6px;
       }
       .meter-bar {
         flex: 1;
-        height: 10px; /* slightly taller */
+        height: 10px;
         background: rgba(255, 255, 255, 0.03);
         border: 1px solid rgba(255, 255, 255, 0.03);
         border-radius: 999px;
         overflow: hidden;
       }
-      .meter-fill {
-        height: 100%;
-        width: 100%; /* 20/20 = full */
-      }
+      .meter-fill { height: 100%; width: 100%; }
       .meter-hp .meter-fill { background: #ff3945; }
       .meter-armor .meter-fill { background: #3b82f6; }
       .meter-magic .meter-fill { background: #f97316; }
@@ -128,22 +138,27 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+        cursor: pointer;
+        transition: transform 0.12s ease-out, box-shadow 0.12s ease-out;
+      }
+      .icon-cell:active {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 2px rgba(255, 213, 0, 0.28);
       }
       .icon-cell img {
         width: 62%;
         max-height: 62%;
         object-fit: contain;
+        pointer-events: none;
       }
       .character-wrap {
         flex: 1 1 auto;
         display: flex;
         align-items: center;
-        justify-content: center;
-        gap: 16px;
+        justify-content: flex-start;
+        gap: 12px;
         padding: 6px 10px 14px;
       }
-      /* left column now has 3 slots */
       .side-column-left {
         flex: 0 0 14%;
         display: flex;
@@ -159,10 +174,9 @@
         background: var(--panel-bg);
         border: 1px solid var(--panel-border);
         border-radius: 9px;
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
       }
       .character-frame {
-        flex: 0 0 58%; /* slightly more since right column is gone */
+        flex: 0 0 58%;
         aspect-ratio: 1 / 1;
         background: rgba(255, 255, 255, 0.02);
         border: 1px solid rgba(255, 255, 255, 0.04);
@@ -177,6 +191,24 @@
         height: 100%;
         object-fit: cover;
       }
+      /* move button further right */
+      .action-button {
+        margin-left: auto; /* push to far right */
+        width: 60px;
+        height: 60px;
+        border-radius: 999px;
+        background: radial-gradient(circle at 30% 30%, #fff3b0, #ffb800 55%, #d98200 95%);
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        box-shadow: 0 6px 12px rgba(255, 184, 0, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        outline: none;
+        touch-action: manipulation;
+      }
+      .action-button:active {
+        transform: translateY(1px);
+      }
     </style>
   </head>
   <body>
@@ -187,9 +219,12 @@
         <div>00:42</div>
       </div>
       <div class="game-shell">
-        <!-- large blank content area for later -->
         <div class="panel"></div>
         <div class="spacer"></div>
+        <div class="info-panel" id="icon-info">
+          <div class="info-title">Companion Info</div>
+          <div class="info-body">Tap an animal below to learn why it's a great companion.</div>
+        </div>
         <div class="meters">
           <div class="meters-inner">
             <div class="meter-row meter-hp">
@@ -206,7 +241,7 @@
             </div>
           </div>
         </div>
-        <div class="icons">
+        <div class="icons" id="icon-grid">
           <div class="icon-cell"><img src="animals/bear-head.png" alt="Bear" /></div>
           <div class="icon-cell"><img src="animals/frog.png" alt="Frog" /></div>
           <div class="icon-cell"><img src="animals/jellyfish.png" alt="Jellyfish" /></div>
@@ -225,9 +260,32 @@
           <div class="character-frame">
             <img src="New Folder/flower.jpg" alt="Character" />
           </div>
-          <!-- right column removed -->
+          <!-- button now has no icon/text -->
+          <button class="action-button" type="button" aria-label="Primary Action"></button>
         </div>
       </div>
     </div>
+    <script>
+      const infoPanel = document.getElementById("icon-info");
+      const icons = document.querySelectorAll(".icon-cell");
+      icons.forEach((cell) => {
+        cell.addEventListener("click", () => {
+          const img = cell.querySelector("img");
+          const animal = img ? img.alt : "This animal";
+          if (infoPanel) {
+            infoPanel.innerHTML = `\n              <div class="info-title">${animal}</div>\n              <div class="info-body">is a great companion.</div>\n            `;
+          }
+        });
+      });
+
+      const primaryButton = document.querySelector(".action-button");
+      if (primaryButton) {
+        primaryButton.addEventListener("click", () => {
+          if (infoPanel) {
+            infoPanel.innerHTML = `\n              <div class="info-title">Primary Action</div>\n              <div class="info-body">You tapped the main button.</div>\n            `;
+          }
+        });
+      }
+    </script>
   </body>
 </html>
