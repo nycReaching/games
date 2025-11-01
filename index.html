@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Mobile Game UI – No Extra Space</title>
+    <title>Mobile Game UI – Top Gap Version</title>
     <style>
       :root {
         --bg: #000;
@@ -24,6 +24,7 @@
         display: flex;
         flex-direction: column;
         border: 1px solid rgba(255, 255, 255, 0.08);
+        padding-bottom: 0; /* game ends at character image */
       }
       @media (max-width: 480px) {
         .app-shell { width: 100vw; border: none; }
@@ -57,12 +58,17 @@
       .top-btn.pink { background: #ec4899; }
       .top-btn.white { background: #fff; }
 
+      /* NEW: big, intentional blank space directly under top bar */
+      .top-blank-space {
+        height: 140px; /* adjust to taste */
+        background: #000;
+      }
+
       .game-shell {
         display: flex;
         flex-direction: column;
         gap: 4px;
       }
-      /* remove that mysterious blank flex panel from before */
       .panel { display: none; }
       .spacer { display: none; }
       .info-panel {
@@ -135,7 +141,7 @@
         align-items: center;
         justify-content: flex-start;
         gap: 12px;
-        padding: 6px 10px 10px;
+        padding: 6px 10px 0px;
       }
       .side-column-left {
         flex: 0 0 14%;
@@ -173,8 +179,10 @@
         background: radial-gradient(circle at 30% 30%, #fff3b0, #ffb800 55%, #d98200 95%);
         border: 1px solid rgba(255, 255, 255, .35);
       }
-      /* remove bottom padding so the game literally ends after character row */
-      .app-shell { padding-bottom: 0; }
+      /* cap the game right after the character row */
+      .character-wrap + * {
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -187,6 +195,7 @@
           <button class="top-btn white" aria-label="White action"></button>
         </div>
       </div>
+      <div class="top-blank-space"></div>
       <div class="game-shell">
         <div class="info-panel" id="icon-info">
           <div class="info-title">Companion Info</div>
