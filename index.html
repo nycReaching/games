@@ -589,15 +589,7 @@
     </div>
     <div id="modal-white" class="modal-overlay hidden">
       <div class="modal-content border-white">
-        <button class="modal-close" aria-label="Close modal">&times;</button>
-        <div class="modal-title">Elf Helmet</div>
-        <div class="modal-body">
-          This is the modal for the Elf Helmet. It provides protection and looks
-          stylish.
-        </div>
-      </div>
-    </div>
-    <script>
+      <script>
       // --- UPDATED: Icon Info Panel Script ---
       const infoPanel = document.getElementById("icon-info");
       const iconGrid = document.getElementById("icon-grid");
@@ -609,25 +601,6 @@
       let hasKept = false;
       let gameState = "animals"; // "animals" or "weapons"
 
-      // NEW: Object to store current player stats
-      let currentStats = {
-        hp: 20, maxHp: 20,
-        armor: 20, maxArmor: 20,
-        magic: 20, maxMagic: 20
-      };
-
-      // NEW: Map for animal stat changes
-      const animalEatStats = {
-        "Bear":     { hp: 3, armor: 3, magic: -3 },
-        "Frog":     { hp: -1, armor: 0, magic: 6 },
-        "Jellyfish":{ hp: -3, armor: 0, magic: 11 },
-        "Pig":      { hp: 7, armor: 0, magic: -1 },
-        "Rat":      { hp: 1, armor: 1, magic: 0 },
-        "Raven":    { hp: -1, armor: -1, magic: -1 },
-        "Snail":    { hp: 0, armor: 5, magic: 0 },
-        "Tortoise": { hp: -10, armor: 10, magic: 0 }
-      };
-
       // UPDATED: Weapon data
       const weaponData = [
         { name: "Bloody Sword", img: "weapons/bloody-sword.png" },
@@ -638,43 +611,10 @@
         { name: "Scythe", img: "weapons/scythe.png" },
       ];
 
-      // UPDATED: Get references to ALL meters and labels
+      // UPDATED: Get references to elements that will change
       const hpLabel = document.querySelector(".meter-hp .meter-label span:nth-child(2)");
+      // UPDATED: Get the HP row itself, not the parent container
       const hpMeterRow = document.querySelector(".meter-row.meter-hp");
-      const armorLabel = document.querySelector(".meter-armor .meter-label span:nth-child(2)");
-      const armorMeterRow = document.querySelector(".meter-row.meter-armor");
-      const magicLabel = document.querySelector(".meter-magic .meter-label span:nth-child(2)");
-      const magicMeterRow = document.querySelector(".meter-row.meter-magic");
-
-
-      // NEW: Function to update all meter bars and labels
-      function updateMeters() {
-        // Apply changes and clamp stats
-        // Max stats cannot go below 1, current stats cannot go below 0
-        currentStats.maxHp = Math.max(1, currentStats.maxHp);
-        currentStats.hp = Math.max(0, currentStats.hp);
-        currentStats.maxArmor = Math.max(1, currentStats.maxArmor);
-        currentStats.armor = Math.max(0, currentStats.armor);
-        currentStats.maxMagic = Math.max(1, currentStats.maxMagic);
-        currentStats.magic = Math.max(0, currentStats.magic);
-
-        // Ensure current stats don't exceed new max stats
-        currentStats.hp = Math.min(currentStats.hp, currentStats.maxHp);
-        currentStats.armor = Math.min(currentStats.armor, currentStats.maxArmor);
-        currentStats.magic = Math.min(currentStats.magic, currentStats.maxMagic);
-
-        // Update labels
-        hpLabel.textContent = `${currentStats.hp}/${currentStats.maxHp}`;
-        armorLabel.textContent = `${currentStats.armor}/${currentStats.maxArmor}`;
-        magicLabel.textContent = `${currentStats.magic}/${currentStats.maxMagic}`;
-
-        // Update meter row widths (relative to base of 20)
-        // This makes the bars grow or shrink
-        hpMeterRow.style.width = `${(currentStats.maxHp / 20) * 100}%`;
-        armorMeterRow.style.width = `${(currentStats.maxArmor / 20) * 100}%`;
-        magicMeterRow.style.width = `${(currentStats.maxMagic / 20) * 100}%`;
-      }
-
 
       // Function to reset the info panel to its default state
       function resetInfoPanel() {
@@ -707,14 +647,13 @@
           const animal = img ? img.alt : "This animal";
           const imgSrc = img ? img.src : "";
 
-          // UPDATED: Added data-animal-name to the eat button
           infoPanel.innerHTML = `
             <div class="info-panel-content">
               <div class="info-title">${animal}</div>
               <div class="info-body">What will you do with this ${animal}?</div>
             </div>
             <div class="info-panel-actions">
-              <button class="btn-action btn-eat" data-action="eat" data-animal-name="${animal}" title="Eat">🔪</button>
+              <button class="btn-action btn-eat" data-action="eat" title="Eat">🔪</button>
               <button class="btn-action btn-keep" data-action="keep" data-img-src="${imgSrc}" data-animal-name="${animal}" title="Keep">🫴</button>
             </div>
           `;
@@ -732,7 +671,7 @@
           const action = button.dataset.action;
 
           if (action === "eat") {
-            // UPDATED: New dynamic stat logic
+            // ... existing eat logic ...
             if (hasEaten) {
               const infoBody = infoPanel.querySelector(".info-body");
               if (infoBody) {
@@ -741,32 +680,12 @@
               }
               return;
             }
-
-            const animalName = button.dataset.animalName;
-            const stats = animalEatStats[animalName];
-
-            if (stats) {
-              // Apply stat changes
-              currentStats.hp += stats.hp;
-              currentStats.maxHp += stats.hp;
-              currentStats.armor += stats.armor;
-              currentStats.maxArmor += stats.armor;
-              currentStats.magic += stats.magic;
-              currentStats.maxMagic += stats.magic;
-
-              // Update the DOM
-              updateMeters();
-
-            } else {
-              console.error("No stats found for animal:", animalName);
-            }
-
-            // Mark as eaten and hide
             hasEaten = true;
+            hpLabel.textContent = "30/30"; // Update HP text
+            hpMeterRow.style.width = "125%";
             currentSelectedCell.classList.add("hidden"); // Hide the icon
             resetInfoPanel();
             checkGameEnd(); // Check if game state should change
-
 
           } else if (action === "keep") {
             // ... existing keep logic ...
@@ -962,5 +881,6 @@
     </script>
   </body>
 </html>
+
 
 
