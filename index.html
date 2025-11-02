@@ -197,28 +197,7 @@
       }
       /* --- End Action Button Styles --- */
 
-      /* --- NEW: Stats Row --- */
-      .stats-row {
-        padding: 4px 12px 0;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around; /* Distribute stats evenly */
-        align-items: center;
-        gap: 16px;
-      }
-      .stat-item {
-        font-size: 0.9rem; /* Increased from 0.7rem */
-        font-weight: 500;
-        color: rgba(255, 255, 255, 0.95);
-        text-transform: uppercase;
-        white-space: nowrap;
-      }
-      .stat-item span {
-        color: rgba(255, 255, 255, 0.85); /* slightly brighter */
-        font-weight: 400;
-        margin-left: 6px;
-      }
-      /* --- End Stats Row --- */
+      /* --- REMOVED: Stats Row --- */
 
       .icons {
         display: grid;
@@ -513,12 +492,7 @@
           </div>
           <!-- Action buttons will be added here by JS -->
         </div>
-        <!-- NEW: Stats Row -->
-        <div class="stats-row">
-          <div class="stat-item">HP:<span>20/20</span></div>
-          <div class="stat-item">Armor:<span>20/20</span></div>
-          <div class="stat-item">Magic:<span>20/20</span></div>
-        </div>
+        <!-- REMOVED: Stats Row -->
         <div class="icons" id="icon-grid">
           <div class="icon-cell">
             <img src="animals/bear-head.png" alt="Bear" />
@@ -863,6 +837,7 @@
     </script>
   </body>
 </html>
+
 
 
 
