@@ -2,205 +2,203 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Mobile Game UI – Polished Refresh</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Mobile Game UI – Bordered Top Window</title>
     <style>
       :root {
-        /* base surface + brand */
-        --bg: radial-gradient(circle at top, #0f172a 0%, #020617 55%, #000 100%);
-        --surface: rgba(9, 11, 19, 0.48);
-        --surface-solid: rgba(11, 15, 25, 0.9);
-        --accent: #f97316;
-        --accent-soft: rgba(249, 115, 22, 0.16);
-        --panel-border: rgba(236, 252, 255, 0.08);
-        --panel-bg: rgba(2, 6, 23, 0.28);
-        --stroke: rgba(255, 255, 255, 0.05);
+        --bg: #000;
+        --accent: #ffd500;
+        --panel-border: rgba(255, 213, 0, 0.4);
+        --panel-bg: rgba(0, 0, 0, 0.32);
         --safe-top: env(safe-area-inset-top, 0px);
         --safe-bottom: env(safe-area-inset-bottom, 0px);
-        --top-window-border: rgba(252, 211, 77, 0.6);
-        --purple: #a855f7;
+        --top-window-border: #991b1b; /* dark red */
+        --purple: #7c3aed;
         --teal: #14b8a6;
-        --pink: #f43f5e;
-        --white: #e2e8f0;
+        --pink: #ec4899;
+        --white: #fff;
         --eat-red: #ef4444;
         --keep-green: #22c55e;
-        --glow: 0 20px 40px rgba(120, 113, 255, 0.35);
-        --radius-lg: 16px;
-        --radius-md: 12px;
       }
       * {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
       }
+      /* UPDATED: Removed fixed height */
       html,
       body {
-        height: 100%;
+        height: auto;
         background: #000;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
       }
       body {
-        min-height: 100vh;
+        min-height: 100vh; /* Ensures black BG fills screen */
         display: flex;
         justify-content: center;
-        background: radial-gradient(circle, #020617 0%, #000 85%);
+        background: #000;
       }
       .app-shell {
         width: 100vw;
         max-width: 540px;
-        min-height: 100vh;
-        background: linear-gradient(160deg, rgba(15, 23, 42, 0.65), rgba(2, 6, 23, 0.1));
+        /* UPDATED: Removed min-height to fit content */
+        /* min-height: 100vh; */
+        background: #000;
         display: flex;
         flex-direction: column;
         padding-bottom: calc(0px + var(--safe-bottom));
-        backdrop-filter: blur(18px);
       }
       .top-bar {
-        background: radial-gradient(circle at 15% 10%, rgba(248, 250, 252, 0.22) 0%, rgba(250, 204, 21, 0.9) 38%, rgba(194, 65, 12, 1) 100%);
+        background: linear-gradient(to bottom, #ffd500, #d98200);
         height: 65px;
         padding-top: var(--safe-top);
         display: flex;
         align-items: center;
         justify-content: center;
         padding-inline: 16px;
-        box-shadow: 0 8px 24px rgba(240, 171, 0, 0.35);
-        border-bottom: 1px solid rgba(254, 249, 195, 0.45);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
         z-index: 10;
       }
+
       .top-buttons {
         display: flex;
-        gap: 16px;
+        gap: 22px;
       }
+
       .top-btn {
-        width: 54px;
-        height: 54px;
-        border-radius: 18px;
-        border: 1.2px solid rgba(248, 250, 252, 0.4);
-        background: radial-gradient(circle at 30% 30%, rgba(2, 6, 23, 1) 0%, rgba(15, 23, 42, 0.45) 100%);
+        width: 55px;
+        height: 55px;
+        padding: 0;
+        border-radius: 14px;
+        border-width: 3px;
+        border-style: solid;
+        background: #000;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        box-shadow: inset 0 1px 5px rgba(255, 255, 255, 0.12), 0 5px 18px rgba(2, 6, 23, 0.4);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4),
+          0 4px 10px rgba(0, 0, 0, 0.25);
         cursor: pointer;
-        transition: transform 0.12s ease-out, box-shadow 0.12s ease-out;
+        transition: transform 0.1s ease-out;
       }
-      .top-btn:hover {
-        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.6), inset 0 -5px 10px rgba(255, 255, 255, 0.04);
-      }
+
       .top-btn:active {
-        transform: translateY(1.5px) scale(0.975);
+        transform: scale(0.92);
       }
+
       .top-btn.purple {
-        outline: 1.2px solid rgba(168, 85, 247, 0.52);
-        box-shadow: 0 0 14px rgba(168, 85, 247, 0.25);
+        border-color: var(--purple);
       }
       .top-btn.teal {
-        outline: 1.2px solid rgba(20, 184, 166, 0.52);
-        box-shadow: 0 0 14px rgba(45, 212, 191, 0.32);
+        border-color: var(--teal);
       }
       .top-btn.pink {
-        outline: 1.2px solid rgba(244, 63, 94, 0.52);
-        box-shadow: 0 0 14px rgba(244, 63, 94, 0.25);
+        border-color: var(--pink);
       }
       .top-btn.white {
-        outline: 1.2px solid rgba(226, 232, 240, 0.72);
-        box-shadow: 0 0 16px rgba(241, 245, 249, 0.55);
+        border-color: var(--white);
       }
+
       .top-btn img {
-        height: 64%;
-        width: 64%;
+        height: 65%;
+        width: 65%;
         object-fit: contain;
-        filter: drop-shadow(0 4px 10px rgba(15, 23, 42, 0.8));
       }
+
       .top-blank-space {
         height: clamp(200px, 26vh, 300px);
         margin: 10px 10px 0;
-        background: radial-gradient(circle at 10% 10%, rgba(236, 252, 203, 0.04) 0%, rgba(15, 23, 42, 0.28) 55%, rgba(2, 6, 23, 0.35) 100%);
-        border: 1px solid rgba(245, 158, 11, 0.38);
-        border-radius: 20px;
-        box-shadow: 0 20px 35px rgba(0, 0, 0, 0.22);
+        background: rgba(0, 0, 0, 0.35);
+        border: 2px solid var(--top-window-border);
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 18px 20px 20px;
+        padding: 20px;
         text-align: center;
-        color: rgba(241, 245, 249, 0.9);
+        color: rgba(255, 255, 255, 0.85);
         font-size: 1.05rem;
-        line-height: 1.35;
-        letter-spacing: -0.01em;
+        line-height: 1.5;
       }
+
       .game-shell {
         display: flex;
         flex-direction: column;
         gap: 6px;
       }
-      /* Info panel */
+
+      /* --- Info Panel styles --- */
       .info-panel {
-        margin: 12px 10px 3px;
-        background: radial-gradient(circle, rgba(15, 23, 42, 0.5) 0%, rgba(2, 6, 23, 0.1) 100%);
-        border: 1px solid rgba(148, 163, 184, 0.12);
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
-        border-radius: 14px;
+        margin: 10px 10px 3px;
+        background: rgba(0, 0, 0, 0.45);
+        border: 1px solid var(--panel-border);
+        border-radius: 12px;
         padding: 10px 14px 12px;
         display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
+        flex-direction: row; /* Horizontal layout */
+        justify-content: space-between; /* Pushes content and actions apart */
+        align-items: center; /* Vertically centers content */
         gap: 10px;
-        min-height: 58px;
+        min-height: 58px; /* Maintain consistent height */
       }
       .info-panel-content {
         display: flex;
         flex-direction: column;
         gap: 4px;
       }
-      .info-title {
-        font-size: 0.78rem;
-        color: rgba(244, 244, 245, 1);
-        letter-spacing: 0.025em;
-        text-transform: uppercase;
-      }
-      .info-body {
-        font-size: 0.7rem;
-        line-height: 1.25;
-        color: rgba(226, 232, 240, 0.75);
-      }
       .info-panel-actions {
         display: flex;
         gap: 8px;
-        flex-shrink: 0;
+        flex-shrink: 0; /* Prevents buttons from shrinking */
       }
+      .info-title {
+        font-size: 0.85rem;
+        color: #fff;
+      }
+      .info-body {
+        font-size: 0.72rem;
+        line-height: 1.25;
+        color: rgba(255, 255, 255, 0.85);
+      }
+
+      /* --- Action Button Styles (square) --- */
       .btn-action {
-        background: radial-gradient(circle, rgba(15, 23, 42, 0.3) 0%, rgba(15, 23, 42, 0) 100%);
+        background: rgba(0, 0, 0, 0.5);
         border: 1px solid;
-        border-radius: 10px;
+        border-radius: 6px;
+        color: white;
         width: 36px;
         height: 36px;
+        padding: 0;
+        font-size: 1.2rem; /* Make emoji larger */
+        cursor: pointer;
+        transition: background-color 0.15s ease;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.25rem;
-        cursor: pointer;
-        transition: transform 0.14s ease-out, box-shadow 0.14s ease-out;
-      }
-      .btn-action:active {
-        transform: scale(0.9);
+        line-height: 1;
       }
       .btn-eat {
-        border-color: rgba(239, 68, 68, 0.7);
-        box-shadow: 0 3px 10px rgba(239, 68, 68, 0.35);
+        border-color: var(--eat-red);
+        color: var(--eat-red);
       }
       .btn-eat:hover {
-        background: rgba(239, 68, 68, 0.12);
+        background: rgba(239, 68, 68, 0.2);
       }
       .btn-keep {
-        border-color: rgba(34, 197, 94, 0.7);
-        box-shadow: 0 3px 10px rgba(34, 197, 94, 0.35);
+        border-color: var(--keep-green);
+        color: var(--keep-green);
       }
       .btn-keep:hover {
-        background: rgba(34, 197, 94, 0.12);
+        background: rgba(34, 197, 94, 0.2);
       }
-      /* meters */
+      /* --- End Action Button Styles --- */
+
       .meters {
         padding: 2px 10px 0;
         display: flex;
@@ -213,46 +211,46 @@
         display: flex;
         flex-direction: column;
         gap: 5px;
+        /* UPDATED: Add transition for width change */
+        transition: width 0.4s ease-out;
       }
       .meter-row {
         display: flex;
         align-items: center;
         gap: 6px;
+        /* UPDATED: Add transition for width change */
+        transition: width 0.4s ease-out;
       }
       .meter-label {
         width: 110px;
-        font-size: 0.65rem;
+        font-size: 0.7rem;
         text-transform: uppercase;
-        color: rgba(226, 232, 240, 0.95);
+        color: rgba(255, 255, 255, 0.9);
         display: flex;
         justify-content: space-between;
-        letter-spacing: 0.01em;
       }
       .meter-bar {
         flex: 1;
-        height: 10px;
-        background: radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.4) 0%, rgba(255, 255, 255, 0.01) 100%);
-        border: 1px solid rgba(255, 255, 255, 0.035);
+        height: 9px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.03);
         border-radius: 999px;
         overflow: hidden;
-        position: relative;
       }
       .meter-fill {
         height: 100%;
         width: 100%;
-        border-radius: inherit;
-        box-shadow: inset 0 -1px 3px rgba(15, 23, 42, 0.48);
       }
       .meter-hp .meter-fill {
-        background: linear-gradient(90deg, rgba(248, 113, 113, 1) 0%, rgba(239, 68, 68, 1) 52%, rgba(220, 38, 38, 1) 100%);
+        background: #ff3945;
       }
       .meter-armor .meter-fill {
-        background: linear-gradient(90deg, rgba(59, 130, 246, 1) 0%, rgba(59, 130, 246, 0.2) 100%);
+        background: #3b82f6;
       }
       .meter-magic .meter-fill {
-        background: linear-gradient(90deg, rgba(251, 146, 60, 1) 0%, rgba(249, 115, 22, 0.3) 100%);
+        background: #f97316;
       }
-      /* icons grid */
+
       .icons {
         display: grid;
         grid-template-columns: repeat(4, minmax(54px, 1fr));
@@ -261,31 +259,27 @@
         padding: 4px 8px 0;
       }
       .icon-cell {
-        background: radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.4) 0%, rgba(2, 6, 23, 0.1) 100%);
-        border: 1px solid rgba(148, 163, 184, 0.14);
-        border-radius: 14px;
+        background: var(--panel-bg);
+        border: 1px solid var(--panel-border);
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: opacity 0.25s ease, transform 0.25s ease, box-shadow 0.15s ease-out;
+        transition: opacity 0.3s ease, transform 0.3s ease;
         cursor: pointer;
-        box-shadow: 0 3px 16px rgba(15, 23, 42, 0.25);
-      }
-      .icon-cell:hover {
-        box-shadow: 0 5px 20px rgba(236, 252, 203, 0.15);
-        transform: translateY(-1.5px);
       }
       .icon-cell img {
-        width: 64%;
-        max-height: 64%;
+        width: 62%;
+        max-height: 62%;
         object-fit: contain;
+        pointer-events: none;
       }
       .icon-cell.hidden {
         opacity: 0;
-        transform: scale(0.72);
+        transform: scale(0.5);
         pointer-events: none;
       }
-      /* character section */
+
       .character-wrap {
         display: flex;
         align-items: center;
@@ -302,46 +296,36 @@
       .side-cell {
         width: 90%;
         aspect-ratio: 1/1;
-        background: radial-gradient(circle, rgba(15, 23, 42, 0.6) 0%, rgba(2, 6, 23, 0.1) 100%);
-        border: 1px solid rgba(148, 163, 184, 0.22);
-        border-radius: 14px;
-        padding: 4px;
+        background: var(--panel-bg);
+        border: 1px solid var(--panel-border);
+        border-radius: 11px;
+        padding: 6px;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
       }
       .side-cell img {
         width: 100%;
         height: 100%;
         object-fit: contain;
       }
+
       .character-frame {
         flex: 1 1 auto;
         max-width: 280px;
         aspect-ratio: 1/1;
-        background: radial-gradient(circle at 45% 35%, rgba(248, 250, 252, 0.1) 0%, rgba(15, 23, 42, 0.08) 42%, rgba(15, 23, 42, 0) 75%), linear-gradient(165deg, rgba(15, 23, 42, 0.3), rgba(2, 6, 23, 0));
-        border: 1px solid rgba(241, 245, 249, 0.05);
-        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
         overflow: hidden;
-        position: relative;
-      }
-      .character-frame::after {
-        content: "";
-        position: absolute;
-        inset: 6px;
-        border: 1px solid rgba(15, 23, 42, 0.18);
-        border-radius: inherit;
-        pointer-events: none;
       }
       .character-frame img {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        filter: saturate(1.12);
       }
       .action-button {
         margin-left: auto;
@@ -351,40 +335,30 @@
         height: 78px;
         flex-shrink: 0;
         border-radius: 999px;
-        background: radial-gradient(circle at 30% 30%, #fff7ed 0%, #fdba74 55%, #ea580c 95%);
-        border: 1px solid rgba(255, 247, 237, 0.9);
-        box-shadow: 0 10px 25px rgba(234, 88, 12, 0.55);
-        transition: transform 0.12s ease-out, width 0.12s ease-out, height 0.12s ease-out, box-shadow 0.12s ease-out;
+        background: radial-gradient(
+          circle at 30% 30%,
+          #fff3b0,
+          #ffb800 55%,
+          #d98200 95%
+        );
+        border: 1px solid rgba(255, 255, 255, 0.52);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        /* UPDATED: New transition for snappier press */
+        transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
       }
+      /* UPDATED: New active state for better button press feel */
       .action-button:active {
-        transform: scale(0.92);
-        box-shadow: 0 4px 14px rgba(255, 163, 102, 0.45);
+        transform: scale(0.9) translateY(2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
       }
-      @keyframes pulse-burst {
-        0% {
-          transform: scale(1);
-          box-shadow: 0 12px 25px rgba(251, 146, 60, 0.35);
-        }
-        30% {
-          transform: scale(1.08);
-          box-shadow: 0 20px 40px rgba(251, 146, 60, 0.75);
-        }
-        60% {
-          transform: scale(1.02);
-          box-shadow: 0 12px 25px rgba(251, 146, 60, 0.35);
-        }
-        100% {
-          transform: scale(1);
-          box-shadow: 0 12px 25px rgba(234, 88, 12, 0.65);
-        }
-      }
-      .action-button.is-pulsing {
-        animation: pulse-burst 0.45s ease-out;
-      }
+      
+      /* REMOVED: pulse-burst keyframes and .is-pulsing class */
+      
       .character-wrap + * {
         display: none;
       }
-      /* modal */
+
+      /* --- Modal Styles (unchanged) --- */
       .modal-overlay {
         position: fixed;
         top: 0;
@@ -406,15 +380,15 @@
         pointer-events: auto;
       }
       .modal-content {
-        background: radial-gradient(circle, rgba(15, 23, 42, 0.85) 0%, rgba(2, 6, 23, 1) 100%);
-        border: 2px solid rgba(226, 232, 240, 0.6);
-        border-radius: 18px;
-        padding: 24px 24px 28px;
-        padding-top: 42px;
+        background: #1a1a1a;
+        border: 3px solid var(--white);
+        border-radius: 16px;
+        padding: 24px;
+        padding-top: 40px;
         width: 90%;
         max-width: 400px;
         position: relative;
-        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         transform: scale(0.95);
         transition: transform 0.25s ease-out;
       }
@@ -423,47 +397,46 @@
       }
       .modal-close {
         position: absolute;
-        top: 10px;
+        top: 8px;
         right: 12px;
-        background: rgba(15, 23, 42, 0.25);
-        border: 1px solid rgba(226, 232, 240, 0.5);
-        border-radius: 999px;
-        width: 32px;
-        height: 32px;
-        color: rgba(248, 250, 252, 0.9);
-        font-size: 1.85rem;
-        font-weight: 500;
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 2.2rem;
+        font-weight: bold;
         cursor: pointer;
         line-height: 1;
-        padding: 0;
+        padding: 4px;
+      }
+      .modal-close:hover {
+        color: white;
       }
       .modal-title {
-        font-size: 1.3rem;
+        font-size: 1.4rem;
         font-weight: 600;
-        color: rgba(248, 250, 252, 0.95);
-        margin-bottom: 10px;
+        color: var(--accent);
+        margin-bottom: 12px;
         line-height: 1.2;
       }
       .modal-body {
-        font-size: 0.9rem;
-        color: rgba(226, 232, 240, 0.85);
+        font-size: 0.95rem;
+        color: rgba(255, 255, 255, 0.9);
         line-height: 1.6;
       }
       .modal-content.border-purple {
-        border-color: rgba(168, 85, 247, 0.85);
-        box-shadow: 0 25px 55px rgba(168, 85, 247, 0.25);
+        border-color: var(--purple);
       }
       .modal-content.border-teal {
-        border-color: rgba(45, 212, 191, 0.7);
-        box-shadow: 0 25px 55px rgba(45, 212, 191, 0.35);
+        border-color: var(--teal);
       }
       .modal-content.border-pink {
-        border-color: rgba(244, 63, 94, 0.7);
-        box-shadow: 0 25px 55px rgba(244, 63, 94, 0.35);
+        border-color: var(--pink);
       }
       .modal-content.border-white {
-        border-color: rgba(241, 245, 249, 0.8);
+        border-color: var(--white);
       }
+      /* --- End Modal Styles --- */
+
       @media (max-width: 420px) {
         .app-shell {
           max-width: 100vw;
@@ -476,31 +449,51 @@
     </style>
   </head>
   <body>
-    <!-- structure intentionally unchanged -->
     <div class="app-shell">
       <div class="top-bar">
         <div class="top-buttons">
-          <button class="top-btn purple" aria-label="Crystal Ball" data-modal-target="#modal-purple">
+          <button
+            class="top-btn purple"
+            aria-label="Crystal Ball"
+            data-modal-target="#modal-purple"
+          >
             <img src="New Folder/crystal-ball.png" alt="Crystal Ball" />
           </button>
-          <button class="top-btn teal" aria-label="Shamrock" data-modal-target="#modal-teal">
+          <button
+            class="top-btn teal"
+            aria-label="Shamrock"
+            data-modal-target="#modal-teal"
+          >
             <img src="New Folder/shamrock.png" alt="Shamrock" />
           </button>
-          <button class="top-btn pink" aria-label="Nested Hearts" data-modal-target="#modal-pink">
+          <button
+            class="top-btn pink"
+            aria-label="Nested Hearts"
+            data-modal-target="#modal-pink"
+          >
             <img src="New Folder/nested-hearts.png" alt="Nested Hearts" />
           </button>
-          <button class="top-btn white" aria-label="Elf Helmet" data-modal-target="#modal-white">
+          <button
+            class="top-btn white"
+            aria-label="Elf Helmet"
+            data-modal-target="#modal-white"
+          >
             <img src="New Folder/elf-helmet.png" alt="Elf Helmet" />
           </button>
         </div>
       </div>
-      <div class="top-blank-space">Choose one animal to eat, and another to keep as a companion.</div>
+      <div class="top-blank-space">
+        Choose one animal to eat, and another to keep as a companion.
+      </div>
       <div class="game-shell">
         <div class="info-panel" id="icon-info">
           <div class="info-panel-content">
             <div class="info-title">Companion Info</div>
-            <div class="info-body">Tap an animal below to learn why it's a great companion.</div>
+            <div class="info-body">
+              Tap an animal below to learn why it's a great companion.
+            </div>
           </div>
+          <!-- Action buttons will be added here by JS -->
         </div>
         <div class="meters">
           <div class="meters-inner">
@@ -509,27 +502,44 @@
               <div class="meter-bar"><div class="meter-fill"></div></div>
             </div>
             <div class="meter-row meter-armor">
-              <span class="meter-label"><span>Armor</span><span>20/20</span></span>
+              <span class="meter-label"
+                ><span>Armor</span><span>20/20</span></span
+              >
               <div class="meter-bar"><div class="meter-fill"></div></div>
             </div>
             <div class="meter-row meter-magic">
-              <span class="meter-label"><span>Magic</span><span>20/20</span></span>
+              <span class="meter-label"
+                ><span>Magic</span><span>20/20</span></span
+              >
               <div class="meter-bar"><div class="meter-fill"></div></div>
             </div>
           </div>
         </div>
         <div class="icons" id="icon-grid">
-          <div class="icon-cell"><img src="animals/bear-head.png" alt="Bear" /></div>
-          <div class="icon-cell"><img src="animals/frog.png" alt="Frog" /></div>
-          <div class="icon-cell"><img src="animals/jellyfish.png" alt="Jellyfish" /></div>
+          <div class="icon-cell">
+            <img src="animals/bear-head.png" alt="Bear" />
+          </div>
+          <div class="icon-cell">
+            <img src="animals/frog.png" alt="Frog" />
+          </div>
+          <div class="icon-cell">
+            <img src="animals/jellyfish.png" alt="Jellyfish" />
+          </div>
           <div class="icon-cell"><img src="animals/pig.png" alt="Pig" /></div>
           <div class="icon-cell"><img src="animals/rat.png" alt="Rat" /></div>
-          <div class="icon-cell"><img src="animals/raven.png" alt="Raven" /></div>
-          <div class="icon-cell"><img src="animals/snail.png" alt="Snail" /></div>
-          <div class="icon-cell"><img src="animals/tortoise.png" alt="Tortoise" /></div>
+          <div class="icon-cell">
+            <img src="animals/raven.png" alt="Raven" />
+          </div>
+          <div class="icon-cell">
+            <img src="animals/snail.png" alt="Snail" />
+          </div>
+          <div class="icon-cell">
+            <img src="animals/tortoise.png" alt="Tortoise" />
+          </div>
         </div>
         <div class="character-wrap">
           <div class="side-column-left" id="companion-slots">
+            <!-- UPDATED: One slot for logic, others are placeholders -->
             <div class="side-cell" id="companion-slot-1"></div>
             <div class="side-cell" id="companion-slot-2"></div>
             <div class="side-cell" id="companion-slot-3"></div>
@@ -537,44 +547,76 @@
           <div class="character-frame">
             <img src="New Folder/darkelf.jpg" alt="Character" />
           </div>
-          <button class="action-button" type="button" aria-label="Primary Action"></button>
+          <button
+            class="action-button"
+            type="button"
+            aria-label="Primary Action"
+          ></button>
         </div>
       </div>
     </div>
-    <!-- modals -->
+
+    <!-- Modal HTML Structure (unchanged) -->
     <div id="modal-purple" class="modal-overlay hidden">
       <div class="modal-content border-purple">
         <button class="modal-close" aria-label="Close modal">&times;</button>
         <div class="modal-title">Crystal Ball</div>
-        <div class="modal-body">This is the modal for the Crystal Ball. You can see visions of the future here.</div>
+        <div class="modal-body">
+          This is the modal for the Crystal Ball. You can see visions of the
+          future here.
+        </div>
       </div>
     </div>
     <div id="modal-teal" class="modal-overlay hidden">
       <div class="modal-content border-teal">
         <button class="modal-close" aria-label="Close modal">&times;</button>
         <div class="modal-title">Shamrock</div>
-        <div class="modal-body">This is the modal for the Shamrock. It brings you good luck in your adventures.</div>
+        <div class="modal-body">
+          This is the modal for the Shamrock. It brings you good luck in your
+          adventures.
+        </div>
       </div>
     </div>
     <div id="modal-pink" class="modal-overlay hidden">
       <div class="modal-content border-pink">
         <button class="modal-close" aria-label="Close modal">&times;</button>
         <div class="modal-title">Nested Hearts</div>
-        <div class="modal-body">This is the modal for the Nested Hearts. It manages your relationships and alliances.</div>
+        <div class="modal-body">
+          This is the modal for the Nested Hearts. It manages your relationships
+          and alliances.
+        </div>
       </div>
     </div>
     <div id="modal-white" class="modal-overlay hidden">
       <div class="modal-content border-white">
         <button class="modal-close" aria-label="Close modal">&times;</button>
         <div class="modal-title">Elf Helmet</div>
-        <div class="modal-body">This is the modal for the Elf Helmet. View your inventory, stats, and equipment here.</div>
+        <div class="modal-body">
+          This is the modal for the Elf Helmet. View your inventory, stats, and
+          equipment here.
+        </div>
       </div>
     </div>
+    <!-- End Modal HTML -->
+
     <script>
+      // --- UPDATED: Icon Info Panel Script ---
       const infoPanel = document.getElementById("icon-info");
       const icons = document.querySelectorAll(".icon-cell");
-      const companionSlots = document.querySelectorAll("#companion-slots .side-cell");
+      // UPDATED: No longer need all slots, but ID is used later
+      // const companionSlots = document.querySelectorAll("#companion-slots .side-cell");
       let currentSelectedCell = null;
+
+      // UPDATED: Add game state variables
+      let hasEaten = false;
+      let hasKept = false;
+
+      // UPDATED: Get references to elements that will change
+      const hpLabel = document.querySelector(".meter-hp .meter-label span:nth-child(2)");
+      // UPDATED: Get the HP row itself, not the parent container
+      const hpMeterRow = document.querySelector(".meter-row.meter-hp");
+
+      // Function to reset the info panel to its default state
       function resetInfoPanel() {
         infoPanel.innerHTML = `
           <div class="info-panel-content">
@@ -584,17 +626,27 @@
         `;
         currentSelectedCell = null;
       }
+
+      // Add click listener to each icon cell
       icons.forEach((cell) => {
         cell.addEventListener("click", () => {
+          // Do nothing if the cell is already hidden
           if (cell.classList.contains("hidden")) return;
+          
+          // Do nothing if game is "over"
+          if (hasEaten && hasKept) return;
+
+          // If this cell is already selected, deselect it and reset panel
           if (currentSelectedCell === cell) {
             resetInfoPanel();
             return;
           }
-          currentSelectedCell = cell;
+
+          currentSelectedCell = cell; // Store the clicked cell
           const img = cell.querySelector("img");
           const animal = img ? img.alt : "This animal";
           const imgSrc = img ? img.src : "";
+
           infoPanel.innerHTML = `
             <div class="info-panel-content">
               <div class="info-title">${animal}</div>
@@ -607,67 +659,118 @@
           `;
         });
       });
+
+      // Use event delegation on the info panel to handle button clicks
       infoPanel.addEventListener("click", (e) => {
         const button = e.target.closest("[data-action]");
         if (!button || !currentSelectedCell) return;
+
         const action = button.dataset.action;
+
         if (action === "eat") {
-          currentSelectedCell.classList.add("hidden");
-          resetInfoPanel();
-        } else if (action === "keep") {
-          let emptySlot = null;
-          for (const slot of companionSlots) {
-            if (!slot.querySelector("img")) {
-              emptySlot = slot;
-              break;
-            }
-          }
-          if (emptySlot) {
-            const imgSrc = button.dataset.imgSrc;
-            const animalName = button.dataset.animalName;
-            emptySlot.innerHTML = `<img src="${imgSrc}" alt="${animalName}" />`;
-            currentSelectedCell.classList.add("hidden");
-            resetInfoPanel();
-          } else {
+          // UPDATED: Eat logic
+          if (hasEaten) {
             const infoBody = infoPanel.querySelector(".info-body");
             if (infoBody) {
-              infoBody.textContent = "Your companion slots are full!";
+              infoBody.textContent = "You can only eat one animal.";
               infoBody.style.color = "var(--eat-red)";
             }
+            return;
+          }
+          hasEaten = true;
+          hpLabel.textContent = "30/30"; // Update HP text
+          // UPDATED: Make only the HP meter row longer (125% of 64% parent = 80% total)
+          hpMeterRow.style.width = "125%";
+          currentSelectedCell.classList.add("hidden"); // Hide the icon
+          resetInfoPanel();
+          checkGameEnd(); // Check if game state should change
+
+        } else if (action === "keep") {
+          // UPDATED: Keep logic
+          if (hasKept) {
+            const infoBody = infoPanel.querySelector(".info-body");
+            if (infoBody) {
+              infoBody.textContent = "You can only keep one animal.";
+              infoBody.style.color = "var(--eat-red)";
+            }
+            return;
+          }
+          
+          // Find the single slot
+          const slotToFill = document.getElementById("companion-slot-1");
+          
+          if (slotToFill) {
+            const imgSrc = button.dataset.imgSrc;
+            const animalName = button.dataset.animalName;
+            
+            slotToFill.innerHTML = `<img src="${imgSrc}" alt="${animalName}" />`;
+            hasKept = true; // Set flag
+            
+            currentSelectedCell.classList.add("hidden"); // Hide the icon from the grid
+            resetInfoPanel();
+            checkGameEnd(); // Check if game state should change
           }
         }
       });
-      const actionBtn = document.querySelector(".action-button");
-      if (actionBtn) {
-        actionBtn.addEventListener("click", () => {
-          actionBtn.classList.remove("is-pulsing");
-          void actionBtn.offsetWidth;
-          actionBtn.classList.add("is-pulsing");
-        });
+      
+      // UPDATED: New function to check game state
+      function checkGameEnd() {
+        if (hasEaten && hasKept) {
+          // Hide all remaining icons
+          icons.forEach(cell => {
+            if (!cell.classList.contains("hidden")) {
+              cell.classList.add("hidden");
+            }
+          });
+          
+          // Reset info panel to a final state
+          infoPanel.innerHTML = `
+            <div class="info-panel-content">
+              <div class="info-title">Choices Made</div>
+              <div class="info-body">Your fate is sealed.</div>
+            </div>
+          `;
+          
+          // Update top text
+          const topText = document.querySelector('.top-blank-space');
+          if (topText) {
+              topText.textContent = "Your choices have been made.";
+          }
+        }
       }
+      // --- End Updated Icon Script ---
+
+      // --- REMOVED: Action Button Animation Script ---
+
+      // --- Modal Open/Close Script (Original) ---
       const openModalButtons = document.querySelectorAll("[data-modal-target]");
       const closeModalButtons = document.querySelectorAll(".modal-close");
       const overlays = document.querySelectorAll(".modal-overlay");
+
       function openModal(modal) {
-        if (!modal) return;
+        if (modal == null) return;
         modal.classList.remove("hidden");
       }
+
       function closeModal(modal) {
-        if (!modal) return;
+        if (modal == null) return;
         modal.classList.add("hidden");
       }
+
       openModalButtons.forEach((button) => {
         button.addEventListener("click", () => {
           const modal = document.querySelector(button.dataset.modalTarget);
           openModal(modal);
         });
       });
+
       closeModalButtons.forEach((button) => {
         button.addEventListener("click", () => {
           const modal = button.closest(".modal-overlay");
           closeModal(modal);
         });
       });
+
       overlays.forEach((overlay) => {
         overlay.addEventListener("click", (e) => {
           if (e.target === overlay) {
@@ -678,3 +781,4 @@
     </script>
   </body>
 </html>
+
