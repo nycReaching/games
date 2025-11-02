@@ -116,15 +116,38 @@
         border-radius: 16px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
         display: flex;
+        flex-direction: column; /* ADDED */
         align-items: center;
         justify-content: center;
-        padding: 20px;
+        padding: 10px; /* MODIFIED from 20px */
         text-align: center;
         color: rgba(255, 255, 255, 0.85);
         font-size: 1.05rem;
         line-height: 1.5;
         flex-shrink: 0; /* Prevent this from shrinking */
+        transition: all 0.3s ease; /* ADDED */
       }
+      
+      /* NEW: Style for the image inside the top-blank-space */
+      .top-blank-space img {
+          width: 100%;
+          height: 100%;
+          max-height: 180px; /* Control image height */
+          object-fit: cover;
+          border-radius: 8px;
+          margin-bottom: 12px;
+          flex-shrink: 1; /* Allow image to shrink if needed */
+          min-height: 0; /* Fix flexbox overflow issue */
+      }
+      /* NEW: Style for the text inside the top-blank-space */
+      .top-blank-space .adventure-text {
+          font-size: 1rem;
+          color: rgba(255, 255, 255, 0.9);
+          line-height: 1.4;
+          font-weight: 500;
+          flex-shrink: 0; /* Prevent text from shrinking */
+      }
+
 
       .game-shell {
         display: flex;
@@ -611,7 +634,7 @@
               <!-- NEW HP METER -->
               <div class="hp-meter" id="player-hp-meter">
                 <div class="hp-meter-fill" id="player-hp-fill"></div>
-                <div class="hp-meter-text" id="player-hp-text">10/10</div>
+                <div class="hp-meter-text"id="player-hp-text">10/10</div>
               </div>
               <!-- END HP METER -->
             </div>
@@ -706,12 +729,21 @@
 
       // Function to reset the info panel to its default state
       function resetInfoPanel() {
-        infoPanel.innerHTML = `
-          <div class="info-panel-content">
-            <div class="info-title">Companion Info</div>
-            <div class="info-body">Tap an animal below to learn why it's a great companion.</div>
-          </div>
-        `;
+        if (gameState === "animals") {
+          infoPanel.innerHTML = `
+            <div class="info-panel-content">
+              <div class="info-title">Companion Info</div>
+              <div class="info-body">Tap an animal below to learn why it's a great companion.</div>
+            </div>
+          `;
+        } else if (gameState === "weapons") {
+           infoPanel.innerHTML = `
+            <div class="info-panel-content">
+              <div class="info-title">Weapon Select</div>
+              <div class="info-body">Select a weapon.</div>
+            </div>
+          `;
+        }
         // UPDATED: Remove 'selected' class when resetting
         if (currentSelectedCell) {
           currentSelectedCell.classList.remove("selected");
@@ -853,11 +885,17 @@
                 <div class="info-body">${imgAlt} is yours.</div>
               </div>
             `;
-
+            
+            // *** MODIFICATION START ***
+            // Update the top blank space with the image and new text
             const topText = document.querySelector(".top-blank-space");
             if (topText) {
-              topText.textContent = "Your journey begins now.";
+              topText.innerHTML = `
+                <img src="places/dungeon-light.png" alt="Dungeon Entrance">
+                <div class="adventure-text">there's a world outside waiting..</div>
+              `;
             }
+            // *** MODIFICATION END ***
           }
         }
       });
@@ -978,6 +1016,3 @@ V
     </script>
   </body>
 </html>
-
-
-
