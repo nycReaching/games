@@ -48,6 +48,7 @@
         background: #000;
         display: flex;
         flex-direction: column;
+        min-height: 100vh; /* UPDATED: Ensures shell fills vertical height */
         /* padding-bottom: calc(0px + var(--safe-bottom)); */ /* REMOVED to avoid double padding */
       }
       .top-bar {
@@ -122,12 +123,14 @@
         color: rgba(255, 255, 255, 0.85);
         font-size: 1.05rem;
         line-height: 1.5;
+        flex-shrink: 0; /* Prevent this from shrinking */
       }
 
       .game-shell {
         display: flex;
         flex-direction: column;
         gap: 6px;
+        flex: 1; /* UPDATED: Makes game-shell grow to fill space */
       }
 
       /* --- Info Panel styles --- */
@@ -213,8 +216,14 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: opacity 0.3s ease, transform 0.3s ease;
+        transition: all 0.3s ease; /* UPDATED: transition all properties */
         cursor: pointer;
+      }
+      /* NEW: Highlight style for selected icon */
+      .icon-cell.selected {
+        border-width: 2px;
+        border-color: var(--accent);
+        box-shadow: 0 0 8px var(--accent);
       }
       .icon-cell img {
         width: 62%;
@@ -234,6 +243,7 @@
         justify-content: flex-start;
         gap: 12px;
         padding: 10px 12px 0 10px; /* MODIFIED: Removed bottom padding */
+        flex: 1; /* UPDATED: Makes character-wrap grow to fill space */
       }
       .side-column-left {
         flex: 0 0 13%;
@@ -299,6 +309,7 @@
         /* margin: 0 10px; */
         margin: 0; /* Make full width */
         box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.35); /* Add shadow */
+        flex-shrink: 0; /* Prevent this from shrinking */
       }
       .exp-meter {
         flex: 1 1 auto;
@@ -618,6 +629,10 @@
             <div class="info-body">Tap an animal below to learn why it's a great companion.</div>
           </div>
         `;
+        // UPDATED: Remove 'selected' class when resetting
+        if (currentSelectedCell) {
+          currentSelectedCell.classList.remove("selected");
+        }
         currentSelectedCell = null;
       }
 
@@ -628,11 +643,18 @@
           if (hasEaten && hasKept) return;
 
           if (currentSelectedCell === cell) {
-            resetInfoPanel();
+            resetInfoPanel(); // This will now also remove the class
             return;
           }
 
+          // UPDATED: Remove 'selected' class from the previous cell
+          if (currentSelectedCell) {
+            currentSelectedCell.classList.remove("selected");
+          }
+
           currentSelectedCell = cell;
+          currentSelectedCell.classList.add("selected"); // UPDATED: Add 'selected' class
+
           const img = cell.querySelector("img");
           const animal = img ? img.alt : "This animal";
           const imgSrc = img ? img.src : "";
@@ -670,7 +692,7 @@
             }
             hasEaten = true;
             currentSelectedCell.classList.add("hidden");
-            resetInfoPanel();
+            resetInfoPanel(); // This clears the 'selected' class
             checkGameEnd();
           } else if (action === "keep") {
             if (hasKept) {
@@ -692,7 +714,7 @@
               hasKept = true;
 
               currentSelectedCell.classList.add("hidden");
-              resetInfoPanel();
+              resetInfoPanel(); // This clears the 'selected' class
               checkGameEnd();
             }
           }
@@ -712,6 +734,9 @@
             allWeapons.forEach((cell) => {
               cell.classList.add("hidden");
             });
+
+            // UPDATED: Clear selection after equipping
+            resetInfoPanel();
 
             infoPanel.innerHTML = `
               <div class="info-panel-content">
@@ -737,7 +762,13 @@
           cell.innerHTML = `<img src="${weapon.img}" alt="${weapon.name}" />`;
 
           cell.addEventListener("click", () => {
+            // UPDATED: Handle selection highlighting for weapons
+            if (currentSelectedCell) {
+              currentSelectedCell.classList.remove("selected");
+            }
             currentSelectedCell = cell;
+            currentSelectedCell.classList.add("selected");
+
             infoPanel.innerHTML = `
               <div class="info-panel-content">
                 <div class="info-title">${weapon.name}</div>
@@ -808,6 +839,7 @@
         modal.classList.remove("hidden");
       }
 
+V
       function closeModal(modal) {
         if (modal == null) return;
         modal.classList.add("hidden");
@@ -837,7 +869,3 @@
     </script>
   </body>
 </html>
-
-
-
-
