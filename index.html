@@ -243,7 +243,7 @@
         justify-content: flex-start;
         gap: 12px;
         padding: 10px 12px 0 10px; /* MODIFIED: Removed bottom padding */
-        flex: 1; /* UPDATED: Makes character-wrap grow to fill space */
+        /* flex: 1; */ /* UPDATED: Removed flex: 1 to stop this from stretching */
       }
       .side-column-left {
         flex: 0 0 13%;
@@ -373,6 +373,7 @@
         margin: 0; /* Make full width */
         box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.35); /* Add shadow */
         flex-shrink: 0; /* Prevent this from shrinking */
+        margin-top: auto; /* UPDATED: This pushes the panel to the bottom of the flex container */
       }
       .exp-meter {
         flex: 1 1 auto;
@@ -977,5 +978,6 @@ V
     </script>
   </body>
 </html>
+
 
 
