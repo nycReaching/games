@@ -351,9 +351,9 @@
         transform: scale(0.9) translateY(2px);
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
       }
-      
+
       /* REMOVED: pulse-burst keyframes and .is-pulsing class */
-      
+
       .character-wrap + * {
         display: none;
       }
@@ -589,7 +589,15 @@
     </div>
     <div id="modal-white" class="modal-overlay hidden">
       <div class="modal-content border-white">
-      <script>
+        <button class="modal-close" aria-label="Close modal">&times;</button>
+        <div class="modal-title">Elf Helmet</div>
+        <div class="modal-body">
+          This is the modal for the Elf Helmet. It provides protection and looks
+          stylish.
+        </div>
+      </div>
+    </div>
+    <script>
       // --- UPDATED: Icon Info Panel Script ---
       const infoPanel = document.getElementById("icon-info");
       const iconGrid = document.getElementById("icon-grid");
@@ -601,6 +609,25 @@
       let hasKept = false;
       let gameState = "animals"; // "animals" or "weapons"
 
+      // NEW: Object to store current player stats
+      let currentStats = {
+        hp: 20, maxHp: 20,
+        armor: 20, maxArmor: 20,
+        magic: 20, maxMagic: 20
+      };
+
+      // NEW: Map for animal stat changes
+      const animalEatStats = {
+        "Bear":     { hp: 3, armor: 3, magic: -3 },
+        "Frog":     { hp: -1, armor: 0, magic: 6 },
+        "Jellyfish":{ hp: -3, armor: 0, magic: 11 },
+        "Pig":      { hp: 7, armor: 0, magic: -1 },
+        "Rat":      { hp: 1, armor: 1, magic: 0 },
+        "Raven":    { hp: -1, armor: -1, magic: -1 },
+        "Snail":    { hp: 0, armor: 5, magic: 0 },
+        "Tortoise": { hp: -10, armor: 10, magic: 0 }
+      };
+
       // UPDATED: Weapon data
       const weaponData = [
         { name: "Bloody Sword", img: "weapons/bloody-sword.png" },
@@ -611,10 +638,43 @@
         { name: "Scythe", img: "weapons/scythe.png" },
       ];
 
-      // UPDATED: Get references to elements that will change
+      // UPDATED: Get references to ALL meters and labels
       const hpLabel = document.querySelector(".meter-hp .meter-label span:nth-child(2)");
-      // UPDATED: Get the HP row itself, not the parent container
       const hpMeterRow = document.querySelector(".meter-row.meter-hp");
+      const armorLabel = document.querySelector(".meter-armor .meter-label span:nth-child(2)");
+      const armorMeterRow = document.querySelector(".meter-row.meter-armor");
+      const magicLabel = document.querySelector(".meter-magic .meter-label span:nth-child(2)");
+      const magicMeterRow = document.querySelector(".meter-row.meter-magic");
+
+
+      // NEW: Function to update all meter bars and labels
+      function updateMeters() {
+        // Apply changes and clamp stats
+        // Max stats cannot go below 1, current stats cannot go below 0
+        currentStats.maxHp = Math.max(1, currentStats.maxHp);
+        currentStats.hp = Math.max(0, currentStats.hp);
+        currentStats.maxArmor = Math.max(1, currentStats.maxArmor);
+        currentStats.armor = Math.max(0, currentStats.armor);
+        currentStats.maxMagic = Math.max(1, currentStats.maxMagic);
+        currentStats.magic = Math.max(0, currentStats.magic);
+
+        // Ensure current stats don't exceed new max stats
+        currentStats.hp = Math.min(currentStats.hp, currentStats.maxHp);
+        currentStats.armor = Math.min(currentStats.armor, currentStats.maxArmor);
+        currentStats.magic = Math.min(currentStats.magic, currentStats.maxMagic);
+
+        // Update labels
+        hpLabel.textContent = `${currentStats.hp}/${currentStats.maxHp}`;
+        armorLabel.textContent = `${currentStats.armor}/${currentStats.maxArmor}`;
+        magicLabel.textContent = `${currentStats.magic}/${currentStats.maxMagic}`;
+
+        // Update meter row widths (relative to base of 20)
+        // This makes the bars grow or shrink
+        hpMeterRow.style.width = `${(currentStats.maxHp / 20) * 100}%`;
+        armorMeterRow.style.width = `${(currentStats.maxArmor / 20) * 100}%`;
+        magicMeterRow.style.width = `${(currentStats.maxMagic / 20) * 100}%`;
+      }
+
 
       // Function to reset the info panel to its default state
       function resetInfoPanel() {
@@ -632,7 +692,7 @@
         cell.addEventListener("click", () => {
           // Do nothing if the cell is already hidden
           if (cell.classList.contains("hidden")) return;
-          
+
           // Do nothing if game is "over"
           if (hasEaten && hasKept) return; // This check is now handled by checkGameEnd
 
@@ -647,13 +707,14 @@
           const animal = img ? img.alt : "This animal";
           const imgSrc = img ? img.src : "";
 
+          // UPDATED: Added data-animal-name to the eat button
           infoPanel.innerHTML = `
             <div class="info-panel-content">
               <div class="info-title">${animal}</div>
               <div class="info-body">What will you do with this ${animal}?</div>
             </div>
             <div class="info-panel-actions">
-              <button class="btn-action btn-eat" data-action="eat" title="Eat">🔪</button>
+              <button class="btn-action btn-eat" data-action="eat" data-animal-name="${animal}" title="Eat">🔪</button>
               <button class="btn-action btn-keep" data-action="keep" data-img-src="${imgSrc}" data-animal-name="${animal}" title="Keep">🫴</button>
             </div>
           `;
@@ -662,7 +723,7 @@
 
       // Use event delegation on the info panel to handle button clicks
       infoPanel.addEventListener("click", (e) => {
-        
+
         if (gameState === "animals") {
           // --- ANIMAL LOGIC ---
           const button = e.target.closest("[data-action]");
@@ -671,7 +732,7 @@
           const action = button.dataset.action;
 
           if (action === "eat") {
-            // ... existing eat logic ...
+            // UPDATED: New dynamic stat logic
             if (hasEaten) {
               const infoBody = infoPanel.querySelector(".info-body");
               if (infoBody) {
@@ -680,12 +741,32 @@
               }
               return;
             }
+
+            const animalName = button.dataset.animalName;
+            const stats = animalEatStats[animalName];
+
+            if (stats) {
+              // Apply stat changes
+              currentStats.hp += stats.hp;
+              currentStats.maxHp += stats.hp;
+              currentStats.armor += stats.armor;
+              currentStats.maxArmor += stats.armor;
+              currentStats.magic += stats.magic;
+              currentStats.maxMagic += stats.magic;
+
+              // Update the DOM
+              updateMeters();
+
+            } else {
+              console.error("No stats found for animal:", animalName);
+            }
+
+            // Mark as eaten and hide
             hasEaten = true;
-            hpLabel.textContent = "30/30"; // Update HP text
-            hpMeterRow.style.width = "125%";
             currentSelectedCell.classList.add("hidden"); // Hide the icon
             resetInfoPanel();
             checkGameEnd(); // Check if game state should change
+
 
           } else if (action === "keep") {
             // ... existing keep logic ...
@@ -697,16 +778,16 @@
               }
               return;
             }
-            
+
             const slotToFill = document.getElementById("companion-slot-1");
-            
+
             if (slotToFill) {
               const imgSrc = button.dataset.imgSrc;
               const animalName = button.dataset.animalName;
-              
+
               slotToFill.innerHTML = `<img src="${imgSrc}" alt="${animalName}" />`;
               hasKept = true; // Set flag
-              
+
               currentSelectedCell.classList.add("hidden"); // Hide the icon from the grid
               resetInfoPanel();
               checkGameEnd(); // Check if game state should change
@@ -721,7 +802,7 @@
             const img = currentSelectedCell.querySelector('img');
             const imgSrc = img.src;
             const imgAlt = img.alt;
-            
+
             console.log("Equipping:", imgAlt);
 
             // UPDATED: Add image to the middle slot
@@ -729,14 +810,14 @@
             if (weaponSlot) {
                 weaponSlot.innerHTML = `<img src="${imgSrc}" alt="${imgAlt}" />`;
             }
-            
+
             // Example: Hide all other weapons
             const allWeapons = iconGrid.querySelectorAll('.weapon-cell');
             allWeapons.forEach(cell => {
               // This will hide the selected one too
               cell.classList.add("hidden");
             });
-            
+
             // Update panel
             infoPanel.innerHTML = `
             <div class="info-panel-content">
@@ -753,23 +834,23 @@
           }
         }
       });
-      
+
       // UPDATED: New function to populate weapons
       function populateWeapons() {
         // Clear the grid of old (hidden) animal cells
         iconGrid.innerHTML = "";
-        
+
         // Add the 6 new weapon cells
         weaponData.forEach(weapon => {
           const cell = document.createElement("div");
           cell.className = "icon-cell weapon-cell"; // Add new class
           cell.innerHTML = `<img src="${weapon.img}" alt="${weapon.name}" />`;
-          
+
           // Add click listener for new weapon logic
           cell.addEventListener('click', () => {
              // Highlight this cell (optional)
              currentSelectedCell = cell;
-             
+
              // Update info panel
              infoPanel.innerHTML = `
               <div class="info-panel-content">
@@ -781,15 +862,15 @@
               </div>
             `;
           });
-          
+
           iconGrid.appendChild(cell);
         });
-        
+
         // Add 2 empty, hidden cells to fill the 8-cell grid and maintain layout
         const placeholder1 = document.createElement("div");
         placeholder1.className = "icon-cell hidden";
         placeholder1.style.pointerEvents = "none";
-        
+
         const placeholder2 = document.createElement("div");
         placeholder2.className = "icon-cell hidden";
         placeholder2.style.pointerEvents = "none";
@@ -801,7 +882,7 @@
       // UPDATED: checkGameEnd function
       function checkGameEnd() {
         if (hasEaten && hasKept) {
-          
+
           // Find all animal icons that are *still visible*
           const remainingIcons = Array.from(icons).filter(
             (cell) => !cell.classList.contains("hidden")
@@ -812,16 +893,16 @@
             remainingIcons.forEach((cell) => {
               cell.classList.add("hidden");
             });
-            
+
             // Get the last icon and add a listener to repopulate *after* it hides
             const lastIconToHide = remainingIcons[remainingIcons.length - 1];
             lastIconToHide.addEventListener('transitionend', populateWeapons, { once: true });
-            
+
           } else {
             // If no icons were left to hide, just populate immediately
             populateWeapons();
           }
-          
+
           // Update game state
           gameState = "weapons";
 
@@ -881,6 +962,5 @@
     </script>
   </body>
 </html>
-
 
 
