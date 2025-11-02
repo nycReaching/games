@@ -309,7 +309,7 @@
       /* NEW: wrap character and bottom panel */
       .character-main {
         flex: 1 1 auto;
-        max-width: 280px;
+        /* max-width: 280px; */ /* REMOVED to allow panel to widen */
         display: flex;
         flex-direction: column;
         gap: 6px;
@@ -583,12 +583,13 @@
               <img src="New Folder/darkelf.jpg" alt="Character" />
             </div>
             <div class="character-bottom-panel">
-              <div class="exp-meter">
-                <div class="exp-meter-fill"></div>
-              </div>
+              <!-- MOVED gold counter to the left -->
               <div class="gold-counter">
                 <span class="gold-icon">🪙</span>
                 <span class="gold-value">1,250</span>
+              </div>
+              <div class="exp-meter">
+                <div class="exp-meter-fill"></div>
               </div>
             </div>
           </div>
@@ -698,7 +699,7 @@
             </div>
             <div class="info-panel-actions">
               <button class="btn-action btn-eat" data-action="eat" title="Eat">🔪</button>
-              <button class="btn-action btn-keep" data-action="keep" data-img-src="${imgSrc}" data-animal-name="${animal}" title="Keep">🩴</button>
+              <button class="btn-action btn-keep" data-action="keep" data-img-src="${imgSrc}" data-animal-name="${animal}" title="Keep">🤝</button>
             </div>
           `;
         });
