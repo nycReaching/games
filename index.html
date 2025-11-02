@@ -108,7 +108,7 @@
       }
 
       .top-blank-space {
-        height: clamp(200px, 26vh, 300px);
+        height: clamp(220px, 28vh, 320px); /* MODIFIED: Made slightly larger */
         margin: 10px 10px 0;
         background: rgba(0, 0, 0, 0.35);
         border: 2px solid var(--top-window-border);
@@ -197,55 +197,28 @@
       }
       /* --- End Action Button Styles --- */
 
-      .meters {
-        padding: 2px 10px 0;
+      /* --- NEW: Stats Row --- */
+      .stats-row {
+        padding: 4px 12px 0;
         display: flex;
-        flex-direction: column;
-        gap: 4px;
-      }
-      .meters-inner {
-        width: 64%;
-        min-width: 220px;
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-        transition: width 0.4s ease-out;
-      }
-      .meter-row {
-        display: flex;
+        flex-direction: row;
+        justify-content: space-around; /* Distribute stats evenly */
         align-items: center;
-        gap: 6px;
-        transition: width 0.4s ease-out;
+        gap: 16px;
       }
-      .meter-label {
-        width: 110px;
-        font-size: 0.7rem;
+      .stat-item {
+        font-size: 0.9rem; /* Increased from 0.7rem */
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.95);
         text-transform: uppercase;
-        color: rgba(255, 255, 255, 0.9);
-        display: flex;
-        justify-content: space-between;
+        white-space: nowrap;
       }
-      .meter-bar {
-        flex: 1;
-        height: 9px;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.03);
-        border-radius: 999px;
-        overflow: hidden;
+      .stat-item span {
+        color: rgba(255, 255, 255, 0.85); /* slightly brighter */
+        font-weight: 400;
+        margin-left: 6px;
       }
-      .meter-fill {
-        height: 100%;
-        width: 100%;
-      }
-      .meter-hp .meter-fill {
-        background: #ff3945;
-      }
-      .meter-armor .meter-fill {
-        background: #3b82f6;
-      }
-      .meter-magic .meter-fill {
-        background: #f97316;
-      }
+      /* --- End Stats Row --- */
 
       .icons {
         display: grid;
@@ -281,7 +254,7 @@
         align-items: center;
         justify-content: flex-start;
         gap: 12px;
-        padding: 10px 12px 0px 10px;
+        padding: 10px 12px 0 10px; /* MODIFIED: Removed bottom padding */
       }
       .side-column-left {
         flex: 0 0 13%;
@@ -340,6 +313,7 @@
         border-radius: 10px;
         padding: 4px 8px;
         min-height: 26px;
+        margin: 0 10px; /* ADDED: To align with other panels */
       }
       .exp-meter {
         flex: 1 1 auto;
@@ -390,9 +364,12 @@
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
       }
 
+      /* This rule was hiding the bottom panel. Removing it. */
+      /*
       .character-wrap + * {
         display: none;
       }
+      */
 
       /* --- Modal Styles (unchanged) --- */
       .modal-overlay {
@@ -530,25 +507,11 @@
           </div>
           <!-- Action buttons will be added here by JS -->
         </div>
-        <div class="meters">
-          <div class="meters-inner">
-            <div class="meter-row meter-hp">
-              <span class="meter-label"><span>HP</span><span>20/20</span></span>
-              <div class="meter-bar"><div class="meter-fill"></div></div>
-            </div>
-            <div class="meter-row meter-armor">
-              <span class="meter-label"
-                ><span>Armor</span><span>20/20</span></span
-              >
-              <div class="meter-bar"><div class="meter-fill"></div></div>
-            </div>
-            <div class="meter-row meter-magic">
-              <span class="meter-label"
-                ><span>Magic</span><span>20/20</span></span
-              >
-              <div class="meter-bar"><div class="meter-fill"></div></div>
-            </div>
-          </div>
+        <!-- NEW: Stats Row -->
+        <div class="stats-row">
+          <div class="stat-item">HP:<span>20/20</span></div>
+          <div class="stat-item">Armor:<span>20/20</span></div>
+          <div class="stat-item">Magic:<span>20/20</span></div>
         </div>
         <div class="icons" id="icon-grid">
           <div class="icon-cell">
@@ -582,22 +545,24 @@
             <div class="character-frame">
               <img src="New Folder/darkelf.jpg" alt="Character" />
             </div>
-            <div class="character-bottom-panel">
-              <!-- MOVED gold counter to the left -->
-              <div class="gold-counter">
-                <span class="gold-icon">🪙</span>
-                <span class="gold-value">1,250</span>
-              </div>
-              <div class="exp-meter">
-                <div class="exp-meter-fill"></div>
-              </div>
-            </div>
+            <!-- Panel removed from here -->
           </div>
           <button
             class="action-button"
             type="button"
             aria-label="Primary Action"
           ></button>
+        </div>
+        <!-- Panel moved to here, as a sibling of character-wrap -->
+        <div class="character-bottom-panel">
+          <!-- MOVED gold counter to the left -->
+          <div class="gold-counter">
+            <span class="gold-icon">🪙</span>
+            <span class="gold-value">1,250</span>
+          </div>
+          <div class="exp-meter">
+            <div class="exp-meter-fill"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -892,3 +857,5 @@
     </script>
   </body>
 </html>
+
+
