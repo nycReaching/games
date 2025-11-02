@@ -45,8 +45,6 @@
       .app-shell {
         width: 100vw;
         max-width: 540px;
-        /* UPDATED: Removed min-height to fit content */
-        /* min-height: 100vh; */
         background: #000;
         display: flex;
         flex-direction: column;
@@ -211,14 +209,12 @@
         display: flex;
         flex-direction: column;
         gap: 5px;
-        /* UPDATED: Add transition for width change */
         transition: width 0.4s ease-out;
       }
       .meter-row {
         display: flex;
         align-items: center;
         gap: 6px;
-        /* UPDATED: Add transition for width change */
         transition: width 0.4s ease-out;
       }
       .meter-label {
@@ -310,12 +306,19 @@
         object-fit: contain;
       }
 
-      .character-frame {
+      /* NEW: wrap character and bottom panel */
+      .character-main {
         flex: 1 1 auto;
         max-width: 280px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .character-frame {
+        flex: 1 1 auto;
         aspect-ratio: 1/1;
         background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.04);
+        border: none; /* REMOVED BORDER AROUND CHARACTER IMAGE */
         border-radius: 14px;
         display: flex;
         align-items: center;
@@ -327,6 +330,43 @@
         height: 100%;
         object-fit: cover;
       }
+      /* NEW: bottom slim panel */
+      .character-bottom-panel {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        background: linear-gradient(90deg, #0f172a 0%, #1d4ed8 100%);
+        border-radius: 10px;
+        padding: 4px 8px;
+        min-height: 26px;
+      }
+      .exp-meter {
+        flex: 1 1 auto;
+        max-width: 65%;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 9999px;
+        overflow: hidden;
+      }
+      .exp-meter-fill {
+        width: 40%;
+        height: 100%;
+        background: linear-gradient(90deg, #fde68a, #f97316);
+      }
+      .gold-counter {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: #fde68a;
+        font-weight: 500;
+        font-size: 0.7rem;
+        white-space: nowrap;
+      }
+      .gold-icon {
+        font-size: 0.85rem;
+      }
+
       .action-button {
         margin-left: auto;
         margin-right: 8px;
@@ -343,16 +383,12 @@
         );
         border: 1px solid rgba(255, 255, 255, 0.52);
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-        /* UPDATED: New transition for snappier press */
         transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
       }
-      /* UPDATED: New active state for better button press feel */
       .action-button:active {
         transform: scale(0.9) translateY(2px);
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
       }
-
-      /* REMOVED: pulse-burst keyframes and .is-pulsing class */
 
       .character-wrap + * {
         display: none;
@@ -435,7 +471,6 @@
       .modal-content.border-white {
         border-color: var(--white);
       }
-      /* --- End Modal Styles --- */
 
       @media (max-width: 420px) {
         .app-shell {
@@ -539,13 +574,23 @@
         </div>
         <div class="character-wrap">
           <div class="side-column-left" id="companion-slots">
-            <!-- UPDATED: One slot for logic, others are placeholders -->
             <div class="side-cell" id="companion-slot-1"></div>
             <div class="side-cell" id="companion-slot-2"></div>
             <div class="side-cell" id="companion-slot-3"></div>
           </div>
-          <div class="character-frame">
-            <img src="New Folder/darkelf.jpg" alt="Character" />
+          <div class="character-main">
+            <div class="character-frame">
+              <img src="New Folder/darkelf.jpg" alt="Character" />
+            </div>
+            <div class="character-bottom-panel">
+              <div class="exp-meter">
+                <div class="exp-meter-fill"></div>
+              </div>
+              <div class="gold-counter">
+                <span class="gold-icon">🪙</span>
+                <span class="gold-value">1,250</span>
+              </div>
+            </div>
           </div>
           <button
             class="action-button"
@@ -589,19 +634,27 @@
     </div>
     <div id="modal-white" class="modal-overlay hidden">
       <div class="modal-content border-white">
-      <script>
+        <button class="modal-close" aria-label="Close modal">&times;</button>
+        <div class="modal-title">Elf Helmet</div>
+        <div class="modal-body">
+          This is the modal for the Elf Helmet. It offers strong protection and
+          leadership features.
+        </div>
+      </div>
+    </div>
+    <script>
       // --- UPDATED: Icon Info Panel Script ---
       const infoPanel = document.getElementById("icon-info");
       const iconGrid = document.getElementById("icon-grid");
-      const icons = document.querySelectorAll(".icon-cell"); // This is the initial list of 8 animal cells
+      const icons = document.querySelectorAll(".icon-cell");
       let currentSelectedCell = null;
 
-      // UPDATED: Add game state variables
+      // Game state variables
       let hasEaten = false;
       let hasKept = false;
       let gameState = "animals"; // "animals" or "weapons"
 
-      // UPDATED: Weapon data
+      // Weapon data
       const weaponData = [
         { name: "Bloody Sword", img: "weapons/bloody-sword.png" },
         { name: "Bone Knife", img: "weapons/bone-knife.png" },
@@ -610,11 +663,6 @@
         { name: "Relic Blade", img: "weapons/relic-blade.png" },
         { name: "Scythe", img: "weapons/scythe.png" },
       ];
-
-      // UPDATED: Get references to elements that will change
-      const hpLabel = document.querySelector(".meter-hp .meter-label span:nth-child(2)");
-      // UPDATED: Get the HP row itself, not the parent container
-      const hpMeterRow = document.querySelector(".meter-row.meter-hp");
 
       // Function to reset the info panel to its default state
       function resetInfoPanel() {
@@ -630,19 +678,15 @@
       // Add click listener to each icon cell
       icons.forEach((cell) => {
         cell.addEventListener("click", () => {
-          // Do nothing if the cell is already hidden
           if (cell.classList.contains("hidden")) return;
+          if (hasEaten && hasKept) return;
 
-          // Do nothing if game is "over"
-          if (hasEaten && hasKept) return; // This check is now handled by checkGameEnd
-
-          // If this cell is already selected, deselect it and reset panel
           if (currentSelectedCell === cell) {
             resetInfoPanel();
             return;
           }
 
-          currentSelectedCell = cell; // Store the clicked cell
+          currentSelectedCell = cell;
           const img = cell.querySelector("img");
           const animal = img ? img.alt : "This animal";
           const imgSrc = img ? img.src : "";
@@ -654,7 +698,7 @@
             </div>
             <div class="info-panel-actions">
               <button class="btn-action btn-eat" data-action="eat" title="Eat">🔪</button>
-              <button class="btn-action btn-keep" data-action="keep" data-img-src="${imgSrc}" data-animal-name="${animal}" title="Keep">🫴</button>
+              <button class="btn-action btn-keep" data-action="keep" data-img-src="${imgSrc}" data-animal-name="${animal}" title="Keep">🩴</button>
             </div>
           `;
         });
@@ -662,16 +706,14 @@
 
       // Use event delegation on the info panel to handle button clicks
       infoPanel.addEventListener("click", (e) => {
-
         if (gameState === "animals") {
-          // --- ANIMAL LOGIC ---
           const button = e.target.closest("[data-action]");
           if (!button || !currentSelectedCell) return;
 
           const action = button.dataset.action;
 
           if (action === "eat") {
-            // ... existing eat logic ...
+            // EATING NOW DOES **NOT** CHANGE HP/BAR – just records the action
             if (hasEaten) {
               const infoBody = infoPanel.querySelector(".info-body");
               if (infoBody) {
@@ -681,14 +723,10 @@
               return;
             }
             hasEaten = true;
-            hpLabel.textContent = "30/30"; // Update HP text
-            hpMeterRow.style.width = "125%";
-            currentSelectedCell.classList.add("hidden"); // Hide the icon
+            currentSelectedCell.classList.add("hidden");
             resetInfoPanel();
-            checkGameEnd(); // Check if game state should change
-
+            checkGameEnd();
           } else if (action === "keep") {
-            // ... existing keep logic ...
             if (hasKept) {
               const infoBody = infoPanel.querySelector(".info-body");
               if (infoBody) {
@@ -705,73 +743,56 @@
               const animalName = button.dataset.animalName;
 
               slotToFill.innerHTML = `<img src="${imgSrc}" alt="${animalName}" />`;
-              hasKept = true; // Set flag
+              hasKept = true;
 
-              currentSelectedCell.classList.add("hidden"); // Hide the icon from the grid
+              currentSelectedCell.classList.add("hidden");
               resetInfoPanel();
-              checkGameEnd(); // Check if game state should change
+              checkGameEnd();
             }
           }
         } else if (gameState === "weapons") {
-          // --- WEAPON LOGIC ---
           const button = e.target.closest("[data-action='equip']");
           if (button && currentSelectedCell) {
-            // Logic for equipping the weapon
-            // UPDATED: Get img src and alt from the selected cell
-            const img = currentSelectedCell.querySelector('img');
+            const img = currentSelectedCell.querySelector("img");
             const imgSrc = img.src;
             const imgAlt = img.alt;
 
-            console.log("Equipping:", imgAlt);
-
-            // UPDATED: Add image to the middle slot
             const weaponSlot = document.getElementById("companion-slot-2");
             if (weaponSlot) {
-                weaponSlot.innerHTML = `<img src="${imgSrc}" alt="${imgAlt}" />`;
+              weaponSlot.innerHTML = `<img src="${imgSrc}" alt="${imgAlt}" />`;
             }
 
-            // Example: Hide all other weapons
-            const allWeapons = iconGrid.querySelectorAll('.weapon-cell');
-            allWeapons.forEach(cell => {
-              // This will hide the selected one too
+            const allWeapons = iconGrid.querySelectorAll(".weapon-cell");
+            allWeapons.forEach((cell) => {
               cell.classList.add("hidden");
             });
 
-            // Update panel
             infoPanel.innerHTML = `
-            <div class="info-panel-content">
-              <div class="info-title">Weapon Equipped!</div>
-              <div class="info-body">${imgAlt} is yours.</div>
-            </div>
+              <div class="info-panel-content">
+                <div class="info-title">Weapon Equipped!</div>
+                <div class="info-body">${imgAlt} is yours.</div>
+              </div>
             `;
 
-            // UPDATED: Update top text
-            const topText = document.querySelector('.top-blank-space');
+            const topText = document.querySelector(".top-blank-space");
             if (topText) {
-                topText.textContent = "Your journey begins now.";
+              topText.textContent = "Your journey begins now.";
             }
           }
         }
       });
 
-      // UPDATED: New function to populate weapons
       function populateWeapons() {
-        // Clear the grid of old (hidden) animal cells
         iconGrid.innerHTML = "";
 
-        // Add the 6 new weapon cells
-        weaponData.forEach(weapon => {
+        weaponData.forEach((weapon) => {
           const cell = document.createElement("div");
-          cell.className = "icon-cell weapon-cell"; // Add new class
+          cell.className = "icon-cell weapon-cell";
           cell.innerHTML = `<img src="${weapon.img}" alt="${weapon.name}" />`;
 
-          // Add click listener for new weapon logic
-          cell.addEventListener('click', () => {
-             // Highlight this cell (optional)
-             currentSelectedCell = cell;
-
-             // Update info panel
-             infoPanel.innerHTML = `
+          cell.addEventListener("click", () => {
+            currentSelectedCell = cell;
+            infoPanel.innerHTML = `
               <div class="info-panel-content">
                 <div class="info-title">${weapon.name}</div>
                 <div class="info-body">A powerful-looking ${weapon.name.toLowerCase()}.</div>
@@ -785,7 +806,6 @@
           iconGrid.appendChild(cell);
         });
 
-        // Add 2 empty, hidden cells to fill the 8-cell grid and maintain layout
         const placeholder1 = document.createElement("div");
         placeholder1.className = "icon-cell hidden";
         placeholder1.style.pointerEvents = "none";
@@ -798,37 +818,30 @@
         iconGrid.appendChild(placeholder2);
       }
 
-      // UPDATED: checkGameEnd function
       function checkGameEnd() {
         if (hasEaten && hasKept) {
-
-          // Find all animal icons that are *still visible*
           const remainingIcons = Array.from(icons).filter(
             (cell) => !cell.classList.contains("hidden")
           );
 
           if (remainingIcons.length > 0) {
-            // If there are icons to hide, hide them and listen for the animation to end
             remainingIcons.forEach((cell) => {
               cell.classList.add("hidden");
             });
 
-            // Get the last icon and add a listener to repopulate *after* it hides
             const lastIconToHide = remainingIcons[remainingIcons.length - 1];
-            lastIconToHide.addEventListener('transitionend', populateWeapons, { once: true });
-
+            lastIconToHide.addEventListener("transitionend", populateWeapons, {
+              once: true,
+            });
           } else {
-            // If no icons were left to hide, just populate immediately
             populateWeapons();
           }
 
-          // Update game state
           gameState = "weapons";
 
-          // Update text immediately
-          const topText = document.querySelector('.top-blank-space');
+          const topText = document.querySelector(".top-blank-space");
           if (topText) {
-              topText.textContent = "Your choices have been made. Now, choose a weapon.";
+            topText.textContent = "Your choices have been made. Now, choose a weapon.";
           }
           infoPanel.innerHTML = `
             <div class="info-panel-content">
@@ -838,11 +851,8 @@
           `;
         }
       }
-      // --- End Updated Icon Script ---
 
-      // --- REMOVED: Action Button Animation Script ---
-
-      // --- Modal Open/Close Script (Original) ---
+      // --- Modal Open/Close Script ---
       const openModalButtons = document.querySelectorAll("[data-modal-target]");
       const closeModalButtons = document.querySelectorAll(".modal-close");
       const overlays = document.querySelectorAll(".modal-overlay");
@@ -881,6 +891,3 @@
     </script>
   </body>
 </html>
-
-
-
