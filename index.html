@@ -717,23 +717,39 @@
           const button = e.target.closest("[data-action='equip']");
           if (button && currentSelectedCell) {
             // Logic for equipping the weapon
-            console.log("Equipping:", currentSelectedCell.querySelector('img').alt);
+            // UPDATED: Get img src and alt from the selected cell
+            const img = currentSelectedCell.querySelector('img');
+            const imgSrc = img.src;
+            const imgAlt = img.alt;
+            
+            console.log("Equipping:", imgAlt);
+
+            // UPDATED: Add image to the middle slot
+            const weaponSlot = document.getElementById("companion-slot-2");
+            if (weaponSlot) {
+                weaponSlot.innerHTML = `<img src="${imgSrc}" alt="${imgAlt}" />`;
+            }
             
             // Example: Hide all other weapons
             const allWeapons = iconGrid.querySelectorAll('.weapon-cell');
             allWeapons.forEach(cell => {
-              if (cell !== currentSelectedCell) {
-                cell.classList.add("hidden");
-              }
+              // This will hide the selected one too
+              cell.classList.add("hidden");
             });
             
             // Update panel
             infoPanel.innerHTML = `
             <div class="info-panel-content">
               <div class="info-title">Weapon Equipped!</div>
-              <div class="info-body">${currentSelectedCell.querySelector('img').alt} is yours.</div>
+              <div class="info-body">${imgAlt} is yours.</div>
             </div>
-          `;
+            `;
+
+            // UPDATED: Update top text
+            const topText = document.querySelector('.top-blank-space');
+            if (topText) {
+                topText.textContent = "Your journey begins now.";
+            }
           }
         }
       });
@@ -865,5 +881,6 @@
     </script>
   </body>
 </html>
+
 
 
