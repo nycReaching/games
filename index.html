@@ -304,7 +304,7 @@
 
       .character-wrap {
         display: flex;
-        align-items: center;
+        align-items: flex-start; /* MODIFIED: was center, moves stats up */
         justify-content: flex-start;
         gap: 12px;
         padding: 10px 12px 0 10px; /* MODIFIED: Removed bottom padding */
@@ -528,11 +528,12 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 10px;
+        gap: 6px; /* MODIFIED: was 10px */
         margin-left: auto; /* Push this whole block to the right */
         padding-right: 8px; /* Align with original button's margin */
         flex-shrink: 0;
-        align-self: center; /* Vertically center wrapper */
+        align-self: flex-start; /* MODIFIED: was center */
+        padding-top: 8px; /* ADDED: To give some space from the top */
       }
       .side-stats-wrap {
         display: flex;
@@ -543,8 +544,16 @@
       .side-stat {
         color: #fff;
         font-size: 0.9rem;
-        font-weight: 600;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        font-weight: 700; /* MODIFIED: was 600 */
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7); /* MODIFIED: was 0.5 */
+      }
+      
+      /* NEW: Stat colors */
+      .side-stat.stat-atk {
+        color: var(--eat-red);
+      }
+      .side-stat.stat-mgc {
+        color: #f97316; /* Orange */
       }
 
       .action-button {
@@ -822,8 +831,8 @@
           <!-- MODIFIED: Wrapped button and added stats -->
           <div class="action-wrapper">
             <div class="side-stats-wrap">
-              <div class="side-stat">Attack: 5</div>
-              <div class="side-stat">Magic: 5</div>
+              <div class="side-stat stat-atk">ATK 5</div>
+              <div class="side-stat stat-mgc">MGC 5</div>
             </div>
             <button
               class="action-button"
@@ -1199,6 +1208,7 @@
     </script>
   </body>
 </html>
+
 
 
 
