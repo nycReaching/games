@@ -286,12 +286,52 @@
         align-items: center;
         justify-content: center;
         overflow: hidden;
+        position: relative; /* UPDATED: Added for absolute positioning of HP bar */
       }
       .character-frame img {
         width: 100%;
         height: 100%;
         object-fit: cover;
       }
+
+      /* --- NEW: HP Meter Styles --- */
+      .hp-meter {
+        position: absolute;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+        height: 18px;
+        background-color: rgba(0, 0, 0, 0.5); /* 50% transparent background */
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        z-index: 5;
+      }
+      .hp-meter-fill {
+        height: 100%;
+        width: 100%; /* Default to full */
+        background: linear-gradient(to right, #ef4444, #b91c1c); /* Red gradient for HP */
+        border-radius: 999px;
+        transition: width 0.3s ease-out;
+      }
+      .hp-meter-text {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: white;
+        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.7);
+        z-index: 6;
+      }
+      /* --- End HP Meter Styles --- */
+
       /* NEW: bottom slim panel */
       .character-bottom-panel {
         display: flex;
@@ -535,6 +575,12 @@
           <div class="character-main">
             <div class="character-frame">
               <img src="New Folder/darkelf.jpg" alt="Character" />
+              <!-- NEW HP METER -->
+              <div class="hp-meter" id="player-hp-meter">
+                <div class="hp-meter-fill" id="player-hp-fill"></div>
+                <div class="hp-meter-text" id="player-hp-text">10/10</div>
+              </div>
+              <!-- END HP METER -->
             </div>
             <!-- Panel removed from here -->
           </div>
@@ -606,6 +652,10 @@
       const icons = document.querySelectorAll(".icon-cell");
       let currentSelectedCell = null;
 
+      // NEW: Player HP variables
+      let maxPlayerHP = 10;
+      let currentPlayerHP = 10;
+
       // Game state variables
       let hasEaten = false;
       let hasKept = false;
@@ -634,6 +684,18 @@
           currentSelectedCell.classList.remove("selected");
         }
         currentSelectedCell = null;
+      }
+
+      // NEW: Function to update the player HP bar
+      function updateHPBar() {
+        const hpFill = document.getElementById("player-hp-fill");
+        const hpText = document.getElementById("player-hp-text");
+
+        if (hpFill && hpText) {
+          const hpPercentage = (currentPlayerHP / maxPlayerHP) * 100;
+          hpFill.style.width = `${hpPercentage}%`;
+          hpText.textContent = `${currentPlayerHP}/${maxPlayerHP}`;
+        }
       }
 
       // Add click listener to each icon cell
@@ -681,7 +743,7 @@
           const action = button.dataset.action;
 
           if (action === "eat") {
-            // EATING NOW DOES **NOT** CHANGE HP/BAR – just records the action
+            // UPDATED: Eating now reduces HP by 2
             if (hasEaten) {
               const infoBody = infoPanel.querySelector(".info-body");
               if (infoBody) {
@@ -690,7 +752,21 @@
               }
               return;
             }
+
+            // Check if player has enough HP to "eat"
+            if (currentPlayerHP <= 2) {
+              const infoBody = infoPanel.querySelector(".info-body");
+              if (infoBody) {
+                infoBody.textContent = "You are too weak to eat this.";
+                infoBody.style.color = "var(--eat-red)";
+              }
+              return;
+            }
+
             hasEaten = true;
+            currentPlayerHP -= 2; // Reduce HP
+            updateHPBar(); // Update the visual bar
+
             currentSelectedCell.classList.add("hidden");
             resetInfoPanel(); // This clears the 'selected' class
             checkGameEnd();
@@ -869,3 +945,4 @@ V
     </script>
   </body>
 </html>
+
