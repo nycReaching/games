@@ -210,7 +210,7 @@
         justify-content: space-between; /* Pushes content and actions apart */
         align-items: center; /* Vertically centers content */
         gap: 10px;
-        min-height: 58px; /* Maintain consistent height */
+        min-height: 74px; /* MODIFIED: Was 58px, prevents resizing */
       }
       .info-panel-content {
         display: flex;
@@ -235,7 +235,7 @@
       .info-eat-effect {
         font-size: 0.72rem;
         line-height: 1.25;
-        color: var(--eat-red); /* Red color for eat effect */
+        color: rgba(255, 255, 255, 0.85); /* MODIFIED: Was var(--eat-red) */
         font-weight: 500;
       }
       /* NEW: Stat text colors */
@@ -1177,5 +1177,6 @@
     </script>
   </body>
 </html>
+
 
 
