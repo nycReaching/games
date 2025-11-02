@@ -407,7 +407,7 @@
       }
       .slim-meter-blue-fill {
         height: 100%;
-        width: 70%; /* Just a default value */
+        width: 100%; /* MODIFIED: Was 70% */
         background: linear-gradient(to right, #3b82f6, #1d4ed8); /* Blue gradient */
         border-radius: 999px;
       }
@@ -484,7 +484,7 @@
         );
         border: 1px solid rgba(255, 255, 255, 0.52);
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-        transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+        transition: transform 0.05s ease, box-shadow 0.05s ease; /* MODIFIED: Faster animation */
       }
       .action-button:active {
         transform: scale(0.9) translateY(2px);
@@ -920,7 +920,7 @@
           const action = button.dataset.action;
 
           if (action === "eat") {
-            // UPDATED: Eating now reduces HP by 2
+            // Check if an animal has already been eaten
             if (hasEaten) {
               const infoBody = infoPanel.querySelector(".info-body");
               if (infoBody) {
@@ -929,21 +929,12 @@
               }
               return;
             }
+            
+            // REMOVED: HP check
+            // REMOVED: HP reduction and bar update
 
-            // Check if player has enough HP to "eat"
-            if (currentPlayerHP <= 2) {
-              const infoBody = infoPanel.querySelector(".info-body");
-              if (infoBody) {
-                infoBody.textContent = "You are too weak to eat this.";
-                infoBody.style.color = "var(--eat-red)";
-              }
-              return;
-            }
-
+            // Mark as eaten, hide the cell, reset panel, and check game state
             hasEaten = true;
-            currentPlayerHP -= 2; // Reduce HP
-            updateHPBar(); // Update the visual bar
-
             currentSelectedCell.classList.add("hidden");
             resetInfoPanel(); // This clears the 'selected' class
             checkGameEnd();
@@ -1115,3 +1106,4 @@
     </script>
   </body>
 </html>
+
