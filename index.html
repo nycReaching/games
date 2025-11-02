@@ -43,13 +43,13 @@
         justify-content: center;
         background: #000;
       }
-      
+
       /* NEW: Remove focus outline from interactive elements */
       button:focus,
       .icon-cell:focus {
         outline: none;
       }
-      
+
       .app-shell {
         width: 100vw;
         max-width: 540px;
@@ -231,6 +231,14 @@
         line-height: 1.25;
         color: rgba(255, 255, 255, 0.85);
       }
+      /* NEW: Style for the eat-effect text */
+      .info-eat-effect {
+        font-size: 0.72rem;
+        line-height: 1.25;
+        color: var(--eat-red); /* Red color for eat effect */
+        font-weight: 500;
+      }
+
 
       /* --- Action Button Styles (square) --- */
       .btn-action {
@@ -434,6 +442,7 @@
         width: 100%; /* MODIFIED: Was 70% */
         background: linear-gradient(to right, #3b82f6, #1d4ed8); /* Blue gradient */
         border-radius: 999px;
+        transition: width 0.3s ease-out; /* ADDED transition */
       }
       /* --- End Slim Blue Meter --- */
 
@@ -460,7 +469,7 @@
       }
 
       /* REMOVED: Container for right-aligned buttons */
-      
+
       /* REMOVED: Size reduction styles for bottom buttons */
 
       /* MODIFIED: gold-counter */
@@ -521,6 +530,12 @@
         transform: scale(0.9) translateY(1px); /* Slightly less intense animation */
         box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
       }
+      /* NEW: Style for image inside bottom button */
+      .bottom-action-btn img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
 
       /* NEW: Wrapper for side stats and action button */
       .action-wrapper {
@@ -528,7 +543,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 6px; /* MODIFIED: was 10px */
+        gap: 8px; /* MODIFIED: was 6px */
         margin-left: auto; /* Push this whole block to the right */
         padding-right: 8px; /* Align with original button's margin */
         flex-shrink: 0;
@@ -538,8 +553,9 @@
       .side-stats-wrap {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 6px; /* MODIFIED: was 4px */
         align-items: center;
+        width: 100%; /* NEW: Make it take full width of wrapper */
       }
       .side-stat {
         color: #fff;
@@ -547,13 +563,39 @@
         font-weight: 700; /* MODIFIED: was 600 */
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7); /* MODIFIED: was 0.5 */
       }
-      
-      /* NEW: Stat colors */
-      .side-stat.stat-atk {
-        color: var(--eat-red);
+
+      /* REMOVED: .side-stat color styles */
+      /* NEW: Stat Box Styling */
+      .side-stat-box {
+        display: flex;
+        align-items: center;
+        justify-content: center; /* Center content */
+        gap: 6px;
+        background: rgba(0, 0, 0, 0.5); /* Dark background */
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        padding: 6px 10px;
+        width: 100%; /* Make boxes full width of parent */
+        color: #fff;
+        font-size: 0.8rem; /* Slightly smaller font */
+        font-weight: 600;
+        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
       }
-      .side-stat.stat-mgc {
-        color: #f97316; /* Orange */
+      .side-stat-box .stat-icon {
+        font-size: 0.9rem;
+        line-height: 1;
+      }
+      .side-stat-box .stat-label {
+        flex-grow: 1; /* Take remaining space */
+        text-align: left; /* Align text to the left */
+        white-space: nowrap; /* Prevent wrapping */
+      }
+      /* NEW: Specific colors for icons/text if needed, but box is better */
+      .side-stat-box.stat-atk {
+        border-color: var(--eat-red);
+      }
+      .side-stat-box.stat-mgc {
+        border-color: #f97316; /* Orange */
       }
 
       .action-button {
@@ -579,146 +621,28 @@
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
       }
 
-      /* --- Modal Styles (unchanged) --- */
-      .modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.75);
-        backdrop-filter: blur(4px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.25s ease-out;
-      }
-      .modal-overlay:not(.hidden) {
-        opacity: 1;
-        pointer-events: auto;
-      }
-      .modal-content {
-        background: #1a1a1a;
-        border: 3px solid var(--white);
-        border-radius: 16px;
-        padding: 24px;
-        padding-top: 40px;
-        width: 90%;
-        max-width: 400px;
-        position: relative;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        transform: scale(0.95);
-        transition: transform 0.25s ease-out;
-      }
-      .modal-overlay:not(.hidden) .modal-content {
-        transform: scale(1);
-      }
-      .modal-close {
-        position: absolute;
-        top: 8px;
-        right: 12px;
-        background: none;
-        border: none;
-        color: rgba(255, 255, 255, 0.7);
-        font-size: 2.2rem;
-        font-weight: bold;
-        cursor: pointer;
-        line-height: 1;
-        padding: 4px;
-      }
-      .modal-close:hover {
-        color: white;
-      }
-      .modal-title {
-        font-size: 1.4rem;
-        font-weight: 600;
-        color: var(--accent);
-        margin-bottom: 12px;
-        line-height: 1.2;
-      }
-      .modal-body {
-        font-size: 0.95rem;
-        color: rgba(255, 255, 255, 0.9);
-        line-height: 1.6;
-        max-height: 60vh; /* Add max height for scrolling */
-        overflow-y: auto; /* Add scrolling */
-      }
-      .modal-content.border-purple {
-        border-color: var(--purple);
-      }
-      .modal-content.border-teal {
-        border-color: var(--teal);
-      }
-      .modal-content.border-pink {
-        border-color: var(--pink);
-      }
-      .modal-content.border-white {
-        border-color: var(--white);
-      }
-
-      /* NEW: Relics Modal Grid */
-      .relics-grid {
-        display: grid;
-        grid-template-columns: 1fr; /* Single column */
-        gap: 16px;
-        margin-top: 16px;
-      }
-      .relic-item {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        background: rgba(0, 0, 0, 0.25);
-        padding: 12px;
-        border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-      .relic-icon {
-        width: 50px;
-        height: 50px;
-        flex-shrink: 0;
-        border-radius: 10px;
-        border-width: 2px;
-        border-style: solid;
-        background: #000;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .relic-icon.purple {
-        border-color: var(--purple);
-      }
-      .relic-icon.teal {
-        border-color: var(--teal);
-      }
-      .relic-icon.pink {
-        border-color: var(--pink);
-      }
-      .relic-icon.white {
-        border-color: var(--white);
-      }
-
-      .relic-icon img {
-        height: 60%;
-        width: 60%;
-        object-fit: contain;
-      }
-      .relic-info {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-      }
-      .relic-info .name {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #fff;
-      }
+      /* --- Modal Styles (REMOVED) --- */
+      .modal-overlay,
+      .modal-content,
+      .modal-close,
+      .modal-title,
+      .modal-body,
+      .modal-content.border-purple,
+      .modal-content.border-teal,
+      .modal-content.border-pink,
+      .modal-content.border-white,
+      .relics-grid,
+      .relic-item,
+      .relic-icon,
+      .relic-icon.purple,
+      .relic-icon.teal,
+      .relic-icon.pink,
+      .relic-icon.white,
+      .relic-icon img,
+      .relic-info,
+      .relic-info .name,
       .relic-info .desc {
-        font-size: 0.85rem;
-        color: rgba(255, 255, 255, 0.7);
-        line-height: 1.4;
+        display: none; /* Remove all modal styles */
       }
 
       @media (max-width: 420px) {
@@ -752,9 +676,7 @@
         <div class="top-buttons">
           <!-- REMOVED: Old buttons -->
           <!-- NEW: Relics Button -->
-          <button class="btn-relics" data-modal-target="#modal-relics">
-            Relics
-          </button>
+          <!-- REMOVED: Relics Button -->
         </div>
 
         <!-- MOVED: Stat Counter -->
@@ -803,9 +725,9 @@
         <!-- NEW BLUE METER -->
         <div class="slim-meter-wrap">
           <div class="slim-meter-blue">
-            <div class="slim-meter-blue-fill" id="player-mana-fill"></div>
+            <div class="slim-meter-blue-fill" id="player-armor-fill"></div>
           </div>
-          <div class="slim-meter-text" id="player-mana-text">10/10</div>
+          <div class="slim-meter-text" id="player-armor-text">10/10</div>
         </div>
         <!-- END NEW BLUE METER -->
 
@@ -831,8 +753,15 @@
           <!-- MODIFIED: Wrapped button and added stats -->
           <div class="action-wrapper">
             <div class="side-stats-wrap">
-              <div class="side-stat stat-atk">ATK 5</div>
-              <div class="side-stat stat-mgc">MGC 5</div>
+              <!-- UPDATED STAT HTML AND IDs -->
+              <div class="side-stat-box stat-atk">
+                <span class="stat-icon">⚔️</span>
+                <span class="stat-label" id="player-atk-text">Attack 5</span>
+              </div>
+              <div class="side-stat-box stat-mgc">
+                <span class="stat-icon">✨</span>
+                <span class="stat-label" id="player-mgc-text">Magic 5</span>
+              </div>
             </div>
             <button
               class="action-button"
@@ -847,10 +776,19 @@
 
           <!-- NEW: Wrapper for 4 new bottom buttons -->
           <div class="bottom-button-wrapper">
-            <button class="bottom-action-btn" aria-label="Action 1"></button>
-            <button class="bottom-action-btn" aria-label="Action 2"></button>
-            <button class="bottom-action-btn" aria-label="Action 3"></button>
-            <button class="bottom-action-btn" aria-label="Action 4"></button>
+            <!-- UPDATED BUTTONS WITH IMAGES -->
+            <button class="bottom-action-btn" aria-label="Action 1">
+              <img src="New Folder/crystal-ball.png" alt="Crystal Ball" />
+            </button>
+            <button class="bottom-action-btn" aria-label="Action 2">
+              <img src="New Folder/elf-helmet.png" alt="Elf Helmet" />
+            </button>
+            <button class="bottom-action-btn" aria-label="Action 3">
+              <img src="New Folder/shamrock.png" alt="Shamrock" />
+            </button>
+            <button class="bottom-action-btn" aria-label="Action 4">
+              <img src="New Folder/nested-hearts.png" alt="Nested Hearts" />
+            </button>
           </div>
           <!-- REMOVED: Wrapper for right-aligned buttons -->
         </div>
@@ -860,57 +798,7 @@
     <!-- REMOVED: Old Modals -->
 
     <!-- NEW: Relics Modal -->
-    <div id="modal-relics" class="modal-overlay hidden">
-      <div class="modal-content border-white">
-        <button class="modal-close" aria-label="Close modal">&times;</button>
-        <div class="modal-title">Relics</div>
-        <div class="modal-body">
-          <p>These are the relics you have collected.</p>
-          <div class="relics-grid">
-            <!-- Relic 1 -->
-            <div class="relic-item">
-              <div class="relic-icon purple">
-                <img src="New Folder/crystal-ball.png" alt="Crystal Ball" />
-              </div>
-              <div class="relic-info">
-                <span class="name">Crystal Ball</span>
-                <span class="desc">Visions of the future.</span>
-              </div>
-            </div>
-            <!-- Relic 2 -->
-            <div class="relic-item">
-              <div class="relic-icon white">
-                <img src="New Folder/elf-helmet.png" alt="Elf Helmet" />
-              </div>
-              <div class="relic-info">
-                <span class="name">Elf Helmet</span>
-                <span class="desc">Strong protection and leadership.</span>
-              </div>
-            </div>
-            <!-- Relic 3 -->
-            <div class="relic-item">
-              <div class="relic-icon teal">
-                <img src="New Folder/shamrock.png" alt="Shamrock" />
-              </div>
-              <div class="relic-info">
-                <span class="name">Shamrock</span>
-                <span class="desc">Brings good luck in adventures.</span>
-              </div>
-            </div>
-            <!-- Relic 4 -->
-            <div class="relic-item">
-              <div class="relic-icon pink">
-                <img src="New Folder/nested-hearts.png" alt="Nested Hearts" />
-              </div>
-              <div class="relic-info">
-                <span class="name">Nested Hearts</span>
-                <span class="desc">Manages relationships and alliances.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- REMOVED: All Modals -->
 
     <script>
       // --- UPDATED: Icon Info Panel Script ---
@@ -919,14 +807,71 @@
       const icons = document.querySelectorAll(".icon-cell");
       let currentSelectedCell = null;
 
-      // NEW: Player HP variables
+      // --- NEW: Player Stats ---
       let maxPlayerHP = 10;
       let currentPlayerHP = 10;
+      let maxPlayerArmor = 10;
+      let currentPlayerArmor = 10;
+      let currentPlayerAttack = 5;
+      let currentPlayerMagic = 5;
+
+      // --- NEW: Stat Element References ---
+      const hpFillEl = document.getElementById("player-hp-fill");
+      const hpTextEl = document.getElementById("player-hp-text");
+      const armorFillEl = document.getElementById("player-armor-fill");
+      const armorTextEl = document.getElementById("player-armor-text");
+      const atkTextEl = document.getElementById("player-atk-text");
+      const mgcTextEl = document.getElementById("player-mgc-text");
+
 
       // Game state variables
       let hasEaten = false;
       let hasKept = false;
       let gameState = "animals"; // "animals" or "weapons"
+
+      // --- NEW: Animal Data Object ---
+      const animalData = {
+        Bear: {
+          desc: "A powerful ally. It looks very tough.",
+          eat: { hp: 1, armor: 1, mgc: 0, atk: 0 },
+          eatDesc: "Eat: +1 HP, +1 Armor"
+        },
+        Frog: {
+          desc: "A quick and nimble creature. Seems magical.",
+          eat: { hp: 0, armor: 0, mgc: 1, atk: 0 },
+          eatDesc: "Eat: +1 Magic"
+        },
+        Jellyfish: {
+          desc: "Floats gracefully. It pulses with a strange energy.",
+          eat: { hp: -3, armor: 0, mgc: 3, atk: 0 },
+          eatDesc: "Eat: +3 Magic, -3 HP"
+        },
+        Pig: {
+          desc: "A stout and friendly animal. Looks... delicious.",
+          eat: { hp: 3, armor: 0, mgc: 0, atk: 0 },
+          eatDesc: "Eat: +3 HP"
+        },
+        Rat: {
+          desc: "Small and fast. It has a vicious look in its eyes.",
+          eat: { hp: 0, armor: 0, mgc: 0, atk: 1 },
+          eatDesc: "Eat: +1 Attack"
+        },
+        Raven: {
+          desc: "A dark, intelligent bird. It sees everything.",
+          eat: { hp: 0, armor: -2, mgc: 0, atk: 2 },
+          eatDesc: "Eat: +2 Attack, -2 Armor"
+        },
+        Snail: {
+          desc: "Slow, steady, and surprisingly well-protected.",
+          eat: { hp: 0, armor: 2, mgc: 0, atk: 0 },
+          eatDesc: "Eat: +2 Armor"
+        },
+        Tortoise: {
+          desc: "Ancient and wise. Its shell is like a fortress.",
+          eat: { hp: -5, armor: 5, mgc: 0, atk: 0 },
+          eatDesc: "Eat: +5 Armor, -5 HP"
+        },
+      };
 
       // Weapon data
       const weaponData = [
@@ -962,20 +907,38 @@
         currentSelectedCell = null;
       }
 
-      // NEW: Function to update the player HP bar
-      function updateHPBar() {
-        const hpFill = document.getElementById("player-hp-fill");
-        const hpText = document.getElementById("player-hp-text");
-
-        if (hpFill && hpText) {
+      // --- NEW: Function to update ALL player stat displays ---
+      function updateStatDisplays() {
+        // Update HP Bar
+        if (hpFillEl && hpTextEl) {
+          // HP can go over max, but the bar display might be capped at 100%
+          // For now, let's just show the numbers.
           const hpPercentage = (currentPlayerHP / maxPlayerHP) * 100;
-          hpFill.style.width = `${hpPercentage}%`;
-          hpText.textContent = `${currentPlayerHP}/${maxPlayerHP}`;
+          // hpFillEl.style.width = `${Math.min(hpPercentage, 100)}%`; // This would cap the bar
+          hpFillEl.style.width = `100%`; // Per request, don't change visual length
+          hpTextEl.textContent = `${currentPlayerHP}/${maxPlayerHP}`;
+        }
+
+        // Update Armor Bar (Blue Bar)
+        if (armorFillEl && armorTextEl) {
+          const armorPercentage = (currentPlayerArmor / maxPlayerArmor) * 100;
+          // armorFillEl.style.width = `${Math.min(armorPercentage, 100)}%`;
+          armorFillEl.style.width = `100%`; // Per request, don't change visual length
+          armorTextEl.textContent = `${currentPlayerArmor}/${maxPlayerArmor}`;
+        }
+
+        // Update ATK and MGC text
+        if (atkTextEl) {
+          atkTextEl.textContent = `Attack ${currentPlayerAttack}`;
+        }
+        if (mgcTextEl) {
+          mgcTextEl.textContent = `Magic ${currentPlayerMagic}`;
         }
       }
 
+
       // Call it on initial load
-      document.addEventListener("DOMContentLoaded", updateHPBar);
+      document.addEventListener("DOMContentLoaded", updateStatDisplays);
 
       // Add click listener to each icon cell
       icons.forEach((cell) => {
@@ -997,17 +960,20 @@
           currentSelectedCell.classList.add("selected"); // UPDATED: Add 'selected' class
 
           const img = cell.querySelector("img");
-          const animal = img ? img.alt : "This animal";
+          const animalName = img ? img.alt : "This animal";
           const imgSrc = img ? img.src : "";
+          
+          const data = animalData[animalName] || { desc: "What will you do?", eatDesc: "" };
 
           infoPanel.innerHTML = `
             <div class="info-panel-content">
-              <div class="info-title">${animal}</div>
-              <div class="info-body">What will you do with this ${animal}?</div>
+              <div class="info-title">${animalName}</div>
+              <div class="info-body">${data.desc}</div>
+              <div class="info-eat-effect">${data.eatDesc}</div>
             </div>
             <div class="info-panel-actions">
-              <button class="btn-action btn-eat" data-action="eat" title="Eat">🔪</button>
-              <button class="btn-action btn-keep" data-action="keep" data-img-src="${imgSrc}" data-animal-name="${animal}" title="Keep">🤝</button>
+              <button class="btn-action btn-eat" data-action="eat" data-animal-name="${animalName}" title="Eat">🔪</button>
+              <button class="btn-action btn-keep" data-action="keep" data-img-src="${imgSrc}" data-animal-name="${animalName}" title="Keep">🤝</button>
             </div>
           `;
         });
@@ -1031,9 +997,28 @@
               }
               return;
             }
-            
-            // REMOVED: HP check
-            // REMOVED: HP reduction and bar update
+
+            // --- NEW: Apply Eat Effects ---
+            const animalName = button.dataset.animalName;
+            const effects = animalData[animalName]?.eat;
+
+            if (effects) {
+              currentPlayerHP += effects.hp;
+              currentPlayerArmor += effects.armor;
+              currentPlayerMagic += effects.mgc;
+              currentPlayerAttack += effects.atk;
+
+              // Ensure stats don't go below 0
+              currentPlayerHP = Math.max(0, currentPlayerHP);
+              currentPlayerArmor = Math.max(0, currentPlayerArmor);
+              currentPlayerMagic = Math.max(0, currentPlayerMagic);
+              currentPlayerAttack = Math.max(0, currentPlayerAttack);
+
+              // Update the display
+              updateStatDisplays();
+            }
+            // --- End Apply Eat Effects ---
+
 
             // Mark as eaten, hide the cell, reset panel, and check game state
             hasEaten = true;
@@ -1182,34 +1167,8 @@
         }
       }
 
-      // --- NEW: Simplified Modal Open/Close Script ---
-      document.addEventListener("click", (e) => {
-        // Handle modal opening
-        if (e.target.matches("[data-modal-target]")) {
-          const modal = document.querySelector(e.target.dataset.modalTarget);
-          if (modal) {
-            modal.classList.remove("hidden");
-          }
-        }
-
-        // Handle modal closing via close button
-        if (e.target.matches(".modal-close")) {
-          const modal = e.target.closest(".modal-overlay");
-          if (modal) {
-            modal.classList.add("hidden");
-          }
-        }
-
-        // Handle modal closing via overlay click
-        if (e.target.matches(".modal-overlay")) {
-          e.target.classList.add("hidden");
-        }
-      });
+      // --- REMOVED: Modal Open/Close Script ---
     </script>
   </body>
 </html>
-
-
-
-
 
