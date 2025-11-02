@@ -27,6 +27,7 @@
         box-sizing: border-box;
         margin: 0;
         padding: 0;
+        -webkit-tap-highlight-color: transparent; /* ADDED: Remove tap highlight */
       }
       /* UPDATED: Removed fixed height */
       html,
@@ -42,6 +43,13 @@
         justify-content: center;
         background: #000;
       }
+      
+      /* NEW: Remove focus outline from interactive elements */
+      button:focus,
+      .icon-cell:focus {
+        outline: none;
+      }
+      
       .app-shell {
         width: 100vw;
         max-width: 540px;
@@ -60,6 +68,22 @@
         padding-inline: 16px;
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
         z-index: 10;
+      }
+
+      /* NEW: Style for top bar stat boxes */
+      .top-bar-box {
+        background: linear-gradient(to bottom, #4a4a4a, #2b2b2b);
+        border: 2px solid #888;
+        border-radius: 10px;
+        color: white;
+        font-weight: 600;
+        font-size: 0.9rem;
+        padding: 8px 14px; /* Adjusted padding */
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4),
+          0 4px 10px rgba(0, 0, 0, 0.25);
+        display: flex;
+        align-items: center;
+        gap: 6px; /* Space for icon */
       }
 
       .top-buttons {
@@ -421,7 +445,7 @@
         gap: 10px; /* MODIFIED */
         background: linear-gradient(to bottom, #064e3b, #021a0e);
         border-radius: 0; /* Remove rounded corners */
-        height: 65px; /* Match top bar height */
+        min-height: 65px; /* MODIFIED: was height: 65px */
         padding: 8px 16px calc(8px + var(--safe-bottom)) 16px; /* Match top bar padding-inline and add safe area */
         margin: 0; /* Make full width */
         box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.35); /* Add shadow */
@@ -441,12 +465,12 @@
 
       /* MODIFIED: gold-counter */
       .gold-counter {
-        display: flex;
-        align-items: center;
-        gap: 4px;
+        /* display: flex; */ /* REMOVED */
+        /* align-items: center; */ /* REMOVED */
+        /* gap: 4px; */ /* REMOVED - handled by top-bar-box */
         color: #fde68a;
-        font-weight: 500;
-        font-size: 0.9rem;
+        /* font-weight: 500; */ /* REMOVED - handled by top-bar-box */
+        /* font-size: 0.9rem; */ /* REMOVED - handled by top-bar-box */
         white-space: nowrap;
       }
       .gold-icon {
@@ -455,12 +479,12 @@
 
       /* NEW: Style for the stat counter */
       .stat-counter {
-        display: flex;
-        align-items: center;
-        gap: 4px;
+        /* display: flex; */ /* REMOVED */
+        /* align-items: center; */ /* REMOVED */
+        /* gap: 4px; */ /* REMOVED - handled by top-bar-box */
         color: #fff; /* White color */
-        font-weight: 500;
-        font-size: 0.9rem;
+        /* font-weight: 500; */ /* REMOVED - handled by top-bar-box */
+        /* font-size: 0.9rem; */ /* REMOVED - handled by top-bar-box */
         white-space: nowrap;
       }
       .stat-icon {
@@ -686,7 +710,7 @@
     <div class="app-shell">
       <div class="top-bar">
         <!-- MOVED: Gold Counter -->
-        <div class="gold-counter">
+        <div class="gold-counter top-bar-box">
           <span class="gold-icon">🪙</span>
           <span class="gold-value">1,250</span>
         </div>
@@ -700,7 +724,7 @@
         </div>
 
         <!-- MOVED: Stat Counter -->
-        <div class="stat-counter">
+        <div class="stat-counter top-bar-box">
           <span class="stat-icon">📈</span>
           <span class="stat-value">99</span>
         </div>
@@ -1142,5 +1166,6 @@
     </script>
   </body>
 </html>
+
 
 
