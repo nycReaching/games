@@ -2,8 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Mobile Game UI – Relics Refactor</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Mobile Game UI – Bordered Top Window</title>
     <style>
       :root {
         --bg: #000;
@@ -12,7 +15,7 @@
         --panel-bg: rgba(0, 0, 0, 0.32);
         --safe-top: env(safe-area-inset-top, 0px);
         --safe-bottom: env(safe-area-inset-bottom, 0px);
-        --top-window-border: #991b1b;
+        --top-window-border: #991b1b; /* dark red */
         --purple: #7c3aed;
         --teal: #14b8a6;
         --pink: #ec4899;
@@ -25,14 +28,16 @@
         margin: 0;
         padding: 0;
       }
+      /* UPDATED: Removed fixed height */
       html,
       body {
         height: auto;
         background: #000;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
       }
       body {
-        min-height: 100vh;
+        min-height: 100vh; /* Ensures black BG fills screen */
         display: flex;
         justify-content: center;
         background: #000;
@@ -43,7 +48,7 @@
         background: #000;
         display: flex;
         flex-direction: column;
-        min-height: 100vh;
+        min-height: 100vh; /* UPDATED: Ensures shell fills vertical height */
       }
       .top-bar {
         background: linear-gradient(to bottom, #ffd500, #d98200);
@@ -56,68 +61,120 @@
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
         z-index: 10;
       }
-      .relics-button {
+
+      .top-buttons {
+        display: flex;
+        gap: 22px;
+      }
+
+      .top-btn {
+        width: 55px;
+        height: 55px;
+        padding: 0;
+        border-radius: 14px;
+        border-width: 3px;
+        border-style: solid;
+        background: #000;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        background: #000;
-        color: #fff;
-        border: 3px solid #fff;
-        border-radius: 14px;
-        height: 44px;
-        padding: 0 20px;
-        font-weight: 600;
-        letter-spacing: 0.04em;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4),
+          0 4px 10px rgba(0, 0, 0, 0.25);
         cursor: pointer;
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.4), 0 4px 10px rgba(0,0,0,0.25);
         transition: transform 0.1s ease-out;
       }
-      .relics-button:active {
-        transform: scale(0.96);
+
+      .top-btn:active {
+        transform: scale(0.92);
       }
+
+      .top-btn.purple {
+        border-color: var(--purple);
+      }
+      .top-btn.teal {
+        border-color: var(--teal);
+      }
+      .top-btn.pink {
+        border-color: var(--pink);
+      }
+      .top-btn.white {
+        border-color: var(--white);
+      }
+
+      /* NEW: Relics Button Style */
+      .btn-relics {
+        background: linear-gradient(to bottom, #4a4a4a, #2b2b2b);
+        border: 2px solid #888;
+        border-radius: 10px;
+        color: white;
+        font-weight: 600;
+        font-size: 0.9rem;
+        padding: 10px 24px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4),
+          0 4px 10px rgba(0, 0, 0, 0.25);
+      }
+      .btn-relics:active {
+        transform: scale(0.95);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4),
+          0 2px 5px rgba(0, 0, 0, 0.25);
+      }
+
+      .top-btn img {
+        height: 65%;
+        width: 65%;
+        object-fit: contain;
+      }
+
       .top-blank-space {
-        height: clamp(220px, 28vh, 320px);
+        height: clamp(220px, 28vh, 320px); /* MODIFIED: Made slightly larger */
         margin: 10px 10px 0;
         background: rgba(0, 0, 0, 0.35);
         border: 2px solid var(--top-window-border);
         border-radius: 16px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
         display: flex;
-        flex-direction: column;
+        flex-direction: column; /* ADDED */
         align-items: center;
         justify-content: center;
-        padding: 10px;
+        padding: 10px; /* MODIFIED from 20px */
         text-align: center;
         color: rgba(255, 255, 255, 0.85);
         font-size: 1.05rem;
         line-height: 1.5;
-        flex-shrink: 0;
-        transition: all 0.3s ease;
+        flex-shrink: 0; /* Prevent this from shrinking */
+        transition: all 0.3s ease; /* ADDED */
       }
+
+      /* NEW: Style for the image inside the top-blank-space */
       .top-blank-space img {
         width: 100%;
         height: 100%;
-        max-height: 180px;
-        object-fit: contain;
+        max-height: 180px; /* Control image height */
+        object-fit: contain; /* MODIFIED: was 'cover' */
         border-radius: 8px;
         margin-bottom: 12px;
-        flex-shrink: 1;
-        min-height: 0;
+        flex-shrink: 1; /* Allow image to shrink if needed */
+        min-height: 0; /* Fix flexbox overflow issue */
       }
+      /* NEW: Style for the text inside the top-blank-space */
       .top-blank-space .adventure-text {
         font-size: 1rem;
         color: rgba(255, 255, 255, 0.9);
         line-height: 1.4;
         font-weight: 500;
-        flex-shrink: 0;
+        flex-shrink: 0; /* Prevent text from shrinking */
       }
+
       .game-shell {
         display: flex;
         flex-direction: column;
         gap: 6px;
-        flex: 1;
+        flex: 1; /* UPDATED: Makes game-shell grow to fill space */
       }
+
+      /* --- Info Panel styles --- */
       .info-panel {
         margin: 10px 10px 3px;
         background: rgba(0, 0, 0, 0.45);
@@ -125,16 +182,21 @@
         border-radius: 12px;
         padding: 10px 14px 12px;
         display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
+        flex-direction: row; /* Horizontal layout */
+        justify-content: space-between; /* Pushes content and actions apart */
+        align-items: center; /* Vertically centers content */
         gap: 10px;
-        min-height: 58px;
+        min-height: 58px; /* Maintain consistent height */
       }
       .info-panel-content {
         display: flex;
         flex-direction: column;
         gap: 4px;
+      }
+      .info-panel-actions {
+        display: flex;
+        gap: 8px;
+        flex-shrink: 0; /* Prevents buttons from shrinking */
       }
       .info-title {
         font-size: 0.85rem;
@@ -145,6 +207,8 @@
         line-height: 1.25;
         color: rgba(255, 255, 255, 0.85);
       }
+
+      /* --- Action Button Styles (square) --- */
       .btn-action {
         background: rgba(0, 0, 0, 0.5);
         border: 1px solid;
@@ -153,7 +217,7 @@
         width: 36px;
         height: 36px;
         padding: 0;
-        font-size: 1.2rem;
+        font-size: 1.2rem; /* Make emoji larger */
         cursor: pointer;
         transition: background-color 0.15s ease;
         display: flex;
@@ -165,10 +229,20 @@
         border-color: var(--eat-red);
         color: var(--eat-red);
       }
+      .btn-eat:hover {
+        background: rgba(239, 68, 68, 0.2);
+      }
       .btn-keep {
         border-color: var(--keep-green);
         color: var(--keep-green);
       }
+      .btn-keep:hover {
+        background: rgba(34, 197, 94, 0.2);
+      }
+      /* --- End Action Button Styles --- */
+
+      /* --- REMOVED: Stats Row --- */
+
       .icons {
         display: grid;
         grid-template-columns: repeat(4, minmax(54px, 1fr));
@@ -183,9 +257,10 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.3s ease;
+        transition: all 0.3s ease; /* UPDATED: transition all properties */
         cursor: pointer;
       }
+      /* NEW: Highlight style for selected icon */
       .icon-cell.selected {
         border-width: 2px;
         border-color: var(--accent);
@@ -202,12 +277,13 @@
         transform: scale(0.5);
         pointer-events: none;
       }
+
       .character-wrap {
         display: flex;
         align-items: center;
         justify-content: flex-start;
         gap: 12px;
-        padding: 10px 12px 0 10px;
+        padding: 10px 12px 0 10px; /* MODIFIED: Removed bottom padding */
       }
       .side-column-left {
         flex: 0 0 13%;
@@ -231,6 +307,8 @@
         height: 100%;
         object-fit: contain;
       }
+
+      /* NEW: wrap character and bottom panel */
       .character-main {
         flex: 1 1 auto;
         display: flex;
@@ -241,19 +319,21 @@
         flex: 1 1 auto;
         aspect-ratio: 1/1;
         background: rgba(255, 255, 255, 0.02);
-        border: none;
+        border: none; /* REMOVED BORDER AROUND CHARACTER IMAGE */
         border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
         overflow: hidden;
-        position: relative;
+        position: relative; /* UPDATED: Added for absolute positioning of HP bar */
       }
       .character-frame img {
         width: 100%;
         height: 100%;
         object-fit: cover;
       }
+
+      /* --- NEW: HP Meter Styles --- */
       .hp-meter {
         position: absolute;
         bottom: 12px;
@@ -261,7 +341,7 @@
         transform: translateX(-50%);
         width: 80%;
         height: 18px;
-        background-color: rgba(0, 0, 0, 0.35);
+        background-color: rgba(0, 0, 0, 0.35); /* MODIFIED: Was 0.5 */
         border-radius: 999px;
         border: 1px solid rgba(255, 255, 255, 0.2);
         overflow: hidden;
@@ -269,8 +349,12 @@
       }
       .hp-meter-fill {
         height: 100%;
-        width: 100%;
-        background: linear-gradient(to right, rgba(239, 68, 68, 0.35), rgba(185, 28, 28, 0.35));
+        width: 100%; /* Default to full */
+        background: linear-gradient(
+          to right,
+          rgba(239, 68, 68, 0.35),
+          rgba(185, 28, 28, 0.35)
+        ); /* UPDATED: 50% to 35% transparency */
         border-radius: 999px;
         transition: width 0.3s ease-out;
       }
@@ -289,23 +373,9 @@
         text-shadow: 0 1px 1px rgba(0, 0, 0, 0.7);
         z-index: 6;
       }
-      .slim-meter-wrap {
-        margin: 6px 10px 0;
-        position: relative;
-      }
-      .slim-meter-blue {
-        height: 18px;
-        background-color: rgba(0, 0, 0, 0.5);
-        border-radius: 999px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        overflow: hidden;
-      }
-      .slim-meter-blue-fill {
-        height: 100%;
-        width: 70%;
-        background: linear-gradient(to right, #3b82f6, #1d4ed8);
-        border-radius: 999px;
-      }
+      /* --- End HP Meter Styles --- */
+
+      /* NEW: Slim meter text style */
       .slim-meter-text {
         position: absolute;
         top: 0;
@@ -320,26 +390,56 @@
         color: white;
         text-shadow: 0 1px 1px rgba(0, 0, 0, 0.7);
         z-index: 6;
-        pointer-events: none;
+        pointer-events: none; /* So it doesn't block clicks */
       }
+
+      /* --- NEW: Slim Blue Meter --- */
+      .slim-meter-wrap {
+        margin: 6px 10px 0; /* Align with info panel horizontal margins */
+        position: relative; /* ADDED */
+      }
+      .slim-meter-blue {
+        height: 18px; /* MODIFIED: was 14px */
+        background-color: rgba(0, 0, 0, 0.5); /* Dark transparent background */
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        overflow: hidden;
+      }
+      .slim-meter-blue-fill {
+        height: 100%;
+        width: 70%; /* Just a default value */
+        background: linear-gradient(to right, #3b82f6, #1d4ed8); /* Blue gradient */
+        border-radius: 999px;
+      }
+      /* --- End Slim Blue Meter --- */
+
+      /* --- MODIFIED: bottom slim panel --- */
       .character-bottom-panel {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        gap: 10px;
+        justify-content: space-between; /* MODIFIED */
+        gap: 10px; /* MODIFIED */
         background: linear-gradient(to bottom, #064e3b, #021a0e);
-        border-radius: 0;
-        height: 65px;
-        padding: 8px 16px calc(8px + var(--safe-bottom)) 16px;
-        margin: 0;
-        box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.35);
-        flex-shrink: 0;
+        border-radius: 0; /* Remove rounded corners */
+        height: 65px; /* Match top bar height */
+        padding: 8px 16px calc(8px + var(--safe-bottom)) 16px; /* Match top bar padding-inline and add safe area */
+        margin: 0; /* Make full width */
+        box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.35); /* Add shadow */
+        flex-shrink: 0; /* Prevent this from shrinking */
       }
+
+      /* NEW: Container for left-aligned stats */
       .bottom-panel-stats {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 12px; /* Space between gold and stat counter */
       }
+
+      /* REMOVED: Container for right-aligned buttons */
+      
+      /* REMOVED: Size reduction styles for bottom buttons */
+
+      /* MODIFIED: gold-counter */
       .gold-counter {
         display: flex;
         align-items: center;
@@ -349,17 +449,25 @@
         font-size: 0.9rem;
         white-space: nowrap;
       }
-      .gold-icon { font-size: 1.1rem; }
+      .gold-icon {
+        font-size: 1.1rem;
+      }
+
+      /* NEW: Style for the stat counter */
       .stat-counter {
         display: flex;
         align-items: center;
         gap: 4px;
-        color: #fff;
+        color: #fff; /* White color */
         font-weight: 500;
         font-size: 0.9rem;
         white-space: nowrap;
       }
-      .stat-icon { font-size: 1.1rem; }
+      .stat-icon {
+        font-size: 1.1rem;
+      }
+      /* END NEW STYLES */
+
       .action-button {
         margin-left: auto;
         margin-right: 8px;
@@ -368,7 +476,12 @@
         height: 78px;
         flex-shrink: 0;
         border-radius: 999px;
-        background: radial-gradient(circle at 30% 30%, #fff3b0, #ffb800 55%, #d98200 95%);
+        background: radial-gradient(
+          circle at 30% 30%,
+          #fff3b0,
+          #ffb800 55%,
+          #d98200 95%
+        );
         border: 1px solid rgba(255, 255, 255, 0.52);
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
         transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
@@ -377,6 +490,8 @@
         transform: scale(0.9) translateY(2px);
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
       }
+
+      /* --- Modal Styles (unchanged) --- */
       .modal-overlay {
         position: fixed;
         top: 0;
@@ -404,7 +519,7 @@
         padding: 24px;
         padding-top: 40px;
         width: 90%;
-        max-width: 420px;
+        max-width: 400px;
         position: relative;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         transform: scale(0.95);
@@ -426,6 +541,9 @@
         line-height: 1;
         padding: 4px;
       }
+      .modal-close:hover {
+        color: white;
+      }
       .modal-title {
         font-size: 1.4rem;
         font-weight: 600;
@@ -433,52 +551,117 @@
         margin-bottom: 12px;
         line-height: 1.2;
       }
-      .relic-list {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
+      .modal-body {
+        font-size: 0.95rem;
+        color: rgba(255, 255, 255, 0.9);
+        line-height: 1.6;
+        max-height: 60vh; /* Add max height for scrolling */
+        overflow-y: auto; /* Add scrolling */
+      }
+      .modal-content.border-purple {
+        border-color: var(--purple);
+      }
+      .modal-content.border-teal {
+        border-color: var(--teal);
+      }
+      .modal-content.border-pink {
+        border-color: var(--pink);
+      }
+      .modal-content.border-white {
+        border-color: var(--white);
+      }
+
+      /* NEW: Relics Modal Grid */
+      .relics-grid {
+        display: grid;
+        grid-template-columns: 1fr; /* Single column */
+        gap: 16px;
+        margin-top: 16px;
       }
       .relic-item {
         display: flex;
-        gap: 10px;
-        padding: 10px;
-        background: rgba(255,255,255,0.02);
-        border: 1px solid rgba(255,255,255,0.2);
-        border-radius: 10px;
         align-items: center;
+        gap: 16px;
+        background: rgba(0, 0, 0, 0.25);
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
       }
-      .relic-item-icon {
-        width: 46px;
-        height: 46px;
-        border-radius: 12px;
+      .relic-icon {
+        width: 50px;
+        height: 50px;
+        flex-shrink: 0;
+        border-radius: 10px;
+        border-width: 2px;
+        border-style: solid;
         background: #000;
-        border: 2px solid rgba(255,255,255,0.35);
-        display: flex;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
       }
-      .relic-item-icon img {
-        width: 60%;
+      .relic-icon.purple {
+        border-color: var(--purple);
+      }
+      .relic-icon.teal {
+        border-color: var(--teal);
+      }
+      .relic-icon.pink {
+        border-color: var(--pink);
+      }
+      .relic-icon.white {
+        border-color: var(--white);
+      }
+
+      .relic-icon img {
         height: 60%;
+        width: 60%;
         object-fit: contain;
       }
-      .relic-item-text {
+      .relic-info {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 2px;
       }
-      .relic-name { color: #fff; font-weight: 600; }
-      .relic-desc { color: rgba(255,255,255,0.65); font-size: 0.76rem; }
+      .relic-info .name {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #fff;
+      }
+      .relic-info .desc {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.4;
+      }
+
       @media (max-width: 420px) {
-        .app-shell { max-width: 100vw; }
-        .top-blank-space { height: clamp(140px, 20vh, 220px); font-size: 0.95rem; }
+        .app-shell {
+          max-width: 100vw;
+        }
+        .top-blank-space {
+          height: clamp(140px, 20vh, 220px);
+          font-size: 0.95rem;
+        }
+        /* MODIFIED: Adjust bottom panel button size for small screens */
+        .bottom-panel-buttons .top-btn {
+          width: 40px;
+          height: 40px;
+        }
+        .bottom-panel-stats {
+          gap: 8px;
+        }
       }
     </style>
   </head>
   <body>
     <div class="app-shell">
       <div class="top-bar">
-        <button id="relics-button" type="button" class="relics-button">Relics</button>
+        <div class="top-buttons">
+          <!-- REMOVED: Old buttons -->
+          <!-- NEW: Relics Button -->
+          <button class="btn-relics" data-modal-target="#modal-relics">
+            Relics
+          </button>
+        </div>
       </div>
       <div class="top-blank-space">
         Choose one animal to eat, and another to keep as a companion.
@@ -487,23 +670,45 @@
         <div class="info-panel" id="icon-info">
           <div class="info-panel-content">
             <div class="info-title">Companion Info</div>
-            <div class="info-body">Tap an animal below to learn why it's a great companion.</div>
+            <div class="info-body">
+              Tap an animal below to learn why it's a great companion.
+            </div>
           </div>
+          <!-- Action buttons will be added here by JS -->
         </div>
+        <!-- REMOVED: Stats Row -->
         <div class="icons" id="icon-grid">
-          <div class="icon-cell"><img src="animals/bear-head.png" alt="Bear" /></div>
-          <div class="icon-cell"><img src="animals/frog.png" alt="Frog" /></div>
-          <div class="icon-cell"><img src="animals/jellyfish.png" alt="Jellyfish" /></div>
+          <div class="icon-cell">
+            <img src="animals/bear-head.png" alt="Bear" />
+          </div>
+          <div class="icon-cell">
+            <img src="animals/frog.png" alt="Frog" />
+          </div>
+          <div class="icon-cell">
+            <img src="animals/jellyfish.png" alt="Jellyfish" />
+          </div>
           <div class="icon-cell"><img src="animals/pig.png" alt="Pig" /></div>
           <div class="icon-cell"><img src="animals/rat.png" alt="Rat" /></div>
-          <div class="icon-cell"><img src="animals/raven.png" alt="Raven" /></div>
-          <div class="icon-cell"><img src="animals/snail.png" alt="Snail" /></div>
-          <div class="icon-cell"><img src="animals/tortoise.png" alt="Tortoise" /></div>
+          <div class="icon-cell">
+            <img src="animals/raven.png" alt="Raven" />
+          </div>
+          <div class="icon-cell">
+            <img src="animals/snail.png" alt="Snail" />
+          </div>
+          <div class="icon-cell">
+            <img src="animals/tortoise.png" alt="Tortoise" />
+          </div>
         </div>
+
+        <!-- NEW BLUE METER -->
         <div class="slim-meter-wrap">
-          <div class="slim-meter-blue"><div class="slim-meter-blue-fill" id="player-mana-fill"></div></div>
+          <div class="slim-meter-blue">
+            <div class="slim-meter-blue-fill" id="player-mana-fill"></div>
+          </div>
           <div class="slim-meter-text" id="player-mana-text">10/10</div>
         </div>
+        <!-- END NEW BLUE METER -->
+
         <div class="character-wrap">
           <div class="side-column-left" id="companion-slots">
             <div class="side-cell" id="companion-slot-1"></div>
@@ -513,76 +718,125 @@
           <div class="character-main">
             <div class="character-frame">
               <img src="New Folder/darkelf.jpg" alt="Character" />
+              <!-- NEW HP METER -->
               <div class="hp-meter" id="player-hp-meter">
                 <div class="hp-meter-fill" id="player-hp-fill"></div>
                 <div class="hp-meter-text" id="player-hp-text">10/10</div>
               </div>
+              <!-- END HP METER -->
+            </div>
+            <!-- Panel removed from here -->
+          </div>
+          <button
+            class="action-button"
+            type="button"
+            aria-label="Primary Action"
+          ></button>
+        </div>
+        <!-- Panel moved to here, as a sibling of character-wrap -->
+        <div class="character-bottom-panel">
+          <!-- NEW: Wrapper for left-aligned stats -->
+          <div class="bottom-panel-stats">
+            <div class="gold-counter">
+              <span class="gold-icon">🪙</span>
+              <span class="gold-value">1,250</span>
+            </div>
+            <!-- NEW: Stat Counter -->
+            <div class="stat-counter">
+              <span class="stat-icon">📈</span>
+              <span class="stat-value">99</span>
             </div>
           </div>
-          <button class="action-button" type="button" aria-label="Primary Action"></button>
-        </div>
-        <div class="character-bottom-panel">
-          <div class="bottom-panel-stats">
-            <div class="gold-counter"><span class="gold-icon">🪙</span><span class="gold-value">1,250</span></div>
-            <div class="stat-counter"><span class="stat-icon">📈</span><span class="stat-value">99</span></div>
-          </div>
+
+          <!-- REMOVED: exp-meter -->
+
+          <!-- REMOVED: Wrapper for right-aligned buttons -->
         </div>
       </div>
     </div>
-    <div id="relics-modal" class="modal-overlay hidden">
-      <div class="modal-content">
+
+    <!-- REMOVED: Old Modals -->
+
+    <!-- NEW: Relics Modal -->
+    <div id="modal-relics" class="modal-overlay hidden">
+      <div class="modal-content border-white">
         <button class="modal-close" aria-label="Close modal">&times;</button>
         <div class="modal-title">Relics</div>
-        <div class="relic-list">
-          <div class="relic-item">
-            <div class="relic-item-icon"><img src="New Folder/crystal-ball.png" alt="Crystal Ball" /></div>
-            <div class="relic-item-text">
-              <div class="relic-name">Crystal Ball</div>
-              <div class="relic-desc">A scrying relic that reveals fragments of possible futures.</div>
+        <div class="modal-body">
+          <p>These are the relics you have collected.</p>
+          <div class="relics-grid">
+            <!-- Relic 1 -->
+            <div class="relic-item">
+              <div class="relic-icon purple">
+                <img src="New Folder/crystal-ball.png" alt="Crystal Ball" />
+              </div>
+              <div class="relic-info">
+                <span class="name">Crystal Ball</span>
+                <span class="desc">Visions of the future.</span>
+              </div>
             </div>
-          </div>
-          <div class="relic-item">
-            <div class="relic-item-icon"><img src="New Folder/elf-helmet.png" alt="Elf Helmet" /></div>
-            <div class="relic-item-text">
-              <div class="relic-name">Elf Helmet</div>
-              <div class="relic-desc">Ancestral headgear said to protect the mind from curses.</div>
+            <!-- Relic 2 -->
+            <div class="relic-item">
+              <div class="relic-icon white">
+                <img src="New Folder/elf-helmet.png" alt="Elf Helmet" />
+              </div>
+              <div class="relic-info">
+                <span class="name">Elf Helmet</span>
+                <span class="desc">Strong protection and leadership.</span>
+              </div>
             </div>
-          </div>
-          <div class="relic-item">
-            <div class="relic-item-icon"><img src="New Folder/shamrock.png" alt="Shamrock" /></div>
-            <div class="relic-item-text">
-              <div class="relic-name">Shamrock</div>
-              <div class="relic-desc">Symbol of steady fortune. Grants minor luck in trials.</div>
+            <!-- Relic 3 -->
+            <div class="relic-item">
+              <div class="relic-icon teal">
+                <img src="New Folder/shamrock.png" alt="Shamrock" />
+              </div>
+              <div class="relic-info">
+                <span class="name">Shamrock</span>
+                <span class="desc">Brings good luck in adventures.</span>
+              </div>
             </div>
-          </div>
-          <div class="relic-item">
-            <div class="relic-item-icon"><img src="New Folder/nested-hearts.png" alt="Nested Hearts" /></div>
-            <div class="relic-item-text">
-              <div class="relic-name">Nested Hearts</div>
-              <div class="relic-desc">Remnant of old pacts. Reminds allies why they stand with you.</div>
+            <!-- Relic 4 -->
+            <div class="relic-item">
+              <div class="relic-icon pink">
+                <img src="New Folder/nested-hearts.png" alt="Nested Hearts" />
+              </div>
+              <div class="relic-info">
+                <span class="name">Nested Hearts</span>
+                <span class="desc">Manages relationships and alliances.</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
     <script>
+      // --- UPDATED: Icon Info Panel Script ---
       const infoPanel = document.getElementById("icon-info");
       const iconGrid = document.getElementById("icon-grid");
       const icons = document.querySelectorAll(".icon-cell");
       let currentSelectedCell = null;
+
+      // NEW: Player HP variables
       let maxPlayerHP = 10;
       let currentPlayerHP = 10;
+
+      // Game state variables
       let hasEaten = false;
       let hasKept = false;
-      let gameState = "animals";
+      let gameState = "animals"; // "animals" or "weapons"
+
+      // Weapon data
       const weaponData = [
         { name: "Bloody Sword", img: "weapons/bloody-sword.png" },
         { name: "Bone Knife", img: "weapons/bone-knife.png" },
         { name: "Energy Sword", img: "weapons/energy-sword.png" },
         { name: "Fragmented Sword", img: "weapons/fragmented-sword.png" },
         { name: "Relic Blade", img: "weapons/relic-blade.png" },
-        { name: "Scythe", img: "weapons/scythe.png" }
+        { name: "Scythe", img: "weapons/scythe.png" },
       ];
+
+      // Function to reset the info panel to its default state
       function resetInfoPanel() {
         if (gameState === "animals") {
           infoPanel.innerHTML = `
@@ -599,37 +853,51 @@
             </div>
           `;
         }
+        // UPDATED: Remove 'selected' class when resetting
         if (currentSelectedCell) {
           currentSelectedCell.classList.remove("selected");
         }
         currentSelectedCell = null;
       }
+
+      // NEW: Function to update the player HP bar
       function updateHPBar() {
         const hpFill = document.getElementById("player-hp-fill");
         const hpText = document.getElementById("player-hp-text");
+
         if (hpFill && hpText) {
           const hpPercentage = (currentPlayerHP / maxPlayerHP) * 100;
           hpFill.style.width = `${hpPercentage}%`;
           hpText.textContent = `${currentPlayerHP}/${maxPlayerHP}`;
         }
       }
-      document.addEventListener('DOMContentLoaded', updateHPBar);
+
+      // Call it on initial load
+      document.addEventListener("DOMContentLoaded", updateHPBar);
+
+      // Add click listener to each icon cell
       icons.forEach((cell) => {
         cell.addEventListener("click", () => {
           if (cell.classList.contains("hidden")) return;
           if (hasEaten && hasKept) return;
+
           if (currentSelectedCell === cell) {
-            resetInfoPanel();
+            resetInfoPanel(); // This will now also remove the class
             return;
           }
+
+          // UPDATED: Remove 'selected' class from the previous cell
           if (currentSelectedCell) {
             currentSelectedCell.classList.remove("selected");
           }
+
           currentSelectedCell = cell;
-          currentSelectedCell.classList.add("selected");
+          currentSelectedCell.classList.add("selected"); // UPDATED: Add 'selected' class
+
           const img = cell.querySelector("img");
           const animal = img ? img.alt : "This animal";
           const imgSrc = img ? img.src : "";
+
           infoPanel.innerHTML = `
             <div class="info-panel-content">
               <div class="info-title">${animal}</div>
@@ -642,12 +910,17 @@
           `;
         });
       });
+
+      // Use event delegation on the info panel to handle button clicks
       infoPanel.addEventListener("click", (e) => {
         if (gameState === "animals") {
           const button = e.target.closest("[data-action]");
           if (!button || !currentSelectedCell) return;
+
           const action = button.dataset.action;
+
           if (action === "eat") {
+            // UPDATED: Eating now reduces HP by 2
             if (hasEaten) {
               const infoBody = infoPanel.querySelector(".info-body");
               if (infoBody) {
@@ -656,6 +929,8 @@
               }
               return;
             }
+
+            // Check if player has enough HP to "eat"
             if (currentPlayerHP <= 2) {
               const infoBody = infoPanel.querySelector(".info-body");
               if (infoBody) {
@@ -664,11 +939,13 @@
               }
               return;
             }
+
             hasEaten = true;
-            currentPlayerHP -= 2;
-            updateHPBar();
+            currentPlayerHP -= 2; // Reduce HP
+            updateHPBar(); // Update the visual bar
+
             currentSelectedCell.classList.add("hidden");
-            resetInfoPanel();
+            resetInfoPanel(); // This clears the 'selected' class
             checkGameEnd();
           } else if (action === "keep") {
             if (hasKept) {
@@ -679,14 +956,18 @@
               }
               return;
             }
+
             const slotToFill = document.getElementById("companion-slot-1");
+
             if (slotToFill) {
               const imgSrc = button.dataset.imgSrc;
               const animalName = button.dataset.animalName;
+
               slotToFill.innerHTML = `<img src="${imgSrc}" alt="${animalName}" />`;
               hasKept = true;
+
               currentSelectedCell.classList.add("hidden");
-              resetInfoPanel();
+              resetInfoPanel(); // This clears the 'selected' class
               checkGameEnd();
             }
           }
@@ -696,21 +977,29 @@
             const img = currentSelectedCell.querySelector("img");
             const imgSrc = img.src;
             const imgAlt = img.alt;
+
             const weaponSlot = document.getElementById("companion-slot-2");
             if (weaponSlot) {
               weaponSlot.innerHTML = `<img src="${imgSrc}" alt="${imgAlt}" />`;
             }
+
             const allWeapons = iconGrid.querySelectorAll(".weapon-cell");
             allWeapons.forEach((cell) => {
               cell.classList.add("hidden");
             });
+
+            // UPDATED: Clear selection after equipping
             resetInfoPanel();
+
             infoPanel.innerHTML = `
               <div class="info-panel-content">
                 <div class="info-title">Weapon Equipped!</div>
                 <div class="info-body">${imgAlt} is yours.</div>
               </div>
             `;
+
+            // *** MODIFICATION START ***
+            // Update the top blank space with the image and new text
             const topText = document.querySelector(".top-blank-space");
             if (topText) {
               topText.innerHTML = `
@@ -718,21 +1007,27 @@
                 <div class="adventure-text">there's a world outside waiting..</div>
               `;
             }
+            // *** MODIFICATION END ***
           }
         }
       });
+
       function populateWeapons() {
         iconGrid.innerHTML = "";
+
         weaponData.forEach((weapon) => {
           const cell = document.createElement("div");
           cell.className = "icon-cell weapon-cell";
           cell.innerHTML = `<img src="${weapon.img}" alt="${weapon.name}" />`;
+
           cell.addEventListener("click", () => {
+            // UPDATED: Handle selection highlighting for weapons
             if (currentSelectedCell) {
               currentSelectedCell.classList.remove("selected");
             }
             currentSelectedCell = cell;
             currentSelectedCell.classList.add("selected");
+
             infoPanel.innerHTML = `
               <div class="info-panel-content">
                 <div class="info-title">${weapon.name}</div>
@@ -743,31 +1038,47 @@
               </div>
             `;
           });
+
           iconGrid.appendChild(cell);
         });
+
         const placeholder1 = document.createElement("div");
         placeholder1.className = "icon-cell hidden";
+        placeholder1.style.pointerEvents = "none";
+
         const placeholder2 = document.createElement("div");
         placeholder2.className = "icon-cell hidden";
+        placeholder2.style.pointerEvents = "none";
+
         iconGrid.appendChild(placeholder1);
         iconGrid.appendChild(placeholder2);
       }
+
       function checkGameEnd() {
         if (hasEaten && hasKept) {
-          const remainingIcons = Array.from(icons).filter((cell) => !cell.classList.contains("hidden"));
+          const remainingIcons = Array.from(icons).filter(
+            (cell) => !cell.classList.contains("hidden")
+          );
+
           if (remainingIcons.length > 0) {
             remainingIcons.forEach((cell) => {
               cell.classList.add("hidden");
             });
+
             const lastIconToHide = remainingIcons[remainingIcons.length - 1];
-            lastIconToHide.addEventListener("transitionend", populateWeapons, { once: true });
+            lastIconToHide.addEventListener("transitionend", populateWeapons, {
+              once: true,
+            });
           } else {
             populateWeapons();
           }
+
           gameState = "weapons";
+
           const topText = document.querySelector(".top-blank-space");
           if (topText) {
-            topText.textContent = "Your choices have been made. Now, choose a weapon.";
+            topText.textContent =
+              "Your choices have been made. Now, choose a weapon.";
           }
           infoPanel.innerHTML = `
             <div class="info-panel-content">
@@ -777,14 +1088,30 @@
           `;
         }
       }
-      const relicsBtn = document.getElementById("relics-button");
-      const relicsModal = document.getElementById("relics-modal");
-      const relicsClose = relicsModal.querySelector(".modal-close");
-      function openRelics() { relicsModal.classList.remove("hidden"); }
-      function closeRelics() { relicsModal.classList.add("hidden"); }
-      relicsBtn.addEventListener("click", openRelics);
-      relicsClose.addEventListener("click", closeRelics);
-      relicsModal.addEventListener("click", (e) => { if (e.target === relicsModal) closeRelics(); });
+
+      // --- NEW: Simplified Modal Open/Close Script ---
+      document.addEventListener("click", (e) => {
+        // Handle modal opening
+        if (e.target.matches("[data-modal-target]")) {
+          const modal = document.querySelector(e.target.dataset.modalTarget);
+          if (modal) {
+            modal.classList.remove("hidden");
+          }
+        }
+
+        // Handle modal closing via close button
+        if (e.target.matches(".modal-close")) {
+          const modal = e.target.closest(".modal-overlay");
+          if (modal) {
+            modal.classList.add("hidden");
+          }
+        }
+
+        // Handle modal closing via overlay click
+        if (e.target.matches(".modal-overlay")) {
+          e.target.classList.add("hidden");
+        }
+      });
     </script>
   </body>
 </html>
