@@ -311,7 +311,11 @@
       .hp-meter-fill {
         height: 100%;
         width: 100%; /* Default to full */
-        background: linear-gradient(to right, #ef4444, #b91c1c); /* Red gradient for HP */
+        background: linear-gradient(
+          to right,
+          rgba(239, 68, 68, 0.5),
+          rgba(185, 28, 28, 0.5)
+        ); /* UPDATED: Red gradient for HP at 50% transparency */
         border-radius: 999px;
         transition: width 0.3s ease-out;
       }
@@ -331,6 +335,25 @@
         z-index: 6;
       }
       /* --- End HP Meter Styles --- */
+
+      /* --- NEW: Slim Blue Meter --- */
+      .slim-meter-wrap {
+        margin: 6px 10px 0; /* Align with info panel horizontal margins */
+      }
+      .slim-meter-blue {
+        height: 8px;
+        background-color: rgba(0, 0, 0, 0.5); /* Dark transparent background */
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        overflow: hidden;
+      }
+      .slim-meter-blue-fill {
+        height: 100%;
+        width: 70%; /* Just a default value */
+        background: linear-gradient(to right, #3b82f6, #1d4ed8); /* Blue gradient */
+        border-radius: 999px;
+      }
+      /* --- End Slim Blue Meter --- */
 
       /* NEW: bottom slim panel */
       .character-bottom-panel {
@@ -566,6 +589,15 @@
             <img src="animals/tortoise.png" alt="Tortoise" />
           </div>
         </div>
+
+        <!-- NEW BLUE METER -->
+        <div class="slim-meter-wrap">
+          <div class="slim-meter-blue">
+            <div class="slim-meter-blue-fill" id="player-mana-fill"></div>
+          </div>
+        </div>
+        <!-- END NEW BLUE METER -->
+
         <div class="character-wrap">
           <div class="side-column-left" id="companion-slots">
             <div class="side-cell" id="companion-slot-1"></div>
@@ -945,4 +977,5 @@ V
     </script>
   </body>
 </html>
+
 
