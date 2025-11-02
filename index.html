@@ -238,6 +238,11 @@
         color: var(--eat-red); /* Red color for eat effect */
         font-weight: 500;
       }
+      /* NEW: Stat text colors */
+      .text-hp { color: var(--keep-green); }
+      .text-armor { color: #3b82f6; }
+      .text-atk { color: var(--eat-red); }
+      .text-mgc { color: #f97316; }
 
 
       /* --- Action Button Styles (square) --- */
@@ -384,9 +389,9 @@
         width: 100%; /* Default to full */
         background: linear-gradient(
           to right,
-          rgba(239, 68, 68, 0.35),
-          rgba(185, 28, 28, 0.35)
-        ); /* UPDATED: 50% to 35% transparency */
+          #22c55e, /* Green */
+          #ef4444 /* Red */
+        ); /* UPDATED: Was red transparent gradient */
         border-radius: 999px;
         transition: width 0.3s ease-out;
       }
@@ -515,7 +520,7 @@
         width: 48px;
         height: 48px;
         flex-shrink: 0;
-        border-radius: 999px; /* Round */
+        border-radius: 10px; /* MODIFIED: Was 999px (round) */
         background: radial-gradient(
           circle at 30% 30%,
           #7e22ce, /* MODIFIED: Was #a855f7 */
@@ -525,6 +530,7 @@
         box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
         transition: transform 0.05s ease, box-shadow 0.05s ease; /* Same animation timing */
         cursor: pointer;
+        padding: 6px; /* NEW: Add padding to inset the image */
       }
       .bottom-action-btn:active {
         transform: scale(0.9) translateY(1px); /* Slightly less intense animation */
@@ -834,42 +840,42 @@
         Bear: {
           desc: "A powerful ally. It looks very tough.",
           eat: { hp: 1, armor: 1, mgc: 0, atk: 0 },
-          eatDesc: "Eat: +1 HP, +1 Armor"
+          eatDesc: 'Eat: <span class="text-hp">+1 HP</span>, <span class="text-armor">+1 Armor</span>'
         },
         Frog: {
           desc: "A quick and nimble creature. Seems magical.",
           eat: { hp: 0, armor: 0, mgc: 1, atk: 0 },
-          eatDesc: "Eat: +1 Magic"
+          eatDesc: 'Eat: <span class="text-mgc">+1 Magic</span>'
         },
         Jellyfish: {
           desc: "Floats gracefully. It pulses with a strange energy.",
           eat: { hp: -3, armor: 0, mgc: 3, atk: 0 },
-          eatDesc: "Eat: +3 Magic, -3 HP"
+          eatDesc: 'Eat: <span class="text-mgc">+3 Magic</span>, <span class="text-hp">-3 HP</span>'
         },
         Pig: {
           desc: "A stout and friendly animal. Looks... delicious.",
           eat: { hp: 3, armor: 0, mgc: 0, atk: 0 },
-          eatDesc: "Eat: +3 HP"
+          eatDesc: 'Eat: <span class="text-hp">+3 HP</span>'
         },
         Rat: {
           desc: "Small and fast. It has a vicious look in its eyes.",
           eat: { hp: 0, armor: 0, mgc: 0, atk: 1 },
-          eatDesc: "Eat: +1 Attack"
+          eatDesc: 'Eat: <span class="text-atk">+1 Attack</span>'
         },
         Raven: {
           desc: "A dark, intelligent bird. It sees everything.",
           eat: { hp: 0, armor: -2, mgc: 0, atk: 2 },
-          eatDesc: "Eat: +2 Attack, -2 Armor"
+          eatDesc: 'Eat: <span class="text-atk">+2 Attack</span>, <span class="text-armor">-2 Armor</span>'
         },
         Snail: {
           desc: "Slow, steady, and surprisingly well-protected.",
           eat: { hp: 0, armor: 2, mgc: 0, atk: 0 },
-          eatDesc: "Eat: +2 Armor"
+          eatDesc: 'Eat: <span class="text-armor">+2 Armor</span>'
         },
         Tortoise: {
           desc: "Ancient and wise. Its shell is like a fortress.",
           eat: { hp: -5, armor: 5, mgc: 0, atk: 0 },
-          eatDesc: "Eat: +5 Armor, -5 HP"
+          eatDesc: 'Eat: <span class="text-armor">+5 Armor</span>, <span class="text-hp">-5 HP</span>'
         },
       };
 
