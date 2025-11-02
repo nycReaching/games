@@ -325,7 +325,7 @@
         transform: translateX(-50%);
         width: 80%;
         height: 18px;
-        background-color: rgba(0, 0, 0, 0.5); /* 50% transparent background */
+        background-color: rgba(0, 0, 0, 0.35); /* MODIFIED: Was 0.5 */
         border-radius: 999px;
         border: 1px solid rgba(255, 255, 255, 0.2);
         overflow: hidden;
@@ -336,9 +336,9 @@
         width: 100%; /* Default to full */
         background: linear-gradient(
           to right,
-          rgba(239, 68, 68, 0.5),
-          rgba(185, 28, 28, 0.5)
-        ); /* UPDATED: Red gradient for HP at 50% transparency */
+          rgba(239, 68, 68, 0.35),
+          rgba(185, 28, 28, 0.35)
+        ); /* UPDATED: 50% to 35% transparency */
         border-radius: 999px;
         transition: width 0.3s ease-out;
       }
@@ -359,12 +359,31 @@
       }
       /* --- End HP Meter Styles --- */
 
+      /* NEW: Slim meter text style */
+      .slim-meter-text {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: white;
+        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.7);
+        z-index: 6;
+        pointer-events: none; /* So it doesn't block clicks */
+      }
+
       /* --- NEW: Slim Blue Meter --- */
       .slim-meter-wrap {
         margin: 6px 10px 0; /* Align with info panel horizontal margins */
+        position: relative; /* ADDED */
       }
       .slim-meter-blue {
-        height: 8px;
+        height: 18px; /* MODIFIED: was 14px */
         background-color: rgba(0, 0, 0, 0.5); /* Dark transparent background */
         border-radius: 999px;
         border: 1px solid rgba(255, 255, 255, 0.1);
@@ -382,10 +401,10 @@
       .character-bottom-panel {
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        /* justify-content: space-between; */ /* REMOVED */
         gap: 12px;
         /* background: linear-gradient(90deg, #0f172a 0%, #1d4ed8 100%); */
-        background: linear-gradient(to bottom, #1e3a8a, #0c1b3a); /* NEW dark blue gradient */
+        background: linear-gradient(to bottom, #064e3b, #021a0e); /* NEW dark green gradient */
         /* border-radius: 10px; */
         border-radius: 0; /* Remove rounded corners */
         /* padding: 4px 8px; */
@@ -400,7 +419,7 @@
       }
       .exp-meter {
         flex: 1 1 auto;
-        max-width: 65%;
+        /* max-width: 65%; */ /* REMOVED */
         height: 10px; /* MODIFIED: Made taller */
         background: rgba(255, 255, 255, 0.12);
         border-radius: 9999px;
@@ -619,6 +638,7 @@
           <div class="slim-meter-blue">
             <div class="slim-meter-blue-fill" id="player-mana-fill"></div>
           </div>
+          <div class="slim-meter-text" id="player-mana-text">10/10</div>
         </div>
         <!-- END NEW BLUE METER -->
 
@@ -1016,4 +1036,6 @@ V
     </script>
   </body>
 </html>
+
+
 
