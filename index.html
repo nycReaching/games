@@ -56,7 +56,7 @@
         padding-top: var(--safe-top);
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: space-between; /* MODIFIED */
         padding-inline: 16px;
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
         z-index: 10;
@@ -417,7 +417,7 @@
       .character-bottom-panel {
         display: flex;
         align-items: center;
-        justify-content: space-between; /* MODIFIED */
+        justify-content: center; /* MODIFIED */
         gap: 10px; /* MODIFIED */
         background: linear-gradient(to bottom, #064e3b, #021a0e);
         border-radius: 0; /* Remove rounded corners */
@@ -467,6 +467,36 @@
         font-size: 1.1rem;
       }
       /* END NEW STYLES */
+
+      /* NEW: Wrapper for the new bottom buttons */
+      .bottom-button-wrapper {
+        display: flex;
+        justify-content: space-around; /* This will space them out */
+        align-items: center;
+        width: 100%;
+        padding: 0 10px; /* Add some padding so they aren't at the very edge */
+      }
+
+      /* NEW: New button style */
+      .bottom-action-btn {
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0;
+        border-radius: 999px; /* Round */
+        background: radial-gradient(
+          circle at 30% 30%,
+          #a855f7,
+          #581c87 95%
+        ); /* Dark Purple Gradient */
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+        transition: transform 0.05s ease, box-shadow 0.05s ease; /* Same animation timing */
+        cursor: pointer;
+      }
+      .bottom-action-btn:active {
+        transform: scale(0.9) translateY(1px); /* Slightly less intense animation */
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+      }
 
       .action-button {
         margin-left: auto;
@@ -655,12 +685,24 @@
   <body>
     <div class="app-shell">
       <div class="top-bar">
+        <!-- MOVED: Gold Counter -->
+        <div class="gold-counter">
+          <span class="gold-icon">🪙</span>
+          <span class="gold-value">1,250</span>
+        </div>
+
         <div class="top-buttons">
           <!-- REMOVED: Old buttons -->
           <!-- NEW: Relics Button -->
           <button class="btn-relics" data-modal-target="#modal-relics">
             Relics
           </button>
+        </div>
+
+        <!-- MOVED: Stat Counter -->
+        <div class="stat-counter">
+          <span class="stat-icon">📈</span>
+          <span class="stat-value">99</span>
         </div>
       </div>
       <div class="top-blank-space">
@@ -735,21 +777,15 @@
         </div>
         <!-- Panel moved to here, as a sibling of character-wrap -->
         <div class="character-bottom-panel">
-          <!-- NEW: Wrapper for left-aligned stats -->
-          <div class="bottom-panel-stats">
-            <div class="gold-counter">
-              <span class="gold-icon">🪙</span>
-              <span class="gold-value">1,250</span>
-            </div>
-            <!-- NEW: Stat Counter -->
-            <div class="stat-counter">
-              <span class="stat-icon">📈</span>
-              <span class="stat-value">99</span>
-            </div>
+          <!-- REMOVED: Wrapper for left-aligned stats -->
+
+          <!-- NEW: Wrapper for 4 new bottom buttons -->
+          <div class="bottom-button-wrapper">
+            <button class="bottom-action-btn" aria-label="Action 1"></button>
+            <button class="bottom-action-btn" aria-label="Action 2"></button>
+            <button class="bottom-action-btn" aria-label="Action 3"></button>
+            <button class="bottom-action-btn" aria-label="Action 4"></button>
           </div>
-
-          <!-- REMOVED: exp-meter -->
-
           <!-- REMOVED: Wrapper for right-aligned buttons -->
         </div>
       </div>
@@ -1106,4 +1142,5 @@
     </script>
   </body>
 </html>
+
 
