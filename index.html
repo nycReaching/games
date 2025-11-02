@@ -127,27 +127,26 @@
         flex-shrink: 0; /* Prevent this from shrinking */
         transition: all 0.3s ease; /* ADDED */
       }
-      
+
       /* NEW: Style for the image inside the top-blank-space */
       .top-blank-space img {
-          width: 100%;
-          height: 100%;
-          max-height: 180px; /* Control image height */
-          object-fit: contain; /* MODIFIED: was 'cover' */
-          border-radius: 8px;
-          margin-bottom: 12px;
-          flex-shrink: 1; /* Allow image to shrink if needed */
-          min-height: 0; /* Fix flexbox overflow issue */
+        width: 100%;
+        height: 100%;
+        max-height: 180px; /* Control image height */
+        object-fit: contain; /* MODIFIED: was 'cover' */
+        border-radius: 8px;
+        margin-bottom: 12px;
+        flex-shrink: 1; /* Allow image to shrink if needed */
+        min-height: 0; /* Fix flexbox overflow issue */
       }
       /* NEW: Style for the text inside the top-blank-space */
       .top-blank-space .adventure-text {
-          font-size: 1rem;
-          color: rgba(255, 255, 255, 0.9);
-          line-height: 1.4;
-          font-weight: 500;
-          flex-shrink: 0; /* Prevent text from shrinking */
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.9);
+        line-height: 1.4;
+        font-weight: 500;
+        flex-shrink: 0; /* Prevent text from shrinking */
       }
-
 
       .game-shell {
         display: flex;
@@ -397,51 +396,79 @@
       }
       /* --- End Slim Blue Meter --- */
 
-      /* NEW: bottom slim panel */
+      /* --- MODIFIED: bottom slim panel --- */
       .character-bottom-panel {
         display: flex;
         align-items: center;
-        /* justify-content: space-between; */ /* REMOVED */
-        gap: 12px;
-        /* background: linear-gradient(90deg, #0f172a 0%, #1d4ed8 100%); */
-        background: linear-gradient(to bottom, #064e3b, #021a0e); /* NEW dark green gradient */
-        /* border-radius: 10px; */
+        justify-content: space-between; /* MODIFIED */
+        gap: 10px; /* MODIFIED */
+        background: linear-gradient(to bottom, #064e3b, #021a0e);
         border-radius: 0; /* Remove rounded corners */
-        /* padding: 4px 8px; */
-        /* min-height: 26px; */
         height: 65px; /* Match top bar height */
         padding: 8px 16px calc(8px + var(--safe-bottom)) 16px; /* Match top bar padding-inline and add safe area */
-        /* margin: 0 10px; */
         margin: 0; /* Make full width */
         box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.35); /* Add shadow */
         flex-shrink: 0; /* Prevent this from shrinking */
-        /* margin-top: auto; */ /* REMOVED: This was causing the gap */
       }
-      .exp-meter {
-        flex: 1 1 auto;
-        /* max-width: 65%; */ /* REMOVED */
-        height: 10px; /* MODIFIED: Made taller */
-        background: rgba(255, 255, 255, 0.12);
-        border-radius: 9999px;
-        overflow: hidden;
+
+      /* NEW: Container for left-aligned stats */
+      .bottom-panel-stats {
+        display: flex;
+        align-items: center;
+        gap: 12px; /* Space between gold and stat counter */
       }
-      .exp-meter-fill {
-        width: 40%;
-        height: 100%;
-        background: linear-gradient(90deg, #fde68a, #f97316);
+
+      /* NEW: Container for right-aligned buttons */
+      .bottom-panel-buttons {
+        display: flex;
+        align-items: center;
+        gap: 8px; /* Space between the two buttons */
       }
+
+      /* MODIFIED: Reduce size of moved buttons for the bottom bar */
+      .bottom-panel-buttons .top-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        border-width: 2px;
+      }
+      .bottom-panel-buttons .top-btn img {
+         height: 60%;
+         width: 60%;
+      }
+
+
+      /* REMOVED: exp-meter */
+
+      /* MODIFIED: gold-counter */
       .gold-counter {
         display: flex;
         align-items: center;
         gap: 4px;
         color: #fde68a;
         font-weight: 500;
-        font-size: 0.9rem; /* MODIFIED: Made larger */
+        font-size: 0.9rem;
         white-space: nowrap;
       }
       .gold-icon {
-        font-size: 1.1rem; /* MODIFIED: Made larger */
+        font-size: 1.1rem;
       }
+
+      /* NEW: Style for the stat counter */
+      .stat-counter {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: #fff; /* White color */
+        font-weight: 500;
+        font-size: 0.9rem;
+        white-space: nowrap;
+      }
+      .stat-icon {
+        font-size: 1.1rem;
+      }
+      /* END NEW STYLES */
+
 
       .action-button {
         margin-left: auto;
@@ -465,13 +492,6 @@
         transform: scale(0.9) translateY(2px);
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
       }
-
-      /* This rule was hiding the bottom panel. Removing it. */
-      /*
-      .character-wrap + * {
-        display: none;
-      }
-      */
 
       /* --- Modal Styles (unchanged) --- */
       .modal-overlay {
@@ -559,6 +579,14 @@
           height: clamp(140px, 20vh, 220px);
           font-size: 0.95rem;
         }
+        /* MODIFIED: Adjust bottom panel button size for small screens */
+        .bottom-panel-buttons .top-btn {
+            width: 40px;
+            height: 40px;
+        }
+        .bottom-panel-stats {
+            gap: 8px;
+        }
       }
     </style>
   </head>
@@ -573,20 +601,8 @@
           >
             <img src="New Folder/crystal-ball.png" alt="Crystal Ball" />
           </button>
-          <button
-            class="top-btn teal"
-            aria-label="Shamrock"
-            data-modal-target="#modal-teal"
-          >
-            <img src="New Folder/shamrock.png" alt="Shamrock" />
-          </button>
-          <button
-            class="top-btn pink"
-            aria-label="Nested Hearts"
-            data-modal-target="#modal-pink"
-          >
-            <img src="New Folder/nested-hearts.png" alt="Nested Hearts" />
-          </button>
+          <!-- MOVED: Shamrock button -->
+          <!-- MOVED: Nested Hearts button -->
           <button
             class="top-btn white"
             aria-label="Elf Helmet"
@@ -654,7 +670,7 @@
               <!-- NEW HP METER -->
               <div class="hp-meter" id="player-hp-meter">
                 <div class="hp-meter-fill" id="player-hp-fill"></div>
-                <div class="hp-meter-text"id="player-hp-text">10/10</div>
+                <div class="hp-meter-text" id="player-hp-text">10/10</div>
               </div>
               <!-- END HP METER -->
             </div>
@@ -668,13 +684,37 @@
         </div>
         <!-- Panel moved to here, as a sibling of character-wrap -->
         <div class="character-bottom-panel">
-          <!-- MOVED gold counter to the left -->
-          <div class="gold-counter">
-            <span class="gold-icon">🪙</span>
-            <span class="gold-value">1,250</span>
+          <!-- NEW: Wrapper for left-aligned stats -->
+          <div class="bottom-panel-stats">
+            <div class="gold-counter">
+              <span class="gold-icon">🪙</span>
+              <span class="gold-value">1,250</span>
+            </div>
+            <!-- NEW: Stat Counter -->
+            <div class="stat-counter">
+              <span class="stat-icon">📈</span>
+              <span class="stat-value">99</span>
+            </div>
           </div>
-          <div class="exp-meter">
-            <div class="exp-meter-fill"></div>
+
+          <!-- REMOVED: exp-meter -->
+
+          <!-- NEW: Wrapper for right-aligned buttons -->
+          <div class="bottom-panel-buttons">
+            <button
+              class="top-btn teal"
+              aria-label="Shamrock"
+              data-modal-target="#modal-teal"
+            >
+              <img src="New Folder/shamrock.png" alt="Shamrock" />
+            </button>
+            <button
+              class="top-btn pink"
+              aria-label="Nested Hearts"
+              data-modal-target="#modal-pink"
+            >
+              <img src="New Folder/nested-hearts.png" alt="Nested Hearts" />
+            </button>
           </div>
         </div>
       </div>
@@ -757,7 +797,7 @@
             </div>
           `;
         } else if (gameState === "weapons") {
-           infoPanel.innerHTML = `
+          infoPanel.innerHTML = `
             <div class="info-panel-content">
               <div class="info-title">Weapon Select</div>
               <div class="info-body">Select a weapon.</div>
@@ -782,6 +822,9 @@
           hpText.textContent = `${currentPlayerHP}/${maxPlayerHP}`;
         }
       }
+      
+      // Call it on initial load
+      document.addEventListener('DOMContentLoaded', updateHPBar);
 
       // Add click listener to each icon cell
       icons.forEach((cell) => {
@@ -905,7 +948,7 @@
                 <div class="info-body">${imgAlt} is yours.</div>
               </div>
             `;
-            
+
             // *** MODIFICATION START ***
             // Update the top blank space with the image and new text
             const topText = document.querySelector(".top-blank-space");
@@ -985,7 +1028,8 @@
 
           const topText = document.querySelector(".top-blank-space");
           if (topText) {
-            topText.textContent = "Your choices have been made. Now, choose a weapon.";
+            topText.textContent =
+              "Your choices have been made. Now, choose a weapon.";
           }
           infoPanel.innerHTML = `
             <div class="info-panel-content">
@@ -1006,7 +1050,6 @@
         modal.classList.remove("hidden");
       }
 
-V
       function closeModal(modal) {
         if (modal == null) return;
         modal.classList.add("hidden");
@@ -1036,6 +1079,3 @@ V
     </script>
   </body>
 </html>
-
-
-
