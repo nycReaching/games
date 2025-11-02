@@ -48,7 +48,7 @@
         background: #000;
         display: flex;
         flex-direction: column;
-        padding-bottom: calc(0px + var(--safe-bottom));
+        /* padding-bottom: calc(0px + var(--safe-bottom)); */ /* REMOVED to avoid double padding */
       }
       .top-bar {
         background: linear-gradient(to bottom, #ffd500, #d98200);
@@ -309,16 +309,22 @@
         align-items: center;
         justify-content: space-between;
         gap: 12px;
-        background: linear-gradient(90deg, #0f172a 0%, #1d4ed8 100%);
-        border-radius: 10px;
-        padding: 4px 8px;
-        min-height: 26px;
-        margin: 0 10px; /* ADDED: To align with other panels */
+        /* background: linear-gradient(90deg, #0f172a 0%, #1d4ed8 100%); */
+        background: linear-gradient(to bottom, #1e3a8a, #0c1b3a); /* NEW dark blue gradient */
+        /* border-radius: 10px; */
+        border-radius: 0; /* Remove rounded corners */
+        /* padding: 4px 8px; */
+        /* min-height: 26px; */
+        height: 65px; /* Match top bar height */
+        padding: 8px 16px calc(8px + var(--safe-bottom)) 16px; /* Match top bar padding-inline and add safe area */
+        /* margin: 0 10px; */
+        margin: 0; /* Make full width */
+        box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.35); /* Add shadow */
       }
       .exp-meter {
         flex: 1 1 auto;
         max-width: 65%;
-        height: 6px;
+        height: 10px; /* MODIFIED: Made taller */
         background: rgba(255, 255, 255, 0.12);
         border-radius: 9999px;
         overflow: hidden;
@@ -334,11 +340,11 @@
         gap: 4px;
         color: #fde68a;
         font-weight: 500;
-        font-size: 0.7rem;
+        font-size: 0.9rem; /* MODIFIED: Made larger */
         white-space: nowrap;
       }
       .gold-icon {
-        font-size: 0.85rem;
+        font-size: 1.1rem; /* MODIFIED: Made larger */
       }
 
       .action-button {
@@ -857,5 +863,6 @@
     </script>
   </body>
 </html>
+
 
 
