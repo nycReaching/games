@@ -28,15 +28,16 @@
         margin: 0;
         padding: 0;
       }
+      /* UPDATED: Removed fixed height */
       html,
       body {
-        height: 100%;
+        height: auto;
         background: #000;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           Helvetica, Arial, sans-serif;
       }
       body {
-        min-height: 100vh;
+        min-height: 100vh; /* Ensures black BG fills screen */
         display: flex;
         justify-content: center;
         background: #000;
@@ -44,7 +45,8 @@
       .app-shell {
         width: 100vw;
         max-width: 540px;
-        min-height: 100vh;
+        /* UPDATED: Removed min-height to fit content */
+        /* min-height: 100vh; */
         background: #000;
         display: flex;
         flex-direction: column;
@@ -130,7 +132,7 @@
         gap: 6px;
       }
 
-      /* --- UPDATED: Info Panel styles for flex row layout --- */
+      /* --- Info Panel styles --- */
       .info-panel {
         margin: 10px 10px 3px;
         background: rgba(0, 0, 0, 0.45);
@@ -164,20 +166,18 @@
         color: rgba(255, 255, 255, 0.85);
       }
 
-      /* --- UPDATED: Action Button Styles (now square) --- */
+      /* --- Action Button Styles (square) --- */
       .btn-action {
         background: rgba(0, 0, 0, 0.5);
         border: 1px solid;
         border-radius: 6px;
         color: white;
-        /* Make buttons square */
         width: 36px;
         height: 36px;
         padding: 0;
         font-size: 1.2rem; /* Make emoji larger */
         cursor: pointer;
         transition: background-color 0.15s ease;
-        /* Center emoji */
         display: flex;
         align-items: center;
         justify-content: center;
@@ -211,11 +211,15 @@
         display: flex;
         flex-direction: column;
         gap: 5px;
+        /* UPDATED: Add transition for width change */
+        transition: width 0.4s ease-out;
       }
       .meter-row {
         display: flex;
         align-items: center;
         gap: 6px;
+        /* UPDATED: Add transition for width change */
+        transition: width 0.4s ease-out;
       }
       .meter-label {
         width: 110px;
@@ -283,21 +287,18 @@
         gap: 12px;
         padding: 10px 12px 0px 10px;
       }
-      /* --- Side column layout (original strict sizing) --- */
       .side-column-left {
         flex: 0 0 13%;
         display: flex;
         flex-direction: column;
         gap: 8px;
       }
-      /* --- Side cell (companion slot) --- */
       .side-cell {
         width: 90%;
         aspect-ratio: 1/1;
         background: var(--panel-bg);
         border: 1px solid var(--panel-border);
         border-radius: 11px;
-        /* Added padding and flex to center image */
         padding: 6px;
         display: flex;
         align-items: center;
@@ -332,7 +333,7 @@
         align-self: center;
         width: 78px;
         height: 78px;
-        flex-shrink: 0; /* <-- This line prevents the button from shrinking */
+        flex-shrink: 0;
         border-radius: 999px;
         background: radial-gradient(
           circle at 30% 30%,
@@ -342,33 +343,17 @@
         );
         border: 1px solid rgba(255, 255, 255, 0.52);
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-        transition: transform 0.12s ease-out, width 0.12s ease-out,
-          height 0.12s ease-out;
+        /* UPDATED: New transition for snappier press */
+        transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
       }
+      /* UPDATED: New active state for better button press feel */
       .action-button:active {
-        transform: scale(0.92);
+        transform: scale(0.9) translateY(2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
       }
-      @keyframes pulse-burst {
-        0% {
-          transform: scale(1);
-          box-shadow: 0 10px 25px rgba(255, 184, 0, 0.3);
-        }
-        30% {
-          transform: scale(1.12);
-          box-shadow: 0 18px 40px rgba(255, 184, 0, 0.6);
-        }
-        60% {
-          transform: scale(1.02);
-          box-shadow: 0 10px 25px rgba(255, 184, 0, 0.3);
-        }
-        100% {
-          transform: scale(1);
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-        }
-      }
-      .action-button.is-pulsing {
-        animation: pulse-burst 0.45s ease-out;
-      }
+      
+      /* REMOVED: pulse-burst keyframes and .is-pulsing class */
+      
       .character-wrap + * {
         display: none;
       }
@@ -452,7 +437,6 @@
       }
       /* --- End Modal Styles --- */
 
-      /* --- UPDATED: Removed responsive resizing --- */
       @media (max-width: 420px) {
         .app-shell {
           max-width: 100vw;
@@ -461,9 +445,6 @@
           height: clamp(140px, 20vh, 220px);
           font-size: 0.95rem;
         }
-        /* All responsive rules for .character-frame, .action-button, 
-           .character-wrap, and .info-panel have been REMOVED 
-           to maintain a strict, non-resizing layout. */
       }
     </style>
   </head>
@@ -557,8 +538,8 @@
           </div>
         </div>
         <div class="character-wrap">
-          <!-- UPDATED: Fixed typo from 'classs' to 'class' -->
           <div class="side-column-left" id="companion-slots">
+            <!-- UPDATED: One slot for logic, others are placeholders -->
             <div class="side-cell" id="companion-slot-1"></div>
             <div class="side-cell" id="companion-slot-2"></div>
             <div class="side-cell" id="companion-slot-3"></div>
@@ -622,10 +603,18 @@
       // --- UPDATED: Icon Info Panel Script ---
       const infoPanel = document.getElementById("icon-info");
       const icons = document.querySelectorAll(".icon-cell");
-      const companionSlots = document.querySelectorAll(
-        "#companion-slots .side-cell"
-      );
+      // UPDATED: No longer need all slots, but ID is used later
+      // const companionSlots = document.querySelectorAll("#companion-slots .side-cell");
       let currentSelectedCell = null;
+
+      // UPDATED: Add game state variables
+      let hasEaten = false;
+      let hasKept = false;
+
+      // UPDATED: Get references to elements that will change
+      const hpLabel = document.querySelector(".meter-hp .meter-label span:nth-child(2)");
+      // UPDATED: Get the HP row itself, not the parent container
+      const hpMeterRow = document.querySelector(".meter-row.meter-hp");
 
       // Function to reset the info panel to its default state
       function resetInfoPanel() {
@@ -643,6 +632,9 @@
         cell.addEventListener("click", () => {
           // Do nothing if the cell is already hidden
           if (cell.classList.contains("hidden")) return;
+          
+          // Do nothing if game is "over"
+          if (hasEaten && hasKept) return;
 
           // If this cell is already selected, deselect it and reset panel
           if (currentSelectedCell === cell) {
@@ -655,7 +647,6 @@
           const animal = img ? img.alt : "This animal";
           const imgSrc = img ? img.src : "";
 
-          // UPDATED: New innerHTML with square emoji buttons
           infoPanel.innerHTML = `
             <div class="info-panel-content">
               <div class="info-title">${animal}</div>
@@ -671,56 +662,85 @@
 
       // Use event delegation on the info panel to handle button clicks
       infoPanel.addEventListener("click", (e) => {
-        // Find the button that was clicked, even if the user clicked the emoji
         const button = e.target.closest("[data-action]");
         if (!button || !currentSelectedCell) return;
 
         const action = button.dataset.action;
 
         if (action === "eat") {
-          currentSelectedCell.classList.add("hidden"); // Hide the icon
-          resetInfoPanel();
-        } else if (action === "keep") {
-          // Find the first empty companion slot
-          let emptySlot = null;
-          for (const slot of companionSlots) {
-            if (!slot.querySelector("img")) {
-              emptySlot = slot;
-              break;
-            }
-          }
-
-          if (emptySlot) {
-            // Get data from the "Keep" button
-            const imgSrc = button.dataset.imgSrc;
-            const animalName = button.dataset.animalName;
-
-            // Add the image to the empty slot
-            emptySlot.innerHTML = `<img src="${imgSrc}" alt="${animalName}" />`;
-
-            currentSelectedCell.classList.add("hidden"); // Hide the icon from the grid
-            resetInfoPanel();
-          } else {
-            // All slots are full, update the info panel text
+          // UPDATED: Eat logic
+          if (hasEaten) {
             const infoBody = infoPanel.querySelector(".info-body");
             if (infoBody) {
-              infoBody.textContent = "Your companion slots are full!";
-              infoBody.style.color = "var(--eat-red)"; // Make it an error color
+              infoBody.textContent = "You can only eat one animal.";
+              infoBody.style.color = "var(--eat-red)";
             }
+            return;
+          }
+          hasEaten = true;
+          hpLabel.textContent = "30/30"; // Update HP text
+          // UPDATED: Make only the HP meter row longer (125% of 64% parent = 80% total)
+          hpMeterRow.style.width = "125%";
+          currentSelectedCell.classList.add("hidden"); // Hide the icon
+          resetInfoPanel();
+          checkGameEnd(); // Check if game state should change
+
+        } else if (action === "keep") {
+          // UPDATED: Keep logic
+          if (hasKept) {
+            const infoBody = infoPanel.querySelector(".info-body");
+            if (infoBody) {
+              infoBody.textContent = "You can only keep one animal.";
+              infoBody.style.color = "var(--eat-red)";
+            }
+            return;
+          }
+          
+          // Find the single slot
+          const slotToFill = document.getElementById("companion-slot-1");
+          
+          if (slotToFill) {
+            const imgSrc = button.dataset.imgSrc;
+            const animalName = button.dataset.animalName;
+            
+            slotToFill.innerHTML = `<img src="${imgSrc}" alt="${animalName}" />`;
+            hasKept = true; // Set flag
+            
+            currentSelectedCell.classList.add("hidden"); // Hide the icon from the grid
+            resetInfoPanel();
+            checkGameEnd(); // Check if game state should change
           }
         }
       });
+      
+      // UPDATED: New function to check game state
+      function checkGameEnd() {
+        if (hasEaten && hasKept) {
+          // Hide all remaining icons
+          icons.forEach(cell => {
+            if (!cell.classList.contains("hidden")) {
+              cell.classList.add("hidden");
+            }
+          });
+          
+          // Reset info panel to a final state
+          infoPanel.innerHTML = `
+            <div class="info-panel-content">
+              <div class="info-title">Choices Made</div>
+              <div class="info-body">Your fate is sealed.</div>
+            </div>
+          `;
+          
+          // Update top text
+          const topText = document.querySelector('.top-blank-space');
+          if (topText) {
+              topText.textContent = "Your choices have been made.";
+          }
+        }
+      }
       // --- End Updated Icon Script ---
 
-      // --- Action Button Animation (Original) ---
-      const actionBtn = document.querySelector(".action-button");
-      if (actionBtn) {
-        actionBtn.addEventListener("click", () => {
-          actionBtn.classList.remove("is-pulsing");
-          void actionBtn.offsetWidth; // force reflow
-          actionBtn.classList.add("is-pulsing");
-        });
-      }
+      // --- REMOVED: Action Button Animation Script ---
 
       // --- Modal Open/Close Script (Original) ---
       const openModalButtons = document.querySelectorAll("[data-modal-target]");
@@ -761,5 +781,4 @@
     </script>
   </body>
 </html>
-
 
